@@ -1,0 +1,257 @@
+/*--------------------VENTANA MODALP MODIFICAR Y REGISTRAR----------------------------*/
+.modalP{
+	/*para que salga del flujo y se quede fijo a la pantalla (desaparece)*/
+	position: fixed;
+	/*Esto ara que ocupe el 100% de alto y de ancho (Se vuelve a mostrar en la pantalla)*/
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	display: flex;
+	background-color: #111111bd;
+	/*Esto para su hijo*/
+	/*creando custom popertis par ocultar el modalP*/
+	--opacity: 0;
+	--pointer: none;
+	/*volviendo imvisible el modalP*/
+	opacity: var(--opacity);
+	/*modalP esta invisible pero no deja hacer click, por eso desactivamos sus eventos de click*/
+	pointer-events: var(--pointer);
+}
+/*Esta clase hace visible al modalP, solo hay que añadirlo*/
+.modal__show{
+	--opacity: 1;
+	--pointer: unset;
+}
+.modalP__container{
+	/*como su padre tiene flexbox se puede usar el margin auto*/
+	display: grid;
+	grid-template-rows: 2rem 1fr;
+	margin: auto;
+	width: 435px;
+	height: auto;
+	max-height: 90%;
+	font-family: 'Roboto', sans-serif;
+	background-color: #fff;
+	border-radius: .8rem;
+	padding: 1rem;
+	overflow: hidden;
+
+}
+.modalP__form--container{
+	overflow-y: auto;
+}
+
+.modalP__form--container::-webkit-scrollbar{
+	width: 0.5rem;
+	height: 0.5rem;
+}
+.modalP__form--container::-webkit-scrollbar-thumb{
+	border-radius: .5rem;
+	background-color: #0004;
+	visibility: hidden;
+}
+.modalP__form--container:hover::-webkit-scrollbar-thumb{
+	visibility: visible;
+}
+.modalP__form{
+	padding: 1rem;
+	background-color: #fff4;
+	display: flex;
+	align-items: center;
+	justify-content: space-evenly;
+	flex-direction: column;
+	border-radius: .6rem;
+	height: auto;
+	min-height: 45rem;
+	
+}
+.modalP__select{
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+
+}
+.modalP__form select{
+	border-color: #225c74;
+	border-radius: .4rem;
+	color: #225c74;
+}
+.modalP__header{
+	padding: 0 1rem;
+	background-color: #fff;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+.modalP__title{
+	color: #225c74;
+	font-size: 1.5rem;
+}
+
+.modalP__group{
+	width: 9rem;
+	height: 3rem;
+}
+.modalP__group--select{
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding-top: .5rem;
+}
+.modalP__input{
+	width: 100%;
+	height: 1.5rem;
+	border: 2px solid #e1e5ee;
+	border-radius: .5rem;
+	/*inherit = heredar*/
+	font-family: inherit;
+	color: #000;
+	outline: none;
+	background: none;
+	padding: .2rem .5rem;
+	background-color: #fffb;
+}
+.modalP__input:hover{
+	border-color: #225c74;
+}
+.modalP__input:focus{
+	border-color: #225c74;
+}
+.modalP__label{
+	display: block;
+ 	font-weight: bold;
+ 	padding: 0 .2rem;
+ 	color: #000;
+ 	cursor: text;
+ 	margin-bottom: .3rem;
+ }
+.modalP__submit{
+	font-size: 1rem;
+	padding: 0.2rem 0.5rem;
+	margin-top: 1rem;
+	background-color: #225c74;
+	color: #fff;
+	border-radius: 0.3rem;
+	border: none;
+	height: 2em;
+	cursor: pointer;
+}
+.modalP__submit:hover{
+	box-shadow: 2px 2px 5px #000;
+}
+
+.modalP__inputs{
+	width: 100%;
+	height: auto;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: .5rem;
+}
+.modalP__textarea{
+	border-radius: 5px;
+	width: 100%;
+	max-width: 600px;
+	background-color: none;
+	border-radius: 5px;
+}
+.modalP__textarea textarea{
+	width: 100%;
+	height:	10rem;
+	padding-top: 5px;
+	border-radius: .3rem;
+	overflow: auto;
+	border: 3px solid #225c74;
+	font-family: 'Roboto', sans-serif;
+	background-color: #fffb;
+	font-size: .8rem;
+	margin: 1rem 0;
+}
+textarea:is(:focus, :valid){
+	border-width: 2px;
+	padding: 14px;
+	border-color: #4671ea;
+}
+textarea::-webkit-scrollbar{
+	width: 0px
+}
+
+
+
+/*------Arrastrar imagen Drag and Drop*/
+
+.drop__areaR{
+	border: 5px dashed #ddd;
+	width: 20rem;
+	height: 20rem;
+	border-radius: 10px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+}
+/*Para cuando arastremos algo dentro del area*/
+.drop__areaR.active{
+	background-color: #b8d4fe;
+	color: black;
+	border: 2px dashed #618ac9;
+}
+.drop__areaR h2{
+	font-size: 1rem;
+	font-weight: 500;
+	color: #000;
+}
+.drop__areaR span{
+	font-size: .8rem;
+	color: #000;
+}
+.drop__areaR button{
+	padding: 10px 25px;
+	font-size: .8rem;
+	border: 0;
+	outline: none;
+	background-color: #225c74;
+	color: white;
+	border-radius: 5px;
+	cursor: pointer;
+	margin: 20px;
+}
+
+.drop__areaM{
+	border: 5px dashed #ddd;
+	height: 20rem;
+	width: 20rem;
+	border-radius: 10px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+}
+.drop__areaM.active{
+	background-color: #b8d4fe;
+	color: black;
+	border: 2px dashed #618ac9;
+}
+.drop__areaM h2{
+	font-size: 1rem;
+	font-weight: 500;
+	color: #000;
+}
+.drop__areaM span{
+	font-size: .8rem;
+	color: #000;
+}
+.drop__areaM button{
+	padding: 10px 25px;
+	font-size: .8rem;
+	border: 0;
+	outline: none;
+	background-color: #225c74;
+	color: white;
+	border-radius: 5px;
+	cursor: pointer;
+	margin: 20px;
+}

@@ -1,0 +1,359 @@
+/*Esta clase hace visible al modal, solo hay que añadirlo*/
+/*------------------VENTANA MODAL PROFORMA----------------------------*/
+.modalTable{
+	/*para que salga del flujo y se quede fijo a la pantalla (desaparece)*/
+	position: fixed;
+	/*Esto ara que ocupe el 100% de alto y de ancho (Se vuelve a mostrar en la pantalla)*/
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	/*color oscuro transparente para ocultar lo del fondo*/
+	background-color: #111111bd;
+	/*Esto para su hijo*/
+	display: flex;
+	/*creando custom popertis par ocultar el modal*/
+	--opacity: 0;
+	--pointer: none;
+	/*volviendo imvisible el modal*/
+	opacity: var(--opacity);
+	/*modal esta invisible pero no deja hacer click, por eso desactivamos sus eventos de click*/
+	pointer-events: var(--pointer);
+	font-family: 'Roboto', sans-serif;
+}
+.modalTable__container{
+	/*como su padre tiene flexbox se puede usar el margin auto*/
+	display: grid;/*activa el overlay*/
+	width: 94%;
+	max-width: 1600px;
+	height: 90%;
+	margin: auto;	
+	font-family: 'Roboto', sans-serif;
+	overflow: hidden;
+	background-color: #fff;
+	border-radius: .5rem;
+}
+/*----------------------------------------------------------*/
+.table{
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	width: 100%;
+	/*Cuando la tabla */
+	padding: 0 2rem;
+	/*Vuelve transparente*/
+	background-color: #fffb;
+}
+/*----------------------------------------------------------*/
+.table__title {
+	padding: 1rem 0;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+}
+.table__title h1{
+	font-size: 1.5rem;
+}
+/*----------------------------------------------------------*/
+.table__header{
+	width: 100%;
+	height: auto;
+	/*Un poco mas blanco*/
+	padding: .2rem 0;
+	/*Para ajustar al cabecera de la tabla (titulo y buscar)*/
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+.table__header .combo__search{
+    display: flex;
+    justify-content: center;
+	align-items: center;
+}
+.combo__search select{
+	border-color: #225c74;
+	border-radius: .4rem;
+	color: #225c74;
+}
+.table__header .table__search{
+	width: 15rem;
+	height: 2rem;
+	background-color: #fff5;
+	padding: 0 .8rem;
+	border-radius: 2rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	transition: .2s;
+	border: 1px solid #225c74;
+}
+.table__header .table__search:hover {
+	box-shadow: 0 .1rem .4rem #0002;
+}
+.table__header .table__search img{
+	width: 1.2rem;
+	height: 1.2rem;
+}
+.table__header .table__search input{
+	width: 100%;
+	padding: 0 .5rem 0 .3rem;
+	background-color: transparent;
+	border: none;
+	/*Que no aparesca el borde cuando empecemos a escribir*/
+	outline: none;
+}
+.select__search select{
+	border-color: #225c74;
+	border-radius: .4rem;
+	width: 12.5rem;
+	color: #225c74;
+}
+.select__search select.select__fecha{
+	border-color: #225c74;
+	border-radius: .4rem;
+	width: 5rem;
+	color: #225c74;
+}
+.container__page select{
+	border-color: #225c74;
+	border-radius: .4rem;
+	width: 4rem;
+	color: #225c74;
+}
+.table__header section.select__search div{
+	display: flex;
+	align-items: center;
+}
+.table__header section.select__search img{
+	width: 1.5rem;
+	height: 1.5rem;
+}
+.select__search label{
+	font-weight: bold;
+	width: 6rem;
+}
+.select__search label.label__fecha{
+	font-weight: bold;
+	width: 4rem;
+}
+/*----------------------------------------------------------*/
+.table__body{
+	width: 100%;
+	font-size: 1rem;
+	/*Colos mas blanco*/
+	background-color: #fff4;
+
+	/*border-radius: .6rem;*/
+	/*Añade un scrrol si es necesario (si hay desvordamiento)*/
+	overflow: auto;
+	/*Para que el scroll sea invisible*/
+	overflow: overlay;
+}
+.table__body::-webkit-scrollbar{
+	/*Vuelve el scrrol invisible*/
+	/*No se nota el cambio del ancho*/
+	width: 0.5rem;
+	/*Alto del scroll*/
+	height: 0.5rem;
+}
+.table__body::-webkit-scrollbar-thumb{
+	/*Borde del scroll*/
+	border-radius: .5rem;
+	/*color de lscroll*/
+	background-color: #0004;
+	/*volvemos invisible el scroll*/
+	visibility: hidden;
+}
+.table__body:hover::-webkit-scrollbar-thumb{
+	/*Cuando el mause esta encima de la tabla se muestra el scroll*/
+	visibility: visible;
+}
+table{
+	/*la tabla ocupa el 100% del contenedor, sin esto cuando la pantalla crece la tabla se que da a la izquierda*/
+	width: 100%;
+}
+table, th, td{
+	/*para que los bordes no ocupen espacio*/
+	border-collapse: collapse;
+	padding: .5rem;
+}
+thead th {
+	/*funciona al usar el scroll, esconde la tabla de una forma interesante*/
+	position: sticky;
+	/*mantiene la cabecera siempre fijo*/
+	top: 0;
+	/*Da un estilo al mover la barra horizontal*/
+	left: 0;
+	background-color: #225c74;
+	color: #fff;
+}
+/* table head */
+th div{
+	display: flex;	
+}
+th div img{
+	width: 1.1rem;
+	height: 1.1rem;
+	margin: 0 .2rem;
+}
+th div img:hover{
+	box-shadow: 0 .1rem .4rem #fff;
+}
+tbody tr:nth-child(even){
+	/*para que hayga un degradado entre las filas*/
+	background-color: #0000000b;
+}
+tbody tr:hover{
+	background-color: #fff6;
+
+}
+#tbodyProduct td img.tbody__img{
+	width: 5rem;
+	height: 5rem;
+	margin-right: .5rem;
+	vertical-align: middle;
+}
+#tbodyProductMW td img.tbody__img{
+	width: 5rem;
+	height: 5rem;
+	margin-right: .5rem;
+	vertical-align: middle;
+}
+#tbodyInventory td img.tbody__img{
+	width: 5rem;
+	height: 5rem;
+	margin-right: .5rem;
+	vertical-align: middle;
+}
+#tbodyInvMW td img.tbody__img{
+	width: 5rem;
+	height: 5rem;
+	margin-right: .5rem;
+	vertical-align: middle;
+}
+#previewProducts td img.tbody__img{
+	width: 5rem;
+	height: 5rem;
+	margin-right: .5rem;
+}
+#tbodyVtpdMW td img.tbody__img{
+	width: 5rem;
+	height: 5rem;
+	margin-right: .5rem;
+}
+.table__price{
+	display: flex;
+	justify-content: space-between;
+	font-weight: bold;
+	font-size: 1.2rem;
+}
+#priceTotal{
+	
+}
+/*-------------------------espacios de tabla cliente---------------------------------------*/
+/*#tbodyCustomer td:nth-of-type(6){
+	min-width: 30rem;
+}*/
+/*-------------------------espacios de tabla product---------------------------------------*/
+/*#tbodyProduct td:nth-of-type(2){
+	min-width: 1rem;
+}*/
+#tbodyProduct td:nth-of-type(4){
+	min-width: 8rem;
+	max-width: 12rem;
+}
+#tbodyProduct td:nth-of-type(6){
+	min-width: 12rem;
+	max-width: 16rem;
+} 
+#tbodyProduct td:nth-of-type(7){
+	min-width: 30rem;
+} 
+/*----------------------tabla inventario ---------------------------------------------*/
+#tbodyInventory td:nth-of-type(5){
+	min-width: 8rem;
+	max-width: 12rem;
+}
+#tbodyInventory td:nth-of-type(7){
+	min-width: 12rem;
+	max-width: 16rem;
+}
+#tbodyInventory td:nth-of-type(8){
+	min-width: 30rem;
+}
+/*-------------------------espacios de tabla product modal---------------------------------------*/
+/*#tbodyProduct td:nth-of-type(2){
+	min-width: 1rem;
+}*/
+#tbodyProductMW td:nth-of-type(6){
+	min-width: 12rem;
+} 
+#tbodyProductMW td:nth-of-type(7){
+	min-width: 30rem;
+} 
+/*----------------------tabla inventario modal ---------------------------------------------*/
+#tbodyInvMW td:nth-of-type(7){
+	min-width: 12rem;
+}
+#tbodyInvMW td:nth-of-type(8){
+	min-width: 30rem;
+}
+
+/*-----------------------tabla preview-----------------------------*/
+#previewProducts td:nth-of-type(2){
+	min-width: 8rem;
+}
+#previewProducts td:nth-of-type(3){
+	min-width: 12rem;
+}
+#previewProducts td:nth-of-type(4){
+	min-width: 30rem;
+}
+#previewProducts td:nth-of-type(7), #previewProducts td:nth-of-type(8){
+	min-width: 8rem;
+}
+/*-----------------------------tabla de proformas--------------------------------*/
+#tbodyProforma td:nth-of-type(4), #tbodyProforma td:nth-of-type(6){
+	min-width: 10rem;
+}
+#tbodyProforma td:nth-of-type(8){
+	min-width: 16rem;
+}
+#tbodyProforma td:nth-of-type(9), #tbodyProforma td:nth-of-type(10){
+	min-width: 12rem;
+}
+#tbodyProforma td:nth-of-type(12){
+	min-width: 10rem;
+}
+/*-----------------------------tabla de proformas modificadas--------------------------------*/
+#ttbodymProforma td:nth-of-type(4), #ttbodymProforma td:nth-of-type(6){
+	min-width: 10rem;
+}
+#ttbodymProforma td:nth-of-type(8), #ttbodymProforma td:nth-of-type(9), #ttbodymProforma td:nth-of-type(10){
+	min-width: 20rem;
+}
+#ttbodymProforma td:nth-of-type(12){
+	min-width: 10rem;
+}
+
+
+/*----------------------------Para que header sea responsive------------------------------*/
+@media (max-width:800px){
+	.table__header{
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+		gap: 1rem 1rem;
+	}
+	.table__header div{
+		display: flex;
+	}
+}
+/*---------------------------Clase usada para javaScrip al momento de buscar---------------------*/
+.hide{
+	display: none;
+}
+.modal__show{
+	--opacity: 1;
+	--pointer: unset;
+}

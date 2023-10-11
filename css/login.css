@@ -1,0 +1,105 @@
+body.login{
+	font-family: 'Roboto', sans-serif;
+	background-color: #e5e5f7;
+	/*para crear patrones para ponerlo como fondo
+	https://www.magicpattern.design/tools/css-backgrounds*/
+	background-image:  radial-gradient(#b96bad 0.5px, transparent 0.5px), radial-gradient(#b96bad 0.5px, #e5e5f7 0.5px);
+	background-size: 20px 20px;
+	background-position: 0 0,10px 10px;
+	/*Para centrar el formulariol*/
+	display: flex;
+	min-height: 100vh;
+	flex-direction: column;
+}
+.form{
+	background-color: #fff;
+	/*el margen de ariba y abajo depende de min-height de body (100vh)*/
+	margin: auto;
+	/*que tenga un maximo de 400px*/
+	width: 90%;
+	max-width: 25rem;
+	padding: 1rem 3rem 4.5rem;
+	border-radius: 10px;
+	/*cero en x , 5 en Y ,blur de 10 px, spred de -10px y la tranparencia de 30%*/
+	box-shadow: 0 5px 10px -5px rgb(0 0 0 / 80%);
+	text-align: center;
+}
+.form__title{
+	padding-top: 2rem;
+	color: #225c74;
+	font-size: 2rem;
+	margin-bottom: .5em;
+}
+.form__container{
+	margin-top: 1rem;
+	display: grid;
+	gap: 2.5em;
+}
+.form__group{
+	position: relative;
+	--color: #5757577e;
+}
+.form__input{
+	width: 100%;
+	background: none;
+	color: #706c6c;
+	font-size: 1rem;
+	padding: .6em .3em;
+	border: none;
+	outline: none;
+	border-bottom: 1px solid var(--color);
+	/*Los inputs no heredan la fuente de la letra*/
+	font-family: 'Roboto', sans-serif;
+}
+.form__input:focus + .form__label, .form__input:not(:placeholder-shown) + .form__label{
+	color: #4d4646;
+}
+.form__input:focus + .form__label, .form__input:not(:placeholder-shown) + .form__label{
+	transform: translateY(-12px) scale(.7);
+	transform-origin: left top;
+	color: #225c74;
+}
+.form__radio{
+	display: flex;
+}
+.form__label{
+	color: var(--color);
+	/*Como label estara encima del input, cuando el cursor este encima solo pueda seleccionar el input y no el label*/
+	/*Funciona  muy bien, en este caso utilizaremos este pora q el cursor siempre apresca en I*/
+	pointer-events: none;
+	position: absolute;
+	top: 0;
+	left: 5px;
+	transform: translateY(10px);
+	transition: transform .5s, color .3s;
+}
+.form__submit{
+	background: #225c74;
+	color: #fff;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 300;
+	font-size: 1rem;
+	padding: .8em 0;
+	border: none;
+	border-radius: .5em;
+	cursor: pointer;
+}
+.form__line{
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 1px;
+	background-color: #3866f2;
+	transform: scale(0);
+	transform: left bottom;
+	transition: transform .4s;
+}
+.form__input:focus ~ .form__line, .form__input:not(:placeholder-shown) ~ .form__line{
+	transform: scale(1);
+}
+@media(max-width:425px){
+	.form__title{
+		font-size: 1.8rem;
+	}	
+}

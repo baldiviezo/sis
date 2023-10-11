@@ -1,0 +1,159 @@
+/*
+table__title - h1
+table__header - section
+table__body - section
+*/
+/*----------------------------------------------------------*/
+.table{
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	width: 100%;
+	height: 90vh;
+	/*Cuando la tabla */
+	padding: 0 2rem;
+	/*Vuelve transparente*/
+	background-color: #fff5;
+	/*vuelve borroso la imagen de fondo*/
+	/*backdrop-filter: blur(7px);*/
+	/*Sombras*/
+	/*box-shadow: 0 .4rem 0.8rem #0005;*/
+	/*border-radius: .8rem;*/
+	/*Ocultamos el desbordamiento*/
+}
+/*----------------------------------------------------------*/
+.table__title {
+	padding: .5rem 0 .2rem;
+}
+.table__title h1{
+	font-size: 1.5rem;
+}
+/*----------------------------------------------------------*/
+.table__header{
+	width: 100%;
+	height: auto;
+	/*Un poco mas blanco*/
+	background-color: #fff4;
+	padding: .2rem 0;
+	/*Para ajustar al cabecera de la tabla (titulo y buscar)*/
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+.table__header .combo__search{ /*Para inventario*/
+    display: flex;
+    justify-content: center;
+	align-items: center;
+}
+.table__header .table__search{
+	width: 15rem;
+	height: 2rem;
+	background-color: rgba(255, 255, 255, 0.802);
+	padding: 0 .8rem;
+	border-radius: 2rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	transition: .2s;
+}
+.table__header .table__search:hover {
+	height: #fff8;
+	box-shadow: 0 .1rem .4rem #0002;
+}
+.table__header .table__search img{
+	width: 1.2rem;
+	height: 1.2rem;
+}
+.table__header .table__search input{
+	width: 100%;
+	padding: 0 .5rem 0 .3rem;
+	background-color: transparent;
+	border: none;
+	/*Que no aparesca el borde cuando empecemos a escribir*/
+	outline: none;
+}
+/*----------------------------------------------------------*/
+.table__body{
+	width: 100%;
+	/*Colos mas blanco*/
+	background-color: #fff4;
+	font-size: .8rem;
+	/*border-radius: .6rem;*/
+	/*Añade un scrrol si es necesario (si hay desvordamiento)*/
+	overflow: auto;
+	/*Para que el scroll sea invisible*/
+	overflow: overlay;
+}
+.table__body::-webkit-scrollbar{
+	/*Vuelve el scrrol invisible*/
+	/*No se nota el cambio del ancho*/
+	width: 0.5rem;
+	/*Alto del scroll*/
+	height: .8rem;
+}
+.table__body::-webkit-scrollbar-thumb{
+	/*Borde del scroll*/
+	border-radius: .5rem;
+	/*color de lscroll*/
+	background-color: #0004;
+	/*volvemos invisible el scroll*/
+	visibility: hidden;
+}
+.table__body:hover::-webkit-scrollbar-thumb{
+	/*Cuando el mause esta encima de la tabla se muestra el scroll*/
+	visibility: visible;
+}
+table {
+	/*la tabla ocupa el 100% del contedor, sin esto cuando la pantalla crece la tabla se que da a la izquierda*/
+	width: 100%;
+}
+table, th, td{
+	/*para que los bordes no ocupen espacio*/
+	border-collapse: collapse;
+	padding: .5rem;
+}
+thead th {
+	/*funciona al usar el scroll, esconde la tabla de una forma interesante*/
+	position: sticky;
+	/*mantiene la cabecera siempre fijo*/
+	top: 0;
+	/*Da un estilo al mover la barra horizontal*/
+	left: 0;
+	background-color: #225c74;
+	color: #fff;
+}
+tbody tr:nth-child(even){
+	/*para que hayga un degradado entre las filas*/
+	background-color: #0000000b;
+}
+tbody tr:hover{
+	background-color: #fff6;
+
+}
+td img.tbody__img{
+	width: 5rem;
+	height: 5rem;
+	margin-right: .5rem;
+	border-radius: 50%;
+	vertical-align: middle;
+}
+/*---------------------------Clase usada para javaScrip al momento de buscar---------------------*/
+.hide{
+	display: none;
+}
+/*-------------------Espacio de tablas---------------------------------*/
+td:nth-of-type(1){
+	min-width: 1rem;
+}
+/*----------------------------------------------------------*/
+@media (max-width:800px){
+	.table__header{
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+		gap: 1rem 1rem;
+	}
+	.table__header div{
+		display: flex;
+
+	}
+} 

@@ -1,0 +1,44 @@
+/*<<-----------------PAGINACION PRODUCT--------------------------------->>*/
+.showPage{
+    padding: .2rem 0;
+}
+.showPage h2{
+	font-size: 1rem;
+}
+.paginacion{
+    width: 100%;
+
+}
+.wrapper ul{
+	display: flex;
+    padding: .2rem 0;
+}
+.wrapper ul li{
+	list-style-type: none;
+	text-align: center;
+	font-size: .8rem;
+	font-weight: 600;
+	cursor: pointer;
+	background-color: #225c74;
+	margin: 1px;
+	border-radius: 5px;
+	color: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 1.5rem;
+	width: 1.5rem;
+}
+.wrapper ul li.btn:hover{
+	background-color: transparent;
+	border: 1px solid #fff;
+}
+.wrapper ul li.active{
+	background-color: #fff;
+	color: #000;
+	box-shadow: 0 0 20px;
+}
+.container__page{
+	display: flex;
+	flex-direction: row;
+}

@@ -1,0 +1,54 @@
+td img{
+	width: 1.5rem;
+	height: 1.5rem;
+}
+td img:hover{
+	cursor: pointer;
+}
+.table__header img{
+	width: 2.2rem;
+	height: 2.2rem;
+}
+#openTableProfMW{
+	width: 2.2rem;
+	height: 2.2rem;
+
+}
+.main__folder img{
+	width: 1.5rem;
+	height: 1.5rem;
+}
+.form__container--submit img{
+	width: 2.2rem;
+	height: 2.2rem;
+}
+.main__header img.img__folder{
+	width: 2.2rem;
+	height: 2.2rem;
+}
+/*Para los titulos de las ventanas modales formularios*/
+.modal__header h2 {
+	display: flex;
+	align-items: center;
+}
+.modal__header h2 img{
+	height: 1.8rem;
+	padding-left: .5rem;
+}
+/*Para los titulos de las ventanas modales formularios productos*/
+.modalP__header h2 {
+	display: flex;
+	align-items: center;
+}
+.modalP__header h2 img{
+	height: 1.8rem;
+	padding-left: .5rem;
+}
+/*titulo de main tabla*/
+.table__title h1{
+	display: flex;
+	align-items: center;
+}
+.table__title h1 img{
+	padding-right: .5rem;
+}

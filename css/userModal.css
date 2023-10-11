@@ -1,0 +1,218 @@
+/*--------------------VENTANA MODAL PROFORMA----------------------------*/
+.modalProf{
+	/*para que salga del flujo y se quede fijo a la pantalla (desaparece)*/
+	position: fixed;
+	/*Esto ara que ocupe el 100% de alto y de ancho (Se vuelve a mostrar en la pantalla)*/
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	/*color oscuro transparente para ocultar lo del fondo*/
+	background-color: #111111bd;
+	/*Esto para su hijo*/
+	display: flex;
+	/*creando custom popertis par ocultar el modal*/
+	--opacity: 0;
+	--pointer: none;
+	/*volviendo imvisible el modal*/
+	opacity: var(--opacity);
+	/*modal esta invisible pero no deja hacer click, por eso desactivamos sus eventos de click*/
+	pointer-events: var(--pointer);
+	font-family: 'Roboto', sans-serif;
+}
+/*Esta clase hace visible al modal, solo hay que añadirlo*/
+.modalProf__container{
+	/*como su padre tiene flexbox se puede usar el margin auto*/
+	margin: auto;
+	background-color: #fff;
+	width: 100%;
+	max-width: 400px;
+	height: auto;
+	overflow: auto;
+	text-align: center;
+	border-radius: .5em;
+}
+.modalProf__container::-webkit-scrollbar{
+	/*Vuelve el scrrol invisible*/
+	/*No se nota el cambio del ancho*/
+	width: 0.5rem;
+	/*Alto del scroll*/
+	height: .8rem;
+}
+.modalProf__container::-webkit-scrollbar-thumb{
+	/*Borde del scroll*/
+	border-radius: .5rem;
+	/*color de lscroll*/
+	background-color: #0004;
+	/*volvemos invisible el scroll*/
+	visibility: hidden;
+}
+.modalProf__container:hover::-webkit-scrollbar-thumb{
+	/*Cuando el mause esta encima de la tabla se muestra el scroll*/
+	visibility: visible;
+}
+.modal__textarea textarea{
+	width: 100%;
+	height:	6rem;
+	padding-top: 5px;
+	border-radius: .3rem;
+	overflow: auto;
+	border: 3px solid #225c74;
+	font-family: 'Roboto', sans-serif;
+	background-color: #fffb;
+	font-size: .8rem;
+	margin: 1rem 0;
+}
+
+/*--------------------VENTANA MODAL MODIFICAR Y REGISTRAR----------------------------*/
+.modal{
+	/*para que salga del flujo y se quede fijo a la pantalla (desaparece)*/
+	position: fixed;
+	/*Esto ara que ocupe el 100% de alto y de ancho (Se vuelve a mostrar en la pantalla)*/
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	/*color oscuro transparente para ocultar lo del fondo*/
+	background-color: #111111bd;
+	/*Esto para su hijo*/
+	display: flex;
+	/*creando custom popertis par ocultar el modal*/
+	--opacity: 0;
+	--pointer: none;
+	/*volviendo imvisible el modal*/
+	opacity: var(--opacity);
+	/*modal esta invisible pero no deja hacer click, por eso desactivamos sus eventos de click*/
+	pointer-events: var(--pointer);
+	font-family: 'Roboto', sans-serif;
+}
+.modal__container{
+	/*como su padre tiene flexbox se puede usar el margin auto*/
+	margin: auto;
+	background-color: #fff;
+	width: 90%;
+	max-width: 350px;
+	height: auto;
+	overflow: hidden;
+	text-align: center;
+	border-radius: 1em;
+}
+/*-----------------FORMULARIO--------------------*/
+.form{
+	background-color: #fff;
+	/*el margen de ariba y abajo depende de min-height de body (100vh)*/
+	/*que tenga un maximo de 400px*/
+	width: 100%;
+	text-align: center;
+	padding: 1rem 2rem;
+}
+.form__container{
+	display: grid;
+	gap: 1em;
+}
+/*header*/
+.modal__header{
+	padding: 0 1rem;
+	height: 3rem;
+	background-color: #fff;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+.modal__title{
+	color: #225c74;
+	font-size: 1.5rem;
+	align-items: center;
+}
+.form__group{
+	position: relative;
+	--color: #5757577e;
+}
+.form__input{
+	width: 100%;
+	background: none;
+	color: #706c6c;
+	font-size: 1rem;
+	padding: .6em .3em;
+	border: none;
+	outline: none;
+	border-bottom: 1px solid var(--color);
+	/*Los inputs no heredan la fuente de la letra*/
+	font-family: 'Roboto', sans-serif;
+}
+.form__input:focus + .form__label, .form__input:not(:placeholder-shown) + .form__label{
+	color: #4d4646;
+}
+.form__input:focus + .form__label, .form__input:not(:placeholder-shown) + .form__label{
+	transform: translateY(-12px) scale(.7);
+	transform-origin: left top;
+	color: #225c74;
+}
+.form__label{
+	color: var(--color);
+	cursor: pointer;
+	/*Como label estara encima del input, cuando el cursor este encima solo pueda seleccionar el input y no el label*/
+	pointer-events: none;
+	position: absolute;
+	top: 0;
+	left: 5px;
+	transform: translateY(10px);
+	transition: transform .5s, color .3s;
+}
+/*inventario */
+.form__label--only{
+	display: flex;
+    /*color: #5757577e;*/
+    color: #225c74;
+    text-align: left;
+}
+/*select*/
+.form__group--select{
+	display: flex;
+}
+.form__group--select select{
+	border-color: #225c74;
+	border-radius: .4rem;
+	width: 100%;
+	color: #225c74;
+}
+
+.form__submit{
+	background: #225c74;
+	color: #fff;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 300;
+	font-size: 1rem;
+	padding: .5em 1rem;
+	border: none;
+	border-radius: .5em;
+	margin-top: 1rem;
+}
+.form__line{
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 1px;
+	background-color: #3866f2;
+	transform: scale(0);
+	transform: left bottom;
+	transition: transform .4s;
+}
+.form__input:focus ~ .form__line, .form__input:not(:placeholder-shown) ~ .form__line{
+	transform: scale(1);
+}
+
+/*------------RESPONSIVE---------*/
+@media (max-height:800px){
+	.modalProf__container{
+		height: 90%;
+		overflow: auto;
+	}
+}
+
+/*Esta clase hace visible al modal, solo hay que añadirlo*/
+.modal__show{
+	--opacity: 1;
+	--pointer: unset;
+}

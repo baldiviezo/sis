@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="scripts/sesionIniciada.js"></script>
+	<title>Clientes</title>
+	<link rel="icon" href="../imagenes/icono.jpg">
+	<link rel="stylesheet" type="text/css" href="../css/general.css">
+	<link rel="stylesheet" type="text/css" href="../css/encabezamiento.css">
+	<link rel="stylesheet" type="text/css" href="../css/buttonCRUD.css">
+	<link rel="stylesheet" type="text/css" href="../css/paginacion.css">
+	<link rel="stylesheet" type="text/css" href="../css/userModal.css">
+	<link rel="stylesheet" type="text/css" href="../css/table.css">
+	
+</head>
+<body class="body">
+	<header class="header">
+		<nav class="header__nav header__container">
+		</nav>
+	</header>
+	<main class="table">
+		<div class="table__title">
+			<h1><img src="../imagenes/user.svg">Clientes</h1>
+		</div>
+		<section class="table__header">
+			<img src="../imagenes/registrar.svg" id="openCustomersRMW">
+			<div class="combo__search">
+				<div>
+					<select id="selectSearchClte" class="select">
+						<option value="todas">Buscar por</option>
+						<option value="nombre_clte">Nombre</option>
+						<option value="apellido_clte">Apellido</option>
+						<option value="nombre_emp">Empresa</option>
+					</select>
+				</div>
+				<div class="table__search">
+					<input type="search" id="inputSerchClte" placeholder="Search Data...">
+					<img src="../imagenes/search.png">
+				</div>
+			</div>
+		</section>
+		<div class="showPage" id="showPageCustomer"><h2></h2></div>
+		<div class="container__page">
+			<div class="paginacion">
+				<!--Envoltura-->
+				<div class="wrapper" id="wrapperCustomer"><ul></ul></div>
+			</div>
+			<div>
+				<select id="selectNumberClte">
+					<option value="2">2</option>
+					<option value="4">4</option>
+					<option value="6">6</option>
+					<option value="10">10 </option>
+					<option value="20">20</option>
+				</select>
+			</div>
+		</div>
+		<section class="table__body">
+			<table>
+				<thead>
+					<tr>
+						<th>N°</th>
+						<th><div class="tbody__head--customer">Nombres<img src="../imagenes/sortA_Z.svg" name="nombre_clte"><img src="../imagenes/sortZ_A.svg" name="nombre_clte"></div></th>
+						<th><div class="tbody__head--customer">Apellidos<img src="../imagenes/sortA_Z.svg" name="apellido_clte"><img src="../imagenes/sortZ_A.svg" name="apellido_clte"></div></th>
+						<th>Email</th>
+						<th>Direccion</th>
+						<th>Celular</th>
+						<th><div class="tbody__head--customer">Empresa<img src="../imagenes/sortA_Z.svg" name="nombre_emp"><img src="../imagenes/sortZ_A.svg" name="nombre_emp"></div></th>
+						<th>Acciones</th>
+					</tr>
+				</thead>
+				<tbody id="tbodyCustomer"></tbody>
+			</table>
+		</section>
+	</main>
+	<!--Ventana modal para registrar y modificar clientes-->
+	<section id="customersRMW" class="modal">
+		<div class="modal__container">
+			<div class="modal__header">
+				<h2 class="modal__title">Cliente<img src="../imagenes/user.svg"></h2>
+				<img src="../imagenes/salir.svg" id="closeCustomersRMW">
+			</div>
+			<form id="formClienteR" class="form">
+				<div class="form__container">
+					<label class="form__label--only">Empresa:</label>
+					<div class="form__group--select">
+						<select name="fk_id_emp_clteR"></select>
+						<img src="../imagenes/search.svg" onclick="openEnterpriseSMW('R')">
+						<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()">
+						<img src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)">
+						<img src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)">
+					</div>
+					<div class="form__group">
+						<input type="text" name="nombre_clteR"  placeholder=" " class="form__input">
+						<label for="nombre_clteR" class="form__label">Nombres:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="apellido_clteR"  placeholder=" " class="form__input">
+						<label for="apellido_clteR" class="form__label">Apellidos:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="email_clteR"  placeholder=" " class="form__input">
+						<label for="email_clteR" class="form__label">Email:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="direccion_clteR"  placeholder=" " class="form__input">
+						<label for="direccion_clteR" class="form__label">Direccion:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="celular_clteR" placeholder=" " class="form__input">
+						<label for="celular_clteR" class="form__label">Celular:</label>
+					</div>
+				</div>
+				<div class="form__container--button">
+					<input type="submit" value="Registrar" class="form__submit">
+				</div>
+			</form>
+		</div>
+	</section>
+	<section id="customersMMW" class="modal">
+		<div class="modal__container">
+			<div class="modal__header">
+				<h2 class="modal__title">Cliente<img src="../imagenes/user.svg"></h2>
+				<img src="../imagenes/salir.svg" id="closeCustomersMMW">
+			</div>
+			<form id="formClienteM" class="form">
+				<div class="form__container">
+					<!--Para guadar el id del cliente a modificar-->
+					<input type="text" name="id_clteM"  placeholder=" " class="form__input" hidden>
+					<label class="form__label--only">Empresa:</label>
+					<div class="form__group--select">
+						<select name="fk_id_emp_clteM"></select>
+						<img src="../imagenes/search.svg" onclick="openEnterpriseSMW('M')">
+						<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()">
+						<img src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)">
+						<img src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)">
+					</div>
+					<div class="form__group">
+						<input type="text" name="nombre_clteM"  placeholder=" " class="form__input">
+						<label for="nombre_clteM" class="form__label">Nombres:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="apellido_clteM"  placeholder=" " class="form__input">
+						<label for="apellido_clteM" class="form__label">Apellidos:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="email_clteM"  placeholder=" " class="form__input">
+						<label for="email_clteM" class="form__label">Email:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="direccion_clteM"  placeholder=" " class="form__input">
+						<label for="direccion_clteM" class="form__label">Direccion:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="celular_clteM" placeholder=" " class="form__input">
+						<label for="celular_clteM" class="form__label">Celular:</label>
+					</div>
+				</div>
+				<div class="form__container--button">
+					<input type="submit" value="Guardar" class="form__submit">
+				</div>
+			</form>
+		</div>
+	</section>
+	<!--Ventana modal para registrar y modificar Empresas-->
+	<section id="enterprisesRMW" class="modal">
+		<div class="modal__container">
+			<div class="modal__header">
+				<h2 class="modal__title">Registrar<img src="../imagenes/enterprise.svg"></h2>
+				<img src="../imagenes/salir.svg" id="closeEnterprisesRMW">
+			</div>
+			<form id="formEmpresaR" class="form">
+				<div class="form__container">
+					<div class="form__group">
+						<input type="text" name="sigla_empR"  placeholder=" " class="form__input">
+						<label for="sigla_empR" class="form__label">Sigla de la empresa:</label>
+					</div>
+					<div class="form__group">
+						<!--Al crear el cliente en blanco usamos el nombre de la empresa para asignar el cliente-->
+						<input type="text" name="nombre_empR"  placeholder=" " class="form__input" required>
+						<label for="nombre_empR" class="form__label">Nombre de la empresa:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="nit_empR"  placeholder=" " class="form__input">
+						<label for="nit_empR" class="form__label">NIT:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="precio_empR"  placeholder=" " class="form__input">
+						<label for="precio_empR" class="form__label">Precio:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="direccion_empR"  placeholder=" " class="form__input">
+						<label for="direccion_empR" class="form__label">Direccion:</label>
+					</div>
+					<div class="form__group">
+					<!--la clase form__input se esta utilizando para realizar una funcionalidad del sistema (clpFormREnterprise())-->
+						<input type="text" name="telefono_empR" placeholder=" " class="form__input">
+						<label for="telefono_empR" class="form__label">Telefono:</label>
+					</div>
+				</div>
+				<div class="form__container--button">
+					<input type="submit" value="Registrar" class="form__submit">
+				</div>
+			</form>
+		</div>
+	</section>
+	<section id="enterprisesMMW" class="modal">
+		<div class="modal__container">
+			<div class="modal__header">
+				<h2 class="modal__title">Modificar<img src="../imagenes/enterprise.svg"></h2>
+				<img src="../imagenes/salir.svg" id="closeEnterprisesMMW">
+			</div>
+			<form id="formEmpresaM" class="form">
+				<div class="form__container">
+					<!--Guardamos el id de la empresa para luego encotrarla en la base de datos-->
+					<!--la clase form__input se esta utilizando para realizar una funcionalidad del sistema (readEnterprises())-->
+					<input type="text" name="id_empM"  placeholder=" " class="form__input" hidden>
+					<div class="form__group">
+						<input type="text" name="sigla_empM"  placeholder=" " class="form__input">
+						<label for="sigla_empM" class="form__label">Sigla de la empresa:</label>
+					</div>
+					<!--Al crear el cliente en blanco usamos el nombre de la empresa para asignar el cliente-->
+					<div class="form__group">
+						<input type="text" name="nombre_empM"  placeholder=" " class="form__input" required>
+						<label for="nombre_empM" class="form__label">Nombre de la empresa:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="nit_empM"  placeholder=" " class="form__input">
+						<label for="nit_empM" class="form__label">NIT:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="precio_empM"  placeholder=" " class="form__input">
+						<label for="precio_empM" class="form__label">Precio:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="direccion_empM"  placeholder=" " class="form__input">
+						<label for="direccion_empM" class="form__label">Direccion:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="telefono_empM"  placeholder=" " class="form__input">
+						<label for="telefono_empM" class="form__label">Telefono:</label>
+					</div>
+				</div>
+				<div class="form__container--button">
+					<input type="submit" value="Guardar" class="form__submit">
+				</div>
+			</form>
+		</div>
+	</section>
+	<!--Tabla Modal Empresa-->
+	<section id="enterpriseSMW" class="modalTable">
+		<div class="modalTable__container">
+			<div class="table">
+				<div class="table__title">
+					<h1>Empresas</h1>
+					<img src="../imagenes/salir.svg" id="closeEnterpriseSMW">
+				</div>
+				<section class="table__header">
+					<div></div>
+					<div class="combo__search">
+						<div>
+							<select id="selectSearchEmpMW" class="select">
+								<option value="todas">Buscar por</option>
+								<option value="sigla_emp">Sigla</option>
+								<option value="nombre_emp">Nombre</option>
+							</select>
+						</div>
+						<div class="table__search">
+							<input type="search" id="inputSearchEmpMW" placeholder="Search Data...">
+							<img src="../imagenes/search.png">
+						</div>
+					</div>
+				</section>
+				<div class="showPage" id="showPageEmpMW"><h2></h2></div>
+				<div class="container__page">
+					<div class="paginacion">
+						<!--Envoltura-->
+						<div class="wrapper" id="wrapperEmpMW"><ul></ul></div>
+					</div>
+					<div>
+						<select id="selectNumberEmpMW">
+							<option value="2">2</option>
+							<option value="4">4</option>
+							<option value="6">6</option>
+							<option value="10">10 </option>
+							<option value="20">20</option>
+						</select>
+					</div>
+				</div>
+				<section class="table__body">
+					<table>
+						<thead>
+							<tr>
+								<th>N°</th>
+								<th><div class="tbody__head--empMW">Sigla <img src="../imagenes/sortA_Z.svg" name="sigla_emp"><img src="../imagenes/sortZ_A.svg" name="sigla_emp"></div></th>
+								<th><div class="tbody__head--empMW">Nombre <img src="../imagenes/sortA_Z.svg" name="nombre_emp"><img src="../imagenes/sortZ_A.svg" name="nombre_emp"></div></th>
+								<th>NIT</th>
+								<th>Precio</th>
+								<th>Direccion</th>
+								<th>Telefono</th>
+								<th>Seleccionar</th>
+							</tr>
+						</thead>
+						<tbody id="tbodyEmpMW"></tbody>
+					</table>
+				</section>
+			</div>		
+		</div>
+	</section>
+	<script src="scripts/header.js"></script>
+	<script src="scripts/clientes.js"></script>
+</body>
+</html>

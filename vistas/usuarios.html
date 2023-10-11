@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="scripts/sesionIniciada.js"></script>
+	<title>Usuarios</title>
+	<link rel="icon" href="../imagenes/icono.jpg">
+	<link rel="stylesheet" type="text/css" href="../css/buttonCRUD.css">
+	<link rel="stylesheet" type="text/css" href="../css/general.css"> <!--Tipo de letra, fondo y tamaño de letra-->
+	<link rel="stylesheet" type="text/css" href="../css/encabezamiento.css">
+	<link rel="stylesheet" type="text/css" href="../css/table.css">
+	<link rel="stylesheet" type="text/css" href="../css/userModal.css">
+</head>
+<body class="body">
+	<!--Encabezado-->
+	<header class="header">
+		<nav class="header__nav header__container">
+		</nav>
+	</header>
+	<!--Main para colocar el contenido principal de neustra pagina-->
+	<!--section no es muy importante-->
+	<!--
+	<header></header>
+	<main></main>
+	<section></section>
+	<footer></footer>
+	-->
+	<main class="table">
+		<!--Colocar un icono-->
+		<div class="table__title">
+			<h1><img src="../imagenes/user.svg">Usuarios</h1>
+		</div>
+		<section class="table__header">
+			<img src="../imagenes/registrar.svg" id="openUsersRMW"> 
+			<div class="table__search">
+				<input type="search" id="buscar" placeholder="Search Data...">
+				<img src="../imagenes/search.png">
+			</div>
+		</section>
+		<section class="table__body">
+			<table>
+				<thead>
+					<tr>
+						<th>N°</th>
+						<th>Nombres</th>
+						<th>Apellidos</th>
+						<th>Correo electrónico</th>
+						<th>Cédula de identidad</th>
+						<th>Dirección</th>
+						<th>Celular</th>
+						<th>Rol</th>
+						<th>Acciones</th>
+					</tr>
+				</thead>
+				<tbody id="tbody"></tbody>
+			</table>
+		</section>
+	</main>
+	<!--Modal de usuarios-->
+	<section id="usersRMW" class="modal">
+		<div class="modal__container">
+			<!--Nombre de ventana modal y boton cerrar-->
+			<div class="modal__header">
+				<h2 class="modal__title">Registrar<img src="../imagenes/user.svg"></h2>
+				<img src="../imagenes/salir.svg" id="closeUsersRMW">
+			</div>
+			<form id="formUsersR" class="form">
+				<div class="form__container">
+					<div class="form__group">
+						<input type="text" name="nombre_usua_R" placeholder=" " class="form__input">
+						<label for="nombre_usua_R" class="form__label">Nombres:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="apellido_usua_R" placeholder=" " class="form__input">
+						<label for="apellido_usua_R" class="form__label">Apellidos:</label>
+					</div>
+					<div class="form__group">
+						<input type="password" name="contraseña_usua_R" placeholder=" " class="form__input">
+						<label for="contraseñaR" class="form__label">Contraseña:</label>
+					</div>
+					<div class="form__group">
+						<input type="password" name="contraseña2_usua_R" placeholder=" " class="form__input">
+						<label for="contraseña2_usua_R" class="form__label">Contraseña:</label>
+					</div>
+					<div class="form__group">
+						<input type="email" name="email_usua_R" placeholder=" " class="form__input">
+						<label for="email_usua_R" class="form__label">Correo electrónico:</label>
+					</div>
+					<div class="form__group">
+						<input type="number" name="ci_usua_R" placeholder=" " class="form__input">
+						<label for="ci_usua_R" class="form__label">Cédula de identidad:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="direccion_usua_R" placeholder=" " class="form__input">
+						<label for="direccion_usua_R" class="form__label">Dirección:</label>
+					</div>
+					<div class="form__group">
+						<input type="number" name="celular_usua_R" placeholder=" " class="form__input">
+						<label for="celular_usua_R" class="form__label">Celular:</label>
+					</div>
+					<div class="form__radio">
+						<input type="radio" name="rol_usua_R" id="ingR" value="ingeniero">
+						<label for="ingR">Ingeniero</label>
+						<input type="radio" name="rol_usua_R" id="admiR" value="administrador">
+						<label for="admiR">Administrador</label>
+					</div>
+					<input type="submit" value="Registrar" class="form__submit">
+				</div>	
+			</form>
+		</div>
+	</section>
+	<section class="modal" id="usersMMW">
+		<div class="modal__container">
+			<div class="modal__header">
+				<h2 class="modal__title">Modificar<img src="../imagenes/user.svg"></h2>
+				<img src="../imagenes/salir.svg" id="closeUsersMMW">
+			</div>
+			<form id="formUsersM" class="form">
+				<div class="form__container">
+					<!--Para recuperar el id del usuario modificado para guardarlo-->
+					<input type="text" name="id_usuaM" >
+					<div class="form__group">
+						<input type="text" name="nombre_usuaM" placeholder=" " class="form__input">
+						<label for="nombre_usuaM" class="form__label">Nombres:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="apellido_usuaM" placeholder=" " class="form__input">
+						<label for="apellido_usuaM" class="form__label">Apellidos:</label>
+					</div>
+					<div class="form__group">
+						<input type="password" name="contraseña_usuaM" placeholder=" " class="form__input">
+						<label for="contraseña_usuaM" class="form__label">Contraseña:</label>
+					</div>
+					<div class="form__group">
+						<input type="password" name="contraseña2_usuaM" placeholder=" " class="form__input">
+						<label for="contraseña2M" class="form__label">Contraseña:</label>
+					</div>
+					<div class="form__group">
+						<!--readonly evita evita q se pueda modificar el correo a uno q ya existe-->
+						<input type="email" name="email_usuaM" placeholder=" " class="form__input">
+						<label for="email_usuaM" class="form__label">Correo electrónico:</label>
+					</div>
+					<div class="form__group">
+						<input type="number" name="ci_usuaM" placeholder=" " class="form__input">
+						<label for="ci_usuaM" class="form__label">Cédula de identidad:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="direccion_usuaM" placeholder=" " class="form__input">
+						<label for="direccion_usuaM" class="form__label">Dirección:</label>
+					</div>
+					<div class="form__group">
+						<input type="number" name="celular_usuaM" placeholder=" " class="form__input">
+						<label for="celular_usuaM" class="form__label">Celular:</label>
+					</div>
+					<div class="form__radio">
+						<input type="radio" name="rol_usuaM" id="ing" value="ingeniero">
+						<label for="ing">Ingeniero</label>
+						<input type="radio" name="rol_usuaM" id="admi" value="administrador">
+						<label for="admi">Administrador</label>
+					</div>
+					<input type="submit" value="Guardar" class="form__submit">
+				</div>	
+			</form>
+		</div>
+	</section>
+	<script src="scripts/header.js"></script>
+	<script src="scripts/usuarios.js"></script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="scripts/sesionIniciada.js"></script>
+	<title>Nota de entrega</title>
+    <link rel="icon" href="../imagenes/icono.jpg">
+	<link rel="stylesheet" type="text/css" href="../css/general.css">
+	<link rel="stylesheet" type="text/css" href="../css/encabezamiento.css">
+	<link rel="stylesheet" type="text/css" href="../css/paginacion.css">
+	<link rel="stylesheet" type="text/css" href="../css/buttonCRUD.css">
+	<link rel="stylesheet" type="text/css" href="../css/cardAndCart.css">
+	<link rel="stylesheet" type="text/css" href="../css/table.css">
+	<link rel="stylesheet" type="text/css" href="../css/productModal.css">
+	<link rel="stylesheet" type="text/css" href="../css/userModal.css">
+</head>
+<body class="body">
+	<header class="header">
+		<nav class="header__nav header__container">
+		</nav>
+	</header>
+    <main class="table">
+		<div class="table__title">
+            <h1>Nota de Entrega</h1>
+        </div>
+        <section class="table__header">
+            <section class="select__search">
+                <div>
+                    <select id="selectStateNe">
+                        <option value="notasEntrega">Notas de entrega</option>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="vendido">Vendido</option>
+                    </select>
+                </div>
+            </section>
+            <div class="combo__search">
+                <div>
+                    <select id="selectSearchNe" class="select">
+                        <option value="todas">Buscar por</option>
+                        <option value="fk_id_prof_ne">Proforma</option>
+                        <option value="fecha_Prof">Fecha</option>
+                        <option value="encargado">Encargado</option>
+                        <option value="sigla_emp">Empresa</option>
+                        <option value="cliente">Cliente</option>
+                    </select>
+                </div>
+                <div class="table__search">
+                    <input type="search" id="inputSearchNe" placeholder="Search Data...">
+                    <img src="../imagenes/search.png">
+                </div>
+            </div>
+        </section>
+        <div class="showPage" id="showPageNE"><h2></h2></div>
+        <div class="container__page">
+            <div class="paginacion">
+                <!--Envoltura-->
+                <div class="wrapper" id="wrapperNE"><ul></ul></div>
+            </div>
+            <div>
+                <select id="selectNumberNe">
+                    <option value="2">2</option>
+                    <option value="4">4</option>
+                    <option value="6">6</option>
+                    <option value="10">10 </option>
+                    <option value="20">20</option>
+                </select>
+            </div>
+        </div>
+        <section class="table__body">
+            <table>
+                <thead>
+                    <tr>
+                        <th>N°</th>
+                        <th><div class="tbody__head--ne">Proforma <img src="../imagenes/sortA_Z.svg" name="fk_id_prof_ne"><img src="../imagenes/sortZ_A.svg" name="fk_id_prof_ne"></div></th>
+                        <th><div class="tbody__head--ne">Fecha <img src="../imagenes/sortA_Z.svg" name="fecha_prof"><img src="../imagenes/sortZ_A.svg" name="fecha_prof"></div></th>
+                        <th>Encargado</th>
+                        <th><div class="tbody__head--ne">Empresa <img src="../imagenes/sortA_Z.svg" name="sigla_emp"><img src="../imagenes/sortZ_A.svg" name="sigla_emp"></div></th>
+                        <th>Cliente</th>
+                        <th>Según Orden/Invit</th>
+                        <th>Observaciones</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyNE"></tbody>
+            </table>
+        </section>
+	</main>
+    <!--Ventana modal para registrar venta-->
+    <section id="saleRMW" class="modal">
+        <div class="modal__container">
+            <div class="modal__header">
+                <img src='../imagenes/products.svg' onclick='openVnt_prodRMW()'>
+                <h2 class="modal__title">Venta</h2>
+                <img src="../imagenes/salir.svg" id="closeSaleRMW">
+            </div>
+            <form id="formsaleR" class="form">
+                <div class="form__container">
+                    <input type="text" name="id_neR" placeholder=" " class="form__input" hidden>
+                    <input type="text" name="id_profR" placeholder=" " class="form__input" hidden>
+                    <input type="text" name="id_clteR" placeholder=" " class="form__input" hidden>
+                    <div class="form__group">
+                        <input type="text" name="fecha_vntR"  placeholder=" " class="form__input" readonly>
+                        <label for="fecha_vnt" class="form__label">Fecha:</label>
+                    </div>
+                    <div class="form__group">
+                        <input type="text" name="factura_vntR"  placeholder=" " class="form__input">
+                        <label for="factura_vnt" class="form__label">Factura:</label>
+                    </div>
+                    <div class="form__group">
+                        <input type="text" name="descripcion_vntR" placeholder=" " class="form__input">
+                        <label for="descripcion_vnt" class="form__label">Descripcion:</label>
+                    </div>
+                </div>
+                <div class="form__container--button">
+                    <input type="submit" value="Vender" class="form__submit">
+                </div>
+            </form>
+        </div>
+    </section>
+    <!--Modal of product of a BuyR -->
+    <section id="vnt_prodRMW" class="modal">
+        <div class="modal__container">
+            <div class="modal__header">
+                <h2 class="modal__title">Productos</h2>
+                <img src="../imagenes/salir.svg" id="closeVnt_prodRMW">
+            </div>
+            <div class="cartItem__head">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <td>cant. inv.</td>
+                                    <td>Img.</td>
+                                    <td>Codigo</td>
+                                    <td>Cant.</td>
+                                    <td>Elim.</td>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+            <div class="modal__body">
+            </div>
+            <div class="foot">
+                <div class="cart"><img src="../imagenes/carrito.svg"><p id="count_vtpdR">0</p></div>
+            </div>
+        </div>
+    </section>
+	<script src="scripts/header.js"></script>
+	<script src="scripts/notaEntrega.js"></script>
+</body>
+</html>

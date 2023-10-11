@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="scripts/sesionIniciada.js"></script>
+	<title>Compras</title>
+	<link rel="icon" href="../imagenes/icono.jpg">
+	<link rel="stylesheet" type="text/css" href="../css/buttonCRUD.css">
+	<link rel="stylesheet" type="text/css" href="../css/paginacion.css">
+	<link rel="stylesheet" type="text/css" href="../css/general.css">
+	<link rel="stylesheet" type="text/css" href="../css/encabezamiento.css">
+	<link rel="stylesheet" type="text/css" href="../css/cardAndCart.css">
+	<link rel="stylesheet" type="text/css" href="../css/table.css">
+	<link rel="stylesheet" type="text/css" href="../css/productModal.css">
+	<link rel="stylesheet" type="text/css" href="../css/userModal.css">
+</head>
+<body class="body" >
+	<header class="header">
+		<nav class="header__nav header__container">
+		</nav>
+	</header>
+	<main class="table">
+		<div class="table__title">
+			<h1>Compras</h1>
+		</div>
+		<section class="table__header">
+			<img src="../imagenes/registrar.svg" id="openBuyRMW">
+			<div class="combo__search">
+				<div>
+					<select id="selectSearchCompra" class="select">
+						<option value="todas">Buscar por</option>
+						<option value="nombre_prov">Fecha</option>
+						<option value="apellido_prov">Factura</option>
+						<option value="nombre_empp">Empresa</option>
+					</select>
+				</div>
+				<div class="table__search">
+					<input type="search" id="buscarCompra" placeholder="Search Data...">
+					<img src="../imagenes/search.png">
+				</div>
+			</div>
+		</section>
+		<div class="showPage" id="showPageBuy"><h2></h2></div>
+		<div class="container__page">
+			<div class="paginacion">
+				<!--Envoltura-->
+				<div class="wrapper" id="wrapperBuy"><ul></ul></div>
+			</div>
+			<div>
+				<select id="buyForPage">
+					<option value="2">2</option>
+					<option value="4">4</option>
+					<option value="6">6</option>
+					<option value="10">10 </option>
+					<option value="20">20</option>
+				</select>
+			</div>
+		</div>
+		<section class="table__body">
+			<table>
+				<thead>
+					<tr>
+						<th>N°</th>
+						<th><div class="tbody__head--buy">Fecha <img src="../imagenes/sortA_Z.svg" name="fecha_cmp"><img src="../imagenes/sortZ_A.svg" name="fecha_cmp"></div></th>
+						<th><div class="tbody__head--buy">Factura <img src="../imagenes/sortA_Z.svg" name="factura_cmp"><img src="../imagenes/sortZ_A.svg" name="factura_cmp"></div></th>
+						<th><div class="tbody__head--buy">Empresa <img src="../imagenes/sortA_Z.svg" name="nombre_empp"><img src="../imagenes/sortZ_A.svg" name="nombre_empp"></div></th>
+						<th>Proveedor</th>
+						<th>Descripcion</th>
+						<th>Acciones</th>
+					</tr>
+				</thead>
+				<tbody id="tbodyCompra"></tbody>
+			</table>
+		</section>
+	</main>
+	<!--Ventana modal para registrar compra-->
+	<section id="buyRMW" class="modal">
+		<div class="modal__container">
+			<div class="modal__header">
+				<img src='../imagenes/products.svg' onclick='openCmp_prodRMW()'>
+				<h2 class="modal__title">Compra</h2>
+				<img src="../imagenes/salir.svg" id="closeBuyRMW">
+			</div>
+			<form id="formBuyR" class="form">
+				<div class="form__container">
+					<input type="text" name="id_provR" placeholder=" " class="form__input" hidden>
+					<div class="form__group">
+						<input type="text" name="fecha_cmpR"  placeholder=" " class="form__input">
+						<label for="fecha_cmp" class="form__label">Fecha:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="factura_cmpR"  placeholder=" " class="form__input">
+						<label for="factura_cmp" class="form__label">Factura:</label>
+					</div>
+					<label class="form__label--only">Empresa:</label>
+					<div class="form__group--select">
+						<select id="selectEnterpriseR" name="empresaProveedorR"></select>
+						<img src="../imagenes/search.svg" onclick="openEnterpriseSMW('R')">
+						<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()">
+						<img src="../imagenes/edit.svg" onclick="readEnterprise('R')">
+						<img src="../imagenes/trash.svg" onclick="deleteEnterprise('R')">
+					</div>
+					<label class="form__label--only">Proveedor:</label>
+					<div class="form__group--select">
+						<select id="selectSupplierR" name="fk_id_prov_cmpR"></select>
+						<img src="../imagenes/registrar.svg" onclick="openSupplierRMW()">
+						<img src="../imagenes/edit.svg" onclick="readSupplier('R')">
+						<img src="../imagenes/trash.svg" onclick="deleteSupplier('R')">
+					</div>
+					<div class="form__group">
+						<input type="text" name="descripcion_cmpR" placeholder=" " class="form__input">
+						<label for="descripcion_cmp" class="form__label">Descripcion:</label>
+					</div>
+					<!--Lista de productos-->
+					<!--<div id="listProductsR"></div>-->
+				</div>
+				<div class="form__container--button">
+					<input type="submit" value="Registrar" class="form__submit">
+				</div>
+			</form>
+		</div>
+	</section>
+	<!--Modal of product of a BuyR -->
+	<section id="cmp_prodRMW" class="modal">
+		<div class="modal__container">
+			<div class="modal__header">
+				<div>
+					<img src="../imagenes/i.svg"  onclick="openInventorySMW()">
+				</div>
+				<h2 class="modal__title">Productos</h2>
+				<img src="../imagenes/salir.svg" id="closeCmp_prodRMW">
+			</div>
+			<div class="cartItem__head">
+						<table>
+							<thead>
+								<tr>
+									<td>cant. inv.</td>
+									<td>Img.</td>
+									<td>Codigo</td>
+									<td>Cant.</td>
+									<td>Elim.</td>
+								</tr>
+							</thead>
+						</table>
+					</div>
+			<div class="modal__body">
+			</div>
+			<div class="foot">
+				<div class="cart"><img src="../imagenes/carrito.svg"><p id="count_cppdR">0</p></div>
+			</div>
+		</div>
+	</section>
+	<!--Ventana modal para modificar compra-->
+	<section id="buyMMW" class="modal">
+		<div class="modal__container">
+			<div class="modal__header">
+				<img src='../imagenes/products.svg' onclick='openCmp_prodMMW()'>
+				<h2 class="modal__title">Compra</h2>
+				<img src="../imagenes/salir.svg" id="closeBuyMMW">
+			</div>
+			<form id="formBuyM" class="form">
+				<div class="form__container">
+					<input type="text" name="id_cmpM" placeholder=" " class="form__input" hidden>
+					<input type="text" name="id_provM" placeholder=" " class="form__input" hidden>
+					<div class="form__group">
+						<input type="text" name="fecha_cmpM"  placeholder=" " class="form__input">
+						<label for="fecha_cmp" class="form__label">Fecha:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="factura_cmpM"  placeholder=" " class="form__input">
+						<label for="factura_cmp" class="form__label">Factura:</label>
+					</div>
+					<label class="form__label--only">Empresa:</label>
+					<div class="form__group--select">
+						<select id="selectEnterpriseM" name="empresaClienteM"></select>
+						<!--<img src="../imagenes/search.svg" onclick="openEnterpriseSMW('M')">
+						<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()">-->
+						<img src="../imagenes/edit.svg" onclick="readEnterprise('M')">
+						<img src="../imagenes/trash.svg" onclick="deleteEnterprise('M')">
+					</div>
+					<label class="form__label--only">Proveedor:</label>
+					<div class="form__group--select">
+						<select id="selectSupplierM" name="fk_id_prov_cmpM"></select>
+						<!--<img src="../imagenes/search.svg"  onclick="openSupplierSMW()">-->
+						<!--<img src="../imagenes/registrar.svg" onclick="openSupplierRMW()"-->
+						<img src="../imagenes/edit.svg" onclick="readSupplier('M')">
+						<img src="../imagenes/trash.svg" onclick="deleteSupplier('M')">
+					</div>
+					<div class="form__group">
+						<input type="text" name="descripcion_cmpM" placeholder=" " class="form__input">
+						<label for="descripcion_cmp" class="form__label">Descripcion:</label>
+					</div>
+					<!--<div class="form__group--search">
+						<label class="form__label--only">Inventario:</label>
+						<img src="../imagenes/search.svg"  onclick="openInventorySMW()">
+					</div>-->
+					<!--Lista de productos-->
+					<!--<div id="listProductsM"></div>-->
+				</div>
+				<div class="form__container--button">
+					<input type="submit" value="Guardar" class="form__submit">
+				</div>
+			</form>
+		</div>
+	</section>
+	<!--Modal of product of a BuyM -->
+	<section id="cmp_prodMMW" class="modal">
+		<div class="modal__container">
+			<div class="modal__header">
+				<div>
+					<img src="../imagenes/i.svg"  onclick="openInventorySMW()">
+				</div>
+				<h2 class="modal__title">Productos</h2>
+				<img src="../imagenes/back.svg" id="closeCmp_prodMMW">
+			</div>
+			<div class="cartItem__head">
+						<table>
+							<thead>
+								<tr>
+									<td>cant. inv.</td>
+									<td>Img.</td>
+									<td>Codigo</td>
+									<td>Cant.</td>
+									<td>Elim.</td>
+								</tr>
+							</thead>
+						</table>
+					</div>
+			<div class="modal__body">
+			</div>
+			<div class="foot">
+				<div class="cart"><img src="../imagenes/carrito.svg"><p id="count_cppdM">0</p></div>
+			</div>
+		</div>
+	</section>
+	<!--Modal de registro y modificacion de proveedor-->
+	<section id="supplierRMW" class="modal">
+		<div class="modal__container">
+			<div class="modal__header">
+				<h2 class="modal__title">Proveedor</h2>
+				<img src="../imagenes/salir.svg" id="closeSupplierRMW">
+			</div>
+			<form id="formSupplierR" class="form">
+				<div class="form__container">
+					<div class="form__group--select">
+						<select id="selectEnterpriseR2" name="fk_id_empp_provR"></select>
+					</div>
+					<div class="form__group">
+						<input type="text" name="nombre_provR"  placeholder=" " class="form__input">
+						<label for="nombre_provR" class="form__label">Nombres:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="apellido_provR"  placeholder=" " class="form__input">
+						<label for="apellido_provR" class="form__label">Apellidos:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="celular_provR" placeholder=" " class="form__input">
+						<label for="celular_provR" class="form__label">Celular:</label>
+					</div>
+				</div>
+				<div class="form__container--button">
+					<input type="submit" value="Registrar" class="form__submit">
+				</div>
+			</form>
+		</div>
+	</section>
+	<section id="supplierMMW" class="modal">
+		<div class="modal__container">
+			<div class="modal__header">
+				<h2 class="modal__title">Proveedor</h2>
+				<img src="../imagenes/salir.svg" id="closeSupplierMMW">
+			</div>
+			<form id="formSupplierM" class="form">
+				<div class="form__container">
+					<!--Para guadar el id del cliente a modificar-->
+					<div class="form__group--select">
+						<select id="selectEnterpriseM2" name="fk_id_empp_provM"></select>
+					</div>
+					<div class="form__group">
+						<input type="text" name="id_provM"  placeholder=" " class="form__input" hidden>
+					</div>
+					<div class="form__group">
+						<input type="text" name="nombre_provM"  placeholder=" " class="form__input">
+						<label for="nombre_provM" class="form__label">Nombres:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="apellido_provM"  placeholder=" " class="form__input">
+						<label for="apellido_provM" class="form__label">Apellidos:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="celular_provM" placeholder=" " class="form__input">
+						<label for="celular_provM" class="form__label">Celular:</label>
+					</div>
+				</div>
+				<div class="form__container--button">
+					<input type="submit" value="Guardar" class="form__submit">
+				</div>
+			</form>
+		</div>
+	</section>
+	<!--Ventana modal para registrar y modificar Empresas-->
+	<section id="enterprisesRMW" class="modal">
+		<div class="modal__container">
+			<div class="modal__header">
+				<h2 class="modal__title">Registrar</h2>
+				<img src="../imagenes/salir.svg" id="closeEnterprisesRMW">
+			</div>
+			<form id="formEmpresaR" class="form">
+				<div class="form__container">
+					<div class="form__group">
+						<input type="text" name="sigla_emppR"  placeholder=" " class="form__input">
+						<label for="sigla_emppR" class="form__label">Sigla de la empresa:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="nombreEmpresaR"  placeholder=" " class="form__input">
+						<label for="nombreEmpresaR" class="form__label">Nombre de la empresa:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="direccionEmpresaR"  placeholder=" " class="form__input">
+						<label for="direccionEmpresaR" class="form__label">Direccion:</label>
+					</div>
+					<div class="form__group">
+					<!--la clase form__input se esta utilizando para realizar una funcionalidad del sistema (clpFormREnterprise())-->
+						<input type="text" name="telefonoEmpresaR" placeholder=" " class="form__input">
+						<label for="telefonoEmpresaR" class="form__label">Telefono:</label>
+					</div>
+				</div>
+				<div class="form__container--button">
+					<input type="submit" value="Registrar" class="form__submit">
+				</div>
+			</form>
+		</div>
+	</section>
+	<section id="enterprisesMMW" class="modal">
+		<div class="modal__container">
+			<div class="modal__header">
+				<h2 class="modal__title">Modificar</h2>
+				<img src="../imagenes/salir.svg" id="closeEnterprisesMMW">
+			</div>
+			<form id="formEmpresaM" class="form">
+				<div class="form__container">
+					<!--Guardamos el id de la empresa para luego encotrarla en la base de datos-->
+					<!--la clase form__input se esta utilizando para realizar una funcionalidad del sistema (readEnterprises())-->
+					<input type="text" name="id_empp"  placeholder=" " class="form__input" hidden>
+					<div class="form__group">
+						<input type="text" name="sigla_empp"  placeholder=" " class="form__input">
+						<label for="sigla_empp" class="form__label">Sigla de la empresa:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="nombre_empp"  placeholder=" " class="form__input">
+						<label for="nombre_empp" class="form__label">Nombre de la empresa:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="direccion_empp"  placeholder=" " class="form__input">
+						<label for="direccion_empp" class="form__label">Direccion:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="telefono_empp" placeholder=" " class="form__input">
+						<label for="telefono_empp" class="form__label">Telefono:</label>
+					</div>
+				</div>
+				<div class="form__container--button">
+					<input type="submit" value="Guardar" class="form__submit">
+				</div>
+			</form>
+		</div>
+	</section>
+	<!--Tabla Modal Empresa-->
+	<section id="enterpriseSMW" class="modalTable">
+		<div class="modalTable__container">
+			<div class="table">
+				<div class="table__title">
+					<h1>Empresas</h1>
+					<img src="../imagenes/salir.svg" id="closeEnterpriseSMW">
+				</div>
+				<section class="table__header">
+					<div></div>
+					<div class="combo__search">
+						<div>
+							<select id="selectSearchEmpMW" class="select">
+								<option value="todas">Buscar por</option>
+								<option value="sigla_empp">Sigla</option>
+								<option value="nombre_empp">Nombre</option>
+							</select>
+						</div>
+						<div class="table__search">
+							<input type="search" id="inputSearchEmpMW" placeholder="Search Data...">
+							<img src="../imagenes/search.png">
+						</div>
+					</div>
+				</section>
+				<div class="showPage" id="showPageEmpMW"><h2></h2></div>
+				<div class="container__page">
+					<div class="paginacion">
+						<!--Envoltura-->
+						<div class="wrapper" id="wrapperEmpMW"><ul></ul></div>
+					</div>
+					<div>
+						<select id="selectPageEmpMW">
+							<option value="2">2</option>
+							<option value="4">4</option>
+							<option value="6">6</option>
+							<option value="10">10 </option>
+							<option value="20">20</option>
+						</select>
+					</div>
+				</div>
+				<section class="table__body">
+					<table>
+						<thead>
+							<tr>
+								<th>N°</th>
+								<th><div class="tbody__head--empMW">Sigla <img src="../imagenes/sortA_Z.svg" name="sigla_empp"><img src="../imagenes/sortZ_A.svg" name="sigla_empp"></div></th>
+								<th><div class="tbody__head--empMW">Nombre <img src="../imagenes/sortA_Z.svg" name="nombre_empp"><img src="../imagenes/sortZ_A.svg" name="nombre_empp"></div></th>
+								<th>Direccion</th>
+								<th>Telefono</th>
+								<th>Acciones</th>
+							</tr>
+						</thead>
+						<tbody id="tbodyEmpMW"></tbody>
+					</table>
+				</section>
+			</div>		
+		</div>
+	</section>
+	<!--Tabla de inventario-->
+	<section id="inventorySMW" class="modalTable">
+		<div class="modalTable__container">
+			<div class="table">
+				<div class="table__title">
+					<img src="../imagenes/back.svg" id="closeInventorySMW">
+					<h1>Inventario</h1>
+				</div>
+				<section class="table__header">
+					<section class="select__search">
+						<div>
+							<select id="selectMarcaInvMW" class="select__marca">
+								<option value="todasLasMarcas">Todas las marcas</option>
+							</select>
+							<img src="../imagenes/registrar.svg" id="openMarcaRMW">
+							<img src="../imagenes/trash.svg" onclick="deleteMarca()">
+						</div>
+						<div>
+							<select id="selectCategoriaInvMW" class="select__categoria">
+								<option value="todasLasCategorias">Todas las categorias</option>
+							</select>
+							<img src="../imagenes/registrar.svg" id="openCategoriaRMW">
+							<img src="../imagenes/trash.svg" onclick="deleteCategoria()">
+						</div>
+					</section>
+					<div class="combo__search">
+						<div>
+							<select id="selectSearchInvenMW" class="select">
+								<option value="todas">Buscar por</option>
+								<option value="codigo_prod">Código</option>
+								<option value="nombre_prod">Nombre</option>
+								<option value="descripcion_prod">Descripcion</option>
+								<option value="cost_uni_inv">Costo</option>
+							</select>
+						</div>
+						<div class="table__search">
+							<input type="search" id="searchInputInvMW" placeholder="Search Data...">
+							<img src="../imagenes/search.png">
+						</div>
+					</div>
+				</section>
+				<div class="showPage" id="showPageInvMW"><h2></h2></div>
+				<div class="container__page">
+					<div class="paginacion">
+						<!--Envoltura-->
+						<div class="wrapper" id="wrapperInvMW"><ul></ul></div>
+					</div>
+					<div>
+						<select id="inventoryForPageMW">
+							<option value="2">2</option>
+							<option value="4">4</option>
+							<option value="6">6</option>
+							<option value="10">10 </option>
+							<option value="20">20</option>
+						</select>
+					</div>
+				</div>
+				<section class="table__body">
+					<table>
+						<thead>
+							<tr>
+								<th>N°</th>
+								<th><div class="tbody__head--invMW">Codigo <img src="../imagenes/sortA_Z.svg" name="codigo_prod"><img src="../imagenes/sortZ_A.svg" name="codigo_prod"></div></th>
+								<th><div class="tbody__head--invMW">Nombre <img src="../imagenes/sortA_Z.svg" name="nombre_prod"><img src="../imagenes/sortZ_A.svg" name="nombre_prod"></div></th>
+								<th>Descripcion</th>
+								<th><div class="tbody__head--invMW">Marca <img src="../imagenes/sortA_Z.svg" name="marca_prod"><img src="../imagenes/sortZ_A.svg" name="marca_prod"></div></th>
+								<th><div class="tbody__head--invMW">Categoria <img src="../imagenes/sortA_Z.svg" name="categoria_prod"><img src="../imagenes/sortZ_A.svg" name="categoria_prod"></div></th>
+								<th>imagen</th>
+								<th>Cantidad</th>
+								<th>Costo unitario</th>
+								<th>Detalles</th>
+								<th>Acciones</th>
+							</tr>
+						</thead>
+						<tbody id="tbodyInvMW"></tbody>
+					</table>
+				</section>
+			</div>		
+		</div>
+	</section>
+	<!--Modal de registro y modificacion de inventario-->
+	<section id="inventoryRMW" class="modal">
+		<div class="modal__container">
+			<div class="modal__header">
+				<h2 class="modal__title">Nuevo Producto</h2>
+				<img src="../imagenes/salir.svg" id="closeInventoryRMW">
+			</div>
+			<form id="formInventarioR" class="form">
+				<div class="form__container">
+					<div>
+						<select id="selectProductR" name="fk_id_prod_invR"></select>
+						<img src="../imagenes/search.svg">
+						<img src="../imagenes/registrar.svg" onclick="openProductsRMW()">
+						<img src="../imagenes/edit.svg" onclick="readProduct('R')">
+						<img src="../imagenes/trash.svg" onclick="deleteProduct('R')">
+					</div>
+					<div class="form__group">
+						<input type="text" name="cantidad_invR"  placeholder=" " class="form__input">
+						<label for="cantidad_invR" class="form__label">Cantidad:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="cost_uni_invR"  placeholder=" " class="form__input">
+						<label for="cost_uni_invR" class="form__label">Costo unitario:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="descripcion_invR" placeholder=" " class="form__input">
+						<label for="descripcion_invR" class="form__label">Descripcion:</label>
+					</div>
+				</div>
+				<div class="form__container--button">
+					<input type="submit" value="Guardar" class="form__submit">
+				</div>
+			</form>
+		</div>
+	</section>
+	<section id="inventoryMMW" class="modal">
+		<div class="modal__container">
+			<div class="modal__header">
+				<h2 class="modal__title">Nuevo Producto</h2>
+				<img src="../imagenes/salir.svg" id="closeInventoryMMW">
+			</div>
+			<form id="formInventarioM" class="form">
+				<div class="form__container">
+					<input type="label" name="id_invM"  placeholder=" " class="form__input" hidden>
+					<div>
+					<div>
+						<select id="selectProductM" name="fk_id_prod_invM"></select>
+						<img src="../imagenes/search.svg">
+						<img src="../imagenes/registrar.svg" onclick="openProductsRMW()">
+						<img src="../imagenes/edit.svg" onclick="readProduct('M')">
+						<img src="../imagenes/trash.svg" onclick="deleteProduct('M')">
+					</div>
+					</div>
+					<div class="form__group">
+						<input type="text" name="cantidad_invM"  placeholder=" " class="form__input">
+						<label for="cantidad_invM" class="form__label">Cantidad:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="cost_uni_invM"  placeholder=" " class="form__input">
+						<label for="cost_uni_invM" class="form__label">Costo unitario:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="descripcion_invM" placeholder=" " class="form__input">
+						<label for="descripcion_invM" class="form__label">Descripcion:</label>
+					</div>
+				</div>
+				<div class="form__container--button">
+					<input type="submit" value="Guardar" class="form__submit">
+				</div>
+			</form>
+		</div>
+	</section>
+	<!--Modal de registro y modificacion de productos-->
+	<section id="productsRMW" class="modalP">
+		<div class="modalP__container">
+			<div class="modalP__header">
+				<h2>Registrar</h2>
+				<img src="../imagenes/salir.svg" id="closeProductsRMW">
+			</div>
+			<form id="formProductsR" class="modalP__form">
+				<!--For nos ayuda a enlazarnos con otro objeto utilizando su id, por ejemplo cuando se hace foco(un click) al elemento que tiene for este nos redijira a su objeto en lazado-->
+				<div class="modalP__inputs">
+					<div class="modalP__group">
+						<label for="codigo_prodR" class="modalP__label">Codigo:</label>	
+						<input type="text" name="codigo_prodR"  placeholder=" " class="modalP__input">
+					</div>
+					<div class="modalP__group">
+						<label for="nombre_prodR" class="modalP__label">Nombre:</label>
+						<input type="text" name="nombre_prodR" placeholder=" " class="modalP__input" autocomplete="off">
+					</div>
+				</div>
+				<div>
+					<select name="marca_prodR" class="select" >
+						<option value="SIEMENS">SIEMENS</option>
+						<option value="SMC">SMC</option>
+						<option value="KIMO">KIMO</option>
+						<option value="KNX">KNX</option>
+						<option value="QUANSER">QUANSER</option>
+						<option value="NOVUS">NOVUS</option>
+					</select>
+					<select name="categoria_prodR" class="select">
+						<option value="PLC">PLC</option>
+						<option value="HMI">HMI</option>
+						<option value="MODULO">MODULO</option>
+						<option value="TRANSMISOR">TRANSMISOR</option>
+					</select>
+				</div>
+				<div class="modalP__textarea">
+					<textarea name="descripcion_prodR" placeholder="Type description here..."></textarea>	
+				</div>
+				<div class="drop__areaR" >
+					<h2>Arrastra y suelta la imagen</h2>
+					<span>O</span>
+					<button>Selecciona una imagen</button>
+					<!--multiplece para que acepte multiples archivos-->
+					<input type="file"  name="imagen_prodR" id="imagen_prodR" class="modalP__submit" hidden>
+				</div>
+				<input type="submit" value="Registrar" class="modalP__submit">
+			</form>
+			<div class="modalP__image">
+				<img id="verImagenR">
+			</div>
+		</div>
+	</section>
+	<section id="productsMMW" class="modalP">
+		<div class="modalP__container">
+			<div class="modalP__header">
+				<h2>Modificar</h2>
+				<img src="../imagenes/salir.svg" id="closeProductsMMW">
+			</div>
+			<form id="formProductsM" class="modalP__form">
+				<div class="modalP__inputs">
+					<input type="text" name="id_prodM">
+					<div class="modalP__group">
+						<label for="codigo_prodM" class="modalP__label">Codigo:</label>
+						<input type="text" name="codigo_prodM" placeholder=" " class="modalP__input">
+					</div>
+					<div class="modalP__group">
+						<label for="nombre_prodM" class="modalP__label">Nombre:</label>
+						<input type="text" name="nombre_prodM"  placeholder=" " class="modalP__input">
+					</div>
+				</div>
+				<div>
+					<select name="marca_prodM" class="select" >
+						<option value="SIEMENS">SIEMENS</option>
+						<option value="SMC">SMC</option>
+						<option value="KIMO">KIMO</option>
+						<option value="KNX">KNX</option>
+						<option value="QUANSER">QUANSER</option>
+						<option value="NOVUS">NOVUS</option>
+					</select>
+					<select name="categoria_prodM" class="select">
+						<option value="PLC">PLC</option>
+						<option value="HMI">HMI</option>
+						<option value="MODULO">MODULO</option>
+						<option value="TRANSMISOR">TRANSMISOR</option>
+					</select>
+				</div>
+				<div class="modalP__textarea">
+					<textarea name="descripcion_prodM" placeholder="Type description here..."></textarea>
+				</div>	
+				<div class="drop__areaM" >
+					<h2>Arrastra y suelta la imagen</h2>
+					<span>O</span>
+					<button>Selecciona una imagen</button>
+					<!--multiplece para que acepte multiples archivos-->
+					<input type="file"  name="imagen_prodM" id="imagen_prodM" class="modalP__submit" hidden>
+				</div>
+				<input type="submit" value="Guardar" class="modalP__submit">
+			</form>
+			<div class="modalP__image">
+				<img id="verImagenM" src="">
+			</div>
+		</div>
+	</section>
+	<!--Marca y Categoria-->
+	<section id="marcaRMW" class="modal">
+		<div class="modal__container">
+			<div class="modal__header">
+				<h2>Marca</h2>
+				<img src="../imagenes/salir.svg" id="closeMarcaRMW">
+			</div>
+			<form id="formMarcaR" class="form">
+				<div class="form__inputs">
+					<div class="form__group">	
+						<input type="text" name="nombre_mrc"  placeholder=" " class="form__input">
+						<label for="nombre_mrc" class="form__label">Marca:</label>
+					</div>
+				</div>
+				<input type="submit" value="Registrar" class="form__submit">
+			</form>
+		</div>
+	</section>
+	<section id="categoriaRMW" class="modal">
+		<div class="modal__container">
+			<div class="modal__header">
+				<h2>Categoria</h2>
+				<img src="../imagenes/salir.svg" id="closeCategoriaRMW">
+			</div>
+			<form id="formCategoriaR" class="form">
+				<div class="form__inputs">
+					<div class="form__group">
+						<input type="text" name="nombre_ctgr"  placeholder=" " class="form__input">
+						<label for="nombre_ctgr" class="form__label">Categoria:</label>	
+					</div>
+				</div>
+				<input type="submit" value="Registrar" class="form__submit">
+			</form>
+		</div>
+	</section>
+	<script src="scripts/header.js"></script>
+	<script src="scripts/compra.js"></script>
+</body>
+</html>
