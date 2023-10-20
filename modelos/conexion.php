@@ -1,6 +1,6 @@
 <?php
 //$conexion = new mysqli("localhost", "smsiccom_smsiccom", "Smsic123!@@!", "smsiccom_inventario");
-$conexion = new mysqli("localhost", "root", "", "smsic_inventario");
+$conexion = new mysqli("127.0.0.1:33066", "root", "", "smsiccom_inventario");
 /*if($conexion){
 	mysqli_select_db($conexion, 'pruebas');
 	mysqli_query($conexion, 'SET NAMES "utf8"');

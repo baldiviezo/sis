@@ -173,10 +173,6 @@
 			<form id="formEmpresaR" class="form">
 				<div class="form__container">
 					<div class="form__group">
-						<input type="text" name="sigla_empR"  placeholder=" " class="form__input">
-						<label for="sigla_empR" class="form__label">Sigla de la empresa:</label>
-					</div>
-					<div class="form__group">
 						<!--Al crear el cliente en blanco usamos el nombre de la empresa para asignar el cliente-->
 						<input type="text" name="nombre_empR"  placeholder=" " class="form__input" required>
 						<label for="nombre_empR" class="form__label">Nombre de la empresa:</label>
@@ -216,10 +212,6 @@
 					<!--Guardamos el id de la empresa para luego encotrarla en la base de datos-->
 					<!--la clase form__input se esta utilizando para realizar una funcionalidad del sistema (readEnterprises())-->
 					<input type="text" name="id_empM"  placeholder=" " class="form__input" hidden>
-					<div class="form__group">
-						<input type="text" name="sigla_empM"  placeholder=" " class="form__input">
-						<label for="sigla_empM" class="form__label">Sigla de la empresa:</label>
-					</div>
 					<!--Al crear el cliente en blanco usamos el nombre de la empresa para asignar el cliente-->
 					<div class="form__group">
 						<input type="text" name="nombre_empM"  placeholder=" " class="form__input" required>
@@ -262,7 +254,6 @@
 						<div>
 							<select id="selectSearchEmpMW" class="select">
 								<option value="todas">Buscar por</option>
-								<option value="sigla_emp">Sigla</option>
 								<option value="nombre_emp">Nombre</option>
 							</select>
 						</div>
@@ -293,7 +284,6 @@
 						<thead>
 							<tr>
 								<th>N°</th>
-								<th><div class="tbody__head--empMW">Sigla <img src="../imagenes/sortA_Z.svg" name="sigla_emp"><img src="../imagenes/sortZ_A.svg" name="sigla_emp"></div></th>
 								<th><div class="tbody__head--empMW">Nombre <img src="../imagenes/sortA_Z.svg" name="nombre_emp"><img src="../imagenes/sortZ_A.svg" name="nombre_emp"></div></th>
 								<th>NIT</th>
 								<th>Precio</th>
