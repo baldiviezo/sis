@@ -25,14 +25,14 @@ class consultas {
 	public function readProducts(){
 		require 'conexion.php';
 		$orderBy = $_POST['readProducts'];
-		$consulta = "SELECT * FROM producto ORDER BY id_prod DESC"; 
+		$consulta = "SELECT * FROM producto INNER JOIN marca ON producto.fk_id_mrc_prod = id_mrc INNER JOIN categoria ON producto.fk_id_ctgr_prod = id_ctgr ORDER BY id_prod DESC"; 
 		$resultado = $conexion->query($consulta);
 		$numeroFilas = $resultado->num_rows;
 		$productos =  array();
 		while ($fila = $resultado->fetch_assoc()){
 			$description = $fila['descripcion_prod'];
 			//$description = str_replace("\r" , '<br>', $description);
-			$datos = array ( 'id_prod'=>$fila['id_prod'], 'marca_prod'=>$fila['marca_prod'], 'categoria_prod'=>$fila['categoria_prod'], 'codigo_prod'=>$fila['codigo_prod'], 'nombre_prod'=>$fila['nombre_prod'], 'descripcion_prod'=>$description,  'imagen_prod'=>$fila['imagen_prod']);
+			$datos = array ( 'id_prod'=>$fila['id_prod'], 'id_mrc'=>$fila['id_mrc'], 'marca_prod'=>$fila['nombre_mrc'], 'id_ctgr'=>$fila['id_ctgr'], 'categoria_prod'=>$fila['nombre_ctgr'], 'codigo_prod'=>$fila['codigo_prod'], 'nombre_prod'=>$fila['nombre_prod'], 'descripcion_prod'=>$description,  'imagen_prod'=>$fila['imagen_prod']);
 			$productos['id_prod_'.$fila['id_prod']] = $datos;
 		}
 		echo json_encode($productos, JSON_UNESCAPED_UNICODE);
@@ -124,8 +124,15 @@ class consultas {
 	public function createMarca(){
 		include 'conexion.php';
 		$marca = trim($conexion->real_escape_string($_POST['nombre_mrc']));
-		$consulta = "INSERT INTO marca (nombre_mrc) VALUES ('$marca')";
+		$consulta = "SELECT * FROM marca WHERE nombre_mrc ='$marca'";
 		$resultado = $conexion->query($consulta);
+		$numeroMarcas = $resultado->num_rows;
+		if ($numeroMarcas > 0){
+			echo ("La marca ya existe");
+		}else{
+			$consulta = "INSERT INTO marca (nombre_mrc) VALUES ('$marca')";
+			$resultado = $conexion->query($consulta);
+		}
 	}
 	public function readMarca(){
 		include 'conexion.php';
@@ -148,12 +155,27 @@ class consultas {
 	public function createCategoria(){
 		include 'conexion.php';
 		$categoria = trim($conexion->real_escape_string($_POST['nombre_ctgr']));
-		$consulta = "INSERT INTO categoria (nombre_ctgr) VALUES ('$categoria')";
+		$id_mrc = trim($conexion->real_escape_string($_POST['id_mrc']));
+		$consulta = "SELECT * FROM mrc_ctgr INNER JOIN categoria ON mrc_ctgr.fk_id_ctgr_mccr = id_ctgr WHERE  fk_id_mrc_mccr = '$id_mrc' AND nombre_ctgr ='$categoria' ";
 		$resultado = $conexion->query($consulta);
+		$numeroMarcas = $resultado->num_rows;
+		if ($numeroMarcas > 0){
+			echo ("La categoria ya existe");
+		}else{
+			$consulta = "INSERT INTO categoria (nombre_ctgr) VALUES ('$categoria')";
+			$resultado = $conexion->query($consulta);
+			$consulta = "SELECT MAX(id_ctgr) as id_ctgr_max FROM categoria ";
+			$resultado = $conexion->query($consulta);
+			$id_ctgr = $resultado->fetch_assoc();
+			$id_ctgr = $id_ctgr['id_ctgr_max'];
+			$consulta = "INSERT INTO  mrc_ctgr (fk_id_mrc_mccr, fk_id_ctgr_mccr) VALUES ($id_mrc, $id_ctgr)";
+			$resultado = $conexion->query($consulta);
+		}
 	}
 	public function readCategoria(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM categoria";
+		$id_mrc = trim($conexion->real_escape_string($_POST['id_mrc']));
+		$consulta = "SELECT * FROM mrc_ctgr INNER JOIN categoria ON mrc_ctgr.fk_id_ctgr_mccr = id_ctgr WHERE fk_id_mrc_mccr = '$id_mrc' ORDER BY nombre_ctgr ASC";
 		$resultado = $conexion->query($consulta);
 		$categorias =  array();
 		while ($fila = $resultado->fetch_assoc()){

@@ -138,6 +138,13 @@ function tableCustomers(page) {
                 tr.appendChild(td);
                 i++;
             }else if(valor == 'fk_id_emp_clte'){
+            }else if(valor == 'celular_clte'){
+                if(filterCustomers[customer][valor] == '0'){
+                    td.innerText = '';
+                }else{
+                    td.innerText = filterCustomers[customer][valor];
+                }
+                tr.appendChild(td);
             }else{
                 td.innerText = filterCustomers[customer][valor];
                 tr.appendChild(td);
@@ -284,13 +291,17 @@ function createEnterprise() {
         method: "POST",
         body: formData
     }).then(response => response.text()).then(data => {
-        indexEnterprise = 0;
-        readEnterprises(); 
+        if(data == 'La empresa ya existe'){
+            alert(data);
+        }else{
+            indexEnterprise = 0;
+            readEnterprises();
+            enterprisesRMW.classList.remove('modal__show');
+            //Limpiar el formulario de registrar empresa
+        	let inputs = document.querySelectorAll('#formEmpresaR .form__input');
+            inputs.forEach(input =>input.value = ''); 
+        }
     }).catch(err => console.log(err));
-    enterprisesRMW.classList.remove('modal__show');
-    //Limpiar el formulario de registrar empresa
-    let inputs = document.querySelectorAll('#formEmpresaR .form__input');
-    inputs.forEach(input =>input.value = '');
     //initialPageSelectEmp();  
 }
 //------Leer una empresa
@@ -383,7 +394,7 @@ function searchEnterprisesMW(){
     for(let enterprise in enterprises){
         for(let valor in enterprises[enterprise]){
             if(selectSearchEmpMW.value == 'todas'){
-                if(valor == 'sigla_emp' ||  valor == 'nombre_emp'){
+                if(valor == 'nombre_emp'){
                     if(enterprises[enterprise][valor].toLowerCase().indexOf(inputSearchEmpMW.value.toLowerCase())>=0){
                         filterEnterprises[enterprise] = enterprises[enterprise];
                         break;
@@ -483,6 +494,20 @@ function tableEnterprisesMW(page) {
                 td.innerText = i;
                 tr.appendChild(td);
                 i++;
+            }else if(valor == 'nit_emp'){
+                if(filterEnterprises[enterprise][valor] == '0'){
+                    td.innerText = '';
+                }else{
+                    td.innerText = filterEnterprises[enterprise][valor];
+                }
+                tr.appendChild(td);
+            }else if(valor == 'telefono_emp'){
+                if(filterEnterprises[enterprise][valor] == '0'){
+                    td.innerText = '';
+                }else{
+                    td.innerText = filterEnterprises[enterprise][valor];
+                }
+                tr.appendChild(td);
             }else{
                 td.innerText = filterEnterprises[enterprise][valor];
                 tr.appendChild(td);
@@ -498,6 +523,7 @@ function tableEnterprisesMW(page) {
         }
     }   
 }
+//-------Send Enterprise
 function sendEnterprise(tr) {
     let id_emp = tr.children[0].innerText;
     let select = document.getElementsByName('fk_id_emp_clte'+formEnterprise)[0];

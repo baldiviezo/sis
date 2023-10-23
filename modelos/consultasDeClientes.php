@@ -29,7 +29,6 @@ class consultas {
 		//protegemos al servidor de los valores que el usuario esta introduciendo
 		include 'conexion.php';
 		//Primero vovlemos toda la palabra en minusculas y despues la primera letra en mayuscula
-		$this->sigla_emp = $conexion->real_escape_string($_POST['sigla_empR']);
 		$this->nombreEmpresa = Strtoupper(trim($conexion->real_escape_string($_POST['nombre_empR'])));
 		$this->nitEmpresa = $conexion->real_escape_string($_POST['nit_empR']);
 		$this->precioEmpresa = $conexion->real_escape_string($_POST['precio_empR']);
@@ -41,7 +40,6 @@ class consultas {
 		include 'conexion.php';
 		//Primero vovlemos toda la palabra en minusculas y despues la primera letra en mayuscula
 		$this->idEmpresa = $conexion->real_escape_string($_POST['id_empM']);
-		$this->sigla_emp = $conexion->real_escape_string($_POST['sigla_empM']);
 		$this->nombreEmpresa = Strtoupper(trim($conexion->real_escape_string($_POST['nombre_empM'])));
 		$this->nitEmpresa = $conexion->real_escape_string($_POST['nit_empM']);
 		$this->precioEmpresa = $conexion->real_escape_string($_POST['precio_empM']);
@@ -74,7 +72,6 @@ class consultas {
 		include 'conexion.php';
 		//Primero vovlemos toda la palabra en minusculas y despues la primera letra en mayuscula
 		$this->nombreEmpresa = ucwords(strtolower(trim($conexion->real_escape_string($_POST['nombreEmpresaR']))));
-		$this->sigla_empp = $conexion->real_escape_string($_POST['sigla_emppR']);
 		$this->direccionEmpresa = $conexion->real_escape_string($_POST['direccionEmpresaR']);
 		$this->telefonoEmpresa = $conexion->real_escape_string($_POST['telefonoEmpresaR']);
 	}
@@ -84,7 +81,6 @@ class consultas {
 		//Primero vovlemos toda la palabra en minusculas y despues la primera letra en mayuscula
 		$this->idEmpresa = $conexion->real_escape_string($_POST['id_empp']);
 		$this->nombreEmpresa = ucwords(strtolower(trim($conexion->real_escape_string($_POST['nombre_empp']))));
-		$this->sigla_empp = $conexion->real_escape_string($_POST['sigla_empp']);
 		$this->direccionEmpresa = $conexion->real_escape_string($_POST['direccion_empp']);
 		$this->telefonoEmpresa = $conexion->real_escape_string($_POST['telefono_empp']);
 	}
@@ -133,7 +129,7 @@ class consultas {
 		$numeroClientes = $resultado->num_rows;
 		$empresas =  array();
 		while ($fila = $resultado->fetch_assoc()){
-			$datos = array ( 'id_emp'=>$fila['id_emp'], 'sigla_emp'=>$fila['sigla_emp'], 'nombre_emp'=>$fila['nombre_emp'], 'nit_emp'=>$fila['nit_emp'], 'precio_emp'=>$fila['precio_emp'], 'direccion_emp'=>$fila['direccion_emp'], 'telefono_emp'=>$fila['telefono_emp']);
+			$datos = array ( 'id_emp'=>$fila['id_emp'], 'nombre_emp'=>$fila['nombre_emp'], 'nit_emp'=>$fila['nit_emp'], 'precio_emp'=>$fila['precio_emp'], 'direccion_emp'=>$fila['direccion_emp'], 'telefono_emp'=>$fila['telefono_emp']);
 			$empresas['id_emp_'.$fila['id_emp']] = $datos;
 		}
 		echo json_encode($empresas, JSON_UNESCAPED_UNICODE);
@@ -141,13 +137,13 @@ class consultas {
 	//------Crear una empresa
 	public function createEnterprise(){
 		include 'conexion.php';
-		/*$consulta = "SELECT * FROM empresa WHERE sigla_emp ='$this->sigla_emp'";
+		$consulta = "SELECT * FROM empresa WHERE nombre_emp ='$this->nombreEmpresa'";
 		$resultado = $conexion->query($consulta);
 		$numeroClientes = $resultado->num_rows;
 		if ($numeroClientes > 0){
 			echo ("La empresa ya existe");
-		}else{*/
-			$consulta = "INSERT INTO empresa (sigla_emp, nombre_emp, nit_emp, precio_emp, direccion_emp, telefono_emp) VALUES ('$this->sigla_emp', '$this->nombreEmpresa', '$this->nitEmpresa', '$this->precioEmpresa', '$this->direccionEmpresa', '$this->telefonoEmpresa')";
+		}else{
+			$consulta = "INSERT INTO empresa (nombre_emp, nit_emp, precio_emp, direccion_emp, telefono_emp) VALUES ('$this->nombreEmpresa', '$this->nitEmpresa', '$this->precioEmpresa', '$this->direccionEmpresa', '$this->telefonoEmpresa')";
 			$resultado = $conexion->query($consulta);
 			echo ("registrado");
 			//Crear cliente automaticamente
@@ -157,31 +153,33 @@ class consultas {
 			$id_emp = $fila['id_emp'];
 			$consulta = "INSERT INTO cliente (nombre_clte, apellido_clte, celular_clte, fk_id_emp_clte) VALUES ('', '', '', '$id_emp')";
 			$resultado = $conexion->query($consulta);
-		/*}*/
+		}
 	}
 	//------Actualizar una empresa
 	public function updateEnterprise(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM empresa WHERE sigla_emp ='$this->sigla_emp'";
+		$consulta = "SELECT * FROM empresa WHERE nombre_emp ='$this->nombreEmpresa'";
 		$resultado = $conexion->query($consulta);
 		$numeroFilas = $resultado->num_rows;
-		/*if($numeroFilas > 0){
+		if($numeroFilas > 0){
 			$empresa = $resultado->fetch_assoc();
 			$id_emp = $empresa['id_emp'];
 			if($id_emp == $this->idEmpresa){
-				$consulta = "UPDATE empresa set sigla_emp='$this->sigla_emp', nombre_emp='$this->nombreEmpresa', direccion_emp='$this->direccionEmpresa', telefono_emp='$this->telefonoEmpresa' WHERE id_emp='$this->idEmpresa'";
-				$resultado = $conexion->query($consulta);
-				if ($resultado){echo 'modificado';}
+				$this->consultaUpdateEnterprise();
 			}else{
-				echo "La empresa ya existe";
+				echo json_encode("La empresa ya existe");
 			}
-		}else{*/
-			$consulta = "UPDATE empresa set sigla_emp='$this->sigla_emp', nombre_emp='$this->nombreEmpresa', nit_emp='$this->nitEmpresa', precio_emp='$this->precioEmpresa', direccion_emp='$this->direccionEmpresa', telefono_emp='$this->telefonoEmpresa' WHERE id_emp='$this->idEmpresa'";
-			$resultado = $conexion->query($consulta);
-			if ($resultado){
-				echo 'modificado';
-			}
-		/*}*/
+		}else{
+			$this->consultaUpdateEnterprise();
+		}		
+	}
+	public function consultaUpdateEnterprise(){
+		include 'conexion.php';
+		$consulta = "UPDATE empresa set nombre_emp='$this->nombreEmpresa', nit_emp='$this->nitEmpresa', precio_emp='$this->precioEmpresa', direccion_emp='$this->direccionEmpresa', telefono_emp='$this->telefonoEmpresa' WHERE id_emp='$this->idEmpresa'";
+		$resultado = $conexion->query($consulta);
+		if ($resultado){
+			echo 'modificado';
+		}
 	}
 	//------Eliminar una empresa
 	public function deleteEnterprise($id_emp){
@@ -293,7 +291,7 @@ class consultas {
 		$empresas =  array();
 		if($numeroClientes > 0){
 			while ($fila = $resultado->fetch_assoc()){
-				$datos = array ( 'id_emp'=>$fila['id_emp'], 'sigla_emp'=>$fila['sigla_emp'], 'nombre_emp'=>$fila['nombre_emp'], 'direccion_emp'=>$fila['direccion_emp'], 'telefono_emp'=>$fila['telefono_emp']);
+				$datos = array ( 'id_emp'=>$fila['id_emp'], 'nombre_emp'=>$fila['nombre_emp'], 'direccion_emp'=>$fila['direccion_emp'], 'telefono_emp'=>$fila['telefono_emp']);
 				$empresas[$fila['nombre_emp']] = $datos;
 			}
 			$json = json_encode($empresas, JSON_UNESCAPED_UNICODE);
@@ -307,13 +305,13 @@ class consultas {
 	//------Crear una empresa
 	public function createEnterpriseP(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM empresa_prov WHERE sigla_empp ='$this->sigla_empp'";
+		$consulta = "SELECT * FROM empresa_prov WHERE id_empp ='$this->id_empp'";
 		$resultado = $conexion->query($consulta);
 		$numeroClientes = $resultado->num_rows;
 		if ($numeroClientes > 0){
 			echo ("La empresa ya existe");
 		}else{
-			$consulta = "INSERT INTO empresa_prov (sigla_empp, nombre_empp, direccion_empp, telefono_empp) VALUES ('$this->sigla_empp', '$this->nombreEmpresa', '$this->direccionEmpresa', '$this->telefonoEmpresa')";
+			$consulta = "INSERT INTO empresa_prov (nombre_empp, direccion_empp, telefono_empp) VALUES ('$this->nombreEmpresa', '$this->direccionEmpresa', '$this->telefonoEmpresa')";
 			$resultado = $conexion->query($consulta);
 			echo ("registrado");
 
@@ -329,13 +327,13 @@ class consultas {
 	//------Leer todas la empresas
 	public function readEnterpriseP(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM empresa_prov ORDER BY sigla_empp ASC";
+		$consulta = "SELECT * FROM empresa_prov ORDER BY id_empp ASC";
 		$resultado = $conexion->query($consulta);
 		$numeroClientes = $resultado->num_rows;
 		$empresas =  array();
 		if($numeroClientes > 0){
 			while ($fila = $resultado->fetch_assoc()){
-				$datos = array ( 'id_empp'=>$fila['id_empp'], 'sigla_empp'=>$fila['sigla_empp'], 'nombre_empp'=>$fila['nombre_empp'], 'direccion_empp'=>$fila['direccion_empp'], 'telefono_empp'=>$fila['telefono_empp']);
+				$datos = array ( 'id_empp'=>$fila['id_empp'], 'nombre_empp'=>$fila['nombre_empp'], 'direccion_empp'=>$fila['direccion_empp'], 'telefono_empp'=>$fila['telefono_empp']);
 				$empresas[$fila['nombre_empp']] = $datos;
 			}
 			$json = json_encode($empresas, JSON_UNESCAPED_UNICODE);
@@ -347,14 +345,14 @@ class consultas {
 	//------Actualizar una empresa
 	public function updateEnterpriseP(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM empresa_prov WHERE sigla_empp ='$this->sigla_empp'";
+		$consulta = "SELECT * FROM empresa_prov WHERE id_empp ='$this->id_empp'";
 		$resultado = $conexion->query($consulta);
 		$numeroFilas = $resultado->num_rows;
 		if($numeroFilas > 0){
 			$empresa = $resultado->fetch_assoc();
 			$id_empp = $empresa['id_empp'];
 			if($id_empp == $this->idEmpresa){
-				$consulta = "UPDATE empresa set sigla_empp='$this->sigla_empp', nombre_empp='$this->nombreEmpresa', direccion_empp='$this->direccionEmpresa', telefono_empp='$this->telefonoEmpresa' WHERE id_empp='$this->idEmpresa'";
+				$consulta = "UPDATE empresa set nombre_empp='$this->nombreEmpresa', direccion_empp='$this->direccionEmpresa', telefono_empp='$this->telefonoEmpresa' WHERE id_empp='$this->idEmpresa'";
 				$resultado = $conexion->query($consulta);
 				if ($resultado){
 					echo ('modificado');
@@ -363,7 +361,7 @@ class consultas {
 				echo json_encode("La empresa ya existe");
 			}
 		}else{
-			$consulta = "UPDATE empresa_prov set sigla_empp='$this->sigla_empp', nombre_empp='$this->nombreEmpresa', direccion_empp='$this->direccionEmpresa', telefono_empp='$this->telefonoEmpresa' WHERE id_empp='$this->idEmpresa'";
+			$consulta = "UPDATE empresa_prov set nombre_empp='$this->nombreEmpresa', direccion_empp='$this->direccionEmpresa', telefono_empp='$this->telefonoEmpresa' WHERE id_empp='$this->idEmpresa'";
 			$resultado = $conexion->query($consulta);
 			if ($resultado){
 				echo ('modificado');
@@ -406,7 +404,7 @@ class consultas {
 		$empresas =  array();
 		if($numeroClientes > 0){
 			while ($fila = $resultado->fetch_assoc()){
-				$datos = array ( 'id_empp'=>$fila['id_empp'], 'sigla_empp'=>$fila['sigla_empp'], 'nombre_empp'=>$fila['nombre_empp'], 'direccion_empp'=>$fila['direccion_empp'], 'telefono_empp'=>$fila['telefono_empp']);
+				$datos = array ( 'id_empp'=>$fila['id_empp'], 'nombre_empp'=>$fila['nombre_empp'], 'direccion_empp'=>$fila['direccion_empp'], 'telefono_empp'=>$fila['telefono_empp']);
 				$empresas[$fila['nombre_empp']] = $datos;
 			}
 			$json = json_encode($empresas, JSON_UNESCAPED_UNICODE);
