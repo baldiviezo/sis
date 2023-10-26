@@ -49,9 +49,11 @@ class consultas {
 			$fecha = new DateTime();
 			$nombreImagen=($this->imagen!="")?$fecha->getTimestamp()."_".$this->imagen:"imagen.jpg";
 			$imagenTemporal=$_FILES['imagen_prodR']['tmp_name'];
-			move_uploaded_file($imagenTemporal, "../modelos/imagenes/".$nombreImagen);
-			$consulta = "INSERT INTO producto (codigo_prod, marca_prod, categoria_prod, nombre_prod, descripcion_prod, imagen_prod) VALUES ('$this->codigo', '$this->marca', '$this->categoria', '$this->nombre','$this->descripcion', '$nombreImagen')";
+			$consulta = "INSERT INTO producto (codigo_prod, fk_id_mrc_prod, fk_id_ctgr_prod, nombre_prod, descripcion_prod, imagen_prod) VALUES ('$this->codigo', '$this->marca', '$this->categoria', '$this->nombre','$this->descripcion', '$nombreImagen')";
 			$resultado = $conexion->query($consulta);
+			if($resultado){
+				move_uploaded_file($imagenTemporal, "../modelos/imagenes/".$nombreImagen);
+			}
 			$consulta = "SELECT MAX(id_prod) as id_prod_max FROM producto";
 			$resultado = $conexion->query($consulta);
 			$producto = $resultado->fetch_assoc();
@@ -78,9 +80,9 @@ class consultas {
 	}
 	public function update(){
 		include 'conexion.php';
-		$consulta = "UPDATE producto set codigo_prod='$this->codigo', marca_prod='$this->marca', categoria_prod='$this->categoria', descripcion_prod='$this->descripcion', nombre_prod='$this->nombre' WHERE id_prod='$this->id'";
+		$consulta = "UPDATE producto set codigo_prod='$this->codigo', fk_id_mrc_prod='$this->marca', fk_id_ctgr_prod='$this->categoria', descripcion_prod='$this->descripcion', nombre_prod='$this->nombre' WHERE id_prod='$this->id'";
 		$resultado = $conexion->query($consulta);
-		if($this->imagen != ""){
+		if($this->imagen != "" && $resultado){
 			//borrar la anterior imagen
 			$seleccionar = "SELECT * FROM producto WHERE id_prod='$this->id'";
 			$resultado = $conexion->query($seleccionar);
@@ -121,20 +123,7 @@ class consultas {
 		}
 	}
 	//-----------------------------------CRUD MARCAS----------------------------------
-	public function createMarca(){
-		include 'conexion.php';
-		$marca = trim($conexion->real_escape_string($_POST['nombre_mrc']));
-		$consulta = "SELECT * FROM marca WHERE nombre_mrc ='$marca'";
-		$resultado = $conexion->query($consulta);
-		$numeroMarcas = $resultado->num_rows;
-		if ($numeroMarcas > 0){
-			echo ("La marca ya existe");
-		}else{
-			$consulta = "INSERT INTO marca (nombre_mrc) VALUES ('$marca')";
-			$resultado = $conexion->query($consulta);
-		}
-	}
-	public function readMarca(){
+	public function readMarcas(){
 		include 'conexion.php';
 		$consulta = "SELECT * FROM marca";
 		$resultado = $conexion->query($consulta);
@@ -146,48 +135,73 @@ class consultas {
 		$json = json_encode($marcas, JSON_UNESCAPED_UNICODE);
 		echo $json;
 	}
-	public function deleteMarca($nombre){
+	public function createMarca(){
 		include 'conexion.php';
-		$consulta = "DELETE FROM marca WHERE nombre_mrc='$nombre'";
-		$resultado = $conexion->query($consulta);
-	}
-	//----------------------------------CRUD CATEGORIAS------------------------------
-	public function createCategoria(){
-		include 'conexion.php';
-		$categoria = trim($conexion->real_escape_string($_POST['nombre_ctgr']));
-		$id_mrc = trim($conexion->real_escape_string($_POST['id_mrc']));
-		$consulta = "SELECT * FROM mrc_ctgr INNER JOIN categoria ON mrc_ctgr.fk_id_ctgr_mccr = id_ctgr WHERE  fk_id_mrc_mccr = '$id_mrc' AND nombre_ctgr ='$categoria' ";
+		$nombre_mrc = trim($conexion->real_escape_string($_POST['nombre_mrc']));
+		$consulta = "SELECT * FROM marca WHERE nombre_mrc ='$nombre_mrc'";
 		$resultado = $conexion->query($consulta);
 		$numeroMarcas = $resultado->num_rows;
 		if ($numeroMarcas > 0){
-			echo ("La categoria ya existe");
+			echo ("La marca ya existe");
 		}else{
-			$consulta = "INSERT INTO categoria (nombre_ctgr) VALUES ('$categoria')";
-			$resultado = $conexion->query($consulta);
-			$consulta = "SELECT MAX(id_ctgr) as id_ctgr_max FROM categoria ";
-			$resultado = $conexion->query($consulta);
-			$id_ctgr = $resultado->fetch_assoc();
-			$id_ctgr = $id_ctgr['id_ctgr_max'];
-			$consulta = "INSERT INTO  mrc_ctgr (fk_id_mrc_mccr, fk_id_ctgr_mccr) VALUES ($id_mrc, $id_ctgr)";
+			$consulta = "INSERT INTO marca (nombre_mrc) VALUES ('$nombre_mrc')";
 			$resultado = $conexion->query($consulta);
 		}
 	}
-	public function readCategoria(){
+	public function deleteMarca($id_mrc){
 		include 'conexion.php';
-		$id_mrc = trim($conexion->real_escape_string($_POST['id_mrc']));
-		$consulta = "SELECT * FROM mrc_ctgr INNER JOIN categoria ON mrc_ctgr.fk_id_ctgr_mccr = id_ctgr WHERE fk_id_mrc_mccr = '$id_mrc' ORDER BY nombre_ctgr ASC";
+		$consulta = "DELETE FROM marca WHERE id_mrc='$id_mrc'";
+		$resultado = $conexion->query($consulta);
+	}
+	//----------------------------------CRUD CATEGORIAS------------------------------
+	public function readCategorias(){
+		include 'conexion.php';
+		$consulta = "SELECT * FROM mrc_ctgr INNER JOIN marca ON mrc_ctgr.fk_id_mrc_mccr = id_mrc INNER JOIN categoria ON mrc_ctgr.fk_id_ctgr_mccr = id_ctgr";
 		$resultado = $conexion->query($consulta);
 		$categorias =  array();
 		while ($fila = $resultado->fetch_assoc()){
-			$datos = array ( 'id_ctgr'=>$fila['id_ctgr'], 'nombre_ctgr'=>$fila['nombre_ctgr']);
-			$categorias[$fila['id_ctgr'].'_ctgr'] = $datos;
+			$datos = array ( 'id_mccr'=>$fila['id_mccr'], 'id_mrc'=>$fila['id_mrc'], 'nombre_mrc'=>$fila['nombre_mrc'], 'id_ctgr'=>$fila['id_ctgr'], 'nombre_ctgr'=>$fila['nombre_ctgr']);
+			$categorias[$fila['id_mccr'].'_mccr'] = $datos;
 		}
 		$json = json_encode($categorias, JSON_UNESCAPED_UNICODE);
 		echo $json;
 	}
-	public function deleteCategoria($nombre){
+	public function createCategoria(){
 		include 'conexion.php';
-		$consulta = "DELETE FROM categoria WHERE nombre_ctgr='$nombre'";
+		$nombre_ctgr = trim($conexion->real_escape_string($_POST['nombre_ctgr']));
+		$id_mrc = trim($conexion->real_escape_string($_POST['id_mrc']));
+		$consulta = "SELECT * FROM categoria WHERE nombre_ctgr ='$nombre_ctgr'";
+		$resultado = $conexion->query($consulta);
+		$categorias = $resultado->fetch_assoc();
+		$numeroCategorias = $resultado->num_rows;
+		if ($numeroCategorias > 0){
+			$id_ctgr = $categorias['id_ctgr'];
+			$consulta = "SELECT * FROM mrc_ctgr WHERE fk_id_ctgr_mccr ='$id_ctgr' AND fk_id_mrc_mccr = '$id_mrc'";
+			$resultado = $conexion->query($consulta);
+			$numeroCategorias = $resultado->num_rows;
+			if ($numeroCategorias > 0){
+				echo ("La categoria ya existe");
+			}else{
+				$consulta = "INSERT INTO  mrc_ctgr (fk_id_mrc_mccr, fk_id_ctgr_mccr) VALUES ($id_mrc, $id_ctgr)";
+				$resultado = $conexion->query($consulta);
+			}
+		}else{
+			$consulta = "INSERT INTO categoria (nombre_ctgr) VALUES ('$nombre_ctgr')";
+			$resultado = $conexion->query($consulta);
+			$consulta = "SELECT MAX(id_ctgr) as id_ctgr_max FROM categoria ";
+			$resultado = $conexion->query($consulta);
+			$id_ctgr_max = $resultado->fetch_assoc();
+			$id_ctgr_max = $id_ctgr_max['id_ctgr_max'];
+			$consulta = "INSERT INTO  mrc_ctgr (fk_id_mrc_mccr, fk_id_ctgr_mccr) VALUES ($id_mrc, $id_ctgr_max)";
+			$resultado = $conexion->query($consulta);
+		}
+	}
+	public function deleteCategoria($id_ctgr){
+		include 'conexion.php';
+		$id_mrc = trim($conexion->real_escape_string($_POST['id_mrc']));
+		$consulta = "DELETE FROM mrc_ctgr WHERE fk_id_ctgr_mccr='$id_ctgr' AND fk_id_mrc_mccr='$id_mrc'";
+		$resultado = $conexion->query($consulta);
+		$consulta = "DELETE FROM categoria WHERE id_ctgr='$id_ctgr'";
 		$resultado = $conexion->query($consulta);
 	}
 }

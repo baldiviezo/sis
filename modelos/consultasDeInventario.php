@@ -19,14 +19,14 @@ class consultas {
 	//-------Leer inventarios
 	public  function readInventories(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM inventario INNER JOIN producto ON inventario.fk_id_prod_inv = id_prod ORDER BY id_inv DESC";
+		$consulta = "SELECT * FROM inventario INNER JOIN producto ON inventario.fk_id_prod_inv = id_prod INNER JOIN marca ON producto.fk_id_mrc_prod = id_mrc INNER JOIN categoria ON producto.fk_id_ctgr_prod = id_ctgr ORDER BY id_inv DESC";
 		$resultado = $conexion->query($consulta);
 		$numeroFilas = $resultado->num_rows;
 		$productos =  array();
 			while ($fila = $resultado->fetch_assoc()){
 				$description = $fila['descripcion_prod'];
 				//$description = str_replace("\r" , '<br>', $description);
-				$datos = array ('id_inv'=>$fila['id_inv'], 'fk_id_prod_inv'=>$fila['fk_id_prod_inv'], 'marca_prod'=>$fila['marca_prod'], 'categoria_prod'=>$fila['categoria_prod'], 'codigo_prod'=>$fila['codigo_prod'], 'nombre_prod'=>$fila['nombre_prod'], 'descripcion_prod'=>$description, 'imagen_prod'=>$fila['imagen_prod'], 'cantidad_inv'=>$fila['cantidad_inv'], 'cost_uni_inv'=>$fila['cost_uni_inv'], 'descripcion_inv'=>$fila['descripcion_inv']);
+				$datos = array ('id_inv'=>$fila['id_inv'], 'fk_id_prod_inv'=>$fila['fk_id_prod_inv'], 'id_mrc'=>$fila['id_mrc'], 'marca_prod'=>$fila['nombre_mrc'], 'id_ctgr'=>$fila['id_ctgr'], 'categoria_prod'=>$fila['nombre_ctgr'], 'codigo_prod'=>$fila['codigo_prod'], 'nombre_prod'=>$fila['nombre_prod'], 'descripcion_prod'=>$description, 'imagen_prod'=>$fila['imagen_prod'], 'cantidad_inv'=>$fila['cantidad_inv'], 'cost_uni_inv'=>$fila['cost_uni_inv'], 'descripcion_inv'=>$fila['descripcion_inv']);
 				$productos[$fila['codigo_prod']] = $datos;
 			}
 			echo json_encode($productos, JSON_UNESCAPED_UNICODE);

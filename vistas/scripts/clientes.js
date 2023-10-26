@@ -1,3 +1,9 @@
+//--------------------------------------------Restricciones de usuario----------------------------------------------
+if(localStorage.getItem('usua_rol') == 'Ingeniero'){
+    document.querySelectorAll('.form__group--select')[0].children[3].classList.add('hide');
+    document.querySelectorAll('.form__group--select')[0].children[4].classList.add('hide');
+}
+/************************************************TABLA DE CLIENTES*********************************************/
 let customers = {};
 let filterCustomers = {};
 readCustomers();
@@ -151,9 +157,13 @@ function tableCustomers(page) {
             }
         }
         let td = document.createElement('td');
-        td.innerHTML = `
-        <img src='../imagenes/edit.svg' onclick='readCustomer(this.parentNode.parentNode)'>
-        <img src='../imagenes/trash.svg' onclick='deleteCustomer(this.parentNode.parentNode)'>`;
+        if(localStorage.getItem('usua_rol')=='Gerente general' || localStorage.getItem('usua_rol')=='Administrador'){
+            td.innerHTML = `
+            <img src='../imagenes/edit.svg' onclick='readCustomer(this.parentNode.parentNode)'>
+            <img src='../imagenes/trash.svg' onclick='deleteCustomer(this.parentNode.parentNode)'>`;
+        }else{
+            td.innerHTML = ``;
+        }
         tr.appendChild(td);
         tbody.appendChild(tr);
         }else{
@@ -373,9 +383,7 @@ closeEnterprisesMMW.addEventListener('click',()=>{
 });
 
 
-
-
-//<<---------------------------------------Tabla de empresa Modal--------------------------------------->>
+//<<---------------------------------------TABLA EMPRESA--------------------------------------->>
 //------Select utilizado para buscar por columnas
 const selectSearchEmpMW = document.getElementById('selectSearchEmpMW');
 selectSearchEmpMW.addEventListener('change', searchEnterprisesMW);

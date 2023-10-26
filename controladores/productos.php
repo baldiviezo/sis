@@ -24,26 +24,26 @@ if (isset($_POST['deleteProduct'])){
 	$borrarProducto->borrar($_POST['deleteProduct']);
 }
 //-----------------------------------------Marcas--------------------------------------------------
+if (isset($_POST['readMarcas'])){
+	$readMarca = new consultas;
+	$readMarca->readMarcas();
+}
 if (isset($_POST['createMarca'])){
 	$registrarMarca = new consultas;
 	$registrarMarca->createMarca();
-}
-if (isset($_POST['readMarca'])){
-	$readMarca = new consultas;
-	$readMarca->readMarca();
 }
 if (isset($_POST['deleteMarca'])){
 	$deleteMarca = new consultas;
 	$deleteMarca->deleteMarca($_POST['deleteMarca']);
 }
 //-----------------------------------------Categorias--------------------------------------------------
+if (isset($_POST['readCategorias'])){
+	$readCategoria = new consultas;
+	$readCategoria->readCategorias();
+}
 if (isset($_POST['createCategoria'])){
 	$registrarCategoria = new consultas;
 	$registrarCategoria->createCategoria();
-}
-if (isset($_POST['readCategoria'])){
-	$readCategoria = new consultas;
-	$readCategoria->readCategoria();
 }
 if (isset($_POST['deleteCategoria'])){
 	$deleteCategoria = new consultas;

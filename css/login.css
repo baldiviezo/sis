@@ -24,9 +24,17 @@ body.login{
 	box-shadow: 0 5px 10px -5px rgb(0 0 0 / 80%);
 	text-align: center;
 }
+.form__logo{
+	width: 100%;
+	height: 7rem;
+	background-image: url(../imagenes/LogoSMS.jpg);
+	background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+}
 .form__title{
 	padding-top: 2rem;
-	color: #225c74;
+	color: #245c73;
 	font-size: 2rem;
 	margin-bottom: .5em;
 }
@@ -57,7 +65,7 @@ body.login{
 .form__input:focus + .form__label, .form__input:not(:placeholder-shown) + .form__label{
 	transform: translateY(-12px) scale(.7);
 	transform-origin: left top;
-	color: #225c74;
+	color: #245c73;
 }
 .form__radio{
 	display: flex;
@@ -74,7 +82,7 @@ body.login{
 	transition: transform .5s, color .3s;
 }
 .form__submit{
-	background: #225c74;
+	background: #245c73;
 	color: #fff;
 	font-family: 'Roboto', sans-serif;
 	font-weight: 300;

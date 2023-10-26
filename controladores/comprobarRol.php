@@ -2,7 +2,7 @@
 	session_start();
 	if(isset($_SESSION['info_nombres'])&&isset($_SESSION['info_apellidos'])&&isset($_SESSION['info_rol'])){
 		$rol = $_SESSION['info_rol'];
-		if($rol=='Administrador'){
+		if($rol=='Administrador' || $rol=='Gerente general'){
             header('location: ../vistas/administrador.html',"_self");
         }
         if($rol=='Ingeniero'){

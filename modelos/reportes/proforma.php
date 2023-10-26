@@ -274,14 +274,14 @@ $fpdf->SetLineWidth(0.2);
 
 
 
-$fpdf->Image('logos/IngenuityforLife.jpg',25,187,80,27);
-$fpdf->Image('logos/nacionalInstruments.jpg',105,190,85,25);
+$fpdf->Image('logos/comboLogos.png',12,175,192,73);
+/*$fpdf->Image('logos/nacionalInstruments.jpg',105,190,85,25);
 $fpdf->Image('logos/smc.jpg',25,215,56,15);
 $fpdf->Image('logos/sensorex.png',90,215,56,15);
 $fpdf->Image('logos/knx.png',150,215,40,15);
 $fpdf->Image('logos/quanser.jpg',25,240,56,12);
 $fpdf->Image('logos/balluff.png',87,240,56,15);
-$fpdf->Image('logos/kimo.jpg',147,240,44,15);
+$fpdf->Image('logos/kimo.jpg',147,240,44,15);*/
 $fpdf->Output();
 //$fpdf->Output('D',$_SESSION['nProforma'].'.pdf','UTF-8');
 //$fpdf->Output('F','../../reportes/'.$_SESSION['nProforma'].'.pdf');

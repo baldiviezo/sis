@@ -1,6 +1,6 @@
 //-------Marca y categoria
 const selectMarcaInventory = document.getElementById('selectMarcaInventory');
-selectMarcaInventory.addEventListener('change', searchInventories);
+selectMarcaInventory.addEventListener('change', selectCategoriaInv);
 const selectCategoriaInventory = document.getElementById('selectCategoriaInventory');
 selectCategoriaInventory.addEventListener('change', searchInventories);
 //------Read inventarios
@@ -63,17 +63,17 @@ function selectInventories(){
         for(let ìnventory in filterInventories){
             for(let valor in filterInventories[ìnventory]){
                 if(selectMarcaInventory.value == 'todasLasMarcas'){
-                    if(filterInventories[ìnventory]['categoria_prod'] != selectCategoriaInventory.value){
+                    if(filterInventories[ìnventory]['id_ctgr'] != selectCategoriaInventory.value){
                         delete filterInventories[ìnventory];
                         break;
                     }    
                 }else if(selectCategoriaInventory.value == 'todasLasCategorias'){
-                    if(filterInventories[ìnventory]['marca_prod'] != selectMarcaInventory.value){
+                    if(filterInventories[ìnventory]['id_mrc'] != selectMarcaInventory.value){
                         delete filterInventories[ìnventory];
                         break;
                     }  
                 }else{
-                    if(filterInventories[ìnventory]['categoria_prod'] != selectCategoriaInventory.value || filterInventories[ìnventory]['marca_prod'] != selectMarcaInventory.value){
+                    if(filterInventories[ìnventory]['id_ctgr'] != selectCategoriaInventory.value || filterInventories[ìnventory]['id_mrc'] != selectMarcaInventory.value){
                         delete filterInventories[ìnventory];
                         break;
                     }  
@@ -159,6 +159,8 @@ function tableInventories(page) {
                 td.innerText = filterInventories[inventory][valor];
                 td.setAttribute('hidden', '');
                 tr.appendChild(td);
+            }else if(valor == 'id_mrc'){
+            }else if(valor == 'id_ctgr'){
             }else if(valor == 'fk_id_prod_inv'){
                 td.innerText = filterInventories[inventory][valor];
                 td.setAttribute('hidden', '');
@@ -220,6 +222,8 @@ function readInventory(tr){
         if(filterInventories[inventory]['id_inv']==id_inv){
             for(let valor in filterInventories[inventory]){
                 if(valor == 'marca_prod' || valor == 'categoria_prod' || valor == 'codigo_prod' || valor == 'nombre_prod' || valor == 'descripcion_prod' || valor == 'imagen_prod'){
+                }else if(valor == 'id_ctgr'){
+                }else if(valor == 'id_mrc'){
                 }else{
                     document.getElementsByName(valor+'M')[0].value = filterInventories[inventory][valor];
                 }
@@ -286,7 +290,7 @@ closeInventoryMMW.addEventListener('click',()=>{
 //---------------------------------------------------PRODUCTOS-----------------------------------------------//
 //-------Marca y categoria
 const selectMarcaProdMW = document.getElementById('selectMarcaProdMW');
-selectMarcaProdMW.addEventListener('change', searchProductsMW);
+selectMarcaProdMW.addEventListener('change', selectCategoriaProd);
 const selectCategoriaProdMW = document.getElementById('selectCategoriaProdMW');
 selectCategoriaProdMW.addEventListener('change', searchProductsMW);
 //<<-----------------------------------LLENAR LA LISTA DE PRODUCTOS-------------------------------------->>
@@ -364,6 +368,13 @@ function readProduct(div){
             for(let valor in products[product]){
                 if(valor == 'imagen_prod'){
                     document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("../modelos/imagenes/${products[product][valor]}"); background-size: cover;`);
+                }else if(valor == 'id_ctgr'){
+                }else if(valor == 'id_mrc'){
+                }else if(valor == 'marca_prod'){
+                    document.getElementsByName(valor+'M')[0].value = products[product]['id_mrc'];
+                }else if(valor == 'categoria_prod'){
+                    selectCategoriaProdM(); 
+                    document.getElementsByName(valor+'M')[0].value = products[product]['id_ctgr'];
                 }else{
                     document.getElementsByName(valor+'M')[0].value = products[product][valor];
                 }
@@ -620,17 +631,17 @@ function selectProductsMW(){
         for(let product in filterProducts){
             for(let valor in filterProducts[product]){
                 if(selectMarcaProdMW.value == 'todasLasMarcas'){
-                    if(filterProducts[product]['categoria_prod'] != selectCategoriaProdMW.value){
+                    if(filterProducts[product]['id_ctgr'] != selectCategoriaProdMW.value){
                         delete filterProducts[product];
                         break;
                     }    
                 }else if(selectCategoriaProdMW.value == 'todasLasCategorias'){
-                    if(filterProducts[product]['marca_prod'] != selectMarcaProdMW.value){
+                    if(filterProducts[product]['id_mrc'] != selectMarcaProdMW.value){
                         delete filterProducts[product];
                         break;
                     }  
                 }else{
-                    if(filterProducts[product]['categoria_prod'] != selectCategoriaProdMW.value || filterProducts[product]['marca_prod'] != selectMarcaProdMW.value){
+                    if(filterProducts[product]['id_ctgr'] != selectCategoriaProdMW.value || filterProducts[product]['id_mrc'] != selectMarcaProdMW.value){
                         delete filterProducts[product];
                         break;
                     }  
@@ -640,8 +651,6 @@ function selectProductsMW(){
         paginacionProductMW(Object.values(filterProducts).length, 1); 
     }
 }
-
-
 //------Ordenar tabla descendente ascendente
 let orderProducts = document.querySelectorAll('.tbody__head--ProdMW');
 orderProducts.forEach(div=>{
@@ -722,6 +731,8 @@ function tableProductsMW(page) {
                 td.innerText = i;
                 tr.appendChild(td);
                 i++;
+            }else if(valor == 'id_mrc'){
+            }else if(valor == 'id_ctgr'){
             }else if(valor == 'imagen_prod'){
                 let img = document.createElement('img');
                 img.classList.add('tbody__img');
@@ -751,8 +762,6 @@ function sendProduct(tr) {
 }
 
 
-
-
 //---------------------------VENTANA MODAL PARA BUSCAR PRODUCTOS
 const productSMW = document.getElementById('productSMW');
 const closeProductSMW = document.getElementById('closeProductSMW');
@@ -763,15 +772,43 @@ function openProductSMW(clave){
 closeProductSMW.addEventListener('click',()=>{
     productSMW.classList.remove('modal__show');
 });
-
-
-
-
-/*----------------------------------------------Marca y categoria-------------------------------------------------*/
-//-------registrar Marca
+/*-----------------------------------------Marca y categoria producto-------------------------------------------------*/
+//-------Read all Marcas
+let marcas = {};
+readAllMarcas();
+function readAllMarcas() {
+    let formData = new FormData();
+    formData.append('readMarcas', '');
+    fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+    }).then(response => response.json()).then(data => {
+        marcas = data;  
+        selectMarcaProd();
+        selectMarcaProdR();
+        selectMarcaProdM();
+        selectMarcaInv();
+    }).catch(err => console.log(err));
+}
+//-------Read all categorias
+let categorias = {};
+readAllCategorias();
+function readAllCategorias() {
+    let formData = new FormData();
+    formData.append('readCategorias', '');
+    fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+    }).then(response => response.json()).then(data => {
+        categorias = data;
+        selectCategoriaInv();
+    }).catch(err => console.log(err));
+}
+/*----------------------------------------------Marca y categoria inventario-------------------------------------------------*/
+//-------Create Marca
 let formMarcaR = document.getElementById('formMarcaR');
-formMarcaR.addEventListener('submit', createMarca);
-function createMarca(){
+formMarcaR.addEventListener('submit', createMarcaInv);
+function createMarcaInv(){
     event.preventDefault();
     let formData = new FormData(formMarcaR);
     formData.append('createMarca', '');
@@ -779,39 +816,20 @@ function createMarca(){
             method: "POST",
             body: formData
     }).then(response => response.text()).then(data => {
-        readAllMarcas();
-        marcaRMW.classList.remove('modal__show');    
+        if(data == 'La marca ya existe'){
+            alert (data);
+        }else{
+            readAllMarcas();
+            marcaRMW.classList.remove('modal__show');   
+        }
     }).catch(err => console.log(err));
 }
-readAllMarcas();
-function readAllMarcas() {
-    let formData = new FormData();
-    formData.append('readMarca', '');
-    fetch('../controladores/productos.php', {
-            method: "POST",
-            body: formData
-    }).then(response => response.json()).then(data => {
-        let selects = document.querySelectorAll('.select__marca');
-        selects.forEach(select=>{
-            select.innerHTML = '';
-            let option = document.createElement('option');
-            option.value = 'todasLasMarcas';
-            option.innerText = 'Todas las marcas';
-            select.appendChild(option); 
-            for ( let clave in data){
-                let option = document.createElement('option');
-                option.value = data[clave]['nombre_mrc'];
-                option.innerText = data[clave]['nombre_mrc'];
-                select.appendChild(option);
-            }
-        })
-    }).catch(err => console.log(err));
-}
-function deleteMarca() {
-    let nombre_mrc = selectMarcaProdMW.value;
+//-------Eliminar Marca
+function deleteMarcaInv() {
+    let id_mrc = selectMarcaInventory.value;
     if (confirm('¿Esta usted seguro?')){
         let formData = new FormData();
-        formData.append('deleteMarca', nombre_mrc);
+        formData.append('deleteMarca', id_mrc);
         fetch('../controladores/productos.php', {
             method: "POST",
             body: formData
@@ -819,62 +837,192 @@ function deleteMarca() {
         readAllMarcas();  
         }).catch(err => console.log(err));
     }
-    selectMarcaProdMW.selectedIndex = 0;
-    pageOneProd();
+    selectMarcaInventory.selectedIndex = 0;
+}
+//-------Select de marcas
+function selectMarcaInv() {
+    selectMarcaInventory.innerHTML = '';
+    let option = document.createElement('option');
+    option.value = 'todasLasMarcas';
+    option.innerText = 'Todas las marcas';
+    selectMarcaInventory.appendChild(option); 
+    for ( let clave in marcas){
+        let option = document.createElement('option');
+        option.value = marcas[clave]['id_mrc'];
+        option.innerText = marcas[clave]['nombre_mrc'];
+        selectMarcaInventory.appendChild(option);
+    }        
 }
 //-------registrar categoria
 let formCategoriaR = document.getElementById('formCategoriaR');
-formCategoriaR.addEventListener('submit', createCategoria);
-function createCategoria(){
+formCategoriaR.addEventListener('submit', createCategoriaInv);
+function createCategoriaInv(){
     event.preventDefault();
-    let formData = new FormData(formCategoriaR);
-    formData.append('createCategoria', '');
-    fetch('../controladores/productos.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.text()).then(data => {
-        readAllCategorias();
-        categoriaRMW.classList.remove('modal__show');    
-    }).catch(err => console.log(err));
-}
-readAllCategorias();
-function readAllCategorias() {
-    let formData = new FormData();
-    formData.append('readCategoria', '');
-    fetch('../controladores/productos.php', {
-            method: "POST",
-            body: formData
-    }).then(response => response.json()).then(data => {
-        let selects = document.querySelectorAll('.select__categoria');
-        selects.forEach(select=>{
-            select.innerHTML = ''; 
-            let option = document.createElement('option');
-            option.value = 'todasLasCategorias';
-            option.innerText = 'Todas las categorias';
-            select.appendChild(option);
-            for ( let clave in data){
-                let option = document.createElement('option');
-                option.value = data[clave]['nombre_ctgr'];
-                option.innerText = data[clave]['nombre_ctgr'];
-                select.appendChild(option);
-            }
-        })  
-    }).catch(err => console.log(err));
-}
-function deleteCategoria() {
-    let nombre_ctgr = selectCategoriaProdMW.value;
-    if (confirm('¿Esta usted seguro?')){
-        let formData = new FormData();
-        formData.append('deleteCategoria', nombre_ctgr);
+    if (selectMarcaInventory.value != 'todasLasMarcas'){
+        let formData = new FormData(formCategoriaR);
+        formData.append('id_mrc', selectMarcaInventory.value);
+        formData.append('createCategoria', '');
         fetch('../controladores/productos.php', {
             method: "POST",
             body: formData
-        }).then(response => response.text()).then(data => { 
-        readAllCategorias(); 
+        }).then(response => response.text()).then(data => {
+            if(data == 'La categoria ya existe'){
+                alert(data);
+            }else{
+                readAllCategorias();
+                categoriaRMW.classList.remove('modal__show');
+            }
+        }).catch(err => console.log(err));
+    }else{
+        alert ('Seleccione una marca');
+    }
+}
+//-------Eliminar Categoria
+function deleteCategoriaInv() {
+    let id_ctgr = selectCategoriaInventory.value;
+    if (confirm('¿Esta usted seguro?')){
+        let formData = new FormData();
+        formData.append('id_mrc', selectMarcaInventory.value);
+        formData.append('deleteCategoria', id_ctgr);
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            readAllCategorias(); 
         }).catch(err => console.log(err));
     }
-    selectCategoriaProdMW.selectedIndex = 0;
-    pageOneProd();
+    selectCategoriaInventory.selectedIndex = 0;
+}
+//------Select categorias
+function selectCategoriaInv() {
+    selectCategoriaInventory.innerHTML = ''; 
+    let option = document.createElement('option');
+    option.value = 'todasLasCategorias';
+    option.innerText = 'Todas las categorias';
+    selectCategoriaInventory.appendChild(option);
+    if(selectMarcaInventory.value != 'todasLasMarcas'){
+        let id_mrc = selectMarcaInventory.value;
+        for ( let clave in categorias){
+            if (categorias[clave]['id_mrc'] == id_mrc){
+                let option = document.createElement('option');
+                option.value = categorias[clave]['id_ctgr'];
+                option.innerText = categorias[clave]['nombre_ctgr'];
+                selectCategoriaInventory.appendChild(option);
+            }
+        }
+    }
+    searchInventories();    
+}
+
+
+
+/*----------------------------------------------Marca y categoria producto-------------------------------------------------*/
+//-------Select de marcas
+function selectMarcaProd() {
+    selectMarcaProdMW.innerHTML = '';
+    let option = document.createElement('option');
+    option.value = 'todasLasMarcas';
+    option.innerText = 'Todas las marcas';
+    selectMarcaProdMW.appendChild(option); 
+    for ( let clave in marcas){
+        let option = document.createElement('option');
+        option.value = marcas[clave]['id_mrc'];
+        option.innerText = marcas[clave]['nombre_mrc'];
+        selectMarcaProdMW.appendChild(option);
+    }        
+}
+//------Select categorias
+function selectCategoriaProd() {
+    selectCategoriaProdMW.innerHTML = ''; 
+    let option = document.createElement('option');
+    option.value = 'todasLasCategorias';
+    option.innerText = 'Todas las categorias';
+    selectCategoriaProdMW.appendChild(option);
+    if(selectMarcaProdMW.value != 'todasLasMarcas'){
+        let id_mrc = selectMarcaProdMW.value;
+        for ( let clave in categorias){
+            if (categorias[clave]['id_mrc'] == id_mrc){
+                let option = document.createElement('option');
+                option.value = categorias[clave]['id_ctgr'];
+                option.innerText = categorias[clave]['nombre_ctgr'];
+                selectCategoriaProdMW.appendChild(option);
+            }
+        }
+    }
+    searchProductsMW();
+}
+//------MARCA Y CATEGORIA PARA FORMULARIO DE REGSITRO Y MODIFICACION DE PRODUCTOS
+const marca_prodR = document.getElementById('marca_prodR');
+marca_prodR.addEventListener('change', selectCategoriaProdR);
+const categoria_prodR = document.getElementById('categoria_prodR');
+//-------Select de marcas registrar
+function selectMarcaProdR(){
+    marca_prodR.innerHTML = '';
+    let option = document.createElement('option');
+    option.value = 'todasLasMarcas';
+    option.innerText = 'Todas las marcas';
+    marca_prodR.appendChild(option); 
+    for ( let clave in marcas){
+        let option = document.createElement('option');
+        option.value = marcas[clave]['id_mrc'];
+        option.innerText = marcas[clave]['nombre_mrc'];
+        marca_prodR.appendChild(option);
+    }
+    selectCategoriaProdR();        
+}
+function selectCategoriaProdR(){
+    categoria_prodR.innerHTML = ''; 
+    let option = document.createElement('option');
+    option.value = 'todasLasCategorias';
+    option.innerText = 'Todas las categorias';
+    categoria_prodR.appendChild(option);
+    if(marca_prodR.value != 'todasLasMarcas'){
+        let id_mrc = marca_prodR.value;
+        for ( let clave in categorias){
+            if (categorias[clave]['id_mrc'] == id_mrc){
+                let option = document.createElement('option');
+                option.value = categorias[clave]['id_ctgr'];
+                option.innerText = categorias[clave]['nombre_ctgr'];
+                categoria_prodR.appendChild(option);
+            }
+        }
+    }
+}
+const marca_prodM = document.getElementById('marca_prodM');
+marca_prodM.addEventListener('change', selectCategoriaProdM);
+const categoria_prodM = document.getElementById('categoria_prodM');
+//-------Select de marcas registrar
+function selectMarcaProdM(){
+    marca_prodM.innerHTML = '';
+    let option = document.createElement('option');
+    option.value = 'todasLasMarcas';
+    option.innerText = 'Todas las marcas';
+    marca_prodM.appendChild(option); 
+    for ( let clave in marcas){
+        let option = document.createElement('option');
+        option.value = marcas[clave]['id_mrc'];
+        option.innerText = marcas[clave]['nombre_mrc'];
+        marca_prodM.appendChild(option);
+    }
+    selectCategoriaProdM();        
+}
+function selectCategoriaProdM(){
+    categoria_prodM.innerHTML = ''; 
+    let option = document.createElement('option');
+    option.value = 'todasLasCategorias';
+    option.innerText = 'Todas las categorias';
+    categoria_prodM.appendChild(option);
+    if(marca_prodM.value != 'todasLasMarcas'){
+        let id_mrc = marca_prodM.value;
+        for ( let clave in categorias){
+            if (categorias[clave]['id_mrc'] == id_mrc){
+                let option = document.createElement('option');
+                option.value = categorias[clave]['id_ctgr'];
+                option.innerText = categorias[clave]['nombre_ctgr'];
+                categoria_prodM.appendChild(option);
+            }
+        }
+    }
 }
 //<<------------------------ABRIR Y CERRAR VENTANAS MODALES--------------------------------->>
 const marcaRMW = document.getElementById('marcaRMW');

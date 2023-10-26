@@ -24,6 +24,7 @@ function comprobarUsuario(){
 				$_SESSION['info_rol']=$usuario['rol_usua'];
 				//Array asociativo (calve, valor)
 				$array = array(
+					'id' => $usuario['id_usua'],
 					'nombres' => $usuario['nombre_usua'],
 					'apellidos' => $usuario['apellido_usua'],
 					'email' => $usuario['email_usua'],

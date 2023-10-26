@@ -84,7 +84,7 @@ class consultas {
 		$this->direccionEmpresa = $conexion->real_escape_string($_POST['direccion_empp']);
 		$this->telefonoEmpresa = $conexion->real_escape_string($_POST['telefono_empp']);
 	}
-	//<<----------------------------------- cUSTOMERS----------------------------------------------->>
+	//<<----------------------------------- CUSTOMERS----------------------------------------------->>
 	//------Leer clientes
 	public function readCustomers(){
 		include 'conexion.php';
@@ -197,8 +197,6 @@ class consultas {
 			echo 'Eliminado';
 		}
 	}
-
-
 	//------PARA LA compta --Leer todos los proveedores
 	public function leerProveedor(){
 		include 'conexion.php';
@@ -218,7 +216,7 @@ class consultas {
 			echo json_encode('');
 		}
 	}
-	//<<-----------------------------------CREATE, READ, UPDATE AND DELETE SUPPLIER----------------------------->>
+	//<<-----------------------------------SUPPLIER----------------------------->>
 	//------Registrar un supplier
 	public function createSupplier(){
 		include 'conexion.php';
@@ -301,7 +299,7 @@ class consultas {
 		}
 	}
 
-	//<<-----------------------------------CRUD ENTERPRISE PROVEEDOR----------------------------->>
+	//<<----------------------------------- ENTERPRISE PROVEEDOR----------------------------->>
 	//------Crear una empresa
 	public function createEnterpriseP(){
 		include 'conexion.php';

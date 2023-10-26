@@ -1,5 +1,5 @@
 const header = document.querySelector('header.header nav');
-if(localStorage.getItem('usua_rol')=='Administrador'){
+if(localStorage.getItem('usua_rol')=='Administrador' || localStorage.getItem('usua_rol')=='Gerente general'){
 	header.innerHTML = `
 					<div class="nav__logo"></div>
 					<ul class="nav__list">
@@ -27,7 +27,6 @@ if(localStorage.getItem('usua_rol')=='Ingeniero'){
 								<li><a href="clientes.html" class="nav__link">Clientes</a></li>
 								<li><a href="productos.html" class="nav__link">Productos</a></li>
 								<li><a href="proforma.html" class="nav__link">Proforma</a></li>
-								<li><a href="notaEntrega.html" class="nav__link">Nota de entrega</a></li>
 								<li><a href="cerrar.html" class="nav__link">Cerrar sesión</a></li>
 							</ul>
 						<figure class="nav__menu">

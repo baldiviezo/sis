@@ -32,7 +32,7 @@
 						<option value="todasLasMarcas">Todas las marcas</option>
 					</select>
 					<img src="../imagenes/registrar.svg" id="openMarcaRMW">
-					<img src="../imagenes/trash.svg" onclick="deleteMarca()">
+					<img src="../imagenes/trash.svg" onclick="deleteMarcaProd()">
 				</div>
 				<div>
 					<label>Categorias: </label>
@@ -40,7 +40,7 @@
 						<option value="todasLasCategorias">Todas las categorias</option>
 					</select>
 					<img src="../imagenes/registrar.svg" id="openCategoriaRMW">
-					<img src="../imagenes/trash.svg" onclick="deleteCategoria()">
+					<img src="../imagenes/trash.svg" onclick="deleteCategoriaProd()">
 				</div>
 			</section>
 			<div class="combo__search">
@@ -114,11 +114,13 @@
 					</div>
 					<div class="modalP__group--select">
 						<label class="modalP__label">Marca:</label>
-						<select name="marca_prodR" class="select__marca"></select>
+						<select name="marca_prodR" id="marca_prodR"  class="select__marca"></select>
 					</div>
 					<div class="modalP__group--select">
 						<label class="modalP__label">Categoria:</label>
-						<select name="categoria_prodR" class="select__categoria"></select>
+						<select name="categoria_prodR" id="categoria_prodR" class="select__categoria">
+							<option value="todasLasCategorias">Todas las categorias</option>
+						</select>
 					</div>
 					<div class="modalP__textarea">
 						<textarea name="descripcion_prodR" placeholder="Type description here..."></textarea>	
@@ -156,11 +158,13 @@
 					</div>
 					<div class="modalP__group--select">
 						<label class="modalP__label">Marca:</label>
-						<select name="marca_prodM" class="select__marca"></select>
+						<select name="marca_prodM" id="marca_prodM" class="select__marca"></select>
 					</div>
 					<div class="modalP__group--select">
 						<label class="modalP__label">Categoria:</label>
-						<select name="categoria_prodM" class="select__categoria"></select>
+						<select name="categoria_prodM" id="categoria_prodM" class="select__categoria">
+							<option value="todasLasCategorias">Todas las categorias</option>
+						</select>
 					</div>
 					<div class="modalP__textarea">
 						<textarea name="descripcion_prodM" placeholder="Type description here..."></textarea>

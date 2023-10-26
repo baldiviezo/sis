@@ -9,7 +9,7 @@ class consultas{
 		$notasEntrega =  array();
 		if($numeroNotaEntrega > 0){
 			while ($fila = $resultado->fetch_assoc()){
-					$datos = array ('id_ne'=>$fila['id_ne'], 'id_prof'=>$fila['fk_id_prof_ne'], 'fecha_prof'=>$fila['fecha_prof'], 'nombre_usua'=>$fila['nombre_usua'], 'apellido_usua'=>$fila['apellido_usua'], 'sigla_emp'=>$fila['sigla_emp'], 'id_clte'=>$fila['id_clte'], 'nombre_clte'=>$fila['nombre_clte'], 'apellido_clte'=>$fila['apellido_clte'], 'orden_ne'=>$fila['orden_ne'], 'observacion_ne'=>$fila['observacion_ne'], 'estado_ne'=>$fila['estado_ne']);
+					$datos = array ('id_ne'=>$fila['id_ne'], 'id_prof'=>$fila['fk_id_prof_ne'], 'fecha_prof'=>$fila['fecha_prof'], 'nombre_usua'=>$fila['nombre_usua'], 'apellido_usua'=>$fila['apellido_usua'], 'id_clte'=>$fila['id_clte'], 'nombre_clte'=>$fila['nombre_clte'], 'apellido_clte'=>$fila['apellido_clte'], 'orden_ne'=>$fila['orden_ne'], 'observacion_ne'=>$fila['observacion_ne'], 'estado_ne'=>$fila['estado_ne']);
 					$notasEntrega[$fila['id_ne'].'_ne'] = $datos;		
 			}
 			$json = json_encode($notasEntrega, JSON_UNESCAPED_UNICODE);
