@@ -27,7 +27,7 @@ body.login{
 .form__logo{
 	width: 100%;
 	height: 7rem;
-	background-image: url(../imagenes/LogoSMS.jpg);
+	background-image: url(../imagenes/LogoSMS.png);
 	background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
