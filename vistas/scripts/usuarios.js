@@ -55,7 +55,7 @@ function  tableUsers(){
                     <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)'>
                     <img src='../imagenes/trash.svg' onclick='deleteUser(this.parentNode.parentNode)'>`;
                 }
-            }else if (localStorage.getItem('usua_rol') == 'Administrador' ){
+            }else if(localStorage.getItem('usua_rol') == 'Administrador'){
                 if(usuarios[usuario]['rol_usua'] == 'Gerente general'){
                     td.innerHTML = ``;
                 }else if(usuarios[usuario]['rol_usua'] == 'Administrador'){
