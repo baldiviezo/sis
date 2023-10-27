@@ -272,7 +272,6 @@ function deleteProduct (tr){
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            console.log(data)
             readProducts();
         }).catch(error => console.log("Ocurrio un error. Intente nuevamente mas tarde"));
     }

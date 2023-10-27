@@ -502,6 +502,7 @@ function tableEnterprisesMW(page) {
                 td.innerText = i;
                 tr.appendChild(td);
                 i++;
+            }else if(valor == 'sigla_emp'){
             }else if(valor == 'nit_emp'){
                 if(filterEnterprises[enterprise][valor] == '0'){
                     td.innerText = '';

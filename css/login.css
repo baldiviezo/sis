@@ -1,18 +1,19 @@
-body.login{
-	font-family: 'Roboto', sans-serif;
-	background-color: #e5e5f7;
+body{
+	/*font-family: 'Roboto', sans-serif;*/
+	/*background-color: #e5e5f7;*/
 	/*para crear patrones para ponerlo como fondo
 	https://www.magicpattern.design/tools/css-backgrounds*/
-	background-image:  radial-gradient(#b96bad 0.5px, transparent 0.5px), radial-gradient(#b96bad 0.5px, #e5e5f7 0.5px);
-	background-size: 20px 20px;
-	background-position: 0 0,10px 10px;
+	/*background-image:  radial-gradient(#b96bad 0.5px, transparent 0.5px), radial-gradient(#b96bad 0.5px, #e5e5f7 0.5px);*/
+	/*background-size: 20px 20px;*/
+	/*background-position: 0 0,10px 10px;*/
 	/*Para centrar el formulariol*/
+	background-color: #fff;
 	display: flex;
 	min-height: 100vh;
 	flex-direction: column;
 }
 .form{
-	background-color: #fff;
+	background-color: var(--color-white);
 	/*el margen de ariba y abajo depende de min-height de body (100vh)*/
 	margin: auto;
 	/*que tenga un maximo de 400px*/
@@ -27,14 +28,14 @@ body.login{
 .form__logo{
 	width: 100%;
 	height: 7rem;
-	background-image: url(../imagenes/LogoSMS.png);
+	background-image: url(../imagenes/LogoSMS.jpg);
 	background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
 }
 .form__title{
 	padding-top: 2rem;
-	color: #245c73;
+	color: var(--color-egeo-blue);
 	font-size: 2rem;
 	margin-bottom: .5em;
 }
@@ -45,17 +46,16 @@ body.login{
 }
 .form__group{
 	position: relative;
-	--color: #5757577e;
 }
 .form__input{
 	width: 100%;
 	background: none;
-	color: #706c6c;
+	color: var(--color-merenge-grey);
 	font-size: 1rem;
 	padding: .6em .3em;
 	border: none;
 	outline: none;
-	border-bottom: 1px solid var(--color);
+	border-bottom: 1px solid var(--color-opaque-grey);
 	/*Los inputs no heredan la fuente de la letra*/
 	font-family: 'Roboto', sans-serif;
 }
@@ -65,13 +65,13 @@ body.login{
 .form__input:focus + .form__label, .form__input:not(:placeholder-shown) + .form__label{
 	transform: translateY(-12px) scale(.7);
 	transform-origin: left top;
-	color: #245c73;
+	color: var(--color-egeo-blue);
 }
 .form__radio{
 	display: flex;
 }
 .form__label{
-	color: var(--color);
+	color: var(--color-opaque-grey);
 	/*Como label estara encima del input, cuando el cursor este encima solo pueda seleccionar el input y no el label*/
 	/*Funciona  muy bien, en este caso utilizaremos este pora q el cursor siempre apresca en I*/
 	pointer-events: none;
@@ -82,7 +82,7 @@ body.login{
 	transition: transform .5s, color .3s;
 }
 .form__submit{
-	background: #245c73;
+	background: var(--color-egeo-blue);
 	color: #fff;
 	font-family: 'Roboto', sans-serif;
 	font-weight: 300;
@@ -91,17 +91,6 @@ body.login{
 	border: none;
 	border-radius: .5em;
 	cursor: pointer;
-}
-.form__line{
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	width: 100%;
-	height: 1px;
-	background-color: #3866f2;
-	transform: scale(0);
-	transform: left bottom;
-	transition: transform .4s;
 }
 .form__input:focus ~ .form__line, .form__input:not(:placeholder-shown) ~ .form__line{
 	transform: scale(1);

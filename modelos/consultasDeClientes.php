@@ -30,6 +30,7 @@ class consultas {
 		include 'conexion.php';
 		//Primero vovlemos toda la palabra en minusculas y despues la primera letra en mayuscula
 		$this->nombreEmpresa = Strtoupper(trim($conexion->real_escape_string($_POST['nombre_empR'])));
+		$this->siglaEmpresa = Strtoupper(trim($conexion->real_escape_string($_POST['sigla_empR'])));
 		$this->nitEmpresa = $conexion->real_escape_string($_POST['nit_empR']);
 		$this->precioEmpresa = $conexion->real_escape_string($_POST['precio_empR']);
 		$this->direccionEmpresa = $conexion->real_escape_string($_POST['direccion_empR']);
@@ -41,6 +42,7 @@ class consultas {
 		//Primero vovlemos toda la palabra en minusculas y despues la primera letra en mayuscula
 		$this->idEmpresa = $conexion->real_escape_string($_POST['id_empM']);
 		$this->nombreEmpresa = Strtoupper(trim($conexion->real_escape_string($_POST['nombre_empM'])));
+		$this->siglaEmpresa = Strtoupper(trim($conexion->real_escape_string($_POST['sigla_empM'])));
 		$this->nitEmpresa = $conexion->real_escape_string($_POST['nit_empM']);
 		$this->precioEmpresa = $conexion->real_escape_string($_POST['precio_empM']);
 		$this->direccionEmpresa = $conexion->real_escape_string($_POST['direccion_empM']);
@@ -124,12 +126,12 @@ class consultas {
 	//------Leer empresas
 	public function readEnterprises(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM empresa ORDER BY nombre_emp ASC";
+		$consulta = "SELECT * FROM empresa ORDER BY id_emp DESC";
 		$resultado = $conexion->query($consulta);
 		$numeroClientes = $resultado->num_rows;
 		$empresas =  array();
 		while ($fila = $resultado->fetch_assoc()){
-			$datos = array ( 'id_emp'=>$fila['id_emp'], 'nombre_emp'=>$fila['nombre_emp'], 'nit_emp'=>$fila['nit_emp'], 'precio_emp'=>$fila['precio_emp'], 'direccion_emp'=>$fila['direccion_emp'], 'telefono_emp'=>$fila['telefono_emp']);
+			$datos = array ( 'id_emp'=>$fila['id_emp'], 'nombre_emp'=>$fila['nombre_emp'], 'sigla_emp'=>$fila['sigla_emp'], 'nit_emp'=>$fila['nit_emp'], 'precio_emp'=>$fila['precio_emp'], 'direccion_emp'=>$fila['direccion_emp'], 'telefono_emp'=>$fila['telefono_emp']);
 			$empresas['id_emp_'.$fila['id_emp']] = $datos;
 		}
 		echo json_encode($empresas, JSON_UNESCAPED_UNICODE);
@@ -143,7 +145,7 @@ class consultas {
 		if ($numeroClientes > 0){
 			echo ("La empresa ya existe");
 		}else{
-			$consulta = "INSERT INTO empresa (nombre_emp, nit_emp, precio_emp, direccion_emp, telefono_emp) VALUES ('$this->nombreEmpresa', '$this->nitEmpresa', '$this->precioEmpresa', '$this->direccionEmpresa', '$this->telefonoEmpresa')";
+			$consulta = "INSERT INTO empresa (nombre_emp, sigla_emp, nit_emp, precio_emp, direccion_emp, telefono_emp) VALUES ('$this->nombreEmpresa', '$this->siglaEmpresa', '$this->nitEmpresa', '$this->precioEmpresa', '$this->direccionEmpresa', '$this->telefonoEmpresa')";
 			$resultado = $conexion->query($consulta);
 			echo ("registrado");
 			//Crear cliente automaticamente
@@ -175,7 +177,7 @@ class consultas {
 	}
 	public function consultaUpdateEnterprise(){
 		include 'conexion.php';
-		$consulta = "UPDATE empresa set nombre_emp='$this->nombreEmpresa', nit_emp='$this->nitEmpresa', precio_emp='$this->precioEmpresa', direccion_emp='$this->direccionEmpresa', telefono_emp='$this->telefonoEmpresa' WHERE id_emp='$this->idEmpresa'";
+		$consulta = "UPDATE empresa set nombre_emp='$this->nombreEmpresa', sigla_emp='$this->siglaEmpresa', nit_emp='$this->nitEmpresa', precio_emp='$this->precioEmpresa', direccion_emp='$this->direccionEmpresa', telefono_emp='$this->telefonoEmpresa' WHERE id_emp='$this->idEmpresa'";
 		$resultado = $conexion->query($consulta);
 		if ($resultado){
 			echo 'modificado';

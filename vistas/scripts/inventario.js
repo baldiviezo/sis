@@ -916,7 +916,7 @@ function selectCategoriaInv() {
 
 
 
-/*----------------------------------------------Marca y categoria producto-------------------------------------------------*/
+/*----------------------------------------------Marca y categoria modal producto-------------------------------------------------*/
 //-------Select de marcas
 function selectMarcaProd() {
     selectMarcaProdMW.innerHTML = '';

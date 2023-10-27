@@ -59,7 +59,7 @@
 						</select>
 					</div>
 					<div class="table__search">
-						<input type="search" id="inputSearchInv" placeholder="Search Data...">
+						<input type="search" id="inputSearchInv" placeholder="Buscar...">
 						<img src="../imagenes/search.png">
 					</div>
 				</div>
@@ -83,7 +83,7 @@
 			</div>
 		</div>
 		<!--Producto-->
-		<div id="headerProduct" hidden	>
+		<div id="headerProduct" hidden>
 			<section class="main__header">
 				<div>
 					<img src="../imagenes/folder.svg" onclick="openTableProfMW()" class="img__folder">
@@ -223,7 +223,7 @@
 							</select>
 						</div>
 						<div class="table__search">
-							<input type="search" id="inputSearchProf" placeholder="Search Data...">
+							<input type="search" id="inputSearchProf" placeholder="Buscar...">
 							<img src="../imagenes/search.png">
 						</div>
 					</div>
@@ -294,7 +294,7 @@
 								<th>Acciones</th>
 							</tr>
 						</thead>
-						<tbody id="tbodymProforma"></tbody>
+						<tbody id="tbodymProforma"><tr><td>CARGANDO...</td></tr></tbody>
 					</table>
 				</section>
 			</div>		
@@ -597,6 +597,10 @@
 						<label for="nombre_empR" class="form__label">Nombre de la empresa:</label>
 					</div>
 					<div class="form__group">
+						<input type="text" name="sigla_empR"  placeholder=" " class="form__input">
+						<label for="sigla_empR" class="form__label">Sigla de la empresa:</label>
+					</div>
+					<div class="form__group">
 						<input type="text" name="nit_empR"  placeholder=" " class="form__input">
 						<label for="nit_empR" class="form__label">NIT:</label>
 					</div>
@@ -635,6 +639,10 @@
 					<div class="form__group">
 						<input type="text" name="nombre_empM"  placeholder=" " class="form__input" required>
 						<label for="nombre_empM" class="form__label">Nombre de la empresa:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="sigla_empM"  placeholder=" " class="form__input" required>
+						<label for="sigla_empM" class="form__label">Nombre de la empresa:</label>
 					</div>
 					<div class="form__group">
 						<input type="text" name="nit_empM"  placeholder=" " class="form__input">
@@ -677,7 +685,7 @@
 							</select>
 						</div>
 						<div class="table__search">
-							<input type="search" id="inputSearchEmpMW" placeholder="Search Data...">
+							<input type="search" id="inputSearchEmpMW" placeholder="Buscar...">
 							<img src="../imagenes/search.png">
 						</div>
 					</div>
@@ -717,7 +725,7 @@
 			</div>		
 		</div>
 	</section>
-	<!--Tabla de inventario-->
+	<!--Tabla modal inventario-->
 	<section id="inventorySMW" class="modalTable">
 		<div class="modalTable__container">
 			<div class="table">
@@ -732,16 +740,12 @@
 							<select id="selectMarcaInvMW" class="select__marca">
 								<option value="todasLasMarcas">Todas las marcas</option>
 							</select>
-							<img src="../imagenes/registrar.svg" id="openMarcaRMW">
-							<img src="../imagenes/trash.svg" onclick="deleteMarca()">
 						</div>
 						<div>
 							<label>Categorias: </label>
 							<select id="selectCategoriaInvMW" class="select__categoria">
 								<option value="todasLasCategorias">Todas las categorias</option>
 							</select>
-							<img src="../imagenes/registrar.svg" id="openCategoriaRMW">
-							<img src="../imagenes/trash.svg" onclick="deleteCategoria()">
 						</div>
 					</section>
 					<div class="combo__search">
@@ -755,7 +759,7 @@
 							</select>
 						</div>
 						<div class="table__search">
-							<input type="search" id="inputSearchInvMW" placeholder="Search Data...">
+							<input type="search" id="inputSearchInvMW" placeholder="Buscar...">
 							<img src="../imagenes/search.png">
 						</div>
 					</div>
@@ -808,6 +812,7 @@
 					<img src="../imagenes/salir.svg" id="closeProductSMW">
 				</div>
 				<section class="table__header">
+					<img src="../imagenes/registrar.svg"  onclick="openProductsRMW()" class="img__folder">
 					<section class="select__search">
 						<div>
 							<label>Marcas: </label>
@@ -832,7 +837,7 @@
 							</select>
 						</div>
 						<div class="table__search">
-							<input type="search" id="inputSearchProdMW" placeholder="Search Data...">
+							<input type="search" id="inputSearchProdMW" placeholder="Buscar...">
 							<img src="../imagenes/search.png">
 						</div>
 					</div>

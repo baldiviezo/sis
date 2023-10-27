@@ -166,7 +166,7 @@ function cardInventory(page){
                         <h3 style='display:none'>${filterInventories[inventory]['cantidad_inv']}</h3>
                         <h2 hidden>${filterInventories[inventory]['cost_uni_inv']}</h2>
                         <h2>${filterInventories[inventory]['nombre_prod']}</h2>
-                        <button onclick='addCard(this.parentNode.parentNode)'>Add</button>
+                        <button onclick='addCard(this.parentNode.parentNode)'>Añadir</button>
                     </div>
                 </div>`;
                 i++;
@@ -506,7 +506,7 @@ function searchProforma(){
     for(let proforma in proformas){
         for(let valor in proformas[proforma]){
             if(selectSearchProf.value == 'todas'){
-                if(valor == 'id_prof' ||  valor == 'fecha_prof' || valor == 'nombre_usua' || valor == 'nombre_clte'){
+                if(valor == 'id_prof' ||  valor == 'fecha_prof' || valor == 'nombre_usua' || valor == 'nombre_emp' || valor == 'nombre_clte'){
                     if (valor == 'nombre_usua'){
                         if((proformas[proforma][valor]+' '+proformas[proforma]['apellido_usua']).toLowerCase().indexOf(inputSearchProf.value.toLowerCase())>=0){
                             filterProformas[proforma] = proformas[proforma];
@@ -654,7 +654,7 @@ function tableProformas(page) {
             else if(valor == 'nombre_usua'){
                 td.innerText = filterProformas[proforma][valor]+' '+filterProformas[proforma]['apellido_usua'];
                 tr.appendChild(td);
-            }else if(valor == 'id_emp' || valor == 'direccion_emp' || valor == 'telefono_emp' || valor == 'fk_id_clte_prof' || valor == 'apellido_usua' || valor == 'email_usua' || valor == 'apellido_clte' || valor == 'moneda_prof' || valor == 'tipo_cambio_prof' || valor == 'estado_prof'){
+            }else if(valor == 'id_emp' || valor == 'sigla_emp' || valor == 'direccion_emp' || valor == 'telefono_emp' || valor == 'fk_id_usua_prof' ||  valor == 'fk_id_clte_prof' || valor == 'apellido_usua' || valor == 'email_usua' || valor == 'celular_usua' || valor == 'apellido_clte' || valor == 'celular_clte' || valor == 'moneda_prof' || valor == 'tipo_cambio_prof' || valor == 'estado_prof'){
             }else if(valor == 'nombre_clte'){
                 td.innerText = filterProformas[proforma][valor]+' '+filterProformas[proforma]['apellido_clte'];
                 tr.appendChild(td)
@@ -672,12 +672,34 @@ function tableProformas(page) {
             <img src='../imagenes/folder.svg' onclick='readMdfProforma(this.parentNode.parentNode)'>
             <img src='../imagenes/pdf.svg' onclick='pdfProforma(this.parentNode.parentNode, "prof")'>`;
         }else{
-            td.innerHTML = `
-            <img src='../imagenes/archive.svg' onclick='openNotaEntregaRMW(this.parentNode.parentNode)'>
-            <img src='../imagenes/folder.svg' onclick='readMdfProforma(this.parentNode.parentNode)'>
-            <img src='../imagenes/pdf.svg' onclick='pdfProforma(this.parentNode.parentNode, "prof")'>
-            <img src='../imagenes/edit.svg' onclick='readProforma(this.parentNode.parentNode)'>
-            <img src='../imagenes/trash.svg' onclick='deleteProforma(this.parentNode.parentNode)'>`;
+            if(localStorage.getItem('usua_rol')=='Gerente general'){
+                td.innerHTML = `
+                <img src='../imagenes/archive.svg' onclick='openNotaEntregaRMW(this.parentNode.parentNode)'>
+                <img src='../imagenes/folder.svg' onclick='readMdfProforma(this.parentNode.parentNode)'>
+                <img src='../imagenes/pdf.svg' onclick='pdfProforma(this.parentNode.parentNode, "prof")'>
+                <img src='../imagenes/edit.svg' onclick='readProforma(this.parentNode.parentNode)'>
+                <img src='../imagenes/trash.svg' onclick='deleteProforma(this.parentNode.parentNode)'>`;
+            }else{
+                if(localStorage.getItem('usua_id') != filterProformas[proforma]['fk_id_usua_prof']){
+                    td.innerHTML = `
+                    <img src='../imagenes/folder.svg' onclick='readMdfProforma(this.parentNode.parentNode)'>
+                    <img src='../imagenes/pdf.svg' onclick='pdfProforma(this.parentNode.parentNode, "prof")'>`;
+                }else{
+                    if(localStorage.getItem('usua_rol')=='Administrador'){
+                        td.innerHTML = `
+                        <img src='../imagenes/archive.svg' onclick='openNotaEntregaRMW(this.parentNode.parentNode)'>
+                        <img src='../imagenes/folder.svg' onclick='readMdfProforma(this.parentNode.parentNode)'>
+                        <img src='../imagenes/pdf.svg' onclick='pdfProforma(this.parentNode.parentNode, "prof")'>
+                        <img src='../imagenes/edit.svg' onclick='readProforma(this.parentNode.parentNode)'>`;
+                    }else{
+                        td.innerHTML = `
+                        <img src='../imagenes/folder.svg' onclick='readMdfProforma(this.parentNode.parentNode)'>
+                        <img src='../imagenes/pdf.svg' onclick='pdfProforma(this.parentNode.parentNode, "prof")'>
+                        <img src='../imagenes/edit.svg' onclick='readProforma(this.parentNode.parentNode)'>`;
+                    }
+                }
+            }
+            
         }
         tr.appendChild(td);
         tbody.appendChild(tr);
@@ -746,7 +768,7 @@ function readProforma(tr){
                     selectEnterpriseM.innerHTML = '';
                     let option = document.createElement('option');
                     option.value = filterProformas[proforma][valor];
-                    option.innerText = filterProformas[proforma]['sigla_emp']; //modificado10-25-2023
+                    option.innerText = filterProformas[proforma]['sigla_emp']; 
                     selectEnterpriseM.appendChild(option);
                 }else if(valor == 'fk_id_clte_prof'){
                     selectCustomerM.innerHTML = '';
@@ -754,7 +776,7 @@ function readProforma(tr){
                     option.value = filterProformas[proforma][valor];
                     option.innerText = filterProformas[proforma]['nombre_clte']+' '+filterProformas[proforma]['apellido_clte'] ;
                     selectCustomerM.appendChild(option);
-                }else if(valor == 'silga_emp' || valor == 'nombre_emp' || valor == 'nombre_clte' || valor == 'apellido_clte' || valor == 'nombre_usua' || valor == 'apellido_usua' || valor == 'email_usua' || valor == 'estado_prof' || valor == 'telefono_emp' || valor == 'direccion_emp'){   
+                }else if(valor == 'silga_emp' || valor == 'nombre_emp' || valor == 'nombre_clte' || valor == 'fk_id_usua_prof' || valor == 'apellido_clte' || valor == 'nombre_usua' || valor == 'apellido_usua' || valor == 'email_usua' || valor == 'celular_usua' || valor == 'estado_prof' || valor == 'telefono_emp' || valor == 'direccion_emp'){   
                 }else if(valor == 'tipo_cambio_prof'){
                     if (filterProformas[proforma]['moneda_prof'] == '$'){
                         document.getElementsByName(valor+'M')[0].parentNode.classList.remove('hide');
@@ -893,22 +915,13 @@ function readMdfProforma(tr){
                 else if(dato == 'nombre_usua'){
                     td.innerText = data[proforma][dato]+' '+data[proforma]['apellido_usua'];
                     tr.appendChild(td);
-                }else if(dato == 'apellido_usua'){
-                }else if(dato == 'email_usua'){
-                }else if(dato == 'celular_usua'){
-                }else if(dato == 'nombre_emp'){
-                }else if(dato == 'telefono_emp'){
-                }else if(dato == 'direccion_emp'){
+                }else if(dato == 'apellido_usua' || dato == 'email_usua' || dato == 'celular_usua' || dato == 'nombre_emp' || dato == 'telefono_emp' || dato == 'direccion_emp' || dato == 'apellido_clte' || dato == 'celular_clte' || dato == 'moneda_mprof' || dato == 'tipo_cambio_mprof'){
                 }else if(dato == 'nombre_clte'){
                     td.innerText = data[proforma][dato]+' '+data[proforma]['apellido_clte'];
                     tr.appendChild(td);
-                }else if(dato == 'apellido_clte'){
-                }else if(dato == 'celular_clte'){
                 }else if(dato == 'descuento_mprof'){
                     td.innerText = data[proforma][dato]+'%';
                     tr.appendChild(td);
-                }else if(dato == 'moneda_mprof'){
-                }else if(dato == 'tipo_cambio_mprof'){
                 }else{
                     td.innerText = data[proforma][dato];
                     tr.appendChild(td);
@@ -1454,6 +1467,7 @@ function tableEnterprisesMW(page) {
                 td.innerText = i;
                 tr.appendChild(td);
                 i++;
+            }else if(valor == 'sigla_emp'){
             }else if(valor == 'nit_emp'){
                 if(filterEnterprises[enterprise][valor] == '0'){
                     td.innerText = '';
@@ -1639,8 +1653,8 @@ selectNumberInvMW.addEventListener('change', function(){
 });
 //-------Marca y categoria
 const selectMarcaInvMW = document.getElementById('selectMarcaInvMW');
-selectMarcaInvMW.addEventListener('change', searchInventoriesMW);
-const selectCategoriaInvMW = document.getElementById('selectCategoriaInvMW');
+selectMarcaInvMW.addEventListener('change', selectCategoriaInventoryMW);
+const MWMW = document.getElementById('MWMW');
 selectCategoriaInvMW.addEventListener('change', searchInventoriesMW);
 //------buscar por:
 function searchInventoriesMW(){
@@ -1674,17 +1688,17 @@ function selectInventoriesMW(){
         for(let ìnventory in filterInventoriesMW){
             for(let valor in filterInventoriesMW[ìnventory]){
                 if(selectMarcaInvMW.value == 'todasLasMarcas'){
-                    if(filterInventoriesMW[ìnventory]['categoria_prod'] != selectCategoriaInvMW.value){
+                    if(filterInventoriesMW[ìnventory]['id_ctgr'] != selectCategoriaInvMW.value){
                         delete filterInventoriesMW[ìnventory];
                         break;
                     }    
                 }else if(selectCategoriaInvMW.value == 'todasLasCategorias'){
-                    if(filterInventoriesMW[ìnventory]['marca_prod'] != selectMarcaInvMW.value){
+                    if(filterInventoriesMW[ìnventory]['id_mrc'] != selectMarcaInvMW.value){
                         delete filterInventoriesMW[ìnventory];
                         break;
                     }  
                 }else{
-                    if(filterInventoriesMW[ìnventory]['categoria_prod'] != selectCategoriaInvMW.value || filterInventoriesMW[ìnventory]['marca_prod'] != selectMarcaInvMW.value){
+                    if(filterInventoriesMW[ìnventory]['id_ctgr'] != selectCategoriaInvMW.value || filterInventoriesMW[ìnventory]['id_mrc'] != selectMarcaInvMW.value){
                         delete filterInventoriesMW[ìnventory];
                         break;
                     }  
@@ -1770,6 +1784,8 @@ function tableInventoriesMW(page) {
                 td.innerText = filterInventoriesMW[inventory][valor];
                 td.setAttribute('hidden', '');
                 tr.appendChild(td);
+            }else if(valor == 'id_mrc'){
+            }else if(valor == 'id_ctgr'){
             }else if(valor == 'fk_id_prod_inv'){
                 td.innerText = filterInventoriesMW[inventory][valor];
                 td.setAttribute('hidden', '');
@@ -1859,7 +1875,7 @@ selectNumberProdMW.addEventListener('change', function(){
 });
 //-------Marca y categoria
 const selectMarcaProdMW = document.getElementById('selectMarcaProdMW');
-selectMarcaProdMW.addEventListener('change', searchProductsMW);
+selectMarcaProdMW.addEventListener('change', selectCategoriaProductMW);
 const selectCategoriaProdMW = document.getElementById('selectCategoriaProdMW');
 selectCategoriaProdMW.addEventListener('change', searchProductsMW);
 //------buscar por:
@@ -1894,17 +1910,17 @@ function selectProductsMW(){
         for(let product in filterProductsMW){
             for(let valor in filterProductsMW[product]){
                 if(selectMarcaProdMW.value == 'todasLasMarcas'){
-                    if(filterProductsMW[product]['categoria_prod'] != selectCategoriaProdMW.value){
+                    if(filterProductsMW[product]['id_ctgr'] != selectCategoriaProdMW.value){
                         delete filterProductsMW[product];
                         break;
                     }    
                 }else if(selectCategoriaProdMW.value == 'todasLasCategorias'){
-                    if(filterProductsMW[product]['marca_prod'] != selectMarcaProdMW.value){
+                    if(filterProductsMW[product]['id_mrc'] != selectMarcaProdMW.value){
                         delete filterProductsMW[product];
                         break;
                     }  
                 }else{
-                    if(filterProductsMW[product]['categoria_prod'] != selectCategoriaProdMW.value || filterProductsMW[product]['marca_prod'] != selectMarcaProdMW.value){
+                    if(filterProductsMW[product]['id_ctgr'] != selectCategoriaProdMW.value || filterProductsMW[product]['id_mrc'] != selectMarcaProdMW.value){
                         delete filterProductsMW[product];
                         break;
                     }  
@@ -1994,6 +2010,8 @@ function tableProductsMW(page) {
                 td.innerText = i;
                 tr.appendChild(td);
                 i++;
+            }else if(valor == 'id_mrc'){
+            }else if(valor == 'id_ctgr'){
             }else if(valor == 'imagen_prod'){
                 let img = document.createElement('img');
                 img.classList.add('tbody__img');
@@ -2157,8 +2175,6 @@ function processFile(file){
         alert('No es una archivo valido');
     }
 }
-/*-----------------------------------------Marca y categoria Inventario-------------------------------------------------*/
-
 /*-----------------------------------------Marca y categoria producto-------------------------------------------------*/
 //-------Read all Marcas
 let marcas = {};
@@ -2174,6 +2190,8 @@ function readAllMarcas() {
         selectMarcaProd();
         selectMarcaProdR();
         selectMarcaInv();
+        selectMarcaProductMW();
+        selectMarcaInventoryMW();
     }).catch(err => console.log(err));
 }
 //-------Read all categorias
@@ -2187,10 +2205,9 @@ function readAllCategorias() {
             body: formData
     }).then(response => response.json()).then(data => {
         categorias = data;
-        selectCategoriaInv();
     }).catch(err => console.log(err));
 }
-/*----------------------------------------------Marca y categoria inventario-------------------------------------------------*/
+/*----------------------------------------------Marca y categoria inventary-------------------------------------------------*/
 //-------Select de marcas
 function selectMarcaInv() {
     selectMarcaInventory.innerHTML = '';
@@ -2225,7 +2242,7 @@ function selectCategoriaInv() {
     }
     searchInventories();    
 }
-/*----------------------------------------------Marca y categoria producto-------------------------------------------------*/
+/*----------------------------------------------Marca y categoria product-------------------------------------------------*/
 //-------Select de marcas
 function selectMarcaProd() {
     selectMarcaProduct.innerHTML = '';
@@ -2260,39 +2277,78 @@ function selectCategoriaProd() {
     }
     searchProducts();
 }
-/*********************************CRUD MARCAR CATEGORIA PRODUCTO********************************/
-//-------Eliminar Marca
-function deleteMarcaProd() {
-    let id_mrc = selectMarcaProduct.value;
-    if (confirm('¿Esta usted seguro?')){
-        let formData = new FormData();
-        formData.append('deleteMarca', id_mrc);
-        fetch('../controladores/productos.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-        readAllMarcas();  
-        }).catch(err => console.log(err));
-    }
-    selectMarcaProduct.selectedIndex = 0;
+/*----------------------------------------------Marca y categoria  modal inventory-------------------------------------------------*/
+//-------Select de marcas
+function selectMarcaInventoryMW() {
+    selectMarcaInvMW.innerHTML = '';
+    let option = document.createElement('option');
+    option.value = 'todasLasMarcas';
+    option.innerText = 'Todas las marcas';
+    selectMarcaInvMW.appendChild(option); 
+    for ( let clave in marcas){
+        let option = document.createElement('option');
+        option.value = marcas[clave]['id_mrc'];
+        option.innerText = marcas[clave]['nombre_mrc'];
+        selectMarcaInvMW.appendChild(option);
+    }        
 }
-//-------Eliminar Categoria
-function deleteCategoriaProd() {
-    let id_ctgr = selectCategoriaProduct.value;
-    if (confirm('¿Esta usted seguro?')){
-        let formData = new FormData();
-        formData.append('id_mrc', selectMarcaProduct.value);
-        formData.append('deleteCategoria', id_ctgr);
-        fetch('../controladores/productos.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            readAllCategorias(); 
-        }).catch(err => console.log(err));
+//------Select categorias
+function selectCategoriaInventoryMW() {
+    selectCategoriaInvMW.innerHTML = ''; 
+    let option = document.createElement('option');
+    option.value = 'todasLasCategorias';
+    option.innerText = 'Todas las categorias';
+    selectCategoriaInvMW.appendChild(option);
+    if(selectMarcaInvMW.value != 'todasLasMarcas'){
+        let id_mrc = selectMarcaInvMW.value;
+        for ( let clave in categorias){
+            if (categorias[clave]['id_mrc'] == id_mrc){
+                let option = document.createElement('option');
+                option.value = categorias[clave]['id_ctgr'];
+                option.innerText = categorias[clave]['nombre_ctgr'];
+                selectCategoriaInvMW.appendChild(option);
+            }
+        }
     }
-    selectCategoriaProduct.selectedIndex = 0;
+    searchInventoriesMW();
 }
-//------MARCA Y CATEGORIA PARA FORMULARIO DE REGSITRO DE PRODUCTOS
+/*----------------------------------------------Marca y categoria  modal product-------------------------------------------------*/
+//-------Select de marcas
+function selectMarcaProductMW() {
+    selectMarcaProdMW.innerHTML = '';
+    let option = document.createElement('option');
+    option.value = 'todasLasMarcas';
+    option.innerText = 'Todas las marcas';
+    selectMarcaProdMW.appendChild(option); 
+    for ( let clave in marcas){
+        let option = document.createElement('option');
+        option.value = marcas[clave]['id_mrc'];
+        option.innerText = marcas[clave]['nombre_mrc'];
+        selectMarcaProdMW.appendChild(option);
+    }        
+}
+//------Select categorias
+function selectCategoriaProductMW() {
+    selectCategoriaProdMW.innerHTML = ''; 
+    let option = document.createElement('option');
+    option.value = 'todasLasCategorias';
+    option.innerText = 'Todas las categorias';
+    selectCategoriaProdMW.appendChild(option);
+    if(selectMarcaProdMW.value != 'todasLasMarcas'){
+        let id_mrc = selectMarcaProdMW.value;
+        for ( let clave in categorias){
+            if (categorias[clave]['id_mrc'] == id_mrc){
+                let option = document.createElement('option');
+                option.value = categorias[clave]['id_ctgr'];
+                option.innerText = categorias[clave]['nombre_ctgr'];
+                selectCategoriaProdMW.appendChild(option);
+            }
+        }
+    }
+    searchProductsMW();
+}
+
+/***************************MARCA Y CATEGORIA PARA FORMULARIO DE REGSITRO DE PRODUCTOS***************************/
 const marca_prodR = document.getElementById('marca_prodR');
 marca_prodR.addEventListener('change', selectCategoriaProdR);
 const categoria_prodR = document.getElementById('categoria_prodR');

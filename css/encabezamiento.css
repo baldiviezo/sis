@@ -57,7 +57,7 @@
 /*----------------------------RESPONSIVE------------------------------------------*/
 /*A LOS 800PX QUE CAMBIEA UNA COLUMNA*/
 /*-------------desaparesemos list y aparecemos el icono---------------------*/
-@media (max-width:800px){
+@media (max-width:800px){ /*Mantener en pixeles*/
 	.nav__menu{
 		display: flex;
 	}
@@ -65,9 +65,9 @@
 		z-index: 100;
 		/*Para que salga del flujo*/
 		position: fixed;
-		max-width: 400px;
+		max-width: 15rem;
 		width: 100%;
-		top: 60px;
+		top: 4rem;
 		/*Para que abarque el 100% de alto*/
 		bottom: 0;
 		right: 0;
@@ -83,7 +83,7 @@
 		width: 100%;
 	}
 	.nav__link{
-		padding: 20px 0;
+		padding: 1rem 0;
 		padding-left: 30px;
 		height: auto;
 	}
