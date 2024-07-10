@@ -33,7 +33,7 @@ class consultas {
 	function readUsers(){
 		include 'conexion.php';
 		$consulta;
-		if($_SESSION['info_rol']=='Administrador' || $_SESSION['info_rol']=='Gerente general'){
+		if($_SESSION['info_rol']=='Gerente general'){
 			$consulta = "SELECT * FROM usuario ORDER BY rol_usua ASC";
 		}else{
 			$id_usua = $_SESSION['info_id_usua'];

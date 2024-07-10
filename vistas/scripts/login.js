@@ -1,10 +1,10 @@
 //<<-------------------------------------MAXIMO DE CARACTERES--------------------------------------------->>
-maxCharacters();
-function maxCharacters(){
-	const inputs = document.querySelectorAll('input.form__input');
-	inputs.forEach(input=>{
-		input.setAttribute('maxlength','40');
-	})
+setMaxInputLength();
+function setMaxInputLength() {
+  const inputElements = document.querySelectorAll('.form__input');
+  inputElements.forEach(input => {
+    input.setAttribute('maxlength', '40');
+  });
 }
 //Añadimos un evento al fomulario de iniciar sesion
 const form = document.querySelector('.form');
@@ -21,9 +21,13 @@ form.addEventListener('submit', ()=>{
 	//si recibimos con json, es un objeto json
 	}).then(response => response.json()).then(data => {
 		//_self nos ayuda a remplazar la ventana actual, por la ventana que queremos abrir
-		if (data=="No existe"){
-			alert("Usuario o Contraseña incorrecto");
-        }else{
+		if (data=="La contraseña es incorrecta"){
+			alert("La contraseña es incorrecta");
+        }else if(data=="El usuario no existe") {
+			alert("El usuario no existe");
+		}else if (data=="Todos los campos son obligatorios") {
+			alert("Todos los campos son obligatorios");
+		}else{
         	//usua_apellidos y usua_rol, es usado en header.js, usua_nombres usado en sesionIniciada.js
 			//usua_nombre y usua_apellidos usado en inicio.js
 			//usua_rol es usado en venta.js
@@ -32,6 +36,7 @@ form.addEventListener('submit', ()=>{
 			for ( let clave in data ){
 				localStorage.setItem(`usua_${clave}`, data[clave]);
 			}
+			document.cookie = "sesionIniciada=true; max-age=" + (6 * 24 * 60 * 60);
 			window.open('../controladores/comprobarRol.php',"_self");
         }
 	//catch se ejecuta cunado la promesa no se verdadera

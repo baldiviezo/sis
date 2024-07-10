@@ -95,7 +95,7 @@ class consultas {
 		$numeroClientes = $resultado->num_rows;
 		$clientes =  array();
 		while ($fila = $resultado->fetch_assoc()){
-			$datos = array ( 'id_clte'=>$fila['id_clte'], 'nombre_clte'=>$fila['nombre_clte'], 'apellido_clte'=>$fila['apellido_clte'], 'email_clte'=>$fila['email_clte'],'direccion_clte'=>$fila['direccion_clte'],'celular_clte'=>$fila['celular_clte'], 'fk_id_emp_clte'=>$fila['fk_id_emp_clte'], 'nombre_emp'=>$fila['nombre_emp']);
+			$datos = array ( 'id_clte'=>$fila['id_clte'], 'nombre_clte'=>$fila['nombre_clte'], 'apellido_clte'=>$fila['apellido_clte'], 'email_clte'=>$fila['email_clte'],'direccion_clte'=>$fila['direccion_clte'],'celular_clte'=>$fila['celular_clte'], 'fk_id_emp_clte'=>$fila['fk_id_emp_clte'], 'nombre_emp'=>$fila['nombre_emp'], 'precio_emp'=>$fila['precio_emp']);
 			$clientes['clte_'.$fila['id_clte']] = $datos;
 			
 		}

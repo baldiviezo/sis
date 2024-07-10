@@ -35,13 +35,13 @@ function comprobarUsuario(){
 				$json = json_encode($array, JSON_UNESCAPED_UNICODE);
 				echo $json;
 			}else{
-				echo json_encode('No existe');
+				echo json_encode('La contraseña es incorrecta');
 			}
 		}else{
-			echo json_encode('No existe');
+			echo json_encode('El usuario no existe');
 		}
 	}else{
-		echo json_encode('No existe');
+		echo json_encode('Todos los campos son obligatorios');
 	}
 }
 ?>

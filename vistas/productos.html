@@ -99,9 +99,9 @@
 				<h2 class="modalP__title">Registrar<img src="../imagenes/producto.svg"></h2>
 				<img src="../imagenes/salir.svg" id="closeProductsRMW">
 			</div>
-			<div class="modalP__form--container">
-				<form id="formProductsR" class="modalP__form">
-					<!--For nos ayuda a enlazarnos con otro objeto utilizando su id, por ejemplo cuando se hace foco(un click) al elemento que tiene for este nos redijira a su objeto en lazado-->
+			<form id="formProductsR" class="modalP__form">
+				<!--For nos ayuda a enlazarnos con otro objeto utilizando su id, por ejemplo cuando se hace foco(un click) al elemento que tiene for este nos redijira a su objeto en lazado-->
+				<div class="modalP__inputs--container">
 					<div class="modalP__inputs">
 						<div class="modalP__group">
 							<label for="codigo_prodR" class="modalP__label">Codigo:</label>	
@@ -125,16 +125,16 @@
 					<div class="modalP__textarea">
 						<textarea name="descripcion_prodR" placeholder="Type description here..."></textarea>	
 					</div>
-					<div class="drop__areaR" >
-						<h2>Arrastra y suelta la imagen</h2>
-						<span>O</span>
-						<button>Selecciona una imagen</button>
-						<!--multiplece para que acepte multiples archivos-->
-						<input type="file"  name="imagen_prodR" id="imagen_prodR" class="modalP__submit" hidden>
-					</div>
-					<input type="submit" value="Registrar" class="modalP__submit">
-				</form>
-			</div>
+				</div>
+				<div class="drop__areaR" >
+					<h2>Arrastra y suelta la imagen</h2>
+					<span>O</span>
+					<button>Selecciona una imagen</button>
+					<!--multiplece para que acepte multiples archivos-->
+					<input type="file"  name="imagen_prodR" id="imagen_prodR" class="modalP__submit" hidden>
+				</div>
+				<input type="submit" value="Registrar" class="modalP__submit">
+			</form>
 		</div>
 	</section>
 	<section id="productsMMW" class="modalP">
@@ -143,8 +143,8 @@
 				<h2 class="modalP__title">Modificar<img src="../imagenes/producto.svg"></h2>
 				<img src="../imagenes/salir.svg" id="closeProductsMMW">
 			</div>
-			<div class="modalP__form--container">
-				<form id="formProductsM" class="modalP__form">
+			<form id="formProductsM" class="modalP__form">
+				<div class="modalP__inputs--container">
 					<div class="modalP__inputs">
 						<input type="text" name="id_prodM" hidden>
 						<div class="modalP__group">
@@ -169,16 +169,16 @@
 					<div class="modalP__textarea">
 						<textarea name="descripcion_prodM" placeholder="Type description here..."></textarea>
 					</div>	
-					<div class="drop__areaM" >
-						<h2>Arrastra y suelta la imagen</h2>
-						<span>O</span>
-						<button>Selecciona una imagen</button>
-						<!--multiplece para que acepte multiples archivos-->
-						<input type="file"  name="imagen_prodM" id="imagen_prodM" class="modalP__submit" hidden>
-					</div>
-					<input type="submit" value="Guardar" class="modalP__submit">
-				</form>
-			</div>
+				</div>
+				<div class="drop__areaM" >
+					<h2>Arrastra y suelta la imagen</h2>
+					<span>O</span>
+					<button>Selecciona una imagen</button>
+					<!--multiplece para que acepte multiples archivos-->
+					<input type="file"  name="imagen_prodM" id="imagen_prodM" class="modalP__submit" hidden>
+				</div>
+				<input type="submit" value="Guardar" class="modalP__submit">
+			</form>	
 		</div>
 	</section>
 	<!--Marca y Categoria-->

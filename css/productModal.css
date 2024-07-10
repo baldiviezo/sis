@@ -27,21 +27,19 @@
 	/*como su padre tiene flexbox se puede usar el margin auto*/
 	display: grid;
 	grid-template-rows: 2rem 1fr;
+	gap: .5rem;
 	margin: auto;
-	width: 435px;
-	height: auto;
-	max-height: 90%;
+	width: 40rem;
+	height: 90%;
 	font-family: 'Roboto', sans-serif;
 	background-color: #fff;
 	border-radius: .8rem;
 	padding: 1rem;
 	overflow: hidden;
-
 }
-.modalP__form--container{
-	overflow-y: auto;
+.modalP__inputs--container{
+	width: 100%;
 }
-
 .modalP__form--container::-webkit-scrollbar{
 	width: 0.5rem;
 	height: 0.5rem;
@@ -55,16 +53,12 @@
 	visibility: visible;
 }
 .modalP__form{
-	padding: 1rem;
+	display: grid;
+	grid-template-rows: 20rem 1fr 2rem;
+	gap: .5rem;
 	background-color: #fff4;
-	display: flex;
-	align-items: center;
-	justify-content: space-evenly;
-	flex-direction: column;
 	border-radius: .6rem;
-	height: auto;
-	min-height: 45rem;
-	
+	overflow: auto;
 }
 .modalP__select{
 	width: 100%;
@@ -89,9 +83,8 @@
 	color: #225c74;
 	font-size: 1.5rem;
 }
-
 .modalP__group{
-	width: 9rem;
+	width: 50%;
 	height: 3rem;
 }
 .modalP__group--select{
@@ -131,13 +124,13 @@
 .modalP__submit{
 	font-size: 1rem;
 	padding: 0.2rem 0.5rem;
-	margin-top: 1rem;
 	background-color: #225c74;
 	color: #fff;
 	border-radius: 0.3rem;
 	border: none;
-	height: 2em;
 	cursor: pointer;
+	width: 10rem;
+	margin: 0 auto;
 }
 .modalP__submit:hover{
 	box-shadow: 2px 2px 5px #000;
@@ -147,9 +140,9 @@
 	width: 100%;
 	height: auto;
 	display: flex;
-	justify-content: space-between;
 	align-items: center;
 	margin-bottom: .5rem;
+	gap: 1rem;
 }
 .modalP__textarea{
 	border-radius: 5px;
@@ -178,20 +171,20 @@ textarea:is(:focus, :valid){
 textarea::-webkit-scrollbar{
 	width: 0px
 }
-
-
-
 /*------Arrastrar imagen Drag and Drop*/
-
 .drop__areaR{
 	border: 5px dashed #ddd;
 	width: 20rem;
-	height: 20rem;
+	min-height: 20rem;
+	margin: 0 auto;
 	border-radius: 10px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	flex-direction: column;
+	background-size: cover; 
+	background-position: center;
+	background-repeat: no-repeat;
 }
 /*Para cuando arastremos algo dentro del area*/
 .drop__areaR.active{
@@ -219,16 +212,19 @@ textarea::-webkit-scrollbar{
 	cursor: pointer;
 	margin: 20px;
 }
-
 .drop__areaM{
 	border: 5px dashed #ddd;
-	height: 20rem;
 	width: 20rem;
+	min-height: 20rem;
+	margin: 0 auto;
 	border-radius: 10px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	flex-direction: column;
+	background-size: cover; 
+	background-position: center;
+	background-repeat: no-repeat;
 }
 .drop__areaM.active{
 	background-color: #b8d4fe;

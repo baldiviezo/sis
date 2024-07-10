@@ -1,3 +1,4 @@
+localStorage.removeItem('usua_id');
 localStorage.removeItem('usua_nombres');
 localStorage.removeItem('usua_apellidos');
 localStorage.removeItem('usua_email');

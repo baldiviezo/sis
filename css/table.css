@@ -94,6 +94,7 @@
 .table__header .table__search img{
 	width: 1.2rem;
 	height: 1.2rem;
+	cursor: default;
 }
 .table__header .table__search input{
 	width: 100%;

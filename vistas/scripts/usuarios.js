@@ -1,13 +1,10 @@
 //--------------------------------------------Restricciones de usuario----------------------------------------------
-if(localStorage.getItem('usua_rol') == 'Ingeniero'){
+if(localStorage.getItem('usua_rol') == 'Ingeniero' || localStorage.getItem('usua_rol') == 'Administrador'){
     document.querySelector('.table__header').classList.add('hide');
     document.querySelectorAll('.form__radio')[1].classList.add('hide');
     document.getElementsByName('email_usuaM')[0].parentNode.classList.add('hide');
-}else if (localStorage.getItem('usua_rol') == 'Administrador'){
-    document.querySelectorAll('.form__radio')[0].children[2].classList.add('hide');
-    document.querySelectorAll('.form__radio')[0].children[3].classList.add('hide');
-    document.querySelectorAll('.form__radio')[1].children[2].classList.add('hide');
-    document.querySelectorAll('.form__radio')[1].children[3].classList.add('hide');
+}else if (localStorage.getItem('usua_rol') == 'Gerente general'){
+    document.querySelectorAll('.form__radio')[1].classList.add('hide');
 }
 //<<-------------------------------------------CARGAR LA TABLA----------------------------------------------------->>
 //------Leer tabla de usuarios
@@ -49,19 +46,8 @@ function  tableUsers(){
             let td = document.createElement('td');
             if(localStorage.getItem('usua_rol')=='Gerente general'){
                 if(usuarios[usuario]['rol_usua'] == 'Gerente general'){
-                    td.innerHTML = ``;
-                }else{
                     td.innerHTML = `
-                    <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)'>
-                    <img src='../imagenes/trash.svg' onclick='deleteUser(this.parentNode.parentNode)'>`;
-                }
-            }else if(localStorage.getItem('usua_rol') == 'Administrador'){
-                if(usuarios[usuario]['rol_usua'] == 'Gerente general'){
-                    td.innerHTML = ``;
-                }else if(usuarios[usuario]['rol_usua'] == 'Administrador'){
-                    if (localStorage.getItem('usua_id') == usuarios[usuario]['id_usua']){
-                        td.innerHTML = `<img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)'>`;
-                    }
+                    <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)'>`;
                 }else{
                     td.innerHTML = `
                     <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)'>
