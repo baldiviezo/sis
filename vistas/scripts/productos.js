@@ -202,6 +202,7 @@ function tableProducts(page) {
 //------Create un producto
 document.getElementById("formProductsR").addEventListener("submit", createProduct);
 function createProduct(){
+    productsRMW.classList.remove('modal__show');
     event.preventDefault();
     let form = document.getElementById("formProductsR");
     let formData = new FormData(form);
@@ -213,7 +214,6 @@ function createProduct(){
         if (data=="El codigo ya existe"){
             alert(data);
         }else{
-            productsRMW.classList.remove('modal__show');
             readProducts();
             cleanUpProductFormR();
         }
@@ -246,6 +246,7 @@ function readProduct(tr){
 //-------Update un producto
 document.getElementById("formProductsM").addEventListener("submit", updateProduct);
 function updateProduct(){
+    productsMMW.classList.remove('modal__show');
     event.preventDefault();
     let form = document.getElementById("formProductsM");
     let formData = new FormData(form);
@@ -255,7 +256,6 @@ function updateProduct(){
             body: formData
     }).then(response => response.json()).then(data => {
         if (data=="Modificado"){
-            productsMMW.classList.remove('modal__show');
             readProducts();
         }else{
             alert(data);
@@ -473,6 +473,7 @@ function readAllCategorias() {
 let formMarcaR = document.getElementById('formMarcaR');
 formMarcaR.addEventListener('submit', createMarcaProd);
 function createMarcaProd(){
+    marcaRMW.classList.remove('modal__show');
     event.preventDefault();
     let formData = new FormData(formMarcaR);
     formData.append('createMarca', '');
@@ -483,8 +484,7 @@ function createMarcaProd(){
         if(data == 'La marca ya existe'){
             alert (data);
         }else{
-            readAllMarcas();
-            marcaRMW.classList.remove('modal__show');   
+            readAllMarcas();   
         }
     }).catch(err => console.log(err));
 }
@@ -520,6 +520,7 @@ function selectMarcaProd() {
 let formCategoriaR = document.getElementById('formCategoriaR');
 formCategoriaR.addEventListener('submit', createCategoriaProd);
 function createCategoriaProd(){
+    categoriaRMW.classList.remove('modal__show');
     event.preventDefault();
     if (selectMarcaProduct.value != 'todasLasMarcas'){
         let formData = new FormData(formCategoriaR);
@@ -533,7 +534,6 @@ function createCategoriaProd(){
                 alert(data);
             }else{
                 readAllCategorias();
-                categoriaRMW.classList.remove('modal__show');
             }
         }).catch(err => console.log(err));
     }else{

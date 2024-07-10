@@ -86,6 +86,7 @@ function createUser(){
     let pass1 = document.getElementsByName("contraseña_usua_R")[0];
     let pass2 = document.getElementsByName("contraseña2_usua_R")[0];
     if(pass1.value == pass2.value){
+        usersRMW.classList.remove('modal__show');
         event.preventDefault();
         let form = document.getElementById("formUsersR");
         let formData = new FormData(form);
@@ -97,7 +98,6 @@ function createUser(){
             if (data!="registrado"){           
                 alert(data);
             }else{
-                usersRMW.classList.remove('modal__show');
                 readUsers();
                 cleanUpFormRegister();
             }
@@ -138,6 +138,7 @@ function updateUser(){
     let pass1 = document.getElementsByName("contraseña_usuaM")[0];
     let pass2 = document.getElementsByName("contraseña2_usuaM")[0];
     if(pass1.value == pass2.value){
+        usersMMW.classList.remove('modal__show');
         event.preventDefault();
         let form = document.getElementById("formUsersM");
         let formData = new FormData(form);
@@ -148,7 +149,6 @@ function updateUser(){
         }).then(response => response.text()).then(data => {
             if (data=="modificado"){
                 cleanUpFormModify();
-                usersMMW.classList.remove('modal__show');
                 readUsers();
             }else{
                 alert(data);

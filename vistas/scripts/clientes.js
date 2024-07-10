@@ -176,6 +176,7 @@ function tableCustomers(page) {
 const formClienteR = document.getElementById('formClienteR');
 formClienteR.addEventListener('submit', createCustomer);
 function createCustomer() {
+    customersRMW.classList.remove('modal__show');
     event.preventDefault();
     let formData = new FormData(formClienteR);
     formData.append('createCustomer','');
@@ -184,7 +185,6 @@ function createCustomer() {
         body: formData
     }).then(response => response.text()).then(data => {
         readCustomers();
-        customersRMW.classList.remove('modal__show');
         //Limpiar al registrar
         let inputsR = document.querySelectorAll('#formClienteR .form__input');
         inputsR.forEach(input=>{input.value = ''});
@@ -211,6 +211,7 @@ function readCustomer(tr) {
 const formClienteM = document.getElementById('formClienteM');
 formClienteM.addEventListener('submit', updateCustomer);
 function updateCustomer(){
+    customersMMW.classList.remove('modal__show');
     event.preventDefault();
     let formData = new FormData(formClienteM);
     formData.append('updateCustomer', '');
@@ -218,7 +219,6 @@ function updateCustomer(){
         method: "POST",
         body: formData
     }).then(response => response.text()).then(data => {
-        customersMMW.classList.remove('modal__show');
         readCustomers();
     }).catch(err => console.log(err));   
 }
@@ -252,10 +252,6 @@ closeCustomersMMW.addEventListener('click',()=>{
 closeCustomersRMW.addEventListener('click',()=>{
     customersRMW.classList.remove('modal__show');
 });
-
-
-
-
 
 //<<------------------------LLENAR LA LISTA DE EMPRESAS-------------------------------------->>
 const selectEnterpriseR = document.getElementsByName('fk_id_emp_clteR')[0];
@@ -294,6 +290,7 @@ function fillSelectEmp(select, index) {
 const formEmpresaR = document.getElementById('formEmpresaR');
 formEmpresaR.addEventListener('submit', createEnterprise);
 function createEnterprise() {
+    enterprisesRMW.classList.remove('modal__show');
     event.preventDefault();
     let formData = new FormData(formEmpresaR);
     formData.append('createEnterprise','');
@@ -306,7 +303,6 @@ function createEnterprise() {
         }else{
             indexEnterprise = 0;
             readEnterprises();
-            enterprisesRMW.classList.remove('modal__show');
             //Limpiar el formulario de registrar empresa
         	let inputs = document.querySelectorAll('#formEmpresaR .form__input');
             inputs.forEach(input =>input.value = ''); 
@@ -331,6 +327,7 @@ function readEnterprise(div){
 let formEmpresaM = document.getElementById('formEmpresaM');
 formEmpresaM.addEventListener('submit',updateEnterprise);
 function updateEnterprise(){
+    enterprisesMMW.classList.remove('modal__show');
     event.preventDefault();
     let formData = new FormData(formEmpresaM);
     formData.append('updateEnterprise', '');
@@ -339,9 +336,9 @@ function updateEnterprise(){
         body: formData
     }).then(response => response.text()).then(data=>{
         if(data == 'modificado'){
-            enterprisesMMW.classList.remove('modal__show');
             indexEnterprise = document.getElementsByName('fk_id_emp_clte'+formEnterprise)[0].value;
-            readEnterprises(); 
+            readEnterprises();
+            readCustomers(); 
         }else{
             alert(data);
         }
