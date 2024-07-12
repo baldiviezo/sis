@@ -151,6 +151,9 @@ function tableCustomers(page) {
                     td.innerText = filterCustomers[customer][valor];
                 }
                 tr.appendChild(td);
+            }else if(valor == 'precio_emp'){
+                td.innerText = `${filterCustomers[customer][valor]} %`;
+                tr.appendChild(td);
             }else{
                 td.innerText = filterCustomers[customer][valor];
                 tr.appendChild(td);

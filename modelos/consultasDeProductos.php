@@ -48,11 +48,27 @@ class consultas {
 		}else{
 			$fecha = new DateTime();
 			$nombreImagen=($this->imagen!="")?$fecha->getTimestamp()."_".$this->imagen:"imagen.jpg";
-			$imagenTemporal=$_FILES['imagen_prodR']['tmp_name'];
+			$extension = pathinfo($nombreImagen, PATHINFO_EXTENSION);
+
+			if ($extension == "png") {
+				$nombreImagen = str_replace(".png", ".jpg", $nombreImagen);
+			}
+			
 			$consulta = "INSERT INTO producto (codigo_prod, fk_id_mrc_prod, fk_id_ctgr_prod, nombre_prod, descripcion_prod, imagen_prod) VALUES ('$this->codigo', '$this->marca', '$this->categoria', '$this->nombre','$this->descripcion', '$nombreImagen')";
 			$resultado = $conexion->query($consulta);
 			if($resultado){
-				move_uploaded_file($imagenTemporal, "../modelos/imagenes/".$nombreImagen);
+				$imagenTemporal = $_FILES['imagen_prodR']['tmp_name'];
+    			if ($extension == "png") {
+        			$imagen = imagecreatefrompng($imagenTemporal);
+					if ($imagen === false) {
+						die("Error al crear la imagen desde PNG");
+					}
+       				$rutaImagen = "../modelos/imagenes";
+        			imagejpeg($imagen, $rutaImagen, 100);
+        			imagedestroy($imagen);
+    			} else {
+        			move_uploaded_file($imagenTemporal, "../modelos/imagenes/" . $nombreImagen);
+    			}
 			}
 			$consulta = "SELECT MAX(id_prod) as id_prod_max FROM producto";
 			$resultado = $conexion->query($consulta);
@@ -125,7 +141,7 @@ class consultas {
 	//-----------------------------------CRUD MARCAS----------------------------------
 	public function readMarcas(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM marca";
+		$consulta = "SELECT * FROM marca ORDER BY nombre_mrc ASC";
 		$resultado = $conexion->query($consulta);
 		$marcas =  array();
 		while ($fila = $resultado->fetch_assoc()){
@@ -156,7 +172,10 @@ class consultas {
 	//----------------------------------CRUD CATEGORIAS------------------------------
 	public function readCategorias(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM mrc_ctgr INNER JOIN marca ON mrc_ctgr.fk_id_mrc_mccr = id_mrc INNER JOIN categoria ON mrc_ctgr.fk_id_ctgr_mccr = id_ctgr";
+		$consulta = "SELECT * FROM mrc_ctgr 
+             INNER JOIN marca ON mrc_ctgr.fk_id_mrc_mccr = id_mrc 
+             INNER JOIN categoria ON mrc_ctgr.fk_id_ctgr_mccr = id_ctgr 
+             ORDER BY categoria.nombre_ctgr ASC";
 		$resultado = $conexion->query($consulta);
 		$categorias =  array();
 		while ($fila = $resultado->fetch_assoc()){

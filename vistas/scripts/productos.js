@@ -211,6 +211,7 @@ function createProduct(){
             method: "POST",
             body: formData
     }).then(response => response.text()).then(data => {
+        console.log(data);
         if (data=="El codigo ya existe"){
             alert(data);
         }else{
@@ -303,6 +304,7 @@ function mostrarimagenR () {
     let imagen = formData.get('imagen_prodR');
     //URL.createObjectURL() crea un DOMString que contiene una URL que representa al objeto pasado como parámetro.
     let urlDeImagen = URL.createObjectURL(imagen);
+    document.querySelector('.drop__areaR').setAttribute('style', `background-image: url("${urlDeImagen}"); background-size: cover; background-position: center; background-repeat: no-repeat;`);
 }
 //------Muestra en un campo la imagen que se esta seleccionado para modificar
 function mostrarimagenM () {
@@ -312,6 +314,7 @@ function mostrarimagenM () {
     let imagen = formData.get('imagen_prodM');
     //URL.createObjectURL() crea un DOMString que contiene una URL que representa al objeto pasado como parámetro.
     let urlDeImagen = URL.createObjectURL(imagen);
+    document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("${urlDeImagen}"); background-size: cover; background-position: center; background-repeat: no-repeat;`);
 }
 //<<------------------------------------------------------CAMPOS DE LOS FORMULARIOS------------------------------->>
 const inputsFormProduct = document.querySelectorAll('.modalP__form .modalP__group input');
