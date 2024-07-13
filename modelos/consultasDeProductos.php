@@ -48,27 +48,11 @@ class consultas {
 		}else{
 			$fecha = new DateTime();
 			$nombreImagen=($this->imagen!="")?$fecha->getTimestamp()."_".$this->imagen:"imagen.jpg";
-			$extension = pathinfo($nombreImagen, PATHINFO_EXTENSION);
-
-			if ($extension == "png") {
-				$nombreImagen = str_replace(".png", ".jpg", $nombreImagen);
-			}
-			
 			$consulta = "INSERT INTO producto (codigo_prod, fk_id_mrc_prod, fk_id_ctgr_prod, nombre_prod, descripcion_prod, imagen_prod) VALUES ('$this->codigo', '$this->marca', '$this->categoria', '$this->nombre','$this->descripcion', '$nombreImagen')";
 			$resultado = $conexion->query($consulta);
 			if($resultado){
 				$imagenTemporal = $_FILES['imagen_prodR']['tmp_name'];
-    			if ($extension == "png") {
-        			$imagen = imagecreatefrompng($imagenTemporal);
-					if ($imagen === false) {
-						die("Error al crear la imagen desde PNG");
-					}
-       				$rutaImagen = "../modelos/imagenes";
-        			imagejpeg($imagen, $rutaImagen, 100);
-        			imagedestroy($imagen);
-    			} else {
-        			move_uploaded_file($imagenTemporal, "../modelos/imagenes/" . $nombreImagen);
-    			}
+        		move_uploaded_file($imagenTemporal, "../modelos/imagenes/" . $nombreImagen);
 			}
 			$consulta = "SELECT MAX(id_prod) as id_prod_max FROM producto";
 			$resultado = $conexion->query($consulta);

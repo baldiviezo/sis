@@ -322,7 +322,7 @@ const inputsFormProduct = document.querySelectorAll('.modalP__form .modalP__grou
 function requiredInputProd(){
     inputsFormProduct.forEach(input => input.setAttribute("required",""));
     //formulario registrar
-    document.getElementsByName("imagen_prodR")[0].setAttribute('accept',"image/png, image/jpeg, image/jpg, image/gif");
+    document.getElementsByName("imagen_prodR")[0].setAttribute('accept',"image/jpeg, image/jpg");
     document.getElementsByName("descripcion_prodR")[0].setAttribute("required","");
     //formulario modificar
     document.getElementsByName("id_prodM")[0].setAttribute("hidden","");
