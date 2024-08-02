@@ -5,6 +5,9 @@ td img{
 td img:hover{
 	cursor: pointer;
 }
+.icon__CRUD{
+	cursor: pointer;
+}
 .table__header img{
 	width: 2.2rem;
 	height: 2.2rem;
@@ -26,6 +29,7 @@ td img:hover{
 .main__header img.img__folder{
 	width: 2.2rem;
 	height: 2.2rem;
+	cursor: pointer;
 }
 /*Para los titulos de las ventanas modales formularios*/
 .modal__header h2 {

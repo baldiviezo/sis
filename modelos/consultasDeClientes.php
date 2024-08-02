@@ -112,15 +112,23 @@ class consultas {
 		include 'conexion.php';
 		$consulta = "UPDATE cliente set nombre_clte='$this->nombreCliente', apellido_clte='$this->apellidoCliente', email_clte='$this->email_clte', direccion_clte='$this->direccion_clte', celular_clte='$this->celularCliente', fk_id_emp_clte='$this->empresaCliente' WHERE id_clte='$this->id'";
 		$resultado = $conexion->query($consulta);
+		echo ("Cliente modificado con éxito");
 	}
 	//------Borrar un cliente
 	public function deleteCustomer($id){
 		include 'conexion.php';
-		$consulta = "DELETE FROM cliente WHERE id_clte='$id'";
-		$resultado = $conexion->query($consulta);
-		if ($resultado){
-			echo json_encode("Usuario eliminado con éxito");
-		}
+		$consulta = "SELECT * FROM proforma WHERE fk_id_clte_prof = '$id'";
+			$resultado = $conexion->query($consulta);
+			$numeroProformas = $resultado->num_rows;
+			if ($numeroProformas > 0){
+				echo "No se puede eliminar, El cliente está siendo utilizada por una proforma";
+			}else{
+				$consulta = "DELETE FROM cliente WHERE id_clte='$id'";
+				$resultado = $conexion->query($consulta);
+				if ($resultado){
+					echo ("Cliente eliminado con éxito");
+				}
+			}
 	}
 	//<<-----------------------------------ENTERPRISES----------------------------->>
 	//------Leer empresas
@@ -180,7 +188,7 @@ class consultas {
 		$consulta = "UPDATE empresa set nombre_emp='$this->nombreEmpresa', sigla_emp='$this->siglaEmpresa', nit_emp='$this->nitEmpresa', precio_emp='$this->precioEmpresa', direccion_emp='$this->direccionEmpresa', telefono_emp='$this->telefonoEmpresa' WHERE id_emp='$this->idEmpresa'";
 		$resultado = $conexion->query($consulta);
 		if ($resultado){
-			echo 'modificado';
+			echo ("Cliente modificado con éxito");
 		}
 	}
 	//------Eliminar una empresa
@@ -190,13 +198,21 @@ class consultas {
 		$resultado = $conexion->query($consulta);
 		$numeroClientes = $resultado->num_rows;
 		if ($numeroClientes > 1){
-			echo "No se puede eliminar, la empresa esta siendo utilizado";
+			echo "No se puede eliminar, la empresa pertenece a un cliente";
 		}else{
-			$consulta = "DELETE FROM cliente WHERE fk_id_emp_clte='$id_emp'";
+			$id_clte = $resultado->fetch_assoc()['id_clte'];
+			$consulta = "SELECT * FROM proforma WHERE fk_id_clte_prof = '$id_clte'";
 			$resultado = $conexion->query($consulta);
-			$consulta = "DELETE FROM empresa WHERE id_emp='$id_emp'";
-			$resultado = $conexion->query($consulta);
-			echo 'Eliminado';
+			$numeroProformas = $resultado->num_rows;
+			if ($numeroProformas > 0){
+				echo "No se puede eliminar, la empresa está siendo utilizada por una proforma";
+			}else{
+				$consulta = "DELETE FROM cliente WHERE fk_id_emp_clte='$id_emp'";
+				$resultado = $conexion->query($consulta);
+				$consulta = "DELETE FROM empresa WHERE id_emp='$id_emp'";
+				$resultado = $conexion->query($consulta);
+				echo 'Empresa eliminada con éxito';
+			}
 		}
 	}
 	//------PARA LA compta --Leer todos los proveedores

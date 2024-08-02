@@ -1,5 +1,5 @@
 const header = document.querySelector('header.header nav');
-if(localStorage.getItem('usua_rol')=='Administrador' || localStorage.getItem('usua_rol')=='Gerente general'){
+if(localStorage.getItem('usua_rol')=='Gerente general'){
 	header.innerHTML = `
 					<div class="nav__logo"></div>
 					<ul class="nav__list">
@@ -18,7 +18,7 @@ if(localStorage.getItem('usua_rol')=='Administrador' || localStorage.getItem('us
 					<img src="../imagenes/manu.svg" alt="Imagen de muestra" class="nav__icon">
 					</figure>`;
 }
-if(localStorage.getItem('usua_rol')=='Ingeniero'){
+if(localStorage.getItem('usua_rol')=='Ingeniero' || localStorage.getItem('usua_rol')=='Administrador'){
 	header.innerHTML = `
 						<div class="nav__logo"></div>
 							<ul class="nav__list">
@@ -26,6 +26,7 @@ if(localStorage.getItem('usua_rol')=='Ingeniero'){
 								<li><a href="usuarios.html" class="nav__link">Usuario</a></li>
 								<li><a href="clientes.html" class="nav__link">Clientes</a></li>
 								<li><a href="productos.html" class="nav__link">Productos</a></li>
+								<li><a href="inventario.html" class="nav__link">Inventario</a></li>
 								<li><a href="proforma.html" class="nav__link">Proforma</a></li>
 								<li><a href="cerrar.html" class="nav__link">Cerrar sesión</a></li>
 							</ul>

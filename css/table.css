@@ -40,7 +40,7 @@
 	overflow: hidden;
 	width: 100%;
 	/*Cuando la tabla */
-	padding: 0 2rem;
+	padding: 0 .5rem;
 	/*Vuelve transparente*/
 	background-color: #fffb;
 }
@@ -75,6 +75,7 @@
 	border-color: #225c74;
 	border-radius: .4rem;
 	color: #225c74;
+	cursor: pointer;
 }
 .table__header .table__search{
 	width: 15rem;
@@ -137,6 +138,9 @@
 .select__search label.label__fecha{
 	font-weight: bold;
 	width: 4rem;
+}
+.select__number{
+	cursor: pointer;
 }
 /*----------------------------------------------------------*/
 .table__body{
@@ -214,24 +218,28 @@ tbody tr:hover{
 	height: 5rem;
 	margin-right: .5rem;
 	vertical-align: middle;
+	cursor: auto;
 }
 #tbodyProductMW td img.tbody__img{
 	width: 5rem;
 	height: 5rem;
 	margin-right: .5rem;
 	vertical-align: middle;
+	cursor: auto;
 }
 #tbodyInventory td img.tbody__img{
 	width: 5rem;
 	height: 5rem;
 	margin-right: .5rem;
 	vertical-align: middle;
+	cursor: auto;
 }
 #tbodyInvMW td img.tbody__img{
 	width: 5rem;
 	height: 5rem;
 	margin-right: .5rem;
 	vertical-align: middle;
+	cursor: auto;
 }
 #previewProducts td img.tbody__img{
 	width: 5rem;

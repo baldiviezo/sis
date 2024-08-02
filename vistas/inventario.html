@@ -24,23 +24,23 @@
 			<h1><img src="../imagenes/inventario.svg">Inventario</h1>
 		</div>
 		<section class="table__header">
-			<img src="../imagenes/registrar.svg" id="openInventoryRMW">
+			<img src="../imagenes/registrar.svg" id="openInventoryRMW" hidden>
 			<section class="select__search">
 				<div>
 					<label>Marcas: </label>
 					<select id="selectMarcaInventory" class="select__marca">
 						<option value="todasLasMarcas">Todas las marcas</option>
 					</select>
-					<img src="../imagenes/registrar.svg" id="openMarcaRMW">
-					<img src="../imagenes/trash.svg" onclick="deleteMarcaInv()">
+					<img src="../imagenes/registrar.svg" id="openMarcaRMW" hidden>
+					<img src="../imagenes/trash.svg" onclick="deleteMarcaInv()" hidden>
 				</div>
 				<div>
 					<label>Categorias: </label>
 					<select id="selectCategoriaInventory" class="select__categoria">
 						<option value="todasLasCategorias">Todas las categorias</option>
 					</select>
-					<img src="../imagenes/registrar.svg" id="openCategoriaRMW">
-					<img src="../imagenes/trash.svg" onclick="deleteCategoriaInv()">
+					<img src="../imagenes/registrar.svg" id="openCategoriaRMW" hidden>
+					<img src="../imagenes/trash.svg" onclick="deleteCategoriaInv()" hidden>
 				</div>
 			</section>
 			<div class="combo__search">
@@ -66,7 +66,7 @@
 				<div class="wrapper" id="wrapperInventory"><ul></ul></div>
 			</div>
 			<div>
-				<select id="selectNumberInv">
+				<select id="selectNumberInv" class="select__number">
 					<option value="2">2</option>
 					<option value="4">4</option>
 					<option value="6">6</option>
@@ -89,7 +89,7 @@
 						<th>Cantidad</th>
 						<th>Costo unitario</th>
 						<th>Detalles</th>
-						<th>Acciones</th>
+						<th hidden>Acciones</th>
 					</tr>
 				</thead>
 				<tbody id="tbodyInventory"></tbody>
@@ -100,17 +100,17 @@
 		<div class="modal__container">
 			<div class="modal__header">
 				<h2 class="modal__title">Registrar<img src="../imagenes/inventario.svg"></h2>
-				<img src="../imagenes/salir.svg" id="closeInventoryRMW">
+				<img class="button__close" src="../imagenes/salir.svg" id="closeInventoryRMW">
 			</div>
 			<form id="formInventarioR" class="form">
 				<div class="form__container">
 					<label class="form__label--only">Producto:</label>
 					<div class="form__group--select">
 						<select id="selectProductR" name="fk_id_prod_invR"></select>
-						<img src="../imagenes/search.svg" onclick="openProductSMW('R')">
-						<img src="../imagenes/registrar.svg" onclick="openProductsRMW()">
-						<img src="../imagenes/edit.svg" onclick="readProduct(this.parentNode)">
-						<img src="../imagenes/trash.svg" onclick="deleteProduct(this.parentNode)">
+						<img class="icon__CRUD" src="../imagenes/search.svg" onclick="openProductSMW('R')">
+						<img class="icon__CRUD" src="../imagenes/registrar.svg" onclick="openProductsRMW()">
+						<img class="icon__CRUD" src="../imagenes/edit.svg" onclick="readProduct(this.parentNode)">
+						<img class="icon__CRUD" src="../imagenes/trash.svg" onclick="deleteProduct(this.parentNode)" hidden>
 					</div>
 					<div class="form__group">
 						<input type="text" name="cantidad_invR"  placeholder=" " class="form__input">
@@ -122,7 +122,7 @@
 					</div>
 					<div class="form__group">
 						<input type="text" name="descripcion_invR" placeholder=" " class="form__input">
-						<label for="descripcion_invR" class="form__label">Descripcion:</label>
+						<label for="descripcion_invR" class="form__label">Ubicación:</label>
 					</div>
 				</div>
 				<div class="form__container--button">
@@ -135,7 +135,7 @@
 		<div class="modal__container">
 			<div class="modal__header">
 				<h2 class="modal__title">Modificar<img src="../imagenes/inventario.svg"></h2>
-				<img src="../imagenes/salir.svg" id="closeInventoryMMW">
+				<img class="button__close" src="../imagenes/salir.svg" id="closeInventoryMMW">
 			</div>
 			<form id="formInventarioM" class="form">
 				<div class="form__container">
@@ -143,10 +143,10 @@
 					<label class="form__label--only">Producto:</label>
 					<div class="form__group--select">
 						<select id="selectProductM" name="fk_id_prod_invM"></select>
-						<img src="../imagenes/search.svg" onclick="openProductSMW('M')">
-						<img src="../imagenes/registrar.svg" onclick="openProductsRMW()">
-						<img src="../imagenes/edit.svg" onclick="readProduct(this.parentNode)">
-						<img src="../imagenes/trash.svg" onclick="deleteProduct(this.parentNode)">
+						<img class="icon__CRUD" src="../imagenes/search.svg" onclick="openProductSMW('M')">
+						<img class="icon__CRUD" src="../imagenes/registrar.svg" onclick="openProductsRMW()">
+						<img class="icon__CRUD" src="../imagenes/edit.svg" onclick="readProduct(this.parentNode)">
+						<img class="icon__CRUD" src="../imagenes/trash.svg" onclick="deleteProduct(this.parentNode)" hidden>
 					</div>
 					<div class="form__group">
 						<input type="text" name="cantidad_invM"  placeholder=" " class="form__input">
@@ -158,7 +158,7 @@
 					</div>
 					<div class="form__group">
 						<input type="text" name="descripcion_invM" placeholder=" " class="form__input">
-						<label for="descripcion_invM" class="form__label">Descripcion:</label>
+						<label for="descripcion_invM" class="form__label">Ubicación:</label>
 					</div>
 				</div>
 				<div class="form__container--button">
@@ -172,11 +172,11 @@
 		<div class="modalP__container">
 			<div class="modalP__header">
 				<h2 class="modalP__title">Registrar<img src="../imagenes/producto.svg"></h2>
-				<img src="../imagenes/salir.svg" id="closeProductsRMW">
+				<img src="../imagenes/salir.svg" id="closeProductsRMW" class="button__close">
 			</div>
-			<div class="modalP__form--container">
-				<form id="formProductsR" class="modalP__form">
-					<!--For nos ayuda a enlazarnos con otro objeto utilizando su id, por ejemplo cuando se hace foco(un click) al elemento que tiene for este nos redijira a su objeto en lazado-->
+			<form id="formProductsR" class="modalP__form">
+				<!--For nos ayuda a enlazarnos con otro objeto utilizando su id, por ejemplo cuando se hace foco(un click) al elemento que tiene for este nos redijira a su objeto en lazado-->
+				<div class="modalP__inputs--container">
 					<div class="modalP__inputs">
 						<div class="modalP__group">
 							<label for="codigo_prodR" class="modalP__label">Codigo:</label>	
@@ -200,26 +200,26 @@
 					<div class="modalP__textarea">
 						<textarea name="descripcion_prodR" placeholder="Type description here..."></textarea>	
 					</div>
-					<div class="drop__areaR" >
-						<h2>Arrastra y suelta la imagen</h2>
-						<span>O</span>
-						<button>Selecciona una imagen</button>
-						<!--multiplece para que acepte multiples archivos-->
-						<input type="file"  name="imagen_prodR" id="imagen_prodR" class="modalP__submit" hidden>
-					</div>
-					<input type="submit" value="Registrar" class="modalP__submit">
-				</form>
-			</div>
+				</div>
+				<div class="drop__areaR" >
+					<h2>Arrastra y suelta la imagen</h2>
+					<span>O</span>
+					<button>Selecciona una imagen</button>
+					<!--multiplece para que acepte multiples archivos-->
+					<input type="file"  name="imagen_prodR" id="imagen_prodR" class="modalP__submit" hidden>
+				</div>
+				<input type="submit" value="Registrar" class="modalP__submit">
+			</form>
 		</div>
 	</section>
 	<section id="productsMMW" class="modalP">
 		<div class="modalP__container">
 			<div class="modalP__header">
 				<h2 class="modalP__title">Modificar<img src="../imagenes/producto.svg"></h2>
-				<img src="../imagenes/salir.svg" id="closeProductsMMW">
+				<img src="../imagenes/salir.svg" id="closeProductsMMW" class="button__close">
 			</div>
-			<div class="modalP__form--container">
-				<form id="formProductsM" class="modalP__form">
+			<form id="formProductsM" class="modalP__form">
+				<div class="modalP__inputs--container">
 					<div class="modalP__inputs">
 						<input type="text" name="id_prodM" hidden>
 						<div class="modalP__group">
@@ -244,16 +244,16 @@
 					<div class="modalP__textarea">
 						<textarea name="descripcion_prodM" placeholder="Type description here..."></textarea>
 					</div>	
-					<div class="drop__areaM" >
-						<h2>Arrastra y suelta la imagen</h2>
-						<span>O</span>
-						<button>Selecciona una imagen</button>
-						<!--multiplece para que acepte multiples archivos-->
-						<input type="file"  name="imagen_prodM" id="imagen_prodM" class="modalP__submit" hidden>
-					</div>
-					<input type="submit" value="Guardar" class="modalP__submit">
-				</form>
-			</div>
+				</div>
+				<div class="drop__areaM" >
+					<h2>Arrastra y suelta la imagen</h2>
+					<span>O</span>
+					<button>Selecciona una imagen</button>
+					<!--multiplece para que acepte multiples archivos-->
+					<input type="file"  name="imagen_prodM" id="imagen_prodM" class="modalP__submit" hidden>
+				</div>
+				<input type="submit" value="Guardar" class="modalP__submit">
+			</form>	
 		</div>
 	</section>
 	<!--Tabla de productos-->
@@ -262,7 +262,7 @@
 			<div class="table">
 				<div class="table__title">
 					<h1><img src="../imagenes/producto.svg">Productos</h1>
-					<img src="../imagenes/salir.svg" id="closeProductSMW">
+					<img src="../imagenes/salir.svg" id="closeProductSMW" class="button__close">
 				</div>
 				<section class="table__header">
 					<section class="select__search">
@@ -301,7 +301,7 @@
 						<div class="wrapper" id="wrapperProductMW"><ul></ul></div>
 					</div>
 					<div>
-						<select id="selectNumberProdMW">
+						<select id="selectNumberProdMW" class="select__number">
 							<option value="2">2</option>
 							<option value="4">4</option>
 							<option value="6">6</option>
@@ -335,7 +335,7 @@
 		<div class="modal__container">
 			<div class="modal__header">
 				<h2>Marca</h2>
-				<img src="../imagenes/salir.svg" id="closeMarcaRMW">
+				<img src="../imagenes/salir.svg" id="closeMarcaRMW" class="button__close">
 			</div>
 			<form id="formMarcaR" class="form">
 				<div class="form__inputs">
@@ -352,7 +352,7 @@
 		<div class="modal__container">
 			<div class="modal__header">
 				<h2>Categoria</h2>
-				<img src="../imagenes/salir.svg" id="closeCategoriaRMW">
+				<img src="../imagenes/salir.svg" id="closeCategoriaRMW" class="button__close">
 			</div>
 			<form id="formCategoriaR" class="form">
 				<div class="form__inputs">

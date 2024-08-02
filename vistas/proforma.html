@@ -10,7 +10,7 @@
 	<link rel="stylesheet" type="text/css" href="../css/encabezamiento.css">
 	<link rel="stylesheet" type="text/css" href="../css/paginacion.css">
 	<link rel="stylesheet" type="text/css" href="../css/buttonCRUD.css">
-	<link rel="stylesheet" type="text/css" href="../css/cardAndCart.css">
+	<link rel="stylesheet" type="text/css" href="../css/proforma.css">
 	<link rel="stylesheet" type="text/css" href="../css/table.css">
 	<link rel="stylesheet" type="text/css" href="../css/productModal.css">
 	<link rel="stylesheet" type="text/css" href="../css/userModal.css">
@@ -24,7 +24,7 @@
 		<div class="main__title">
 			<h1>Proforma</h1>
 			<div>
-				<select id="selectInvProd">
+				<select id="selectInvProd" class="select">
 					<option value="inventario">Inventario</option>
 					<option value="producto">Productos</option>
 				</select>
@@ -51,7 +51,7 @@
 				<div class="combo__search">
 					<div>
 						<select id="selectSearchInv" class="select">
-							<option value="todas">Buscar por</option>
+							<option value="todas">Buscar por todo</option>
 							<option value="codigo_prod">Código</option>
 							<option value="nombre_prod">Nombre</option>
 							<option value="descripcion_prod">Descripcion</option>
@@ -71,7 +71,7 @@
 					<div class="wrapper" id="wrapperInventory"><ul></ul></div>
 				</div>
 				<div>
-					<select id="selectNumberInv">
+					<select id="selectNumberInv" class="select__number">
 						<option value="3">3</option>
 						<option value="4">4</option>
 						<option value="5">5</option>
@@ -106,14 +106,14 @@
 				<div class="combo__search">
 					<div>
 						<select id="selectSearchProduct" class="select">
-							<option value="todas">Buscar por</option>
+							<option value="todas">Buscar por todo</option>
 							<option value="codigo_prod">Código</option>
 							<option value="nombre_prod">Nombre</option>
 							<option value="descripcion_prod">Descripcion</option>
 						</select>
 					</div>
 					<div class="table__search">
-						<input type="search" id="inputSerchProduct" placeholder="Productos...">
+						<input type="search" id="inputSerchProduct" placeholder="Buscar...">
 						<img src="../imagenes/search.png">
 					</div>
 				</div>
@@ -125,7 +125,7 @@
 					<div class="wrapper" id="wrapperProduct"><ul></ul></div>
 				</div>
 				<div>
-					<select id="selectNumberProduct">
+					<select id="selectNumberProduct" class="select__number">
 						<option value="3">3</option>
 						<option value="4">4</option>
 						<option value="5">5</option>
@@ -145,7 +145,7 @@
 					<div class="cart"><img src="../imagenes/carrito.svg"><p id="count">0</p></div>
 					<p>Proforma</p>
 					<input type="number" id="tipoDeCambioProf" value="6.96" class="input__change--money" hidden>
-					<select id="selectMoneyCart">
+					<select id="selectMoneyCart" class="select">
 						<option value="Bs">Bs</option>
 						<option value="$">$</option>
 					</select>
@@ -255,8 +255,8 @@
 								<th><div class="tbody__head--proforma">Empresa <img src="../imagenes/sortA_Z.svg" name="nombre_emp"><img src="../imagenes/sortZ_A.svg" name="nombre_emp"></div></th>
 								<th>Cliente</th>
 								<th>Valido</th>
-								<th>Condicion de pago</th>
-								<th>Tiempo de entrega</th>
+								<!--<th>Condicion de pago</th>
+								<th>Tiempo de entrega</th>-->
 								<th>Observacion</th>
 								<th>Desc.</th>
 								<th>Acciones</th>
@@ -287,8 +287,8 @@
 								<th>Empresa</th>
 								<th>Cliente</th>
 								<th>Valido</th>
-								<th>Condicion de pago</th>
-								<th>Tiempo de entrega</th>
+								<!--<th>Condicion de pago</th>
+								<th>Tiempo de entrega</th>-->
 								<th>Observacion</th>
 								<th>Descuento</th>
 								<th>Acciones</th>
@@ -327,9 +327,9 @@
 	<section id="proformaRMW" class="modalProf">
 		<div class="modalProf__container">
 			<div class="modal__header">
-				<img src='../imagenes/products.svg' onclick='openPreviwProducts()'>
+				<img src='../imagenes/products.svg' onclick='openPreviwProducts()' class="icon__CRUD">
 				<h2 class="modal__title">Proforma</h2>
-				<img src="../imagenes/salir.svg" id="closeProformaRMW">
+				<img src="../imagenes/salir.svg" id="closeProformaRMW" class="button__close">
 			</div>
 			<form id="formProformaR" class="form">
 				<div class="form__container">
@@ -340,17 +340,17 @@
 					<label class="form__label--only">Empresa:</label>
 					<div class="form__group--select">
 						<select name="fk_id_emp_clteR"></select>
-						<img src="../imagenes/search.svg" onclick="openEnterpriseSMW('R')">
-						<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()">
-						<img src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)">
-						<img src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)">
+						<img src="../imagenes/search.svg" onclick="openEnterpriseSMW('R')" class="icon__CRUD">
+						<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()" class="icon__CRUD" hidden>
+						<img src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)" class="icon__CRUD" hidden>
+						<img src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)" class="icon__CRUD" hidden>
 					</div>
 					<label class="form__label--only">Cliente:</label>
 					<div class="form__group--select">
 						<select name="fk_id_clte_profR"></select>
-						<img src="../imagenes/registrar.svg" onclick="openCustomersRMW()">
-						<img src="../imagenes/edit.svg" onclick="readCustomer(this.parentNode)">
-						<img src="../imagenes/trash.svg" onclick="deleteCustomer(this.parentNode)">
+						<img src="../imagenes/registrar.svg" onclick="openCustomersRMW()" class="icon__CRUD" hidden>
+						<img src="../imagenes/edit.svg" onclick="readCustomer(this.parentNode)" class="icon__CRUD" hidden>
+						<img src="../imagenes/trash.svg" onclick="deleteCustomer(this.parentNode)" class="icon__CRUD" hidden>
 					</div>
 					<div class="form__group">
 						<input type="text" name="tpo_valido_profR" placeholder=" " class="form__input">
@@ -673,7 +673,7 @@
 			<div class="table">
 				<div class="table__title">
 					<h1>Empresas</h1>
-					<img src="../imagenes/salir.svg" id="closeEnterpriseSMW">
+					<img src="../imagenes/salir.svg" id="closeEnterpriseSMW" class="button__close">
 				</div>
 				<section class="table__header">
 					<div></div>
@@ -697,7 +697,7 @@
 						<div class="wrapper" id="wrapperEmpMW"><ul></ul></div>
 					</div>
 					<div>
-						<select id="selectNumberEmpMW">
+						<select id="selectNumberEmpMW" class="select__number">
 							<option value="2">2</option>
 							<option value="4">4</option>
 							<option value="6">6</option>

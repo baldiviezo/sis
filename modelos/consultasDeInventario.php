@@ -44,6 +44,7 @@ class consultas {
 			$consulta = "INSERT INTO inventario (fk_id_prod_inv, cantidad_inv, cost_uni_inv, descripcion_inv) VALUES ('$this->codigo', '$this->cantidad', '$this->cu', '$this->descripcion')";
 			//Si la sentencia se ejecuto exitosamente $resultado devuelve true, si no se ejecuto devuelve false
 			$resultado = $conexion->query($consulta);
+			echo ("El producto se añadió al inventario exitosamente");
 		}
 	}
 	//------Actualizar un inventario
@@ -58,7 +59,7 @@ class consultas {
 			if($id_inv == $this->id_inv){
 				$this->update();
 			}else{
-				echo json_encode("El producto ya esta en el inventario");
+				echo ("El producto ya esta en el inventario");
 			}
 		}else{
 			$this->update();
@@ -68,13 +69,26 @@ class consultas {
 		include 'conexion.php';
 		$consulta = "UPDATE inventario INNER JOIN producto ON inventario.fk_id_prod_inv = id_prod set fk_id_prod_inv='$this->codigo', cantidad_inv='$this->cantidad', cost_uni_inv='$this->cu', descripcion_inv='$this->descripcion' WHERE id_inv='$this->id_inv'";
 		$resultado = $conexion->query($consulta);
+		echo ("Inventario actualizado exitosamente");
 	}
 	//------Borrar un inventario
 	public function deleteInventory($id){
 		include 'conexion.php';
-		//Eliminar imagen de la carpeta imagenes
-		$consulta = "DELETE FROM inventario WHERE id_inv='$id'";
+		$consulta = "SELECT * FROM inventario WHERE id_inv ='$id'";
 		$resultado = $conexion->query($consulta);
+		$inventario = $resultado->fetch_assoc();
+		$id_prod = $inventario['fk_id_prod_inv'];
+		$consulta = "SELECT * FROM prof_prod WHERE fk_id_prod_pfpd ='$id_prod'";
+		$resultado = $conexion->query($consulta);
+		$numeroFilas = $resultado->num_rows;
+		if($numeroFilas > 0){
+			echo ("No se puede eliminar, el producto está siendo utilizado por una o más proformas");
+		}else{
+			//Eliminar imagen de la carpeta imagenes
+			$consulta = "DELETE FROM inventario WHERE id_inv='$id'";
+			$resultado = $conexion->query($consulta);
+			echo ("Producto eliminado del inventario exitosamente");
+		}
 	}
 }
 ?>

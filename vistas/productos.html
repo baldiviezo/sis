@@ -31,16 +31,16 @@
 					<select id="selectMarcaProduct" class="select__marca">
 						<option value="todasLasMarcas">Todas las marcas</option>
 					</select>
-					<img src="../imagenes/registrar.svg" id="openMarcaRMW">
-					<img src="../imagenes/trash.svg" onclick="deleteMarcaProd()">
+					<img src="../imagenes/registrar.svg" id="openMarcaRMW" hidden>
+					<img src="../imagenes/trash.svg" onclick="deleteMarcaProd()" hidden>
 				</div>
 				<div>
 					<label>Categorias: </label>
 					<select id="selectCategoriaProduct" class="select__categoria">
 						<option value="todasLasCategorias">Todas las categorias</option>
 					</select>
-					<img src="../imagenes/registrar.svg" id="openCategoriaRMW">
-					<img src="../imagenes/trash.svg" onclick="deleteCategoriaProd()">
+					<img src="../imagenes/registrar.svg" id="openCategoriaRMW" hidden>
+					<img src="../imagenes/trash.svg" onclick="deleteCategoriaProd()" hidden>
 				</div>
 			</section>
 			<div class="combo__search">
@@ -65,7 +65,7 @@
 				<div class="wrapper" id="wrapperProduct"><ul></ul></div>
 			</div>
 			<div>
-				<select id="selectNumberProduct">
+				<select id="selectNumberProduct" class="select__number">
 					<option value="2">2</option>
 					<option value="4">4</option>
 					<option value="6">6</option>
@@ -97,7 +97,7 @@
 		<div class="modalP__container">
 			<div class="modalP__header">
 				<h2 class="modalP__title">Registrar<img src="../imagenes/producto.svg"></h2>
-				<img src="../imagenes/salir.svg" id="closeProductsRMW">
+				<img class="button__close" src="../imagenes/salir.svg" id="closeProductsRMW">
 			</div>
 			<form id="formProductsR" class="modalP__form">
 				<!--For nos ayuda a enlazarnos con otro objeto utilizando su id, por ejemplo cuando se hace foco(un click) al elemento que tiene for este nos redijira a su objeto en lazado-->
@@ -141,7 +141,7 @@
 		<div class="modalP__container">
 			<div class="modalP__header">
 				<h2 class="modalP__title">Modificar<img src="../imagenes/producto.svg"></h2>
-				<img src="../imagenes/salir.svg" id="closeProductsMMW">
+				<img class="button__close" src="../imagenes/salir.svg" id="closeProductsMMW">
 			</div>
 			<form id="formProductsM" class="modalP__form">
 				<div class="modalP__inputs--container">
@@ -186,7 +186,7 @@
 		<div class="modal__container">
 			<div class="modal__header">
 				<h2>Marca</h2>
-				<img src="../imagenes/salir.svg" id="closeMarcaRMW">
+				<img src="../imagenes/salir.svg" id="closeMarcaRMW" class="button__close">
 			</div>
 			<form id="formMarcaR" class="form">
 				<div class="form__inputs">
@@ -203,7 +203,7 @@
 		<div class="modal__container">
 			<div class="modal__header">
 				<h2>Categoria</h2>
-				<img src="../imagenes/salir.svg" id="closeCategoriaRMW">
+				<img src="../imagenes/salir.svg" id="closeCategoriaRMW" class="button__close">
 			</div>
 			<form id="formCategoriaR" class="form">
 				<div class="form__inputs">

@@ -24,7 +24,6 @@ class consultas {
 	//-------Leer productos
 	public function readProducts(){
 		require 'conexion.php';
-		$orderBy = $_POST['readProducts'];
 		$consulta = "SELECT * FROM producto INNER JOIN marca ON producto.fk_id_mrc_prod = id_mrc INNER JOIN categoria ON producto.fk_id_ctgr_prod = id_ctgr ORDER BY id_prod DESC"; 
 		$resultado = $conexion->query($consulta);
 		$numeroFilas = $resultado->num_rows;
@@ -101,24 +100,39 @@ class consultas {
 			$resultado = $conexion->query($consulta);
 		}
 		if ($resultado){
-			echo json_encode("Modificado");
+			echo ("Producto modificado exitosamente");
 		}
 	}
 	//------Borrar un producto
 	public function borrar($id){
 		include 'conexion.php';
-		//Eliminar imagen de la carpeta imagenes
-		$consulta = "SELECT * FROM producto WHERE id_prod='$id'";
+		$consulta = "SELECT * FROM prof_prod WHERE fk_id_prod_pfpd ='$id'";
 		$resultado = $conexion->query($consulta);
-		$producto = $resultado->fetch_assoc();
-		//Eliminar en la base de datos
-		$consulta = "DELETE FROM producto WHERE id_prod='$id'";
-		$resultado = $conexion->query($consulta);
-		if ($resultado){
-			if($producto['imagen_prod'] != 'imagen.jpg'){
-				if(file_exists("../modelos/imagenes/".$producto['imagen_prod'])){
-					unlink("../modelos/imagenes/".$producto['imagen_prod']);
+		$numeroFilas = $resultado->num_rows;
+		if($numeroFilas > 0){
+			echo ("No se puede eliminar, el producto está siendo utilizado por una o más proformas");
+		}else{
+			$consulta = "SELECT * FROM inventario WHERE fk_id_prod_inv ='$id'";
+			$resultado = $conexion->query($consulta);
+			$numeroFilas = $resultado->num_rows;
+			if($numeroFilas > 0){
+				echo ("No se puede eliminar, el producto está en el inventario");
+			}else{
+				//Eliminar imagen de la carpeta imagenes
+				$consulta = "SELECT * FROM producto WHERE id_prod='$id'";
+				$resultado = $conexion->query($consulta);
+				$producto = $resultado->fetch_assoc();
+				//Eliminar en la base de datos
+				$consulta = "DELETE FROM producto WHERE id_prod='$id'";
+				$resultado = $conexion->query($consulta);
+				if ($resultado){
+					if($producto['imagen_prod'] != 'imagen.jpg'){
+						if(file_exists("../modelos/imagenes/".$producto['imagen_prod'])){
+							unlink("../modelos/imagenes/".$producto['imagen_prod']);
+						}
+					}
 				}
+				echo ("Producto eliminado exitosamente");
 			}
 		}
 	}
@@ -137,7 +151,7 @@ class consultas {
 	}
 	public function createMarca(){
 		include 'conexion.php';
-		$nombre_mrc = trim($conexion->real_escape_string($_POST['nombre_mrc']));
+		$nombre_mrc = trim($conexion->real_escape_string(strtoupper($_POST['nombre_mrc'])));
 		$consulta = "SELECT * FROM marca WHERE nombre_mrc ='$nombre_mrc'";
 		$resultado = $conexion->query($consulta);
 		$numeroMarcas = $resultado->num_rows;
@@ -146,12 +160,33 @@ class consultas {
 		}else{
 			$consulta = "INSERT INTO marca (nombre_mrc) VALUES ('$nombre_mrc')";
 			$resultado = $conexion->query($consulta);
+			echo ("Marca creada exitosamente");
 		}
 	}
 	public function deleteMarca($id_mrc){
 		include 'conexion.php';
-		$consulta = "DELETE FROM marca WHERE id_mrc='$id_mrc'";
+		$consulta = "SELECT * FROM producto WHERE fk_id_mrc_prod='$id_mrc'";
 		$resultado = $conexion->query($consulta);
+		$numeroFilas = $resultado->num_rows;
+		if($numeroFilas > 0){
+			echo("Existen productos que utilizan esta marca");
+		}else{
+			$consulta = "SELECT * FROM mrc_ctgr WHERE fk_id_mrc_mccr = '$id_mrc'";
+    		$resultado = $conexion->query($consulta);
+    		$numeroFilas = $resultado->num_rows;
+    		if($numeroFilas > 0){
+				echo("Existen categorias que utilizan esta marca");
+			}else{
+				$consulta = "DELETE FROM marca WHERE id_mrc='$id_mrc'";
+				$resultado = $conexion->query($consulta);
+				if (!$resultado) {
+					$error = mysqli_error($conexion);
+					echo "Error al eliminar la marca: " . $error;
+				}else{
+					echo ("Marca eliminada exitosamente");
+				}
+			}
+		}
 	}
 	//----------------------------------CRUD CATEGORIAS------------------------------
 	public function readCategorias(){
@@ -171,7 +206,7 @@ class consultas {
 	}
 	public function createCategoria(){
 		include 'conexion.php';
-		$nombre_ctgr = trim($conexion->real_escape_string($_POST['nombre_ctgr']));
+		$nombre_ctgr = strtoupper(trim($conexion->real_escape_string($_POST['nombre_ctgr'])));
 		$id_mrc = trim($conexion->real_escape_string($_POST['id_mrc']));
 		$consulta = "SELECT * FROM categoria WHERE nombre_ctgr ='$nombre_ctgr'";
 		$resultado = $conexion->query($consulta);
@@ -187,6 +222,7 @@ class consultas {
 			}else{
 				$consulta = "INSERT INTO  mrc_ctgr (fk_id_mrc_mccr, fk_id_ctgr_mccr) VALUES ($id_mrc, $id_ctgr)";
 				$resultado = $conexion->query($consulta);
+				echo ("Categoría creada exitosamente");
 			}
 		}else{
 			$consulta = "INSERT INTO categoria (nombre_ctgr) VALUES ('$nombre_ctgr')";
@@ -197,15 +233,35 @@ class consultas {
 			$id_ctgr_max = $id_ctgr_max['id_ctgr_max'];
 			$consulta = "INSERT INTO  mrc_ctgr (fk_id_mrc_mccr, fk_id_ctgr_mccr) VALUES ($id_mrc, $id_ctgr_max)";
 			$resultado = $conexion->query($consulta);
+			echo ("Categoría creada exitosamente");
 		}
 	}
 	public function deleteCategoria($id_ctgr){
 		include 'conexion.php';
 		$id_mrc = trim($conexion->real_escape_string($_POST['id_mrc']));
-		$consulta = "DELETE FROM mrc_ctgr WHERE fk_id_ctgr_mccr='$id_ctgr' AND fk_id_mrc_mccr='$id_mrc'";
+		$consulta = "SELECT * FROM producto WHERE fk_id_ctgr_prod='$id_ctgr' AND fk_id_mrc_prod='$id_mrc'";
 		$resultado = $conexion->query($consulta);
-		$consulta = "DELETE FROM categoria WHERE id_ctgr='$id_ctgr'";
-		$resultado = $conexion->query($consulta);
+		$numeroFilas = $resultado->num_rows;
+		if($numeroFilas > 0){
+			echo("Existe productos que utilizan esta categoría");
+		}else{
+			$consulta = "DELETE FROM mrc_ctgr WHERE fk_id_ctgr_mccr='$id_ctgr' AND fk_id_mrc_mccr='$id_mrc'";
+			$resultado = $conexion->query($consulta);
+			if($resultado){
+				$consulta = "SELECT * FROM mrc_ctgr WHERE fk_id_ctgr_mccr ='$id_ctgr' AND fk_id_mrc_mccr <> '$id_mrc'";
+				$resultado = $conexion->query($consulta);
+				$categorias = $resultado->fetch_assoc();
+				$numeroCategorias = $resultado->num_rows;
+				if ($numeroCategorias > 0){
+					echo ('Categoría eliminada exitosamente');
+				}else{
+					$consulta = "DELETE FROM categoria WHERE id_ctgr='$id_ctgr'";
+					$resultado = $conexion->query($consulta);
+					echo ('Categoría eliminada exitosamente');
+				}
+			}
+			
+		}
 	}
 }
 ?>

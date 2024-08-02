@@ -91,7 +91,7 @@ class consultas {
 		$consulta = "UPDATE usuario set nombre_usua='$this->nombres', apellido_usua='$this->apellidos', contraseña_usua='$passCifrado', email_usua='$this->email', ci_usua='$this->ci', direccion_usua='$this->direccion', celular_usua='$this->celular', rol_usua='$this->rol' WHERE id_usua='$this->id'";
 		$resultado = $conexion->query($consulta);
 		if ($resultado){
-			echo ('modificado');
+			echo ('Usuario modificado exitosamente');
 		}	
 	}
 	//-------Delete user

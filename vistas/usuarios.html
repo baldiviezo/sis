@@ -62,29 +62,29 @@
 		<div class="modal__container">
 			<!--Nombre de ventana modal y boton cerrar-->
 			<div class="modal__header">
-				<h2 class="modal__title">Registrar<img src="../imagenes/user.svg"></h2>
-				<img src="../imagenes/salir.svg" id="closeUsersRMW">
+				<h2 class="modal__title">Registrar usuario<img src="../imagenes/user.svg"></h2>
+				<img class="button__close" src="../imagenes/salir.svg" id="closeUsersRMW">
 			</div>
 			<form id="formUsersR" class="form">
 				<div class="form__container">
 					<div class="form__group">
-						<input type="text" name="nombre_usua_R" placeholder=" " class="form__input">
+						<input type="text" name="nombre_usua_R" placeholder=" " class="form__input required required">
 						<label for="nombre_usua_R" class="form__label">Nombres:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="apellido_usua_R" placeholder=" " class="form__input">
+						<input type="text" name="apellido_usua_R" placeholder=" " class="form__input required">
 						<label for="apellido_usua_R" class="form__label">Apellidos:</label>
 					</div>
 					<div class="form__group">
-						<input type="password" name="contraseña_usua_R" placeholder=" " class="form__input">
+						<input type="password" name="contraseña_usua_R" placeholder=" " class="form__input required">
 						<label for="contraseñaR" class="form__label">Contraseña:</label>
 					</div>
 					<div class="form__group">
-						<input type="password" name="contraseña2_usua_R" placeholder=" " class="form__input">
+						<input type="password" name="contraseña2_usua_R" placeholder=" " class="form__input required">
 						<label for="contraseña2_usua_R" class="form__label">Contraseña:</label>
 					</div>
 					<div class="form__group">
-						<input type="email" name="email_usua_R" placeholder=" " class="form__input">
+						<input type="email" name="email_usua_R" placeholder=" " class="form__input required">
 						<label for="email_usua_R" class="form__label">Correo electrónico:</label>
 					</div>
 					<div class="form__group">
@@ -96,7 +96,7 @@
 						<label for="direccion_usua_R" class="form__label">Dirección:</label>
 					</div>
 					<div class="form__group">
-						<input type="number" name="celular_usua_R" placeholder=" " class="form__input">
+						<input type="number" name="celular_usua_R" placeholder=" " class="form__input required">
 						<label for="celular_usua_R" class="form__label">Celular:</label>
 					</div>
 					<div class="form__radio">
@@ -113,32 +113,32 @@
 	<section id="usersMMW" class="modal">
 		<div class="modal__container">
 			<div class="modal__header">
-				<h2 class="modal__title">Modificar<img src="../imagenes/user.svg"></h2>
-				<img src="../imagenes/salir.svg" id="closeUsersMMW">
+				<h2 class="modal__title">Modificar usuario<img src="../imagenes/user.svg"></h2>
+				<img class="button__close" src="../imagenes/salir.svg" id="closeUsersMMW">
 			</div>
 			<form id="formUsersM" class="form">
 				<div class="form__container">
 					<!--Para recuperar el id del usuario modificado para guardarlo-->
 					<input type="text" name="id_usuaM" >
 					<div class="form__group">
-						<input type="text" name="nombre_usuaM" placeholder=" " class="form__input">
+						<input type="text" name="nombre_usuaM" placeholder=" " class="form__input required">
 						<label for="nombre_usuaM" class="form__label">Nombres:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="apellido_usuaM" placeholder=" " class="form__input">
+						<input type="text" name="apellido_usuaM" placeholder=" " class="form__input required">
 						<label for="apellido_usuaM" class="form__label">Apellidos:</label>
 					</div>
 					<div class="form__group">
-						<input type="password" name="contraseña_usuaM" placeholder=" " class="form__input">
+						<input type="password" name="contraseña_usuaM" placeholder=" " class="form__input required">
 						<label for="contraseña_usuaM" class="form__label">Contraseña:</label>
 					</div>
 					<div class="form__group">
-						<input type="password" name="contraseña2_usuaM" placeholder=" " class="form__input">
+						<input type="password" name="contraseña2_usuaM" placeholder=" " class="form__input required">
 						<label for="contraseña2M" class="form__label">Contraseña:</label>
 					</div>
 					<div class="form__group">
 						<!--readonly evita evita q se pueda modificar el correo a uno q ya existe-->
-						<input type="email" name="email_usuaM" placeholder=" " class="form__input">
+						<input type="email" name="email_usuaM" placeholder=" " class="form__input required">
 						<label for="email_usuaM" class="form__label">Correo electrónico:</label>
 					</div>
 					<div class="form__group">
@@ -150,7 +150,7 @@
 						<label for="direccion_usuaM" class="form__label">Dirección:</label>
 					</div>
 					<div class="form__group">
-						<input type="number" name="celular_usuaM" placeholder=" " class="form__input">
+						<input type="number" name="celular_usuaM" placeholder=" " class="form__input required">
 						<label for="celular_usuaM" class="form__label">Celular:</label>
 					</div>
 					<div class="form__radio">

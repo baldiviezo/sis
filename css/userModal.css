@@ -175,8 +175,14 @@
 	border-radius: .4rem;
 	width: 100%;
 	color: #225c74;
+	cursor: pointer;
 }
-
+.form__radio input[type="radio"]:hover{
+	cursor: pointer;
+}
+.button__close{
+	cursor: pointer;
+}
 .form__submit{
 	background: #225c74;
 	color: #fff;
@@ -187,6 +193,7 @@
 	border: none;
 	border-radius: .5em;
 	margin-top: 1rem;
+	cursor: pointer;
 }
 .form__line{
 	position: absolute;

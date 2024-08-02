@@ -72,6 +72,9 @@
 	border-radius: .4rem;
 	color: #225c74;
 }
+.select__marca, .select__categoria{
+	cursor: pointer;
+}
 .modalP__header{
 	padding: 0 1rem;
 	background-color: #fff;

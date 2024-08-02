@@ -1,9 +1,9 @@
 //--------------------------------------------Restricciones de usuario----------------------------------------------
-if(localStorage.getItem('usua_rol') == 'Ingeniero'){
-    document.querySelector('.select__search').children[0].children[2].classList.add('hide');
-    document.querySelector('.select__search').children[0].children[3].classList.add('hide');
-    document.querySelector('.select__search').children[1].children[2].classList.add('hide');
-    document.querySelector('.select__search').children[1].children[3].classList.add('hide');
+if(localStorage.getItem('usua_rol') == 'Gerente general'){
+    document.querySelector('.select__search').children[0].children[2].removeAttribute('hidden');
+    document.querySelector('.select__search').children[0].children[3].removeAttribute('hidden');
+    document.querySelector('.select__search').children[1].children[2].removeAttribute('hidden');
+    document.querySelector('.select__search').children[1].children[3].removeAttribute('hidden');
 }
 //-------Marca y categoria
 const selectMarcaProduct = document.getElementById('selectMarcaProduct');
@@ -21,8 +21,8 @@ function readProducts() {
         method: "POST",
         body: formData
     }).then(response => response.json()).then(data => {
-        products = data;
-        filterProducts = data;
+        products = JSON.parse(JSON.stringify(data)); 
+        filterProducts = JSON.parse(JSON.stringify(data));
         (selectMarcaProduct.value == 'todasLasMarcas' && selectCategoriaProduct.value == 'todasLasCategorias') ? paginacionProduct(Object.values(data).length, 1) : selectProducts();
     }).catch(err => console.log(err));
 }
@@ -54,6 +54,7 @@ function searchProducts(){
                 if(valor == selectSearchProduct.value){
                     if(products[product][valor].toLowerCase().indexOf(inputSerchProduct.value.toLowerCase())>=0){
                         filterProducts[product] = products[product];
+                        filterProducts = JSON.parse(JSON.stringify(filterProducts));
                         break;
                     }
                 }
@@ -87,6 +88,7 @@ function selectProducts(){
                 }
             }
         }
+        filterProducts = JSON.parse(JSON.stringify(filterProducts));
         paginacionProduct(Object.values(filterProducts).length, 1); 
     }
 }
@@ -184,12 +186,13 @@ function tableProducts(page) {
             }
         }
         let td = document.createElement('td');
-        if(localStorage.getItem('usua_rol')=='Gerente general' || localStorage.getItem('usua_rol')=='Administrador'){
+        if(localStorage.getItem('usua_rol')=='Gerente general'){
             td.innerHTML = `
             <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)'>
             <img src='../imagenes/trash.svg' onclick='deleteProduct(this.parentNode.parentNode)'>`;
         }else{
-            td.innerHTML = ``;
+            td.innerHTML = `
+            <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)'>`;
         }
         tr.appendChild(td);
         tbody.appendChild(tr);
@@ -219,6 +222,7 @@ function createProduct(){
             if (data=="El codigo ya existe"){
                 alert(data);
             }else{
+                alert("El producto fue creado con éxito");
                 readProducts();
                 cleanUpProductFormR();
             }
@@ -266,12 +270,9 @@ function updateProduct(){
         fetch('../controladores/productos.php', {
                 method: "POST",
                 body: formData
-        }).then(response => response.json()).then(data => {
-            if (data=="Modificado"){
-                readProducts();
-            }else{
-                alert(data);
-            }
+        }).then(response => response.text()).then(data => {
+            readProducts();
+            alert(data);
         }).catch(err => console.log(err));
     }
 }
@@ -285,6 +286,7 @@ function deleteProduct (tr){
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
+            alert (data);
             readProducts();
         }).catch(error => console.log("Ocurrio un error. Intente nuevamente mas tarde"));
     }
@@ -356,7 +358,6 @@ function cleanUpProductFormM(){
     document.getElementsByName("imagen_prodM")[0].value = "";
     document.querySelector('.drop__areaM').removeAttribute('style');
 }
-
 //----------------------------------DRANG AND DROP-----------------------------------------------------
 const dropAreaR = document.querySelector('.drop__areaR');
 const dragTextR = dropAreaR.querySelector('h2');
@@ -506,11 +507,8 @@ function createMarcaProd(){
             method: "POST",
             body: formData
     }).then(response => response.text()).then(data => {
-        if(data == 'La marca ya existe'){
             alert (data);
-        }else{
             readAllMarcas();   
-        }
     }).catch(err => console.log(err));
 }
 //-------Eliminar Marca
@@ -523,7 +521,8 @@ function deleteMarcaProd() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            readAllMarcas();  
+                alert(data);
+                readAllMarcas(); 
         }).catch(err => console.log(err));
     }
 }
@@ -545,9 +544,9 @@ function selectMarcaProd() {
 let formCategoriaR = document.getElementById('formCategoriaR');
 formCategoriaR.addEventListener('submit', createCategoriaProd);
 function createCategoriaProd(){
-    categoriaRMW.classList.remove('modal__show');
     event.preventDefault();
     if (selectMarcaProduct.value != 'todasLasMarcas'){
+        categoriaRMW.classList.remove('modal__show');
         let formData = new FormData(formCategoriaR);
         formData.append('id_mrc', selectMarcaProduct.value);
         formData.append('createCategoria', '');
@@ -555,11 +554,8 @@ function createCategoriaProd(){
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            if(data == 'La categoria ya existe'){
-                alert(data);
-            }else{
-                readAllCategorias();
-            }
+            alert(data);
+            readAllCategorias();
         }).catch(err => console.log(err));
     }else{
         alert ('Seleccione una marca');
@@ -576,7 +572,8 @@ function deleteCategoriaProd() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            readAllCategorias(); 
+                alert(data);
+                readAllCategorias(); 
         }).catch(err => console.log(err));
     }
     selectCategoriaProduct.selectedIndex = 0;

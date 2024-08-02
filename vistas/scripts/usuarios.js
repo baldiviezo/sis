@@ -147,12 +147,9 @@ function updateUser(){
                 method: "POST",
                 body: formData
         }).then(response => response.text()).then(data => {
-            if (data=="modificado"){
-                cleanUpFormModify();
-                readUsers();
-            }else{
-                alert(data);
-            }
+            cleanUpFormModify();
+            readUsers();
+            alert(data)
         }).catch(err => console.log(err));
     }else{
         event.preventDefault();
@@ -169,9 +166,8 @@ function deleteUser (usuario){
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            if (data!=""){
-                readUsers();
-            }
+            readUsers();
+            alert(data);
         }).catch(error => console.log("Ocurrio un error. Intente nuevamente mas tarde"));
     }
 }
@@ -191,13 +187,13 @@ closeUsersMMW.addEventListener('click',(e)=>{
     usersMMW.classList.remove('modal__show');
 });
 //<<----------------------------ESPACIOS OBLIGATORIOS Y LIMPIAR LOS CAMPOS DE LOS FORMULARIOS------------------------------------------>>
-const allInputs = document.querySelectorAll('.form .form__group input');
 const modifyInputs = document.querySelectorAll('#formUsersM .form__group input');
 const registerInputs = document.querySelectorAll('#formUsersR .form__group input');
 //------Vuelve oblogatorios los campos del formulario 
-espaciosObligatorios();
-function espaciosObligatorios(){
-    allInputs.forEach(input => {
+spaceRequiret();
+function spaceRequiret(){
+    const requiredInputs = document.querySelectorAll('.form .form__group input.required');
+    requiredInputs.forEach(input => {
         input.setAttribute("required","");
         input.setAttribute('autocomplete','off');
     });

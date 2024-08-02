@@ -406,7 +406,7 @@ function cartProduct(card) {
         <input type="number" value = "1" min="1" onChange="changeQuantity(this.parentNode)" class="cart-item__cantidad">
         <input type="number" value = "${cost_uni}" onChange="changeQuantity(this.parentNode)" class="cart-item__costUnit">
         <input type="number" value = "${cost_uni}" class="cart-item__costTotal" readonly>
-        <img src="../imagenes/trash.svg" onClick="removeCardFromCart(this.parentNode)">
+        <img src="../imagenes/trash.svg" onClick="removeCardFromCart(this.parentNode)" class='icon__CRUD'>
         <h3 hidden>${card.children[1].children[2].innerHTML}</h3>
         <h3 hidden>${card.children[1].children[0].innerText}</h3>`;
     product.innerHTML = html;
@@ -654,7 +654,7 @@ function tableProformas(page) {
             else if(valor == 'nombre_usua'){
                 td.innerText = filterProformas[proforma][valor]+' '+filterProformas[proforma]['apellido_usua'];
                 tr.appendChild(td);
-            }else if(valor == 'id_emp' || valor == 'sigla_emp' || valor == 'direccion_emp' || valor == 'telefono_emp' || valor == 'fk_id_usua_prof' ||  valor == 'fk_id_clte_prof' || valor == 'apellido_usua' || valor == 'email_usua' || valor == 'celular_usua' || valor == 'apellido_clte' || valor == 'celular_clte' || valor == 'moneda_prof' || valor == 'tipo_cambio_prof' || valor == 'estado_prof'){
+            }else if(valor == 'id_emp' || valor == 'sigla_emp' || valor == 'direccion_emp' || valor == 'telefono_emp' || valor == 'fk_id_usua_prof' ||  valor == 'fk_id_clte_prof' || valor == 'apellido_usua' || valor == 'email_usua' || valor == 'celular_usua' || valor == 'apellido_clte' || valor == 'celular_clte' || valor == 'moneda_prof' || valor == 'tipo_cambio_prof' || valor == 'estado_prof' || valor == 'cond_pago_prof' || valor == 'tpo_entrega_prof'){
             }else if(valor == 'nombre_clte'){
                 td.innerText = filterProformas[proforma][valor]+' '+filterProformas[proforma]['apellido_clte'];
                 tr.appendChild(td)

@@ -12,7 +12,6 @@
 	<link rel="stylesheet" type="text/css" href="../css/paginacion.css">
 	<link rel="stylesheet" type="text/css" href="../css/userModal.css">
 	<link rel="stylesheet" type="text/css" href="../css/table.css">
-	
 </head>
 <body class="body">
 	<header class="header">
@@ -47,7 +46,7 @@
 				<div class="wrapper" id="wrapperCustomer"><ul></ul></div>
 			</div>
 			<div>
-				<select id="selectNumberClte">
+				<select id="selectNumberClte" class="select__number">
 					<option value="2">2</option>
 					<option value="4">4</option>
 					<option value="6">6</option>
@@ -80,17 +79,17 @@
 		<div class="modal__container">
 			<div class="modal__header">
 				<h2 class="modal__title">Registrar cliente<img src="../imagenes/user.svg"></h2>
-				<img src="../imagenes/salir.svg" id="closeCustomersRMW">
+				<img class="button__close" src="../imagenes/salir.svg" id="closeCustomersRMW">
 			</div>
 			<form id="formClienteR" class="form">
 				<div class="form__container">
 					<label class="form__label--only">Empresa:</label>
 					<div class="form__group--select">
 						<select name="fk_id_emp_clteR"></select>
-						<img src="../imagenes/search.svg" onclick="openEnterpriseSMW('R')">
-						<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()">
-						<img src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)">
-						<img src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)">
+						<img class="icon__CRUD" src="../imagenes/search.svg" onclick="openEnterpriseSMW('R')">
+						<img class="icon__CRUD" src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()">
+						<img class="icon__CRUD" src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)">
+						<img class="icon__CRUD" src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)">
 					</div>
 					<div class="form__group">
 						<input type="text" name="nombre_clteR"  placeholder=" " class="form__input">
@@ -123,7 +122,7 @@
 		<div class="modal__container">
 			<div class="modal__header">
 				<h2 class="modal__title">Modificar cliente<img src="../imagenes/user.svg"></h2>
-				<img src="../imagenes/salir.svg" id="closeCustomersMMW">
+				<img class="button__close" src="../imagenes/salir.svg" id="closeCustomersMMW">
 			</div>
 			<form id="formClienteM" class="form">
 				<div class="form__container">
@@ -132,10 +131,10 @@
 					<label class="form__label--only">Empresa:</label>
 					<div class="form__group--select">
 						<select name="fk_id_emp_clteM"></select>
-						<img src="../imagenes/search.svg" onclick="openEnterpriseSMW('M')">
-						<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()">
-						<img src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)">
-						<img src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)">
+						<img class="icon__CRUD" src="../imagenes/search.svg" onclick="openEnterpriseSMW('M')">
+						<img class="icon__CRUD" src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()">
+						<img class="icon__CRUD" src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)">
+						<img class="icon__CRUD" src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)">
 					</div>
 					<div class="form__group">
 						<input type="text" name="nombre_clteM"  placeholder=" " class="form__input">
@@ -169,7 +168,7 @@
 		<div class="modal__container">
 			<div class="modal__header">
 				<h2 class="modal__title">Registrar empresa<img src="../imagenes/enterprise.svg"></h2>
-				<img src="../imagenes/salir.svg" id="closeEnterprisesRMW">
+				<img class="button__close" src="../imagenes/salir.svg" id="closeEnterprisesRMW">
 			</div>
 			<form id="formEmpresaR" class="form">
 				<div class="form__container">
@@ -210,7 +209,7 @@
 		<div class="modal__container">
 			<div class="modal__header">
 				<h2 class="modal__title">Modificar empresa<img src="../imagenes/enterprise.svg"></h2>
-				<img src="../imagenes/salir.svg" id="closeEnterprisesMMW">
+				<img class="button__close" src="../imagenes/salir.svg" id="closeEnterprisesMMW">
 			</div>
 			<form id="formEmpresaM" class="form">
 				<div class="form__container">
@@ -254,8 +253,8 @@
 		<div class="modalTable__container">
 			<div class="table">
 				<div class="table__title">
-					<h1>Empresas</h1>
-					<img src="../imagenes/salir.svg" id="closeEnterpriseSMW">
+					<h1><img src="../imagenes/enterprise.svg">Empresas</h1>
+					<img class="button__close" src="../imagenes/salir.svg" id="closeEnterpriseSMW">
 				</div>
 				<section class="table__header">
 					<div></div>
@@ -279,7 +278,7 @@
 						<div class="wrapper" id="wrapperEmpMW"><ul></ul></div>
 					</div>
 					<div>
-						<select id="selectNumberEmpMW">
+						<select id="selectNumberEmpMW" class="select__number">
 							<option value="2">2</option>
 							<option value="4">4</option>
 							<option value="6">6</option>
