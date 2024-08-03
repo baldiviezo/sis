@@ -257,8 +257,11 @@ tbody tr:hover{
 	font-weight: bold;
 	font-size: 1.2rem;
 }
-#priceTotal{
-	
+.modalTable .total{
+	width: 25rem;
+	font-size: 1.5rem;
+	color: red;
+	font-weight: bold;
 }
 /*-------------------------espacios de tabla cliente---------------------------------------*/
 /*#tbodyCustomer td:nth-of-type(6){

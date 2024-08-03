@@ -418,7 +418,6 @@ function searchEnterprisesMW() {
     }
     paginacionEnterpriseMW(Object.values(filterEnterprises).length, 1);
 }
-
 //------Ordenar tabla descendente ascendente
 let orderEnterprises = document.querySelectorAll('.tbody__head--empMW');
 orderEnterprises.forEach(div => {
@@ -479,7 +478,6 @@ function paginacionEnterpriseMW(allEnterprises, page) {
     h2.innerHTML = `Pagina ${page}/${allPages}, ${allEnterprises} Empresas`;
     tableEnterprisesMW(page);
 }
-
 //------Crear la tabla
 function tableEnterprisesMW(page) {
     const tbody = document.getElementById('tbodyEmpMW');
@@ -522,7 +520,7 @@ function tableEnterprisesMW(page) {
             }
             let td = document.createElement('td');
             td.innerHTML = `
-        <img src='../imagenes/send.svg' onclick='sendEnterprise(this.parentNode.parentNode)'>`;
+            <img src='../imagenes/send.svg' onclick='sendEnterprise(this.parentNode.parentNode)'>`;
             tr.appendChild(td);
             tbody.appendChild(tr);
         } else {
@@ -537,7 +535,6 @@ function sendEnterprise(tr) {
     select.value = id_emp;
     enterpriseSMW.classList.remove('modal__show');
 }
-
 //----------------------------------ventana modal EnterpriseSMW-------------------------------------------
 //---------------------------ventana modal para buscar producto
 const enterpriseSMW = document.getElementById('enterpriseSMW');

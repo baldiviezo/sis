@@ -1,4 +1,4 @@
-/*--------------------VENTANA MODAL PROFORMA----------------------------*/
+/*------------------------------------VENTANA MODAL PROFORMA----------------------------*/
 .modalProf{
 	/*para que salga del flujo y se quede fijo a la pantalla (desaparece)*/
 	position: fixed;
@@ -27,29 +27,12 @@
 	background-color: #fff;
 	width: 100%;
 	max-width: 400px;
-	height: auto;
-	overflow: auto;
 	text-align: center;
 	border-radius: .5em;
-}
-.modalProf__container::-webkit-scrollbar{
-	/*Vuelve el scrrol invisible*/
-	/*No se nota el cambio del ancho*/
-	width: 0.5rem;
-	/*Alto del scroll*/
-	height: .8rem;
-}
-.modalProf__container::-webkit-scrollbar-thumb{
-	/*Borde del scroll*/
-	border-radius: .5rem;
-	/*color de lscroll*/
-	background-color: #0004;
-	/*volvemos invisible el scroll*/
-	visibility: hidden;
-}
-.modalProf__container:hover::-webkit-scrollbar-thumb{
-	/*Cuando el mause esta encima de la tabla se muestra el scroll*/
-	visibility: visible;
+	display: grid;
+	grid-template-rows: 4rem 1fr;
+	max-height: 90%;
+	overflow: hidden;
 }
 .modal__textarea textarea{
 	width: 100%;
@@ -63,7 +46,6 @@
 	font-size: .8rem;
 	margin: 1rem 0;
 }
-
 /*--------------------VENTANA MODAL MODIFICAR Y REGISTRAR----------------------------*/
 .modal{
 	/*para que salga del flujo y se quede fijo a la pantalla (desaparece)*/
@@ -98,6 +80,15 @@
 	border-radius: 1em;
 }
 /*-----------------FORMULARIO--------------------*/
+/*header*/
+.modal__header{
+	height: 4rem;
+	padding: 2rem;
+	background-color: #fff;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
 .form{
 	background-color: #fff;
 	/*el margen de ariba y abajo depende de min-height de body (100vh)*/
@@ -105,19 +96,32 @@
 	width: 100%;
 	text-align: center;
 	padding: 1rem 2rem;
+	overflow: auto;
 }
+.form::-webkit-scrollbar{
+	/*Vuelve el scrrol invisible*/
+	/*No se nota el cambio del ancho*/
+	width: 0.5rem;
+	/*Alto del scroll*/
+	height: .8rem;
+}
+.form::-webkit-scrollbar-thumb{
+	/*Borde del scroll*/
+	border-radius: .5rem;
+	/*color de lscroll*/
+	background-color: #0004;
+	/*volvemos invisible el scroll*/
+	visibility: hidden;
+}
+.form:hover::-webkit-scrollbar-thumb{
+	/*Cuando el mause esta encima de la tabla se muestra el scroll*/
+	visibility: visible;
+}
+
+
 .form__container{
 	display: grid;
 	gap: 1em;
-}
-/*header*/
-.modal__header{
-	padding: 0 1rem;
-	height: 3rem;
-	background-color: #fff;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
 }
 .modal__title{
 	color: #225c74;
@@ -192,8 +196,9 @@
 	padding: .5em 1rem;
 	border: none;
 	border-radius: .5em;
-	margin-top: 1rem;
+	width: 10rem;
 	cursor: pointer;
+	margin: 1rem auto;
 }
 .form__line{
 	position: absolute;
@@ -211,12 +216,12 @@
 }
 
 /*------------RESPONSIVE---------*/
-@media (max-height:800px){
+/*@media (max-height:800px){
 	.modalProf__container{
 		height: 90%;
 		overflow: auto;
 	}
-}
+}*/
 
 /*Esta clase hace visible al modal, solo hay que añadirlo*/
 .modal__show{

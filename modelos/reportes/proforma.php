@@ -3,7 +3,7 @@ require('tableWithMultiCell.php');
 
 /*HOJA CARTA 21.59 - 27.94*/
 $fpdf = new pdf("p","mm","letter");
-//HAY QUE PONER ANTES DE CREAR LA PAGINA PARA Q SE APLIQUE
+//HAY QUE PONER ANTES DE CREAR LA PAGINA PARA Q SE APLIQUE EL MARGEN
 $fpdf->SetMargins(17,10,17);
 
 $fpdf->AddPage();

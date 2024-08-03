@@ -52,9 +52,9 @@ if (isset($_POST['proforma'])&&isset($_POST['clave'])){
 	$nombre_clte = explode(' ', $proforma['nombre_clte']);
 	$apellido_clte = explode(' ', $proforma['apellido_clte']);
 	if($clave == 'prof'){
-		$_SESSION['nProforma'] = 'SMSIC23-'.$proforma['id_prof'];
+		$_SESSION['nProforma'] = 'SMSIC'.substr(date('Y'), -2).'-'.$proforma['id_prof'];
 	}else{
-		$_SESSION['nProforma'] = 'SMSIC23-'.$proforma['num_proforma_mprof'];
+		$_SESSION['nProforma'] = 'SMSIC'.substr(date('Y'), -2).'-'.$proforma['num_proforma_mprof'];
 		$_SESSION['id_mprof'] = $proforma['id_mprof'];
 	}
 	

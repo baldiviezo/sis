@@ -722,7 +722,8 @@ closeTableProfMW.addEventListener('click',(e)=>{
 //------Create una proforma
 document.getElementById('formProformaR').addEventListener('submit', createProforma);
 function createProforma(){
-    event.preventDefault()
+    event.preventDefault();
+    proformaRMW.classList.remove('modal__show');
     let cart = document.querySelectorAll('#cartItem .cart-item');
     if(cart.length > 0){
         let array = [];
@@ -749,7 +750,6 @@ function createProforma(){
             cartItem.innerHTML = '';
             totalPrice();
             readProformas();
-            proformaRMW.classList.remove('modal__show');
         }).catch(err => console.log(err)); 
     }else{
         alert('No a seleccionado ningun producto');
@@ -757,11 +757,14 @@ function createProforma(){
 }
 //------Read una proforma
 function readProforma(tr){
+    console.log('entro')
     formProformas = 'M';
     let id_prof = tr.children[1].innerText.slice(6);
     for(let proforma in filterProformas){
+        console.log(proforma)
         for(let valor in filterProformas[proforma]){
             if (filterProformas[proforma]['id_prof'] == id_prof){
+            console.log(filterProformas[proforma])
                 if(valor == 'fecha_prof'){
                     document.getElementsByName(valor+'M')[0].value = filterProformas[proforma][valor].slice(0,10);
                 }else if(valor == 'id_emp'){
@@ -987,8 +990,8 @@ function imprimirProforma(object, clave){
         method: "POST",
         body: formData
     }).then(response => response.text()).then(data=>{
+        window.open('../modelos/reportes/proforma.php');
     }).catch(err => console.log(err));
-    window.open('../modelos/reportes/proforma.php');
 }
 
 //------------------------------------------------CRUD PROF_PROD------------------------------------------------------------
@@ -1134,6 +1137,7 @@ function openPreviwProducts(){
                 </tr>`
         i++;
     });
+    html += `<div class='total'>PRECIO TOTAL: ${document.getElementById('total').innerText}</div>`;
     tbody.innerHTML = html;
 }
 //-----------------------------MODAL VISTA PREVIA DE LOS PRODUCTOS DE LA PROFORMA
@@ -1498,9 +1502,10 @@ function tableEnterprisesMW(page) {
     }   
 }
 function sendEnterprise(tr) {
+    enterpriseSMW.classList.remove('modal__show');
     let id_emp = tr.children[0].innerText;
     selectEnterpriseR.value = id_emp;
-    enterpriseSMW.classList.remove('modal__show');
+    fillSelectClte(selectCustomerR, indexCustomer);
 }
 //----------------------------------ventana modal EnterpriseSMW-------------------------------------------
 const enterpriseSMW = document.getElementById('enterpriseSMW');
@@ -1535,6 +1540,11 @@ function fillSelectClte(select, index) {
         } 
     }
     if(index > 0){select.value = index}
+    for (let enterprise in enterprises){
+        if(enterprises[enterprise]['id_emp'] == id_emp){
+            document.getElementsByName('descuento_profR')[0].value = enterprises[enterprise]['precio_emp'];
+        }
+    }
 }
 //<<---------------------------CRUD EMPRESA------------------------------->>
 //------Craer una empresa
@@ -2347,7 +2357,6 @@ function selectCategoriaProductMW() {
     }
     searchProductsMW();
 }
-
 /***************************MARCA Y CATEGORIA PARA FORMULARIO DE REGSITRO DE PRODUCTOS***************************/
 const marca_prodR = document.getElementById('marca_prodR');
 marca_prodR.addEventListener('change', selectCategoriaProdR);

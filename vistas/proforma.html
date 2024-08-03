@@ -22,16 +22,16 @@
 	</header>
 	<main class="main">
 		<div class="main__title">
-			<h1>Proforma</h1>
+			<h1><img src="../imagenes/proforma.svg">Proforma</h1>
 			<div>
 				<select id="selectInvProd" class="select">
-					<option value="inventario">Inventario</option>
 					<option value="producto">Productos</option>
+					<option value="inventario">Inventario</option>
 				</select>
 			</div>
 		</div>
 		<!--Inventario-->
-		<div id="headerInvetario">
+		<div id="headerInvetario" hidden>
 			<div class="main__header">
 				<img src="../imagenes/folder.svg" onclick ="openTableProfMW()" class="img__folder">
 				<section class="select__search">
@@ -83,7 +83,7 @@
 			</div>
 		</div>
 		<!--Producto-->
-		<div id="headerProduct" hidden>
+		<div id="headerProduct">
 			<section class="main__header">
 				<div>
 					<img src="../imagenes/folder.svg" onclick="openTableProfMW()" class="img__folder">
@@ -198,23 +198,23 @@
 		<div class="modalTable__container">
 			<div class="table">
 				<div class="table__title">
-					<h1>Proforma</h1>
-					<img src="../imagenes/salir.svg" id="closeTableProfMW">
+					<h1><img src="../imagenes/proforma.svg">Proforma</h1>
+					<img src="../imagenes/salir.svg" id="closeTableProfMW" class="button__close">
 				</div>
 				<section class="table__header">
 					<section class="select__search">
 						<div>
-							<select id="selectStateProf">
+							<select id="selectStateProf" class="select__number">
 								<option value="todasLasProformas">Todas las proformas</option>
-								<option value="pendiente">Pendiente</option>
-								<option value="vendido">Vendido</option>
+								<option value="pendiente">Proformas pendientes</option>
+								<option value="vendido">Proformas vendidas</option>
 							</select>
 						</div>
 					</section>
 					<div class="combo__search">
 						<div>
 							<select id="selectSearchProf" class="select">
-								<option value="todas">Buscar por</option>
+								<option value="todas">Buscar por todo</option>
 								<option value="id_prof">Proforma</option>
 								<option value="fecha_Prof">Fecha</option>
 								<option value="encargado">Encargado</option>
@@ -235,7 +235,7 @@
 						<div class="wrapper" id="wrapperProf"><ul></ul></div>
 					</div>
 					<div>
-						<select id="selectNumberProf">
+						<select id="selectNumberProf" class="select__number">
 							<option value="2">2</option>
 							<option value="4">4</option>
 							<option value="6">6</option>
@@ -273,8 +273,8 @@
 		<div class="modalTable__container">
 			<div class="table">
 				<div class="table__title">
-					<h1>Proforma</h1>
-					<img src="../imagenes/salir.svg" id="closemTableProfMW">
+					<h1><img src="../imagenes/proforma.svg">Proforma</h1>
+					<img src="../imagenes/salir.svg" id="closemTableProfMW" class="button__close">
 				</div>
 				<section class="table__body">
 					<table>
@@ -327,7 +327,7 @@
 	<section id="proformaRMW" class="modalProf">
 		<div class="modalProf__container">
 			<div class="modal__header">
-				<img src='../imagenes/products.svg' onclick='openPreviwProducts()' class="icon__CRUD">
+				<img src='../imagenes/carrito.svg' onclick='openPreviwProducts()' class="icon__CRUD">
 				<h2 class="modal__title">Proforma</h2>
 				<img src="../imagenes/salir.svg" id="closeProformaRMW" class="button__close">
 			</div>
@@ -478,8 +478,8 @@
 		<div class="modalTable__container">
 			<div class="table">
 				<div class="table__title">
-					<h1 class="modal__title">Todos los productos</h1>
-					<img src="../imagenes/salir.svg" id="closePreviewProducts">
+					<h1 class="modal__title"><img src="../imagenes/producto.svg">Productos seleccionados</h1>
+					<img src="../imagenes/salir.svg" id="closePreviewProducts" class="button__close">
 				</div>
 				<section class="table__body">
 					<table>
@@ -672,7 +672,7 @@
 		<div class="modalTable__container">
 			<div class="table">
 				<div class="table__title">
-					<h1>Empresas</h1>
+					<h1><img src="../imagenes/enterprise.svg">Empresas</h1>
 					<img src="../imagenes/salir.svg" id="closeEnterpriseSMW" class="button__close">
 				</div>
 				<section class="table__header">
@@ -882,12 +882,12 @@
 	<section id="productsRMW" class="modalP">
 		<div class="modalP__container">
 			<div class="modalP__header">
-				<h2 class="modalP__title">Registrar<img src="../imagenes/producto.svg"></h2>
-				<img src="../imagenes/salir.svg" id="closeProductsRMW">
+				<h2 class="modalP__title">Registrar producto<img src="../imagenes/producto.svg"></h2>
+				<img class="button__close" src="../imagenes/salir.svg" id="closeProductsRMW">
 			</div>
-			<div class="modalP__form--container">
-				<form id="formProductsR" class="modalP__form">
-					<!--For nos ayuda a enlazarnos con otro objeto utilizando su id, por ejemplo cuando se hace foco(un click) al elemento que tiene for este nos redijira a su objeto en lazado-->
+			<form id="formProductsR" class="modalP__form">
+				<!--For nos ayuda a enlazarnos con otro objeto utilizando su id, por ejemplo cuando se hace foco(un click) al elemento que tiene for este nos redijira a su objeto en lazado-->
+				<div class="modalP__inputs--container">
 					<div class="modalP__inputs">
 						<div class="modalP__group">
 							<label for="codigo_prodR" class="modalP__label">Codigo:</label>	
@@ -911,16 +911,16 @@
 					<div class="modalP__textarea">
 						<textarea name="descripcion_prodR" placeholder="Type description here..."></textarea>	
 					</div>
-					<div class="drop__areaR" >
-						<h2>Arrastra y suelta la imagen</h2>
-						<span>O</span>
-						<button>Selecciona una imagen</button>
-						<!--multiplece para que acepte multiples archivos-->
-						<input type="file"  name="imagen_prodR" id="imagen_prodR" class="modalP__submit" hidden>
-					</div>
-					<input type="submit" value="Registrar" class="modalP__submit">
-				</form>
-			</div>
+				</div>
+				<div class="drop__areaR" >
+					<h2>Arrastra y suelta la imagen</h2>
+					<span>O</span>
+					<button>Selecciona una imagen</button>
+					<!--multiplece para que acepte multiples archivos-->
+					<input type="file"  name="imagen_prodR" id="imagen_prodR" hidden>
+				</div>
+				<input type="submit" value="Registrar" class="modalP__submit">
+			</form>
 		</div>
 	</section>
 	<script src="scripts/header.js"></script>

@@ -134,7 +134,7 @@ class consultas {
 	//------Leer empresas
 	public function readEnterprises(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM empresa ORDER BY id_emp DESC";
+		$consulta = "SELECT * FROM empresa ORDER BY nombre_emp ASC";
 		$resultado = $conexion->query($consulta);
 		$numeroClientes = $resultado->num_rows;
 		$empresas =  array();

@@ -4,9 +4,21 @@ session_start();
 class pdf extends FPDF{
 	public function header(){
 		//informacion
-        $this->SetFont('arial','',10);  
+        $this->SetFont('arial','',10);
+        $this->SetTextColor(0,0,0);  
+        //Direccion
+        $this->SetX(13);
+        $this->Cell(0,5, utf8_decode('SMS Integración y Control LTDA.'),0,1,'L',false);
+        $this->SetX(13);
+        $this->Cell(0,5, utf8_decode('Dirección: Av. Ballivian Otero # 1209-B'),0,1,'L',false);
+        $this->SetX(13);
+        $this->Cell(0,5, utf8_decode('Ciudad Satelite'),0,1,'L',false);
+        $this->SetX(13);
+        $this->Cell(0,5, utf8_decode('Telf. (591-2) 2430864-2430867'),0,1,'L',false);
+        $this->SetX(13);
+        $this->Cell(0,5, utf8_decode('La Paz - Bolivia'),0,1,'L',false);
+        $this->SetY(10);
         //Logo
-        $this->Image('logos/siemensP.jpg',15,10,56,15);
         $this->Image('logos/logo.jpg',146,10,56,15);
         //total de paginas
         $this->AliasNbPages();
