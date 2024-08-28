@@ -10,7 +10,6 @@
 	<link rel="stylesheet" type="text/css" href="../css/encabezamiento.css">
 	<link rel="stylesheet" type="text/css" href="../css/paginacion.css">
 	<link rel="stylesheet" type="text/css" href="../css/buttonCRUD.css">
-	<link rel="stylesheet" type="text/css" href="../css/cardAndCart.css">
 	<link rel="stylesheet" type="text/css" href="../css/table.css">
 	<link rel="stylesheet" type="text/css" href="../css/productModal.css">
 	<link rel="stylesheet" type="text/css" href="../css/userModal.css">
@@ -27,10 +26,10 @@
         <section class="table__header">
             <section class="select__search">
                 <div>
-                    <select id="selectStateNe">
+                    <select id="selectStateNe" class="select__number">
                         <option value="notasEntrega">Notas de entrega</option>
-                        <option value="pendiente">Pendiente</option>
-                        <option value="vendido">Vendido</option>
+                        <option value="pendiente">No facturados</option>
+                        <option value="vendido">Facturados</option>
                     </select>
                 </div>
             </section>
@@ -58,7 +57,7 @@
                 <div class="wrapper" id="wrapperNE"><ul></ul></div>
             </div>
             <div>
-                <select id="selectNumberNe">
+                <select id="selectNumberNe" class="select__number">
                     <option value="2">2</option>
                     <option value="4">4</option>
                     <option value="6">6</option>

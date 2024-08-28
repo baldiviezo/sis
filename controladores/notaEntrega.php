@@ -15,9 +15,4 @@ if (isset($_POST['readAllNotaEntrega'])) {
 	$readAllNotaEntrega = new consultas;
 	$readAllNotaEntrega->readAllNotaEntrega();
 }
-//-------read prof_prods
-if (isset($_POST['readprof_prods'])) {
-	$readprof_prods = new consultas;
-	$readprof_prods->readprof_prods();
-}
 ?>

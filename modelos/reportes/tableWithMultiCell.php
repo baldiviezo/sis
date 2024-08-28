@@ -1,8 +1,10 @@
 <?php 
 require('fpdf/fpdf.php');
-session_start();
+require('./prof_mprof_ne.php');
 class pdf extends FPDF{
 	public function header(){
+        //importar variables globales a la clase
+        global $_prof_mprof_ne;
 		//informacion
         $this->SetFont('arial','',10);
         $this->SetTextColor(0,0,0);  
@@ -24,7 +26,7 @@ class pdf extends FPDF{
         $this->AliasNbPages();
         $this->SetTextColor(0,0,0);
         $this->Cell(0,5, utf8_decode('Página '. $this->PageNo().' de '.'{nb}'),0,1,'C',false);
-        $this->Cell(0,5, strtoupper($_SESSION['ne'].$_SESSION['nProforma'].'-'.strtoupper($_SESSION['sigla'])),0,1,'C',false);
+        $this->Cell(0,5, $_prof_mprof_ne,0,1,'C',false);
         $this->ln(16);	
     }
 	public function footer(){
@@ -36,18 +38,15 @@ class pdf extends FPDF{
 //---------------------script para ajuste de texto en celda---------------//
 var $widths;
 var $aligns;
-function SetWidths($w)
-{
+function SetWidths($w){
     //Set the array of column widths
     $this->widths=$w;
 }
-function SetAligns($a)
-{
+function SetAligns($a){
     //Set the array of column alignments
     $this->aligns=$a;
 }
-function Row($data,$imagen)
-{
+function Row($data,$imagen){
     //Calculate the height of the row
     $nb=0;
     for($i=0;$i<count($data);$i++)
@@ -85,13 +84,14 @@ function Row($data,$imagen)
 }
 
 //-----------DESPUES DE UN SALTO DE LINEA-----------------------//
-function CheckPageBreak($h)
-{
+function CheckPageBreak($h){
+    //importar variables globales a la clase
+    global $_moneda;
     //If the height h would cause an overflow, add a new page immediately
     if($this->GetY()+$h>$this->PageBreakTrigger){
         $this->AddPage($this->CurOrientation);
 
-        $moneda2 = $_SESSION['moneda_prof'];
+        $moneda2 = $_moneda;
         $unidad3 = '';
         if($moneda2 == 'Bs'){
 
@@ -100,8 +100,6 @@ function CheckPageBreak($h)
 
             $unidad3 = '$us';
         }
-
-
         $this->SetTextColor(255,255,255);
         $this->SetFont('arial','b',9);
         $this->Cell(10,12, utf8_decode('Item'),1,0,'C',true);
@@ -125,8 +123,7 @@ function CheckPageBreak($h)
     }
 }
 
-function NbLines($w,$txt)
-{
+function NbLines($w,$txt){
     //Computes the number of lines a MultiCell of width w will take
     $cw=&$this->CurrentFont['cw'];
     if($w==0)
@@ -175,9 +172,6 @@ function NbLines($w,$txt)
     }
     return $nl;
 }
-
 //--------------------SALTO DE PAGINA------------------------------//
-
-    
 }
 ?>

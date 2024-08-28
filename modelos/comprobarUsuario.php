@@ -18,18 +18,20 @@ function comprobarUsuario(){
 				session_start();
 				//info_celular e info_email usado para las proformas echas en fpdf
 				//info_rol usado en comprobarRol.php
-				$_SESSION['info_id_usua']=$usuario['id_usua'];
-				$_SESSION['info_nombres']=$usuario['nombre_usua'];
-				$_SESSION['info_apellidos']=$usuario['apellido_usua'];
-				$_SESSION['info_rol']=$usuario['rol_usua'];
+				$_SESSION[$usuario['id_usua'].'_id_usua']=$usuario['id_usua'];
+				$_SESSION[$usuario['id_usua'].'_nombre_usua']=$usuario['nombre_usua'];
+				$_SESSION[$usuario['id_usua'].'_apellido_usua']=$usuario['apellido_usua'];
+				$_SESSION[$usuario['id_usua'].'_rol_usua']=$usuario['rol_usua'];
+
+				setcookie('eliminar_variables_sesion', true, time() + (3600*24*7), '/'); // Tiempo de expiración de 7 días
 				//Array asociativo (calve, valor)
 				$array = array(
-					'id' => $usuario['id_usua'],
-					'nombres' => $usuario['nombre_usua'],
-					'apellidos' => $usuario['apellido_usua'],
-					'email' => $usuario['email_usua'],
-					'celular' => $usuario['celular_usua'],
-					'rol' => $usuario['rol_usua']
+					'id_usua' => $usuario['id_usua'],
+					'nombres_usua' => $usuario['nombre_usua'],
+					'apellidos_usua' => $usuario['apellido_usua'],
+					'email_usua' => $usuario['email_usua'],
+					'celular_usua' => $usuario['celular_usua'],
+					'rol_usua' => $usuario['rol_usua']
 				);
 				//convertimos al array en un json string
 				$json = json_encode($array, JSON_UNESCAPED_UNICODE);

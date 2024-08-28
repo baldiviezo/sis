@@ -853,7 +853,7 @@ let totalInventarioMW;
 const inventoryForPageMW = document.getElementById('inventoryForPageMW');
 inventoryForPageMW.addEventListener('change', pageOneInvMW )
 //leet todos los productos del inventario
-readAllInventoryMW();
+/*readAllInventoryMW();
 function readAllInventoryMW() {
     let tbody = document.getElementById('tbodyInvMW');
     tbody.innerHTML = '';
@@ -867,13 +867,14 @@ function readAllInventoryMW() {
     fetch('../controladores/inventario.php', {
         method: "POST",
         body: formData
-    }).then(response => response.json()).then(data => {
+    }).then(response => response.text()).then(data => {
+        console.log(data);
         inventarioMW = data;
         totalInventarioMW = Object.values(data).length;
         allPages = Math.ceil(totalInventarioMW/invPorPaginaMW);
         paginacionInventarioMW(allPages,globalPageInvMW,totalInventarioMW);   
     }).catch(err => console.log(err));
-}
+}*/
 //<<----------------------------------PAGINACION Inventario-------------------------------------------->>
 function paginacionInventarioMW(allPages, page,totalInventarioMW){
     let ul = document.querySelector('#wrapperInvMW ul');
@@ -1108,7 +1109,7 @@ function createMarca(){
         marcaRMW.classList.remove('modal__show');    
     }).catch(err => console.log(err));
 }
-readAllMarcas();
+/*readAllMarcas();
 function readAllMarcas() {
     let formData = new FormData();
     formData.append('readMarca', '');
@@ -1131,7 +1132,7 @@ function readAllMarcas() {
             }
         })
     }).catch(err => console.log(err));
-}
+}*/
 function deleteMarca() {
     let nombre_mrc = selectMarcaProduct.value;
     if (confirm('¿Esta usted seguro?')){
@@ -1162,7 +1163,7 @@ function createCategoria(){
         categoriaRMW.classList.remove('modal__show');    
     }).catch(err => console.log(err));
 }
-readAllCategorias();
+/*readAllCategorias();
 function readAllCategorias() {
     let formData = new FormData();
     formData.append('readCategoria', '');
@@ -1185,7 +1186,7 @@ function readAllCategorias() {
             }
         })  
     }).catch(err => console.log(err));
-}
+}*/
 function deleteCategoria() {
     let nombre_ctgr = selectCategoriaProduct.value;
     if (confirm('¿Esta usted seguro?')){
@@ -1222,7 +1223,7 @@ closeCategoriaRMW.addEventListener('click',(e)=>{
 
 
 //-----------------------------------------GUARDAR EL TOTAL DE PRODUCTOS DEL INVENTARIO-----------------------------------
-let allInventory;
+/*let allInventory;
 constReadAllInventory()
 function constReadAllInventory(){
     let formData = new FormData();
@@ -1233,5 +1234,5 @@ function constReadAllInventory(){
     }).then(response => response.json()).then(data => {
         allInventory = data; 
     }).catch(err => console.log(err));
-}
+}*/
     

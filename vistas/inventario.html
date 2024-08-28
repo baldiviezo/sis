@@ -24,7 +24,7 @@
 			<h1><img src="../imagenes/inventario.svg">Inventario</h1>
 		</div>
 		<section class="table__header">
-			<img src="../imagenes/registrar.svg" id="openInventoryRMW" hidden>
+			<img src="../imagenes/registrar.svg" id="openInventoryRMW" title="Registrar en inventario" hidden>
 			<section class="select__search">
 				<div>
 					<label>Marcas: </label>
@@ -80,10 +80,10 @@
 				<thead>
 					<tr>
 						<th>N°</th>
-						<th><div class="tbody__head--inventory">Marca <img src="../imagenes/sortA_Z.svg" name="marca_prod"><img src="../imagenes/sortZ_A.svg" name="marca_prod"></div></th>
-						<th><div class="tbody__head--inventory">Categoria <img src="../imagenes/sortA_Z.svg" name="categoria_prod"><img src="../imagenes/sortZ_A.svg" name="categoria_prod"></div></th>
-						<th><div class="tbody__head--inventory">Codigo <img src="../imagenes/sortA_Z.svg" name="codigo_prod"><img src="../imagenes/sortZ_A.svg" name="codigo_prod"></div></th>
-						<th><div class="tbody__head--inventory">Nombre <img src="../imagenes/sortA_Z.svg" name="nombre_prod"><img src="../imagenes/sortZ_A.svg" name="nombre_prod"></div></th>
+						<th><div class="tbody__head--inventory">Marca <img src="../imagenes/sortA_Z.svg" name="marca_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="marca_prod"></div class="icon__CRUD"></th>
+						<th><div class="tbody__head--inventory">Categoria <img src="../imagenes/sortA_Z.svg" name="categoria_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="categoria_prod" class="icon__CRUD"></div></th>
+						<th><div class="tbody__head--inventory">Codigo <img src="../imagenes/sortA_Z.svg" name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="codigo_prod" class="icon__CRUD"></div></th>
+						<th><div class="tbody__head--inventory">Nombre <img src="../imagenes/sortA_Z.svg" name="nombre_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_prod" class="icon__CRUD"></div></th>
 						<th>Descripcion</th>
 						<th>imagen</th>
 						<th>Cantidad</th>
@@ -107,10 +107,10 @@
 					<label class="form__label--only">Producto:</label>
 					<div class="form__group--select">
 						<select id="selectProductR" name="fk_id_prod_invR"></select>
-						<img class="icon__CRUD" src="../imagenes/search.svg" onclick="openProductSMW('R')">
-						<img class="icon__CRUD" src="../imagenes/registrar.svg" onclick="openProductsRMW()">
-						<img class="icon__CRUD" src="../imagenes/edit.svg" onclick="readProduct(this.parentNode)">
-						<img class="icon__CRUD" src="../imagenes/trash.svg" onclick="deleteProduct(this.parentNode)" hidden>
+						<img class="icon__CRUD" src="../imagenes/search.svg" onclick="openProductSMW('R')" title="Buscar producto">
+						<img class="icon__CRUD" src="../imagenes/registrar.svg" onclick="openProductsRMW()" title="Registrar producto">
+						<img class="icon__CRUD" src="../imagenes/edit.svg" onclick="readProduct(this.parentNode)" title="Editar Producto">
+						<img class="icon__CRUD" src="../imagenes/trash.svg" onclick="deleteProduct(this.parentNode)" title="Eliminar Producto" hidden>
 					</div>
 					<div class="form__group">
 						<input type="text" name="cantidad_invR"  placeholder=" " class="form__input">
@@ -143,11 +143,11 @@
 					<label class="form__label--only">Producto:</label>
 					<div class="form__group--select">
 						<select id="selectProductM" name="fk_id_prod_invM"></select>
-						<img class="icon__CRUD" src="../imagenes/search.svg" onclick="openProductSMW('M')">
-						<img class="icon__CRUD" src="../imagenes/registrar.svg" onclick="openProductsRMW()">
-						<img class="icon__CRUD" src="../imagenes/edit.svg" onclick="readProduct(this.parentNode)">
-						<img class="icon__CRUD" src="../imagenes/trash.svg" onclick="deleteProduct(this.parentNode)" hidden>
-					</div>
+						<img class="icon__CRUD" src="../imagenes/search.svg" onclick="openProductSMW('M')" title="Buscar Producto">
+						<img class="icon__CRUD" src="../imagenes/registrar.svg" onclick="openProductsRMW()" title="Registrar Producto">
+						<img class="icon__CRUD" src="../imagenes/edit.svg" onclick="readProduct(this.parentNode)" title="Editar Producto">
+						<img class="icon__CRUD" src="../imagenes/trash.svg" onclick="deleteProduct(this.parentNode)" title="Eliminar Producto" hidden>
+					</div> 
 					<div class="form__group">
 						<input type="text" name="cantidad_invM"  placeholder=" " class="form__input">
 						<label for="cantidad_invM" class="form__label">Cantidad:</label>
@@ -315,10 +315,10 @@
 				<thead>
 					<tr>
 						<th>N°</th>
-						<th><div class="tbody__head--ProdMW">Marca <img src="../imagenes/sortA_Z.svg" name="marca_prod"><img src="../imagenes/sortZ_A.svg" name="marca_prod"></div></th>
-						<th><div class="tbody__head--ProdMW">Categoria <img src="../imagenes/sortA_Z.svg" name="categoria_prod"><img src="../imagenes/sortZ_A.svg" name="categoria_prod"></div></th>
-						<th><div class="tbody__head--ProdMW">Codigo <img src="../imagenes/sortA_Z.svg" name="codigo_prod"><img src="../imagenes/sortZ_A.svg" name="codigo_prod"></div></th>
-						<th><div class="tbody__head--ProdMW">Nombre <img src="../imagenes/sortA_Z.svg" name="nombre_prod"><img src="../imagenes/sortZ_A.svg" name="nombre_prod"></div></th>
+						<th><div class="tbody__head--ProdMW">Marca <img src="../imagenes/sortA_Z.svg" name="marca_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="marca_prod" class="icon__CRUD"></div></th>
+						<th><div class="tbody__head--ProdMW">Categoria <img src="../imagenes/sortA_Z.svg" name="categoria_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="categoria_prod" class="icon__CRUD"></div></th>
+						<th><div class="tbody__head--ProdMW">Codigo <img src="../imagenes/sortA_Z.svg" name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="codigo_prod" class="icon__CRUD"></div></th>
+						<th><div class="tbody__head--ProdMW">Nombre <img src="../imagenes/sortA_Z.svg" name="nombre_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_prod" class="icon__CRUD"></div></th>
 						<th>Descripcion</th>
 						<th>imagen</th>
 						<th>Acciones</th>

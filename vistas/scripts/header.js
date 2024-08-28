@@ -1,9 +1,9 @@
 const header = document.querySelector('header.header nav');
-if(localStorage.getItem('usua_rol')=='Gerente general'){
+if(localStorage.getItem('rol_usua')=='Gerente general'){
 	header.innerHTML = `
 					<div class="nav__logo"></div>
 					<ul class="nav__list">
-						<li><a href="administrador.html" class="nav__link">Inicio</a></li>
+						<li><a href="inicio.html" class="nav__link">Inicio</a></li>
 						<li><a href="usuarios.html" class="nav__link">Usuarios</a></li>
 						<li><a href="clientes.html" class="nav__link">Clientes</a></li>
 						<li><a href="productos.html" class="nav__link">Productos</a></li>
@@ -18,11 +18,11 @@ if(localStorage.getItem('usua_rol')=='Gerente general'){
 					<img src="../imagenes/manu.svg" alt="Imagen de muestra" class="nav__icon">
 					</figure>`;
 }
-if(localStorage.getItem('usua_rol')=='Ingeniero' || localStorage.getItem('usua_rol')=='Administrador'){
+if(localStorage.getItem('rol_usua')=='Ingeniero' || localStorage.getItem('rol_usua')=='Administrador'){
 	header.innerHTML = `
 						<div class="nav__logo"></div>
 							<ul class="nav__list">
-								<li><a href="administrador.html" class="nav__link">Inicio</a></li>
+								<li><a href="inicio.html" class="nav__link">Inicio</a></li>
 								<li><a href="usuarios.html" class="nav__link">Usuario</a></li>
 								<li><a href="clientes.html" class="nav__link">Clientes</a></li>
 								<li><a href="productos.html" class="nav__link">Productos</a></li>
@@ -36,8 +36,8 @@ if(localStorage.getItem('usua_rol')=='Ingeniero' || localStorage.getItem('usua_r
 };
 //------El logo es el apellido del usuario
 const logo = document.querySelector('.nav__logo');
-let apellido = localStorage.getItem('usua_apellidos').split(" ");
-let nombre = localStorage.getItem('usua_nombres').split(" ");
+let apellido = localStorage.getItem('apellidos_usua').split(" ");
+let nombre = localStorage.getItem('nombres_usua').split(" ");
 logo.innerHTML = `<img src="../imagenes/user.png"><h2>${nombre[0]} ${apellido[0]}</h2>`;
 //------Menu desplegable
 const list = document.querySelector('.nav__list');

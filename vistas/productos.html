@@ -24,23 +24,23 @@
 			<h1><img src="../imagenes/producto.svg">Productos</h1>
 		</div>
 		<section class="table__header">
-			<img src="../imagenes/registrar.svg" id="openProductsRMW">
+			<img src="../imagenes/registrar.svg" id="openProductsRMW" title="Registrar producto">
 			<section class="select__search">
 				<div>
 					<label>Marcas: </label>
 					<select id="selectMarcaProduct" class="select__marca">
 						<option value="todasLasMarcas">Todas las marcas</option>
 					</select>
-					<img src="../imagenes/registrar.svg" id="openMarcaRMW" hidden>
-					<img src="../imagenes/trash.svg" onclick="deleteMarcaProd()" hidden>
+					<img src="../imagenes/registrar.svg" id="openMarcaRMW" title="Registrar marca" hidden>
+					<img src="../imagenes/trash.svg" onclick="deleteMarcaProd()" title="Eliminar marca" hidden>
 				</div>
 				<div>
 					<label>Categorias: </label>
 					<select id="selectCategoriaProduct" class="select__categoria">
 						<option value="todasLasCategorias">Todas las categorias</option>
 					</select>
-					<img src="../imagenes/registrar.svg" id="openCategoriaRMW" hidden>
-					<img src="../imagenes/trash.svg" onclick="deleteCategoriaProd()" hidden>
+					<img src="../imagenes/registrar.svg" id="openCategoriaRMW" title="Registrar categoria" hidden>
+					<img src="../imagenes/trash.svg" onclick="deleteCategoriaProd()" title="Eliminar categoria" hidden>
 				</div>
 			</section>
 			<div class="combo__search">
@@ -79,10 +79,10 @@
 				<thead>
 					<tr>
 						<th>N°</th>
-						<th><div class="tbody__head--Product">Marca <img src="../imagenes/sortA_Z.svg" name="marca_prod"><img src="../imagenes/sortZ_A.svg" name="marca_prod"></div></th>
-						<th><div class="tbody__head--Product">Categoria <img src="../imagenes/sortA_Z.svg" name="categoria_prod"><img src="../imagenes/sortZ_A.svg" name="categoria_prod"></div></th>
-						<th><div class="tbody__head--Product">Codigo <img src="../imagenes/sortA_Z.svg" name="codigo_prod"><img src="../imagenes/sortZ_A.svg" name="codigo_prod"></div></th>
-						<th><div class="tbody__head--Product">Nombre <img src="../imagenes/sortA_Z.svg" name="nombre_prod"><img src="../imagenes/sortZ_A.svg" name="nombre_prod"></div></th>
+						<th><div class="tbody__head--Product">Marca <img src="../imagenes/sortA_Z.svg" name="marca_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="marca_prod" class="icon__CRUD"></div></th>
+						<th><div class="tbody__head--Product">Categoria <img src="../imagenes/sortA_Z.svg" name="categoria_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="categoria_prod" class="icon__CRUD"></div></th>
+						<th><div class="tbody__head--Product">Codigo <img src="../imagenes/sortA_Z.svg" name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="codigo_prod" class="icon__CRUD"></div></th>
+						<th><div class="tbody__head--Product">Nombre <img src="../imagenes/sortA_Z.svg" name="nombre_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_prod" class="icon__CRUD"></div></th>
 						<th>Descripcion</th>
 						<th>imagen</th>
 						<th>Acciones</th>

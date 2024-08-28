@@ -33,12 +33,7 @@ class consultas {
 	function readUsers(){
 		include 'conexion.php';
 		$consulta;
-		if($_SESSION['info_rol']=='Gerente general'){
-			$consulta = "SELECT * FROM usuario ORDER BY rol_usua ASC";
-		}else{
-			$id_usua = $_SESSION['info_id_usua'];
-			$consulta = "SELECT * FROM usuario WHERE id_usua = '$id_usua'";
-		}
+		$consulta = "SELECT * FROM usuario ORDER BY rol_usua ASC";
 		$resultado = $conexion->query($consulta);
 		$numeroFilas = $resultado->num_rows;
 		$usuarios =  array();

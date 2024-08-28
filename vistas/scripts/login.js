@@ -34,10 +34,10 @@ form.addEventListener('submit', ()=>{
 			//usUa_email usado en...
 			//suua_celular usado en...
 			for ( let clave in data ){
-				localStorage.setItem(`usua_${clave}`, data[clave]);
+				localStorage.setItem(`${clave}`, data[clave]);
 			}
 			document.cookie = "sesionIniciada=true; max-age=" + (6 * 24 * 60 * 60);
-			window.open('../controladores/comprobarRol.php',"_self");
+			window.open('../vistas/inicio.html',"_self");
         }
 	//catch se ejecuta cunado la promesa no se verdadera
 	}).catch(error => console.log("Ocurrio un error. Intente nuevamente mas tarde"));

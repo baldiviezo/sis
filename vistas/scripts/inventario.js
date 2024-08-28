@@ -1,5 +1,5 @@
 //--------------------------------------------Restricciones de usuario----------------------------------------------
-if (localStorage.getItem('usua_rol') == 'Gerente general') {
+if (localStorage.getItem('rol_usua') == 'Gerente general') {
     //tabla inventario
     document.querySelector('main section.table__body tr').children[10].removeAttribute('hidden');
     //Marca y Categoria
@@ -197,10 +197,10 @@ function tableInventories(page) {
                 }
             }
             let td = document.createElement('td');
-            if(localStorage.getItem('usua_rol')=='Gerente general'){
+            if(localStorage.getItem('rol_usua')=='Gerente general'){
                 td.innerHTML = `
-                <img src='../imagenes/edit.svg' onclick='readInventory(this.parentNode.parentNode)'>
-                <img src='../imagenes/trash.svg' onclick='deleteInventory(this.parentNode.parentNode)'>`;
+                <img src='../imagenes/edit.svg' onclick='readInventory(this.parentNode.parentNode)' title='Editar en Inventario'>
+                <img src='../imagenes/trash.svg' onclick='deleteInventory(this.parentNode.parentNode)' title='Eliminar en Inventario'>`;
             }else{
                 //td.innerHTML = ``;
             }
@@ -444,7 +444,6 @@ function deleteProduct(div) {
         }).catch(error => console.log("Ocurrio un error. Intente nuevamente mas tarde"));
     }
 }
-
 //---------------------------------VENTANA MODAL PARA REGISTRAR PRODUCTOS------------------------------>>
 const productsRMW = document.getElementById('productsRMW');
 const productsMMW = document.getElementById('productsMMW');
@@ -459,7 +458,6 @@ closeProductsRMW.addEventListener('click', (e) => {
 closeProductsMMW.addEventListener('click', (e) => {
     productsMMW.classList.remove('modal__show');
 });
-
 //<<-----------------------------------------------------MUESTRA LA IMAGEN CARGADA------------------------------>>
 const inputsFormProduct = document.querySelectorAll('.modalP__form .modalP__group input');
 //<<----------------------------------MUESTRA LA IMAGEN CARGADA------------------------------>>
@@ -497,6 +495,10 @@ function requiredInputProd() {
     document.getElementsByName("imagen_prodM")[0].setAttribute("accept", "image/png, image/jpeg, image/jpg, image/gif");
     document.getElementsByName("descripcion_prodM")[0].setAttribute("required", "");
 }
+//<<-------------------------------------------------------ESPACIOS OBLIGATORIOS de formProductsR y formProductsM ------------------------------------------>>
+inputsFormProduct.forEach(input => {
+    input.setAttribute('required','');
+})
 //------Limpia los campos del fomulario registrar
 function cleanUpProductFormR() {
     inputsFormProduct.forEach(input => input.value = "");
@@ -651,7 +653,6 @@ function searchProductsMW() {
     }
     selectProductsMW();
 }
-
 //------buscar por marca y categoria:
 function selectProductsMW() {
     if (selectMarcaProdMW.value == 'todasLasMarcas' && selectCategoriaProdMW.value == 'todasLasCategorias') {
@@ -775,7 +776,7 @@ function tableProductsMW(page) {
             }
             let td = document.createElement('td');
             td.innerHTML = `
-        <img src='../imagenes/send.svg' onclick='sendProduct(this.parentNode.parentNode)'>`;
+        <img src='../imagenes/send.svg' onclick='sendProduct(this.parentNode.parentNode)' title='Seleccionar'>`;
             tr.appendChild(td);
             tbody.appendChild(tr);
         } else {
@@ -789,8 +790,6 @@ function sendProduct(tr) {
     select.value = id_prod;
     productSMW.classList.remove('modal__show');
 }
-
-
 //---------------------------VENTANA MODAL PARA BUSCAR PRODUCTOS
 const productSMW = document.getElementById('productSMW');
 const closeProductSMW = document.getElementById('closeProductSMW');
@@ -1059,7 +1058,6 @@ openMarcaRMW.addEventListener('click', (e) => {
 closeMarcaRMW.addEventListener('click', (e) => {
     marcaRMW.classList.remove('modal__show');
 });
-
 const categoriaRMW = document.getElementById('categoriaRMW');
 const openCategoriaRMW = document.getElementById('openCategoriaRMW');
 const closeCategoriaRMW = document.getElementById('closeCategoriaRMW');

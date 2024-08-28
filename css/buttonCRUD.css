@@ -2,6 +2,10 @@ td img{
 	width: 1.5rem;
 	height: 1.5rem;
 }
+td img:active {
+	transform: scale(0.9);
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  }
 td img:hover{
 	cursor: pointer;
 }

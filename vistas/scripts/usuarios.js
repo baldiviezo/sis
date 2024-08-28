@@ -1,10 +1,8 @@
 //--------------------------------------------Restricciones de usuario----------------------------------------------
-if(localStorage.getItem('usua_rol') == 'Ingeniero' || localStorage.getItem('usua_rol') == 'Administrador'){
+if(localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Administrador'){
     document.querySelector('.table__header').classList.add('hide');
     document.querySelectorAll('.form__radio')[1].classList.add('hide');
     document.getElementsByName('email_usuaM')[0].parentNode.classList.add('hide');
-}else if (localStorage.getItem('usua_rol') == 'Gerente general'){
-    document.querySelectorAll('.form__radio')[1].classList.add('hide');
 }
 //<<-------------------------------------------CARGAR LA TABLA----------------------------------------------------->>
 //------Leer tabla de usuarios
@@ -24,13 +22,26 @@ function readUsers() {
     }).catch(err => console.log(err));
 }
 function  tableUsers(){
-    let i = 1;
+    if(localStorage.getItem('rol_usua') == 'Gerente general'){
+        filterTableUsers(usuarios);
+    }else{
+        let data = {};
         for(let usuario in usuarios){
-            let tr = document.createElement('tr');
-            for(let columna in usuarios[usuario]){
+            if (usuarios[usuario]['id_usua'] == localStorage.getItem('id_usua')){
+                data[usuarios[usuario]['id_usua']] = usuarios[usuario];
+                filterTableUsers(data);
+            }
+        }
+    }
+}
+function filterTableUsers(data){
+    let i = 1;
+    for(let usuario in data){
+        let tr = document.createElement('tr');
+        for(let columna in data[usuario]){
                 if(columna == 'id_usua'){
                     let td = document.createElement('td');
-                    td.innerText = usuarios[usuario][columna];
+                    td.innerText = data[usuario][columna];
                     td.setAttribute('hidden', '');
                     tr.appendChild(td);
                     td = document.createElement('td');
@@ -39,27 +50,22 @@ function  tableUsers(){
                     i++;
                 }else{
                     let td = document.createElement('td');
-                    td.innerText = usuarios[usuario][columna];
+                    td.innerText = data[usuario][columna];
                     tr.appendChild(td);
                 }
-            }
-            let td = document.createElement('td');
-            if(localStorage.getItem('usua_rol')=='Gerente general'){
-                if(usuarios[usuario]['rol_usua'] == 'Gerente general'){
-                    td.innerHTML = `
-                    <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)'>`;
-                }else{
-                    td.innerHTML = `
-                    <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)'>
-                    <img src='../imagenes/trash.svg' onclick='deleteUser(this.parentNode.parentNode)'>`;
-                }
-            }else{
-                td.innerHTML = `
-                <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)'>`;
-            }
-            tr.appendChild(td);
-            tbody.appendChild(tr);
         }
+        let td = document.createElement('td');
+        if(localStorage.getItem('rol_usua') == 'Gerente general'){
+            td.innerHTML = `
+            <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)' title='Editar usuario'>
+            <img src='../imagenes/trash.svg' onclick='deleteUser(this.parentNode.parentNode)' title='Eliminar usuario'>`;
+        }else{
+            td.innerHTML = `
+            <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)' title='Editar usuario'>`;
+        }
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+    }
 }
 //------Buscar 
 const search = document.getElementById("buscar");
@@ -189,7 +195,6 @@ closeUsersMMW.addEventListener('click',(e)=>{
 //<<----------------------------ESPACIOS OBLIGATORIOS Y LIMPIAR LOS CAMPOS DE LOS FORMULARIOS------------------------------------------>>
 const modifyInputs = document.querySelectorAll('#formUsersM .form__group input');
 const registerInputs = document.querySelectorAll('#formUsersR .form__group input');
-//------Vuelve oblogatorios los campos del formulario 
 spaceRequiret();
 function spaceRequiret(){
     const requiredInputs = document.querySelectorAll('.form .form__group input.required');

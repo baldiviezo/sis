@@ -23,7 +23,7 @@
 			<h1><img src="../imagenes/user.svg">Clientes</h1>
 		</div>
 		<section class="table__header">
-			<img src="../imagenes/registrar.svg" id="openCustomersRMW">
+			<img src="../imagenes/registrar.svg" id="openCustomersRMW" title="Registrar cliente">
 			<div class="combo__search">
 				<div>
 					<select id="selectSearchClte" class="select">
@@ -60,12 +60,12 @@
 				<thead>
 					<tr>
 						<th>N°</th>
-						<th><div class="tbody__head--customer">Nombres<img src="../imagenes/sortA_Z.svg" name="nombre_clte"><img src="../imagenes/sortZ_A.svg" name="nombre_clte"></div></th>
-						<th><div class="tbody__head--customer">Apellidos<img src="../imagenes/sortA_Z.svg" name="apellido_clte"><img src="../imagenes/sortZ_A.svg" name="apellido_clte"></div></th>
+						<th><div class="tbody__head--customer">Nombres<img src="../imagenes/sortA_Z.svg" name="nombre_clte" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_clte" class="icon__CRUD"></div></th>
+						<th><div class="tbody__head--customer">Apellidos<img src="../imagenes/sortA_Z.svg" name="apellido_clte" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="apellido_clte" class="icon__CRUD"></div></th>
 						<th>Email</th>
 						<th>Direccion</th>
 						<th>Celular</th>
-						<th><div class="tbody__head--customer">Empresa<img src="../imagenes/sortA_Z.svg" name="nombre_emp"><img src="../imagenes/sortZ_A.svg" name="nombre_emp"></div></th>
+						<th><div class="tbody__head--customer">Empresa<img src="../imagenes/sortA_Z.svg" name="nombre_emp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_emp" class="icon__CRUD"></div></th>
 						<th>Descuento</th>
 						<th>Acciones</th>
 					</tr>
@@ -86,10 +86,10 @@
 					<label class="form__label--only">Empresa:</label>
 					<div class="form__group--select">
 						<select name="fk_id_emp_clteR"></select>
-						<img class="icon__CRUD" src="../imagenes/search.svg" onclick="openEnterpriseSMW('R')">
-						<img class="icon__CRUD" src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()">
-						<img class="icon__CRUD" src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)">
-						<img class="icon__CRUD" src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)">
+						<img class="icon__CRUD" src="../imagenes/search.svg" onclick="openEnterpriseSMW('R')" title="Buscar empresa">
+						<img class="icon__CRUD" src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()" title="Registrar empresa">
+						<img class="icon__CRUD" src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)" title="Editar empresa">
+						<img class="icon__CRUD" src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)" title="Eliminar empresa">
 					</div>
 					<div class="form__group">
 						<input type="text" name="nombre_clteR"  placeholder=" " class="form__input">
@@ -131,10 +131,10 @@
 					<label class="form__label--only">Empresa:</label>
 					<div class="form__group--select">
 						<select name="fk_id_emp_clteM"></select>
-						<img class="icon__CRUD" src="../imagenes/search.svg" onclick="openEnterpriseSMW('M')">
-						<img class="icon__CRUD" src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()">
-						<img class="icon__CRUD" src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)">
-						<img class="icon__CRUD" src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)">
+						<img class="icon__CRUD" src="../imagenes/search.svg" onclick="openEnterpriseSMW('M')" title="Buscar empresa">
+						<img class="icon__CRUD" src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()" title="Registrar empresa">
+						<img class="icon__CRUD" src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)" title="Editar empresa">
+						<img class="icon__CRUD" src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)" title="Eliminar empresa">
 					</div>
 					<div class="form__group">
 						<input type="text" name="nombre_clteM"  placeholder=" " class="form__input">
@@ -292,7 +292,8 @@
 						<thead>
 							<tr>
 								<th>N°</th>
-								<th><div class="tbody__head--empMW">Nombre <img src="../imagenes/sortA_Z.svg" name="nombre_emp"><img src="../imagenes/sortZ_A.svg" name="nombre_emp"></div></th>
+								<th><div class="tbody__head--empMW">Nombre <img src="../imagenes/sortA_Z.svg" name="nombre_emp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_emp" class="icon__CRUD"></div></th>
+								<th>Sigla</th>
 								<th>NIT</th>
 								<th>Precio</th>
 								<th>Direccion</th>

@@ -313,6 +313,9 @@ tbody tr:hover{
 }
 
 /*-----------------------tabla preview-----------------------------*/
+#previewProducts td:nth-of-type(1){
+	min-width: 2rem;
+}
 #previewProducts td:nth-of-type(2){
 	min-width: 8rem;
 }
@@ -326,16 +329,7 @@ tbody tr:hover{
 	min-width: 8rem;
 }
 /*-----------------------------tabla de proformas--------------------------------*/
-#tbodyProforma td:nth-of-type(4), #tbodyProforma td:nth-of-type(6){
-	min-width: 10rem;
-}
-#tbodyProforma td:nth-of-type(8){
-	min-width: 16rem;
-}
-#tbodyProforma td:nth-of-type(9), #tbodyProforma td:nth-of-type(10){
-	min-width: 12rem;
-}
-#tbodyProforma td:nth-of-type(12){
+#tbodyProforma td:nth-of-type(11){
 	min-width: 10rem;
 }
 /*-----------------------------tabla de proformas modificadas--------------------------------*/

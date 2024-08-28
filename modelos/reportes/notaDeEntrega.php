@@ -16,7 +16,7 @@ $fpdf->line(15,35,15,260);
 $fpdf->line(15,260,201,260);
 $fpdf->SetLineWidth(0.2);
 
-$moneda = $_SESSION['moneda_prof'];
+$moneda = $_moneda;
 $unidad = '';
 $unidad2 = '';
 if($moneda == 'Bs'){
@@ -61,23 +61,23 @@ $fpdf->Cell(24,6, utf8_decode('Total'),1,1,'C',true);
 $fpdf->SetTextColor(0,0,0);
 $fpdf->SetFont('times','',10);
 $fpdf->SetXY(45,52);
-$fpdf->Cell(96,6, utf8_decode(strtoupper($_SESSION['ne'].$_SESSION['nProforma'].'-'.$_SESSION['sigla'])),0,0,'l',false);
-$fpdf->Cell(100,6, utf8_decode($_SESSION['encargado']),0,1,'l',false);
+$fpdf->Cell(96,6, utf8_decode($_prof_mprof_ne),0,0,'l',false);
+$fpdf->Cell(100,6, utf8_decode($_encargado),0,1,'l',false);
 
 $fpdf->SetXY(120,60);
 $fpdf->SetFont('times','b',9);
 $fpdf->Cell(0,6, 'ATN: ',0,2,'l',false);
 $fpdf->SetXY(135,60);
 $fpdf->SetFont('times','',10);
-$fpdf->Cell(0,6, utf8_decode($_SESSION['cliente']),0,2,'l',false);
+$fpdf->Cell(0,6, utf8_decode($_cliente),0,2,'l',false);
 $fpdf->SetXY(52, 60);
-$fpdf->Cell(0,6, utf8_decode($_SESSION['fecha']),'TR',2,'l',false);
+$fpdf->Cell(0,6, utf8_decode($_fecha),'TR',2,'l',false);
 $fpdf->SetFont('times','b',10);
-$fpdf->Cell(0,6, utf8_decode($_SESSION['empresa']),'R',2,'l',false);
+$fpdf->Cell(0,6, utf8_decode($_empresa),'R',2,'l',false);
 $fpdf->SetFont('times','',10);
-$fpdf->Cell(0,6, utf8_decode($_SESSION['direccion']),'R',2,'l',false);
-if($_SESSION['telefono'] != 0){
-    $fpdf->Cell(0,6, utf8_decode($_SESSION['telefono']),'RB',1,'l',false);
+$fpdf->Cell(0,6, utf8_decode($_direccion),'R',2,'l',false);
+if($_telefono != 0){
+    $fpdf->Cell(0,6, utf8_decode($_telefono),'RB',1,'l',false);
 }else{
     $fpdf->Cell(0,6, ' ','RB',1,'l',false);
 }
@@ -94,31 +94,17 @@ $fpdf->SetWidths(array(10,20,96,15,17,24));
 //$productos = json_decode($_SESSION['cart'],true);
 include '../../modelos/conexion.php';
 //Buscar nombre de la tabla
-$id_prof;
-$tabla;
-$clave = $_SESSION['clave'];
-if($clave=='prof'){
-    $id_prof = substr($_SESSION['nProforma'],8);
-    $tabla = 'prof_prod';
-    $sigla = 'pfpd';
-    $celda = 'fk_id_prof_pfpd';
-}else{
-    $id_prof = $_SESSION['id_mprof'];
-    $tabla = 'mdf_prof_prod';
-    $sigla = 'mpfpd';
-    $celda = 'fk_id_mprof_mpfpd';
-}
-
-$consulta = "SELECT * FROM $tabla INNER JOIN producto ON $tabla.fk_id_prod_$sigla = id_prod WHERE $celda ='$id_prof'";
-$resultado = $conexion->query($consulta);
-$total = 0;
 $i = 1;
-while ($fila = $resultado->fetch_assoc()){
-    $costoTotal =  $fila['cantidad_'.$sigla]*$fila['cost_uni_'.$sigla];
-    $fpdf->Row(array($i, utf8_decode($fila['codigo_prod']),utf8_decode($fila['descripcion_prod']), $fila['cantidad_'.$sigla], number_format($fila['cost_uni_'.$sigla], 2, ',', '.'), number_format($costoTotal, 2, ',', '.')),'../imagenes/'.$fila['imagen_prod']);
+$total = 0;
+foreach ($pf_pd as $producto) {
+    $costoTotal =  $producto['cantidad_pfpd']*$producto['cost_uni_pfpd'];
+    $fpdf->Row(array($i, utf8_decode($producto['codigo_prod']),utf8_decode($producto['descripcion_prod']), $producto['cantidad_pfpd'], number_format($producto['cost_uni_pfpd'], 2, ',', '.'), number_format($costoTotal, 2, ',', '.')),'../imagenes/'.$producto['imagen_prod']);
     $i++;
     $total = $total + $costoTotal;
 }
+
+
+
 if($fpdf->GetY()>220){
     $fpdf->AddPage();
 
@@ -150,15 +136,15 @@ $fpdf->SetX(143);
 
 $fpdf->Cell(32,6, 'Sub-Total('.$unidad2.')',1,0,'R',true);
 $fpdf->MultiCell(24,6, number_format($total, 2, ',', '.').' '.$moneda.'',1,'R',true);
-if($_SESSION['descuento_prof']!='0'){
+if($_descuento!='0'){
     $fpdf->SetX(143);
-    $fpdf->Cell(32,6, 'Desc. '.(100*$_SESSION['descuento_prof']).'%('.$unidad2.')',1,0,'R',true);
-    $descuento = $total*$_SESSION['descuento_prof'];
+    $fpdf->Cell(32,6, 'Desc. '.($_descuento).'%('.$unidad2.')',1,0,'R',true);
+    $descuento = ($total*$_descuento)/100;
     $fpdf->MultiCell(24,6, number_format($descuento,2, ',', '.').' '.$moneda.'',1,'R',true);
 }
 $fpdf->SetX(143);
 $fpdf->Cell(32,6, 'TOTAL('.$unidad2.')',1,0,'R',true);
-$total = $total*(1-$_SESSION['descuento_prof']);
+$total = $total-$descuento;
 $total = round($total, 2);
 $fpdf->MultiCell(24,6, number_format($total, 2, ',', '.').' '.$moneda.'',1,'R',true);
 
@@ -196,7 +182,7 @@ $fpdf->MultiCell(0,6, strtoupper(utf8_decode($letra)),0,'L',false);
 $fpdf->AddPage();
 $fpdf->ln(1);
 $fpdf->Cell(33,12, utf8_decode('Según Orden/Invit: '),'TB',0,'L',false);
-$fpdf->Cell(0,12, utf8_decode($_SESSION['orden']),'TB',1,'L',false);
+$fpdf->Cell(0,12, utf8_decode($_orden),'TB',1,'L',false);
 $fpdf->ln(6);
 $fpdf->Cell(30,6, utf8_decode('Recibido por: '),'',0,'L',false);
 $fpdf->Cell(61,6, utf8_decode(' '),'B',0,'L',false);
@@ -215,7 +201,7 @@ $fpdf->ln(6);
 $y = $fpdf->GetY();
 $fpdf->Cell(32,24, utf8_decode('Observaciones:'),'BR',0,'L',false);
 $fpdf->SetFont('times','',10);
-$fpdf->MultiCell(0,6,utf8_decode($_SESSION['observacion']),'T','L',false);
+$fpdf->MultiCell(0,6,utf8_decode($_observacion),'T','L',false);
 $fpdf->SetY($y+24);
 
 $y1 = $fpdf->GetY();
@@ -231,14 +217,14 @@ $fpdf->Cell(35,6, utf8_decode('info@smsic.com.bo'),'TLBR',1,'C',false);
 $fpdf->SetX(49);
 $fpdf->SetTextColor(0,0,0);
 $fpdf->SetFont('times','',10);
-$fpdf->Cell(50,6, utf8_decode($_SESSION['encargado']),'LBR',0,'L',false);
+$fpdf->Cell(50,6, utf8_decode($_encargado),'LBR',0,'L',false);
 $fpdf->SetTextColor(0,0,255);
 $fpdf->SetFont('times','U',10);
-$nombre = str_replace(" " , '.', $_SESSION['encargado']);
-$fpdf->Cell(65,6, utf8_decode($_SESSION['email']),'LBR',0,'C',false);
+$nombre = str_replace(" " , '.', $_encargado);
+$fpdf->Cell(65,6, utf8_decode($_email_usua),'LBR',0,'C',false);
 $fpdf->SetFont('times','',10);
 $fpdf->SetTextColor(0,0,0);
-$fpdf->Cell(35,6, utf8_decode('Tel: '.$_SESSION['celular']),'LBR',1,'C',false);
+$fpdf->Cell(35,6, utf8_decode('Tel: '.$_celular_usua),'LBR',1,'C',false);
 
 
 

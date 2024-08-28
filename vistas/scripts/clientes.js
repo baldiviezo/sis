@@ -1,5 +1,5 @@
 //--------------------------------------------Restricciones de usuario----------------------------------------------
-if (localStorage.getItem('usua_rol') == 'Ingeniero' || localStorage.getItem('usua_rol') == 'Administrador') {
+if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Administrador') {
     //customersRMW
     document.querySelector('#formClienteR .form__group--select').children[4].classList.add('hide');
     //customersMMW
@@ -162,13 +162,13 @@ function tableCustomers(page) {
                 }
             }
             let td = document.createElement('td');
-            if (localStorage.getItem('usua_rol') == 'Gerente general') {
+            if (localStorage.getItem('rol_usua') == 'Gerente general') {
                 td.innerHTML = `
-            <img src='../imagenes/edit.svg' onclick='readCustomer(this.parentNode.parentNode)'>
-            <img src='../imagenes/trash.svg' onclick='deleteCustomer(this.parentNode.parentNode)'>`;
+            <img src='../imagenes/edit.svg' onclick='readCustomer(this.parentNode.parentNode)' title='Editar cliente'>
+            <img src='../imagenes/trash.svg' onclick='deleteCustomer(this.parentNode.parentNode)' title='Eliminar cliente'>`;
             } else {
                 td.innerHTML = `
-            <img src='../imagenes/edit.svg' onclick='readCustomer(this.parentNode.parentNode)'>`;
+            <img src='../imagenes/edit.svg' onclick='readCustomer(this.parentNode.parentNode)' title='Editar cliente'>`;
             }
             tr.appendChild(td);
             tbody.appendChild(tr);
@@ -379,8 +379,6 @@ closeEnterprisesRMW.addEventListener('click', () => {
 closeEnterprisesMMW.addEventListener('click', () => {
     enterprisesMMW.classList.remove('modal__show');
 });
-
-
 //<<---------------------------------------TABLA EMPRESA--------------------------------------->>
 //------Select utilizado para buscar por columnas
 const selectSearchEmpMW = document.getElementById('selectSearchEmpMW');
@@ -498,7 +496,6 @@ function tableEnterprisesMW(page) {
                     td.innerText = i;
                     tr.appendChild(td);
                     i++;
-                } else if (valor == 'sigla_emp') {
                 } else if (valor == 'nit_emp') {
                     if (filterEnterprises[enterprise][valor] == '0') {
                         td.innerText = '';
@@ -520,7 +517,7 @@ function tableEnterprisesMW(page) {
             }
             let td = document.createElement('td');
             td.innerHTML = `
-            <img src='../imagenes/send.svg' onclick='sendEnterprise(this.parentNode.parentNode)'>`;
+            <img src='../imagenes/send.svg' onclick='sendEnterprise(this.parentNode.parentNode)' title='Seleccionar'>`;
             tr.appendChild(td);
             tbody.appendChild(tr);
         } else {

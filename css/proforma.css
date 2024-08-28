@@ -1,9 +1,82 @@
+/*************************************Modal Producto-Proforma ***********************************/
+.modalPdpf__container{
+	margin: auto;
+	background-color: #fff;
+	width: 30rem;
+	height: 90%;
+	border-radius: .5rem;
+	display: grid;
+	grid-template-rows: 3rem 3rem 1fr 4rem;
+	overflow: hidden;
+}
+.modalPdpf__header{
+	display: flex;
+	justify-content: space-between;
+	padding: .5rem 1rem;
+}
+.modalPdpf__header .button__close{
+	height: 2.2rem;
+	width: 2.2rem;
+}
+.modalPdpf__body{
+	display: flex;
+	align-items: center;
+	background-color: #225c74;
+	color: #fff;
+	font-weight: bold;
+	width: 100%;
+	font-size: .9rem;
+	padding: .5rem;
+}
+.modalPdpf__body table thead tr td:nth-of-type(1){
+	padding: 0;
+	width: 3rem;
+}
+.modalPdpf__body table thead tr td:nth-of-type(2){
+	padding: 0;
+	width: 3rem;
+}
+.modalPdpf__body table thead tr td:nth-of-type(3){
+	padding: 0;
+	width: 9rem;
+	text-align: center;
+}
+.modalPdpf__container .modal__body{
+	overflow: auto;
+}
+.modalPdpf__container .modal__body::-webkit-scrollbar{
+	width: 0.5rem;
+	height: 0.5rem;
+}
+.modalPdpf__container .modal__body::-webkit-scrollbar-thumb{
+	border-radius: .5rem;
+	background-color: #0004;
+	visibility: hidden;
+}
+.modalPdpf__container .modal__body:hover::-webkit-scrollbar-thumb{
+	visibility: visible;
+}
+.button--sell{
+	background: var(--color-egeo-blue);
+	color: #fff;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 300;
+	font-size: 1rem;
+	padding: .5rem 0;
+	border: none;
+	cursor: pointer;
+	border-radius: .5rem;
+	display: flex;
+	justify-content: center;
+	margin: .5rem auto;
+	width: 10rem;
+}
+/*****************************************************************************************************/
 .body__proforma{
 	height: 100vh;
 	display: grid;
 	grid-template-rows: 4rem 1fr;
 }
-
 .main{
 	display: flex;
 	flex-direction: column;
@@ -128,55 +201,62 @@
 /*<<--------------------container-------------------------->>*/
 .main__container{
 	display: grid;
-	grid-template-columns: 1fr 30rem;
+	grid-template-columns: 1fr 30.5rem;
 	width: 100%;
 	height: 100%;
-	overflow-y: auto;
+	overflow-y: hidden;
 }
-.main__container::-webkit-scrollbar{
-	/*Vuelve el scrrol invisible*/
-	/*No se nota el cambio del ancho*/
+/*.main__container::-webkit-scrollbar{
 	width: 0.5rem;
-	/*Alto del scroll*/
 	height: 0.5rem;
 }
 .main__container::-webkit-scrollbar-thumb{
-	/*Borde del scroll*/
 	border-radius: .5rem;
-	/*color de lscroll*/
 	background-color: #0004;
-	/*volvemos invisible el scroll*/
 	visibility: hidden;
 }
 .main__container:hover::-webkit-scrollbar-thumb{
-	/*Cuando el mause esta encima de la tabla se muestra el scroll*/
 	visibility: visible;
-}
+}*/
 #root{
-	width: 1fr;
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
 	grid-gap: 1rem;
 	padding-top: 1rem;
+	overflow-y: auto;
+}
+#root::-webkit-scrollbar{
+	width: 0.5rem;
+	height: 0.5rem;
+}
+#root::-webkit-scrollbar-thumb{
+	border-radius: .5rem;
+	background-color: #0004;
+	visibility: hidden;
+}
+#root:hover::-webkit-scrollbar-thumb{
+	visibility: visible;
 }
 .sidebar{
-	width: 30rem;
-	border-radius: 5px;
+	border-radius: .5rem;
 	background-color: #eee;
-	padding-top: 1rem;
-	padding-left: 1rem;
+	padding: .5rem;
 	text-align: center;
-
+	display: grid;
+	grid-template-rows: 4rem 1fr 4rem;
+	overflow: hidden;
+	height: 100%;
 }
 .head{
 	font-size: 1rem;
 	display: flex;
 	justify-content: space-between;
 	background-color: #225c74;
-	border-radius: 3px;
-	height: 40px;
-	padding: 10px;
-	margin-bottom: 1rem;
+	border-radius: .5rem;
+	height: 4rem;
+	width: 100%;
+	padding: .5rem;
+	margin-bottom: .5rem;
 	color: #fff;
 	display: flex;
 	align-items: center;
@@ -202,8 +282,7 @@
 .foot{
 	display: flex;
 	justify-content: space-between;
-	margin: 20px 0px;
-	padding: 10px 0px;
+	padding: .5rem 0;
 	border-top: 1px solid #333;
 }
 /*<<-------------------------Estilo para las cards------------>>*/
@@ -220,20 +299,33 @@
 
 }s
 .img-box{
-	width: 150px;
-	height: 150px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
 .images{
-	max-width: 90%;
-	max-height: 90%;
+	max-width: 100%;
+	max-height: 80%;
 	object-fit: cover;
 	object-position: center;
+	cursor: pointer;
+}
+.box__code{
+	display: block;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.box__name{
+	display: block;
+    white-space: nowrap;
+	overflow: hidden;
+    text-overflow: ellipsis;
+    
 }
 .bottom{
-	margin-top: 20px;
+	margin-top: .5rem;
 	width: 100%;
 	text-align: center;
 	display: flex;
@@ -241,13 +333,6 @@
 	align-items: center;
 	justify-content: space-between;
 	height: 110px;
-}
-.bottom p {
-	/*white-space: pre;
-	overflow: hidden;
-	text-overflow: ellipsis;*/
-	width: 100%;
-
 }
 .bottom h2{
 	/*white-space: nowrap;
@@ -275,7 +360,11 @@ button:hover{
 }
 /*<<<<<<<<<<<<<<<<<<PARA LA LISTA DE CART AGRAGADOS>>>>>>>>>>>>>>>>>>*/
 .sidebar__body{
-	width: 100%;
+	height: 100%;
+	display: grid;
+	grid-template-rows: 3rem 1fr;
+	padding: .5rem 0;
+	overflow-y: auto;
 }
 .sidebar__body::-webkit-scrollbar{
 	/*Vuelve el scrrol invisible*/
@@ -296,19 +385,18 @@ button:hover{
 	/*Cuando el mause esta encima de la tabla se muestra el scroll*/
 	visibility: visible;
 }
-
+.cartItem{
+	overflow-y: hidden;
+}
 .cartItem__head{
 	display: flex;
 	align-items: center;
 	background-color: #225c74;
 	color: #fff;
 	font-weight: bold;
-	height: 3rem;
-	width: 29rem;
 	width: 100%;
-	padding: 0 .5rem;
 	font-size: .9rem;
-	margin: .7rem .2rem;
+	border-radius: .5rem;
 }
 .cartItem__head td:nth-of-type(1){
 	padding: 0;
@@ -340,18 +428,18 @@ button:hover{
 	padding: 0;
 	width: 2rem;
 }
-
+.cartItem{
+	overflow-y: auto;
+}
 .cart-item{
 	font-size: 1rem;
 	display: flex;
 	align-items: center;
-	padding: .7rem .5rem;
 	background-color: #fff;
-	border-bottom: 1px solid #aaa;
-	border-radius: 3px;
-	margin: .7rem .2rem;
-	min-width: 29rem;
+	border-radius: .5rem;
 	width: 100%;
+	margin: .5rem 0;
+	padding: .5rem .5rem;	
 }
 .cart-item .cart-item__cantInv{
 	width: 2rem;
@@ -411,6 +499,16 @@ button:hover{
 	border: none;
 	font-size: .8rem;
 }
+#productsSold .cart-item .cart-item__cantidad{
+	width: 3.5rem;
+	border: none;
+	font-size: .8rem;
+}
+#productsSold .cart-item .cart-item__costUnit{
+	width: 4.5rem;
+	border: none;
+	font-size: .8rem;
+}
 .cart-item .cart-item__costUnit::-webkit-outer-spin-button, .cart-item .cart-item__costUnit::-webkit-inner-spin-button{
 	-webkit-appearance: none;
 	margin: 0;
@@ -425,13 +523,12 @@ button:hover{
 	-webkit-appearance: none;
 	margin: 0;
 }
-
 .sidebar__button{
 	width: 8rem;
 	border: none;
-	border-radius: 5px;
+	border-radius: .5rem;
 	background-color: #225c74;
-	padding: 7px 25px;
+	padding: .5rem 1.5rem;
 	cursor: pointer;
 	color: #fff;
 }
@@ -460,52 +557,28 @@ button:hover{
 }
 .modalCard__container{
 	margin: auto;
-	background-color: #fff;
-	width: 100%;
+	background-color: #d9d9d9;
 	max-width: 400px;
-	height: auto;
 	max-height: 90%;
-	border-radius: 1em;
-	overflow: auto;
-	overflow: overlay;
-}
-.modalCard__container::-webkit-scrollbar{
-	/*Vuelve el scrrol invisible*/
-	/*No se nota el cambio del ancho*/
-	width: 0.5rem;
-	/*Alto del scroll*/
-	height: 0.5rem;
-}
-.modalCard__container::-webkit-scrollbar-thumb{
-	/*Borde del scroll*/
 	border-radius: .5rem;
-	/*color de lscroll*/
-	background-color: #0004;
-	/*volvemos invisible el scroll*/
-	visibility: hidden;
-}
-.modalCard__container:hover::-webkit-scrollbar-thumb{
-	/*Cuando el mause esta encima de la tabla se muestra el scroll*/
-	visibility: visible;
-}
-.modalCard__header{
-	padding: 1rem 2rem 0;
-	width: 100%;
-	display: flex;
-	justify-content: space-between;
+	overflow: hidden;
 }
 .modalCard__body{
 	font-size: 1rem;
-	padding: 0 2rem;
+	padding: .5rem;
+}
+.modalCard__head{
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	color: #fff
 }
 .modalCard__body h4{
-	padding: .5rem 0;
 	color: #225c74;
 	align-items: center;
 	font-size: 1.2rem;
-
 }
-.modalCard__body img{
+.modalCard__body .modalCard__img{
 	display: block;
 	width: 100px;
 	height: 100px;
@@ -519,15 +592,26 @@ button:hover{
 	font-size: 1rem;
 }
 .modalCard__body p{
-	padding: .5rem;
-	text-align: left;
-	text-align: justify;
-	flex-direction: .8rem;
-	font-size: 1rem;
-	color: #fff;
-	background-color: #225c74;
-	border-radius: 1rem;
+	background-color: #fff;
+	padding: .2rem;
+	border-radius: .5rem;
+	border: #225c74 1px solid;
+	overflow-y: auto;
+	max-height: 25rem;
 }
+.modalCard__body p::-webkit-scrollbar{
+	width: 0.5rem;
+	height: 0.5rem;
+}
+.modalCard__body p::-webkit-scrollbar-thumb{
+	border-radius: .5rem;
+	background-color: #0004;
+	visibility: hidden;
+}
+.modalCard__body p:hover::-webkit-scrollbar-thumb{
+	visibility: visible;
+}
+
 .modalCard__body h6{
 	padding: 1rem 0;
 	font-size: 1rem;
@@ -536,6 +620,7 @@ button:hover{
 	padding-bottom: 2rem;
 	font-size: 1rem;
 }
+/*------------------------------------------------------------------------------------------*/
 /* responsive */
 @media (max-width:800px){
 	.body__proforma{
@@ -580,10 +665,6 @@ button:hover{
 	.main__container .sidebar:hover::-webkit-scrollbar-thumb{
 		visibility: visible;
 	}
-
-
-
-	
 	
 	/*----header*/
 	.main__header{

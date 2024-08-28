@@ -26,7 +26,6 @@ class consultas {
 		require 'conexion.php';
 		$consulta = "SELECT * FROM producto INNER JOIN marca ON producto.fk_id_mrc_prod = id_mrc INNER JOIN categoria ON producto.fk_id_ctgr_prod = id_ctgr ORDER BY id_prod DESC"; 
 		$resultado = $conexion->query($consulta);
-		$numeroFilas = $resultado->num_rows;
 		$productos =  array();
 		while ($fila = $resultado->fetch_assoc()){
 			$description = $fila['descripcion_prod'];

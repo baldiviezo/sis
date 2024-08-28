@@ -1,5 +1,5 @@
 //--------------------------------------------Restricciones de usuario----------------------------------------------
-if(localStorage.getItem('usua_rol') == 'Gerente general'){
+if(localStorage.getItem('rol_usua') == 'Gerente general'){
     document.querySelector('.select__search').children[0].children[2].removeAttribute('hidden');
     document.querySelector('.select__search').children[0].children[3].removeAttribute('hidden');
     document.querySelector('.select__search').children[1].children[2].removeAttribute('hidden');
@@ -186,13 +186,13 @@ function tableProducts(page) {
             }
         }
         let td = document.createElement('td');
-        if(localStorage.getItem('usua_rol')=='Gerente general'){
+        if(localStorage.getItem('rol_usua')=='Gerente general'){
             td.innerHTML = `
-            <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)'>
-            <img src='../imagenes/trash.svg' onclick='deleteProduct(this.parentNode.parentNode)'>`;
+            <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)' title='Editar producto'>
+            <img src='../imagenes/trash.svg' onclick='deleteProduct(this.parentNode.parentNode)' title='Eliminar Producto'>`;
         }else{
             td.innerHTML = `
-            <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)'>`;
+            <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)' title='Editar Producto'>`;
         }
         tr.appendChild(td);
         tbody.appendChild(tr);
@@ -343,6 +343,10 @@ function requiredInputProd(){
     document.getElementsByName("imagen_prodM")[0].setAttribute("accept","image/jpeg, image/jpg");
     document.getElementsByName("descripcion_prodM")[0].setAttribute("required","");
 }
+//<<-------------------------------------------------------ESPACIOS OBLIGATORIOS de formProductsR y formProductsM ------------------------------------------>>
+inputsFormProduct.forEach(input => {
+    input.setAttribute('required','');
+})
 //<<---------------------------------------------------LIMPIAR CAMPOS DEL FORMULARIO----------------------------------->>
 //------Limpia los campos del fomulario registrar
 function cleanUpProductFormR(){
