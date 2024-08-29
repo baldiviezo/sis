@@ -34,8 +34,8 @@ function readInventories() {
         body: formData
     }).then(response => response.json()).then(data => {
         inventories = JSON.parse(JSON.stringify(data));
-        filterInventories = JSON.parse(JSON.stringify(data));
-        filterInventoriesMW = JSON.parse(JSON.stringify(data));
+        filterInventories = inventories;
+        filterInventoriesMW = inventories;
         paginacionInventoryMW(Object.values(data).length, 1);
         paginacionInventory(Object.values(data).length, 1);
     }).catch(err => console.log(err));
@@ -194,8 +194,8 @@ function readProducts() {
         body: formData
     }).then(response => response.json()).then(data => {
         products = JSON.parse(JSON.stringify(data));
-        filterProducts = JSON.parse(JSON.stringify(data));
-        filterProductsMW = JSON.parse(JSON.stringify(data));
+        filterProducts = products;
+        filterProductsMW = products;
         if (selectInvProd.value == 'producto') { paginacionProduct(Object.values(data).length, 1) }
         paginacionProductMW(Object.values(filterProductsMW).length, 1);
     }).catch(err => console.log(err));
@@ -470,6 +470,7 @@ selectMoneyCart.addEventListener('change', function () {
     //Para mostrar y ocultar el tipo de cambio
     if (selectMoneyCart.value == '$') {
         tipoDeCambioProf.removeAttribute('hidden');
+
     } else {
         tipoDeCambioProf.setAttribute('hidden', '');
     }
@@ -487,7 +488,7 @@ function readProformas() {
         body: formData
     }).then(response => response.json()).then(data => {
         proformas = JSON.parse(JSON.stringify(data));
-        filterProformas = JSON.parse(JSON.stringify(data));
+        filterProformas = proformas;
         paginacionProforma(Object.values(filterProformas).length, 1);
     }).catch(err => console.log(err));
 }
@@ -1426,8 +1427,8 @@ function readCustomers() {
         body: formData
     }).then(response => response.json()).then(data => {
         customers = JSON.parse(JSON.stringify(data));
-        filterCustomers = JSON.parse(JSON.stringify(data));
-        sortCustomers = JSON.parse(JSON.stringify(data));
+        filterCustomers = customers;
+        sortCustomers = customers;
         let array = Object.entries(sortCustomers).sort((a, b) => {
             if (a[1].nombre_clte.toLowerCase() < b[1].nombre_clte.toLowerCase()) {
                 return -1;
@@ -1562,7 +1563,7 @@ function readEnterprises() {
         body: formData
     }).then(response => response.json()).then(data => {
         enterprises = JSON.parse(JSON.stringify(data));
-        filterEnterprises = JSON.parse(JSON.stringify(data));
+        filterEnterprises = enterprises;
         paginacionEnterpriseMW(Object.values(filterEnterprises).length, 1);
         fillSelectEmp(selectEnterpriseR, indexEnterprise);
     }).catch(err => console.log(err));
@@ -1583,10 +1584,11 @@ selectNumberEmpMW.addEventListener('change', function () {
 //------buscar por:
 function searchEnterprisesMW() {
     filterEnterprises = {};
+    console.log(enterprises)
     for (let enterprise in enterprises) {
         for (let valor in enterprises[enterprise]) {
             if (selectSearchEmpMW.value == 'todas') {
-                if (valor == 'nombre_emp') {
+                if (valor != 'id_emp') {
                     if (enterprises[enterprise][valor].toLowerCase().indexOf(inputSearchEmpMW.value.toLowerCase()) >= 0) {
                         filterEnterprises[enterprise] = enterprises[enterprise];
                         break;

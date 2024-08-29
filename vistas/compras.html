@@ -47,7 +47,7 @@
 				<div class="wrapper" id="wrapperBuy"><ul></ul></div>
 			</div>
 			<div>
-				<select id="buyForPage">
+				<select id="buyForPage" class="select__number">
 					<option value="2">2</option>
 					<option value="4">4</option>
 					<option value="6">6</option>
@@ -61,9 +61,9 @@
 				<thead>
 					<tr>
 						<th>N°</th>
-						<th><div class="tbody__head--buy">Fecha <img src="../imagenes/sortA_Z.svg" name="fecha_cmp"><img src="../imagenes/sortZ_A.svg" name="fecha_cmp"></div></th>
-						<th><div class="tbody__head--buy">Factura <img src="../imagenes/sortA_Z.svg" name="factura_cmp"><img src="../imagenes/sortZ_A.svg" name="factura_cmp"></div></th>
-						<th><div class="tbody__head--buy">Empresa <img src="../imagenes/sortA_Z.svg" name="nombre_empp"><img src="../imagenes/sortZ_A.svg" name="nombre_empp"></div></th>
+						<th><div class="tbody__head--buy">Fecha <img src="../imagenes/sortA_Z.svg" name="fecha_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_cmp" class="icon__CRUD"></div></th>
+						<th><div class="tbody__head--buy">Factura <img src="../imagenes/sortA_Z.svg" name="factura_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="factura_cmp" class="icon__CRUD"></div></th>
+						<th><div class="tbody__head--buy">Empresa <img src="../imagenes/sortA_Z.svg" name="nombre_empp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_empp" class="icon__CRUD"></div></th>
 						<th>Proveedor</th>
 						<th>Descripcion</th>
 						<th>Acciones</th>
@@ -77,9 +77,9 @@
 	<section id="buyRMW" class="modal">
 		<div class="modal__container">
 			<div class="modal__header">
-				<img src='../imagenes/products.svg' onclick='openCmp_prodRMW()'>
+				<img src='../imagenes/products.svg' onclick='openCmp_prodRMW()' class="icon__CRUD">
 				<h2 class="modal__title">Compra</h2>
-				<img src="../imagenes/salir.svg" id="closeBuyRMW">
+				<img src="../imagenes/salir.svg" id="closeBuyRMW" class="button__close">
 			</div>
 			<form id="formBuyR" class="form">
 				<div class="form__container">
@@ -94,18 +94,18 @@
 					</div>
 					<label class="form__label--only">Empresa:</label>
 					<div class="form__group--select">
-						<select id="selectEnterpriseR" name="empresaProveedorR"></select>
-						<img src="../imagenes/search.svg" onclick="openEnterpriseSMW('R')">
-						<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()">
-						<img src="../imagenes/edit.svg" onclick="readEnterprise('R')">
-						<img src="../imagenes/trash.svg" onclick="deleteEnterprise('R')">
+						<select id="selectEnterpriseR" name="fk_id_emp_clteR"></select>
+						<img src="../imagenes/search.svg" onclick="openEnterpriseSMW('R')" class="icon__CRUD">
+						<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()" class="icon__CRUD">
+						<img src="../imagenes/edit.svg" onclick="readEnterprise('R')" class="icon__CRUD">
+						<img src="../imagenes/trash.svg" onclick="deleteEnterprise('R')" class="icon__CRUD">
 					</div>
 					<label class="form__label--only">Proveedor:</label>
 					<div class="form__group--select">
 						<select id="selectSupplierR" name="fk_id_prov_cmpR"></select>
-						<img src="../imagenes/registrar.svg" onclick="openSupplierRMW()">
-						<img src="../imagenes/edit.svg" onclick="readSupplier('R')">
-						<img src="../imagenes/trash.svg" onclick="deleteSupplier('R')">
+						<img src="../imagenes/registrar.svg" onclick="openSupplierRMW()" class="icon__CRUD">
+						<img src="../imagenes/edit.svg" onclick="readSupplier('R')" class="icon__CRUD">
+						<img src="../imagenes/trash.svg" onclick="deleteSupplier('R')" class="icon__CRUD">
 					</div>
 					<div class="form__group">
 						<input type="text" name="descripcion_cmpR" placeholder=" " class="form__input">
@@ -172,7 +172,7 @@
 					</div>
 					<label class="form__label--only">Empresa:</label>
 					<div class="form__group--select">
-						<select id="selectEnterpriseM" name="empresaClienteM"></select>
+						<select id="selectEnterpriseM" name="fk_id_emp_clteM"></select>
 						<!--<img src="../imagenes/search.svg" onclick="openEnterpriseSMW('M')">
 						<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()">-->
 						<img src="../imagenes/edit.svg" onclick="readEnterprise('M')">
@@ -312,17 +312,17 @@
 						<label for="sigla_emppR" class="form__label">Sigla de la empresa:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="nombreEmpresaR"  placeholder=" " class="form__input">
-						<label for="nombreEmpresaR" class="form__label">Nombre de la empresa:</label>
+						<input type="text" name="nombre_emppR"  placeholder=" " class="form__input">
+						<label for="nombre_emppR" class="form__label">Nombre de la empresa:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="direccionEmpresaR"  placeholder=" " class="form__input">
-						<label for="direccionEmpresaR" class="form__label">Direccion:</label>
+						<input type="text" name="direccion_emppR"  placeholder=" " class="form__input">
+						<label for="direccion_emppR" class="form__label">Direccion:</label>
 					</div>
 					<div class="form__group">
 					<!--la clase form__input se esta utilizando para realizar una funcionalidad del sistema (clpFormREnterprise())-->
-						<input type="text" name="telefonoEmpresaR" placeholder=" " class="form__input">
-						<label for="telefonoEmpresaR" class="form__label">Telefono:</label>
+						<input type="text" name="telefono_emppR" placeholder=" " class="form__input">
+						<label for="telefono_emppR" class="form__label">Telefono:</label>
 					</div>
 				</div>
 				<div class="form__container--button">
@@ -341,22 +341,22 @@
 				<div class="form__container">
 					<!--Guardamos el id de la empresa para luego encotrarla en la base de datos-->
 					<!--la clase form__input se esta utilizando para realizar una funcionalidad del sistema (readEnterprises())-->
-					<input type="text" name="id_empp"  placeholder=" " class="form__input" hidden>
+					<input type="text" name="id_emppM"  placeholder=" " class="form__input" hidden>
 					<div class="form__group">
-						<input type="text" name="sigla_empp"  placeholder=" " class="form__input">
-						<label for="sigla_empp" class="form__label">Sigla de la empresa:</label>
+						<input type="text" name="sigla_emppM"  placeholder=" " class="form__input">
+						<label for="sigla_emppM" class="form__label">Sigla de la empresa:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="nombre_empp"  placeholder=" " class="form__input">
-						<label for="nombre_empp" class="form__label">Nombre de la empresa:</label>
+						<input type="text" name="nombre_emppM"  placeholder=" " class="form__input">
+						<label for="nombre_emppM" class="form__label">Nombre de la empresa:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="direccion_empp"  placeholder=" " class="form__input">
-						<label for="direccion_empp" class="form__label">Direccion:</label>
+						<input type="text" name="direccion_emppM"  placeholder=" " class="form__input">
+						<label for="direccion_emppM" class="form__label">Direccion:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="telefono_empp" placeholder=" " class="form__input">
-						<label for="telefono_empp" class="form__label">Telefono:</label>
+						<input type="text" name="telefono_emppM" placeholder=" " class="form__input">
+						<label for="telefono_emppM" class="form__label">Telefono:</label>
 					</div>
 				</div>
 				<div class="form__container--button">
@@ -370,8 +370,8 @@
 		<div class="modalTable__container">
 			<div class="table">
 				<div class="table__title">
-					<h1>Empresas</h1>
-					<img src="../imagenes/salir.svg" id="closeEnterpriseSMW">
+					<h1><img src="../imagenes/enterprise.svg">Empresas de proveedores</h1>
+					<img src="../imagenes/salir.svg" id="closeEnterpriseSMW" class="button__close">
 				</div>
 				<section class="table__header">
 					<div></div>
@@ -379,24 +379,27 @@
 						<div>
 							<select id="selectSearchEmpMW" class="select">
 								<option value="todas">Buscar por</option>
-								<option value="sigla_empp">Sigla</option>
 								<option value="nombre_empp">Nombre</option>
 							</select>
 						</div>
 						<div class="table__search">
-							<input type="search" id="inputSearchEmpMW" placeholder="Search Data...">
+							<input type="search" id="inputSearchEmpMW" placeholder="Buscar...">
 							<img src="../imagenes/search.png">
 						</div>
 					</div>
 				</section>
-				<div class="showPage" id="showPageEmpMW"><h2></h2></div>
+				<div class="showPage" id="showPageEmpMW">
+					<h2></h2>
+				</div>
 				<div class="container__page">
 					<div class="paginacion">
 						<!--Envoltura-->
-						<div class="wrapper" id="wrapperEmpMW"><ul></ul></div>
+						<div class="wrapper" id="wrapperEmpMW">
+							<ul></ul>
+						</div>
 					</div>
 					<div>
-						<select id="selectPageEmpMW">
+						<select id="selectNumberEmpMW" class="select__number">
 							<option value="2">2</option>
 							<option value="4">4</option>
 							<option value="6">6</option>
@@ -410,17 +413,22 @@
 						<thead>
 							<tr>
 								<th>N°</th>
-								<th><div class="tbody__head--empMW">Sigla <img src="../imagenes/sortA_Z.svg" name="sigla_empp"><img src="../imagenes/sortZ_A.svg" name="sigla_empp"></div></th>
-								<th><div class="tbody__head--empMW">Nombre <img src="../imagenes/sortA_Z.svg" name="nombre_empp"><img src="../imagenes/sortZ_A.svg" name="nombre_empp"></div></th>
+								<th>Sigla</th>
+								<th>
+									<div class="tbody__head--empMW">Nombre <img src="../imagenes/sortA_Z.svg"
+											name="nombre_empp"><img src="../imagenes/sortZ_A.svg" name="nombre_empp">
+									</div>
+								</th>
+								<th>Nit</th>
 								<th>Direccion</th>
 								<th>Telefono</th>
-								<th>Acciones</th>
+								<th>Seleccionar</th>
 							</tr>
 						</thead>
 						<tbody id="tbodyEmpMW"></tbody>
 					</table>
 				</section>
-			</div>		
+			</div>
 		</div>
 	</section>
 	<!--Tabla de inventario-->

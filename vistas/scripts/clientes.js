@@ -24,8 +24,8 @@ function readCustomers() {
                 }
             }
         }
-        customers = data;
-        filterCustomers = data;
+        customers = JSON.parse(JSON.stringify(data));
+        filterCustomers = customers;
         paginacionCustomer(Object.values(data).length, 1);
     }).catch(err => console.log(err));
 }
@@ -47,7 +47,7 @@ function searchCustomers() {
     for (let customer in customers) {
         for (let valor in customers[customer]) {
             if (selectSearchClte.value == 'todas') {
-                if (valor == 'nombre_clte' || valor == 'apellido_clte' || valor == 'nombre_emp') {
+                if (valor != 'id_clte' || valor == 'fk_id_emp_clte') {
                     if (customers[customer][valor].toLowerCase().indexOf(inputSerchClte.value.toLowerCase()) >= 0) {
                         filterCustomers[customer] = customers[customer];
                         break;
@@ -276,8 +276,8 @@ function readEnterprises() {
         method: "POST",
         body: formData
     }).then(response => response.json()).then(data => {
-        enterprises = data;
-        filterEnterprises = data;
+        enterprises = JSON.parse(JSON.stringify(data));
+        filterEnterprises = enterprises;
         paginacionEnterpriseMW(Object.values(filterEnterprises).length, 1);
         fillSelectEmp(selectEnterpriseR, indexEnterprise);
         fillSelectEmp(selectEnterpriseM, indexEnterprise);
@@ -398,7 +398,7 @@ function searchEnterprisesMW() {
     for (let enterprise in enterprises) {
         for (let valor in enterprises[enterprise]) {
             if (selectSearchEmpMW.value == 'todas') {
-                if (valor == 'nombre_emp') {
+                if (valor != 'id_emp') {
                     if (enterprises[enterprise][valor].toLowerCase().indexOf(inputSearchEmpMW.value.toLowerCase()) >= 0) {
                         filterEnterprises[enterprise] = enterprises[enterprise];
                         break;

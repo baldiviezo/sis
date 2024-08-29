@@ -30,7 +30,7 @@ function readInventories() {
         body: formData
     }).then(response => response.json()).then(data => {
         inventories = JSON.parse(JSON.stringify(data));
-        filterInventories = JSON.parse(JSON.stringify(data));
+        filterInventories = inventories;
         (selectMarcaInventory.value == 'todasLasMarcas' && selectCategoriaInventory.value == 'todasLasCategorias') ? paginacionInventory(Object.values(data).length, 1) : selectInventories();
     }).catch(err => console.log(err));
 }
@@ -95,7 +95,7 @@ function selectInventories() {
                 }
             }
         }
-        filterInventories = JSON.parse(JSON.stringify(filterInventories));
+        filterInventories = filterInventories;
         paginacionInventory(Object.values(filterInventories).length, 1);
     }
 }
@@ -321,8 +321,8 @@ function readProductsMW() {
         body: formData
     }).then(response => response.json()).then(data => {
         products = JSON.parse(JSON.stringify(data)); 
-        filterProducts = JSON.parse(JSON.stringify(data));
-        sortProducts = JSON.parse(JSON.stringify(data));
+        filterProducts = products;
+        sortProducts = products;
         let array = Object.entries(sortProducts).sort((a, b) => {
             if (a[1].codigo_prod.toLowerCase() < b[1].codigo_prod.toLowerCase()) {
                 return -1;

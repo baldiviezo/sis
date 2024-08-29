@@ -22,7 +22,7 @@ function readProducts() {
         body: formData
     }).then(response => response.json()).then(data => {
         products = JSON.parse(JSON.stringify(data)); 
-        filterProducts = JSON.parse(JSON.stringify(data));
+        filterProducts = products;
         (selectMarcaProduct.value == 'todasLasMarcas' && selectCategoriaProduct.value == 'todasLasCategorias') ? paginacionProduct(Object.values(data).length, 1) : selectProducts();
     }).catch(err => console.log(err));
 }
@@ -40,7 +40,7 @@ selectNumberProduct.addEventListener('change', function(){
 });
 //------buscar por:
 function searchProducts(){
-    filterProducts = {};
+    filterProducts = {};    
     for(let product in products){
         for(let valor in products[product]){
             if(selectSearchProduct.value == 'todas'){
@@ -54,7 +54,7 @@ function searchProducts(){
                 if(valor == selectSearchProduct.value){
                     if(products[product][valor].toLowerCase().indexOf(inputSerchProduct.value.toLowerCase())>=0){
                         filterProducts[product] = products[product];
-                        filterProducts = JSON.parse(JSON.stringify(filterProducts));
+                        filterProducts = filterProducts;
                         break;
                     }
                 }
@@ -88,7 +88,7 @@ function selectProducts(){
                 }
             }
         }
-        filterProducts = JSON.parse(JSON.stringify(filterProducts));
+        filterProducts = filterProducts;
         paginacionProduct(Object.values(filterProducts).length, 1); 
     }
 }

@@ -44,14 +44,16 @@ if (isset($_POST['deleteEnterprise'])) {
 
 
 //------CRUD PROVEEDORES
+if (isset($_POST['readSuppliers'])){
+	$readSuppliers = new consultas;
+	$readSuppliers->readSuppliers();
+}
+
+
 if (isset($_POST['createSupplier'])) {
 	$createSupplier = new consultas;
 	$createSupplier->asignarValoresPR();
 	$createSupplier->createSupplier();
-}
-if (isset($_POST['readAllSupplier'])){
-	$readAllSupplier = new consultas;
-	$readAllSupplier->readAllSupplier();
 }
 if (isset($_POST['readASupplier'])) {
 	$readASupplier = new consultas;
@@ -73,15 +75,20 @@ if (isset($_POST['leerProveedor'])){
 	$leerProveedor->leerProveedor();
 }
 
-//------CRUD ENTERPRISE
+//------CRUD ENTERPRISEP
+if (isset($_POST['readEnterprisesP'])) {
+	$readEnterprisesP = new consultas;
+	$readEnterprisesP->readEnterprisesP();
+}
+
+
+
+
+
 if (isset($_POST['createEnterpriseP'])) {
 	$registrarEmpresa = new consultas;
 	$registrarEmpresa->asignarValoresREP();
 	$registrarEmpresa->createEnterpriseP();
-}
-if (isset($_POST['readEnterpriseP'])) {
-	$readEmpresa = new consultas;
-	$readEmpresa->readEnterpriseP();
 }
 if (isset($_POST['updateEnterpriseP'])) {
 	$updateEmpresa = new consultas;
@@ -92,9 +99,6 @@ if (isset($_POST['deleteEnterpriseP'])) {
 	$deleteEmpresa = new consultas;
 	$deleteEmpresa->deleteEnterpriseP($_POST['deleteEnterpriseP']);
 }
-if (isset($_POST['readAllEnterpriseP'])) {
-	$readAllEnterprise = new consultas;
-	$readAllEnterprise->readAllEnterpriseP($_POST['readAllEnterpriseP']);
-}
+
 
 ?>

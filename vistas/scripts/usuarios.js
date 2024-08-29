@@ -71,9 +71,6 @@ function filterTableUsers(data){
 const search = document.getElementById("buscar");
 search.addEventListener("keyup", e=>{
     searchUsers();
-    /*if(e.key == 'Enter'){
-        searchUsers();
-    }*/
 });
 function searchUsers(){
     let allRow = document.querySelectorAll('#tbody tr');
@@ -180,9 +177,9 @@ function deleteUser (usuario){
 //<<------------------------ABRIR Y CERRAR VENTANAS MODALES--------------------------------->>
 const usersRMW = document.getElementById('usersRMW');
 const usersMMW = document.getElementById('usersMMW');  
-const openUsersRMW = document.getElementById('openUsersRMW');
 const closeUsersRMW = document.getElementById('closeUsersRMW');
-const closeUsersMMW = document.getElementById('closeUsersMMW'); 
+const closeUsersMMW = document.getElementById('closeUsersMMW');
+const openUsersRMW = document.getElementById('openUsersRMW'); 
 openUsersRMW.addEventListener('click',(e)=>{
     usersRMW.classList.add('modal__show');
 });
