@@ -1,14 +1,129 @@
+//-------------------------------------------------SUPPLIER--------------------------------------------------
+
+//<<-----------------------------------------CRUD SUPPLIER----------------------------------------->>
+let suppliers = {};
+readSuppliers();
+function readSuppliers() {
+    let formData = new FormData();
+    formData.append('readSuppliers', '');
+    fetch('../controladores/clientes.php', {
+        method: "POST",
+        body: formData
+    }).then(response => response.json()).then(data => {
+        suppliers = JSON.parse(JSON.stringify(data));
+        readEnterprises();
+    }).catch(err => console.log(err));
+}
+//------Create a supplier
+const formSupplierR = document.getElementById('formSupplierR');
+formSupplierR.addEventListener('submit', createSupplier);
+function createSupplier() {
+    event.preventDefault();
+    supplierRMW.classList.remove('modal__show');
+    let formData = new FormData(formSupplierR);
+    formData.append('createSupplier', '');
+    fetch('../controladores/clientes.php', {
+        method: "POST",
+        body: formData
+    }).then(response => response.text()).then(data => {
+        alert(data);
+        cleanFormSupplierR();
+        readSuppliers();
+    }).catch(err => console.log(err));
+}
+function cleanFormSupplierR() {
+    const inputsR = document.querySelectorAll('#formSupplierR .form__group input');
+    inputsR.forEach(input => { input.value = '' })
+}
+//------Read a supplier
+function readSupplier(rm) {
+    let selectSupplierRM = document.getElementById('selectSupplier' + rm);
+    let id_prov = selectSupplierRM.value;
+    for (let supplier in suppliers) {
+        if (suppliers[supplier]['id_prov'] == id_prov) {
+            for (let valor in suppliers[supplier]) {
+                if (valor == 'fk_id_empp_prov'){
+                    selectEntProvM.innerHTML = '';
+                    let option = document.createElement('option');
+                    option.value = selectEnterpriseR.value
+                    option.innerText = selectEnterpriseR.options[selectEnterpriseR.selectedIndex].textContent;
+                    selectEntProvM.appendChild(option);
+                }else{
+                    document.getElementsByName(valor + 'M')[0].value = suppliers[supplier][valor];
+                }
+            }
+        }
+    }
+    supplierMMW.classList.add('modal__show');
+}
+//------Update a supplier
+const formClienteM = document.getElementById('formSupplierM');
+formSupplierM.addEventListener('submit', updateSupplier);
+function updateSupplier() {
+    event.preventDefault();
+    supplierMMW.classList.remove('modal__show');
+    let formData = new FormData(formClienteM);
+    formData.append('updateSupplier', '');
+    fetch('../controladores/clientes.php', {
+        method: "POST",
+        body: formData
+    }).then(response => response.text()).then(data => {
+        alert(data);
+        readSuppliers();
+    }).catch(err => console.log(err));
+}
+//------Delete a supplier
+function deleteSupplier(rm) {
+    let selectSupplierRM = document.getElementById('selectSupplier' + rm);
+    if (confirm('¿Esta usted seguro?')) {
+        let id = selectSupplierRM.value;
+        let formData = new FormData();
+        formData.append('deleteSupplier', id);
+        fetch('../controladores/clientes.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            alert(data);
+            readSuppliers();
+        }).catch(err => console.log(err));
+    }
+}
+//<<-------------------------------------------MODAL SUPPLIER---------------------------------------->>
+const supplierRMW = document.getElementById('supplierRMW');
+const supplierMMW = document.getElementById('supplierMMW');
+const closeSupplierRMW = document.getElementById('closeSupplierRMW');
+const closeSupplierMMW = document.getElementById('closeSupplierMMW');
+const selectEntProvR = document.getElementsByName('fk_id_empp_provR')[0];
+const selectEntProvM = document.getElementsByName('fk_id_empp_provM')[0];
+function openSupplierRMW() {
+    supplierRMW.classList.add('modal__show');
+    selectEntProvR.innerHTML = '';
+    let option = document.createElement('option');
+    option.value = selectEnterpriseR.value;
+    option.innerText = selectEnterpriseR.options[selectEnterpriseR.selectedIndex].textContent;
+    selectEntProvR.appendChild(option);
+}
+closeSupplierRMW.addEventListener('click', () => {
+    supplierRMW.classList.remove('modal__show');
+});
+closeSupplierMMW.addEventListener('click', () => {
+    supplierMMW.classList.remove('modal__show');
+});
+
 
 //<<---------------------------------------------EMPRESA---------------------------------------------->>
 const selectEnterpriseR = document.getElementsByName('fk_id_emp_clteR')[0];
 const selectEnterpriseM = document.getElementsByName('fk_id_emp_clteM')[0];
-/*selectEnterpriseR.addEventListener('change', function () {
-    fillSelectClte(selectCustomerR, indexCustomer);
-});*/
+const selectSupplierR = document.getElementsByName('fk_id_prov_cmpR')[0];
+const selectSupplierM = document.getElementsByName('fk_id_prov_cmpM')[0];
+selectEnterpriseR.addEventListener('change', () => {
+    fillSelectClte(selectEnterpriseR, selectSupplierR);
+});
+selectEnterpriseM.addEventListener('change', function () {
+    fillSelectClte(selectEnterpriseM, selectSupplierM);
+});
 let enterprises = {};
 let filterEnterprises = {};
-let indexEnterprise = 0;
-readEnterprises();
 function readEnterprises() {
     let formData = new FormData();
     formData.append('readEnterprisesP', '');
@@ -19,8 +134,8 @@ function readEnterprises() {
         enterprises = JSON.parse(JSON.stringify(data));
         filterEnterprises = enterprises;
         paginacionEnterpriseMW(Object.values(filterEnterprises).length, 1);
-        fillSelectEmp(selectEnterpriseR, indexEnterprise);
-        fillSelectEmp(selectEnterpriseM, indexEnterprise);
+        fillSelectEmp(selectEnterpriseR, selectSupplierR);
+        fillSelectEmp(selectEnterpriseM, selectSupplierM);
     }).catch(err => console.log(err));
 }
 //<<---------------------------------------TABLA MODAL EMPRESA--------------------------------------->>
@@ -61,32 +176,6 @@ function searchEnterprisesMW() {
     }
     paginacionEnterpriseMW(Object.values(filterEnterprises).length, 1);
 }
-//------Ordenar tabla descendente ascendente
-let orderEnterprises = document.querySelectorAll('.tbody__head--empMW');
-orderEnterprises.forEach(div => {
-    div.children[0].addEventListener('click', function () {
-        let array = Object.entries(filterEnterprises).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
-            if (first < second) { return -1 }
-            if (first > second) { return 1 }
-            return 0;
-        })
-        filterEnterprises = Object.fromEntries(array);
-        paginacionEnterpriseMW(Object.values(filterEnterprises).length, 1);
-    });
-    div.children[1].addEventListener('click', function () {
-        let array = Object.entries(filterEnterprises).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
-            if (first > second) { return -1 }
-            if (first < second) { return 1 }
-            return 0;
-        })
-        filterEnterprises = Object.fromEntries(array);
-        paginacionEnterpriseMW(Object.values(filterEnterprises).length, 1);
-    });
-})
 //------PaginacionEnterpriseMW
 function paginacionEnterpriseMW(allEnterprises, page) {
     let numberEnterprises = Number(selectNumberEmpMW.value);
@@ -173,45 +262,35 @@ function tableEnterprisesMW(page) {
 }
 function sendEnterprise(tr) {
     enterpriseSMW.classList.remove('modal__show');
-    let id_emp = tr.children[0].innerText;
-    selectEnterpriseR.value = id_emp;
-    fillSelectClte(selectCustomerR, indexCustomer);
+    let id_empp = tr.children[0].innerText;
+    selectEnterpriseR.value = id_empp;
+    fillSelectClte(selectEnterpriseR, selectSupplierR);
 }
-function fillSelectEmp(select, index) {
-    console.log(select+' + '+index)
-    select.innerHTML = '';
+function fillSelectEmp(selectEmp, selectSpl) {
+    selectEmp.innerHTML = '';
     for (let enterprise in enterprises) {
         let option = document.createElement('option');
-        option.value = enterprises[enterprise]['id_emp'];
-        option.innerText = enterprises[enterprise]['nombre_emp'];
-        select.appendChild(option);
+        option.value = enterprises[enterprise]['id_empp'];
+        option.innerText = enterprises[enterprise]['nombre_empp'];
+        selectEmp.appendChild(option);
     }
-    if (index > 0) { select.value = index }
-    //fillSelectClte(selectCustomerR, indexCustomer);
+    fillSelectClte(selectEmp, selectSpl);
+
 }
-
-
-function fillSelectClte(select, index) {
-    let id_emp = selectEnterpriseR.value;
-    select.innerHTML = '';
-    for (let customer in sortCustomers) {
-        if (sortCustomers[customer]['fk_id_emp_clte'] == id_emp) {
-            let option = document.createElement('option');
-            option.value = sortCustomers[customer]['id_clte'];
-            option.innerText = sortCustomers[customer]['nombre_clte'] + ' ' + sortCustomers[customer]['apellido_clte'];
-            select.appendChild(option);
-        }
-    }
-    if (index > 0) { select.value = index }
-    for (let enterprise in enterprises) {
-        if (enterprises[enterprise]['id_emp'] == id_emp) {
-            document.getElementsByName('descuento_profR')[0].value = enterprises[enterprise]['precio_emp'];
+function fillSelectClte(selectEmp, selectSpl) {
+    if (selectSpl != false) {
+        let id_empp = selectEmp.value;
+        selectSpl.innerHTML = '';
+        for (let supplier in suppliers) {
+            if (suppliers[supplier]['fk_id_empp_prov'] == id_empp) {
+                let option = document.createElement('option');
+                option.value = suppliers[supplier]['id_prov'];
+                option.innerText = suppliers[supplier]['nombre_prov'] + ' ' + suppliers[supplier]['apellido_prov'];
+                selectSpl.appendChild(option);
+            }
         }
     }
 }
-
-
-
 //----------------------------------ventana modal EnterpriseSMW-------------------------------------------
 //---------------------------ventana modal para buscar producto
 const enterpriseSMW = document.getElementById('enterpriseSMW');
@@ -222,40 +301,92 @@ function openEnterpriseSMW() {
 closeEnterpriseSMW.addEventListener('click', () => {
     enterpriseSMW.classList.remove('modal__show');
 });
-
-
-
-
-
-//<<-----------------------          -ABRIR Y CERRAR MODALES DE  COMPRA--------------------------------->>
-//----------------------------------- modal para Compra---------------------------------//
-
-const closeBuyRMW = document.getElementById('closeBuyRMW');
-const closeBuyMMW = document.getElementById('closeBuyMMW');
-const openBuyRMW = document.getElementById('openBuyRMW');
-const openBuyMMW = document.getElementById('openBuyMMW');
-openBuyRMW.addEventListener('click', () => {
-    buyRMW.classList.add('modal__show');
-    /*addProductoClave = 'R';
-    claveSendSupplier = 'R';
-    claveSendEnterprise = 'R';
-    document.getElementsByName('fecha_cmpR')[0].value = year + '-' + mes + '-' + dia;*/
-});
-closeBuyRMW.addEventListener('click', () => {
-    buyRMW.classList.remove('modal__show');
-});
-closeBuyMMW.addEventListener('click', () => {
-    buyMMW.classList.remove('modal__show');
-});
-
-//<<-------------------------------------MODAL DE PRODUCTS DE UNA PROFORMA MODIFICAR-------------------------------------------->>
-const closeCmp_prodRMW = document.getElementById('closeCmp_prodRMW');
-const cmp_prodRMW = document.getElementById('cmp_prodRMW');
-function openCmp_prodRMW() {
-    cmp_prodRMW.classList.add('modal__show');
+//----------------------------------------------CRUD EMPRESA---------------------------------------------
+//------Craer una empresa
+const formEmpresaR = document.getElementById('formEmpresaR');
+formEmpresaR.addEventListener('submit', createEnterprise);
+function createEnterprise() {
+    event.preventDefault();
+    enterprisesRMW.classList.remove('modal__show');
+    let formData = new FormData(formEmpresaR);
+    formData.append('createEnterpriseP', '');
+    fetch('../controladores/clientes.php', {
+        method: "POST",
+        body: formData
+    }).then(response => response.text()).then(data => {
+        alert(data);
+        if (data != 'La empresa ya existe') {
+            cleanFormEnterpriseR();
+            readEnterprises();
+        }
+    }).catch(err => console.log(err));
 }
-closeCmp_prodRMW.addEventListener('click', (e) => {
-    cmp_prodRMW.classList.remove('modal__show');
+//Limpiar enterprisesRMW
+function cleanFormEnterpriseR() {
+    let inputs = document.querySelectorAll('#formEmpresaR input.form__input');
+    inputs.forEach(input => input.value = '');
+}
+//------Leer una empresa
+function readEnterprise(rm) {
+    let selectEnterpriseRM = document.getElementById('selectEnterprise' + rm);
+    let id_empp = selectEnterpriseRM.value;
+    for (let enterprise in enterprises) {
+        if (enterprises[enterprise]['id_empp'] == id_empp) {
+            for (let valor in enterprises[enterprise]) {
+                document.getElementsByName(valor + 'M')[0].value = enterprises[enterprise][valor];
+            }
+        }
+    }
+    enterprisesMMW.classList.add('modal__show');
+}
+//------Actualizar una empresa
+let formEmpresaM = document.getElementById('formEmpresaM');
+formEmpresaM.addEventListener('submit', updateEnterprise);
+function updateEnterprise() {
+    event.preventDefault();
+    enterprisesMMW.classList.remove('modal__show');
+    let formData = new FormData(formEmpresaM);
+    formData.append('updateEnterpriseP', '');
+    fetch('../controladores/clientes.php', {
+        method: "POST",
+        body: formData
+    }).then(response => response.text()).then(data => {
+        alert(data);
+        if (data == 'Empresa actualizada exitosamente') {
+            readEnterprises();
+        }
+    }).catch(err => console.log(err));
+}
+//------Borrar una empresa
+function deleteEnterprise(rm) {
+    let selectEnterpriseRM = document.getElementById('selectEnterprise' + rm);
+    if (confirm('¿Esta usted seguro?')) {
+        let id_empp = selectEnterpriseRM.value;
+        let formData = new FormData();
+        formData.append('deleteEnterpriseP', id_empp);
+        fetch('../controladores/clientes.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            alert(data);
+            readEnterprises();
+        }).catch(err => console.log(err));
+    }
+}
+//<<------------------------ABRIR Y CERRAR VENTANAS MODALES--------------------------------->>
+//-----------------------------------Ventana modal para empresa---------------------------------//
+const enterprisesRMW = document.getElementById('enterprisesRMW');
+const enterprisesMMW = document.getElementById('enterprisesMMW');
+const closEEnterprisesRMW = document.getElementById('closEEnterprisesRMW');
+const closEEnterprisesMMW = document.getElementById('closEEnterprisesMMW');
+function openEnterprisesRMW() {
+    enterprisesRMW.classList.add('modal__show');
+}
+closeEnterprisesRMW.addEventListener('click', () => {
+    enterprisesRMW.classList.remove('modal__show');
+});
+closeEnterprisesMMW.addEventListener('click', () => {
+    enterprisesMMW.classList.remove('modal__show');
 });
 
 
@@ -265,22 +396,6 @@ closeCmp_prodRMW.addEventListener('click', (e) => {
 
 
 
-
-const buyRMW = document.getElementById('buyRMW');
-const buyMMW = document.getElementById('buyMMW');
-
-
-
-
-
-
-
-//-----------------------------------FECHA----------------------------------------------------
-/*let hoy = new Date();
-let dia = hoy.getDate();
-let mes = hoy.getMonth() + 1;
-let year = hoy.getFullYear();
-onlyYear = year % 100;*/
 
 //<<---------------------------------------------------------TABLA DE COMPRA------------------------------------------>>
 let buys = {};
@@ -297,6 +412,379 @@ function readBuys() {
         filterBuys = buys;
     }).catch(err => console.log(err));
 }
+//<<------------------------ABRIR Y CERRAR MODALES DE  COMPRA--------------------------------->>
+const closeBuyRMW = document.getElementById('closeBuyRMW');
+const closeBuyMMW = document.getElementById('closeBuyMMW');
+const openBuyRMW = document.getElementById('openBuyRMW');
+const openBuyMMW = document.getElementById('openBuyMMW');
+openBuyRMW.addEventListener('click', () => {
+    buyRMW.classList.add('modal__show');
+    const fechaHoy = new Date();
+    const fechaCorta = fechaHoy.toISOString().slice(0, 10);
+    document.getElementsByName('fecha_cmpR')[0].value = fechaCorta;
+});
+closeBuyRMW.addEventListener('click', () => {
+    buyRMW.classList.remove('modal__show');
+});
+closeBuyMMW.addEventListener('click', () => {
+    buyMMW.classList.remove('modal__show');
+});
+
+//<<-------------------------------------MODAL DE PRODUCTS PARA COMPRAR-------------------------------------------->>
+const closeCmp_prodRMW = document.getElementById('closeCmp_prodRMW');
+const cmp_prodRMW = document.getElementById('cmp_prodRMW');
+function openCmp_prodRMW() {
+    cmp_prodRMW.classList.add('modal__show');
+}
+closeCmp_prodRMW.addEventListener('click', (e) => {
+    cmp_prodRMW.classList.remove('modal__show');
+});
+
+
+
+//------------------------------------------------TABLA MODAL PRODUCTS--------------------------------------------------
+let products = {};
+filterProductsMW = {};
+readProducts();
+function readProducts() {
+    let formData = new FormData();
+    formData.append('readProducts', '');
+    fetch('../controladores/productos.php', {
+        method: "POST",
+        body: formData
+    }).then(response => response.json()).then(data => {
+        products = JSON.parse(JSON.stringify(data));
+        filterProductsMW = products;
+        paginacionProductMW(Object.values(filterProductsMW).length, 1);
+    }).catch(err => console.log(err));
+}
+//------Select utilizado para buscar por columnas
+const selectSearchProdMW = document.getElementById('selectSearchProdMW');
+selectSearchProdMW.addEventListener('change', searchProductsMW);
+//------buscar por input
+const inputSearchProdMW = document.getElementById("inputSearchProdMW");
+inputSearchProdMW.addEventListener("keyup", searchProductsMW);
+//------Clientes por pagina
+const selectNumberProdMW = document.getElementById('selectNumberProdMW');
+selectNumberProdMW.selectedIndex = 3;
+selectNumberProdMW.addEventListener('change', function () {
+    paginacionProductMW(Object.values(filterProductsMW).length, 1);
+});
+//-------Marca y categoria
+const selectMarcaProdMW = document.getElementById('selectMarcaProdMW');
+selectMarcaProdMW.addEventListener('change', selectCategoriaProductMW);
+const selectCategoriaProdMW = document.getElementById('selectCategoriaProdMW');
+selectCategoriaProdMW.addEventListener('change', searchProductsMW);
+//------buscar por:
+function searchProductsMW() {
+    filterProductsMW = {};
+    for (let product in productsMW) {
+        for (let valor in productsMW[product]) {
+            if (selectSearchProdMW.value == 'todas') {
+                if (valor == 'codigo_prod' || valor == 'nombre_prod' || valor == 'descripcion_prod') {
+                    if (productsMW[product][valor].toLowerCase().indexOf(inputSearchProdMW.value.toLowerCase()) >= 0) {
+                        filterProductsMW[product] = productsMW[product];
+                        break;
+                    }
+                }
+            } else {
+                if (valor == selectSearchProdMW.value) {
+                    if (productsMW[product][valor].toLowerCase().indexOf(inputSearchProdMW.value.toLowerCase()) >= 0) {
+                        filterProductsMW[product] = productsMW[product];
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    selectProductsMW();
+}
+//------buscar por marca y categoria:
+function selectProductsMW() {
+    if (selectMarcaProdMW.value == 'todasLasMarcas' && selectCategoriaProdMW.value == 'todasLasCategorias') {
+        paginacionProductMW(Object.values(filterProductsMW).length, 1);
+    } else {
+        for (let product in filterProductsMW) {
+            for (let valor in filterProductsMW[product]) {
+                if (selectMarcaProdMW.value == 'todasLasMarcas') {
+                    if (filterProductsMW[product]['id_ctgr'] != selectCategoriaProdMW.value) {
+                        delete filterProductsMW[product];
+                        break;
+                    }
+                } else if (selectCategoriaProdMW.value == 'todasLasCategorias') {
+                    if (filterProductsMW[product]['id_mrc'] != selectMarcaProdMW.value) {
+                        delete filterProductsMW[product];
+                        break;
+                    }
+                } else {
+                    if (filterProductsMW[product]['id_ctgr'] != selectCategoriaProdMW.value || filterProductsMW[product]['id_mrc'] != selectMarcaProdMW.value) {
+                        delete filterProductsMW[product];
+                        break;
+                    }
+                }
+            }
+        }
+        paginacionProductMW(Object.values(filterProductsMW).length, 1);
+    }
+}
+//------Ordenar tabla descendente ascendente
+let orderProducts = document.querySelectorAll('.tbody__head--ProdMW');
+orderProducts.forEach(div => {
+    div.children[0].addEventListener('click', function () {
+        let array = Object.entries(filterProductsMW).sort((a, b) => {
+            let first = a[1][div.children[0].name].toLowerCase();
+            let second = b[1][div.children[0].name].toLowerCase();
+            if (first < second) { return -1 }
+            if (first > second) { return 1 }
+            return 0;
+        })
+        filterProductsMW = Object.fromEntries(array);
+        paginacionProductMW(Object.values(filterProductsMW).length, 1);
+    });
+    div.children[1].addEventListener('click', function () {
+        let array = Object.entries(filterProductsMW).sort((a, b) => {
+            let first = a[1][div.children[0].name].toLowerCase();
+            let second = b[1][div.children[0].name].toLowerCase();
+            if (first > second) { return -1 }
+            if (first < second) { return 1 }
+            return 0;
+        })
+        filterProductsMW = Object.fromEntries(array);
+        paginacionProductMW(Object.values(filterProductsMW).length, 1);
+    });
+})
+//------PaginacionProductMW
+function paginacionProductMW(allProducts, page) {
+    let numberProducts = Number(selectNumberProdMW.value);
+    let allPages = Math.ceil(allProducts / numberProducts);
+    let ul = document.querySelector('#wrapperProductMW ul');
+    let li = '';
+    let beforePages = page - 1;
+    let afterPages = page + 1;
+    let liActive;
+    if (page > 1) {
+        li += `<li class="btn" onclick="paginacionProductMW(${allProducts}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
+    }
+    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
+        if (pageLength > allPages) {
+            continue;
+        }
+        if (pageLength == 0) {
+            pageLength = pageLength + 1;
+        }
+        if (page == pageLength) {
+            liActive = 'active';
+        } else {
+            liActive = '';
+        }
+        li += `<li class="numb ${liActive}" onclick="paginacionProductMW(${allProducts}, ${pageLength})"><span>${pageLength}</span></li>`;
+    }
+    if (page < allPages) {
+        li += `<li class="btn" onclick="paginacionProductMW(${allProducts}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
+    }
+    ul.innerHTML = li;
+    let h2 = document.querySelector('#showPageProductMW h2');
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${allProducts} Productos`;
+    tableProductsMW(page);
+}
+//------Crear la tabla
+function tableProductsMW(page) {
+    let tbody = document.getElementById('tbodyProductMW');
+    inicio = (page - 1) * Number(selectNumberProdMW.value);
+    final = inicio + Number(selectNumberProdMW.value);
+    i = 1;
+    tbody.innerHTML = '';
+    for (let product in filterProductsMW) {
+        if (i > inicio && i <= final) {
+            let tr = document.createElement('tr');
+            for (let valor in filterProductsMW[product]) {
+                let td = document.createElement('td');
+                if (valor == 'id_prod') {
+                    td.innerText = filterProductsMW[product][valor];
+                    td.setAttribute('hidden', '');
+                    tr.appendChild(td);
+                    td = document.createElement('td');
+                    td.innerText = i;
+                    tr.appendChild(td);
+                    i++;
+                } else if (valor == 'id_mrc') {
+                } else if (valor == 'id_ctgr') {
+                } else if (valor == 'imagen_prod') {
+                    let img = document.createElement('img');
+                    img.classList.add('tbody__img');
+                    img.setAttribute('src', '../modelos/imagenes/' + filterProductsMW[product][valor]);
+                    td.appendChild(img);
+                    tr.appendChild(td);
+                } else {
+                    td.innerText = filterProductsMW[product][valor];
+                    tr.appendChild(td);
+                }
+            }
+            let td = document.createElement('td');
+            td.innerHTML = `
+        <img src='../imagenes/send.svg' onclick='sendProduct(this.parentNode.parentNode)'>`;
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+        } else {
+            i++;
+        }
+    }
+}
+function sendProduct(tr) {
+    let id_prod = tr.children[0].innerText;
+    for (let product in filterProductsMW) {
+        if (filterProductsMW[product]['id_prod'] == id_prod) {
+            let prof_prods = modalProf_prod.querySelectorAll('.cart-item');
+            let i = 0;
+            prof_prods.forEach(prod => {
+                let codigo = prod.children[2].innerText;
+                if (codigo == filterProductsMW[product]['codigo_prod']) {
+                    i++;
+                }
+            })
+            if (i == 0) {
+                cartProduct_pfpd(filterProductsMW[product]);
+            } else {
+                alert("El producto ya se encuentra en la lista");
+            }
+        }
+    }
+}
+//---------------------------VENTANA MODAL PARA BUSCAR PRODUCTOS
+const productSMW = document.getElementById('productSMW');
+const closeProductSMW = document.getElementById('closeProductSMW');
+function openProductSMW() {
+    productSMW.classList.add('modal__show');
+}
+closeProductSMW.addEventListener('click', () => {
+    productSMW.classList.remove('modal__show');
+});
+/*----------------------------------------------Marca y categoria  modal product-------------------------------------------------*/
+/*-----------------------------------------Marca y categoria producto-------------------------------------------------*/
+//-------Read all Marcas
+let marcas = {};
+readAllMarcas();
+function readAllMarcas() {
+    let formData = new FormData();
+    formData.append('readMarcas', '');
+    fetch('../controladores/productos.php', {
+        method: "POST",
+        body: formData
+    }).then(response => response.json()).then(data => {
+        marcas = JSON.parse(JSON.stringify(data));
+        selectMarcaProductMW();
+    }).catch(err => console.log(err));
+}
+//-------Read all categorias
+let categorias = {};
+readAllCategorias();
+function readAllCategorias() {
+    let formData = new FormData();
+    formData.append('readCategorias', '');
+    fetch('../controladores/productos.php', {
+        method: "POST",
+        body: formData
+    }).then(response => response.json()).then(data => {
+        categorias = JSON.parse(JSON.stringify(data));
+    }).catch(err => console.log(err));
+}
+//-------Select de marcas
+function selectMarcaProductMW() {
+    selectMarcaProdMW.innerHTML = '';
+    let option = document.createElement('option');
+    option.value = 'todasLasMarcas';
+    option.innerText = 'Todas las marcas';
+    selectMarcaProdMW.appendChild(option);
+    for (let clave in marcas) {
+        let option = document.createElement('option');
+        option.value = marcas[clave]['id_mrc'];
+        option.innerText = marcas[clave]['nombre_mrc'];
+        selectMarcaProdMW.appendChild(option);
+    }
+}
+//------Select categorias
+function selectCategoriaProductMW() {
+    selectCategoriaProdMW.innerHTML = '';
+    let option = document.createElement('option');
+    option.value = 'todasLasCategorias';
+    option.innerText = 'Todas las categorias';
+    selectCategoriaProdMW.appendChild(option);
+    if (selectMarcaProdMW.value != 'todasLasMarcas') {
+        let id_mrc = selectMarcaProdMW.value;
+        for (let clave in categorias) {
+            if (categorias[clave]['id_mrc'] == id_mrc) {
+                let option = document.createElement('option');
+                option.value = categorias[clave]['id_ctgr'];
+                option.innerText = categorias[clave]['nombre_ctgr'];
+                selectCategoriaProdMW.appendChild(option);
+            }
+        }
+    }
+    searchProductsMW();
+}
+//---------------------------------------------------CRUD PRODUCTOS----------------------------------------------------------------
+//------Create un producto
+document.getElementById("formProductsR").addEventListener("submit", createProduct);
+function createProduct() {
+    event.preventDefault();
+    if (marca_prodR.value == "todasLasMarcas") {
+        alert("Debe seleccionar una marca");
+    } else if (categoria_prodR.value == "todasLasCategorias") {
+        alert("Debe seleccionar una categoria");
+    } else {
+        productsRMW.classList.remove('modal__show');
+        let form = document.getElementById("formProductsR");
+        let formData = new FormData(form);
+        formData.append('createProduct', '');
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            if (data == "El codigo ya existe") {
+                alert(data);
+            } else {
+                alert("El producto fue creado con éxito");
+                readProducts();
+                cleanUpProductFormR();
+            }
+        }).catch(err => console.log(err));
+    }
+}
+//---------------------------------VENTANA MODAL PARA REGISTRAR PRODUCTOS------------------------------>>
+const productsRMW = document.getElementById('productsRMW');
+const closeProductsRMW = document.getElementById('closeProductsRMW');
+function openProductsRMW() {
+    productsRMW.classList.add('modal__show');
+}
+closeProductsRMW.addEventListener('click', (e) => {
+    productsRMW.classList.remove('modal__show');
+});
+
+
+
+/*
+
+
+const buyRMW = document.getElementById('buyRMW');
+const buyMMW = document.getElementById('buyMMW');*/
+
+
+
+
+
+
+
+
+
+
+
+//-----------------------------------FECHA----------------------------------------------------
+/*let hoy = new Date();
+let dia = hoy.getDate();
+let mes = hoy.getMonth() + 1;
+let year = hoy.getFullYear();
+onlyYear = year % 100;*/
+
 
 
 
@@ -325,7 +813,7 @@ function readAllBuy() {
         method: "POST",
         body: formData
     }).then(response => response.json()).then(data => {
-        compras = JSON.parse(JSON.stringify(data)); 
+        compras = JSON.parse(JSON.stringify(data));
         totalCompras = Object.values(data).length;
         allPages = Math.ceil(totalCompras / comprasPorPagina);
         paginacionCompra(allPages, globalPageBuy, totalCompras);
@@ -705,19 +1193,6 @@ function totalPaginasEmpresa(page, totalEmpresas) {
 
 //<<---------------------------------------TABLA MODAL EMPRESA--------------------------------------->>
 /*
-let suppliers = {};
-readEnterprises();
-function readSuppliers(){
-    let formData = new FormData();
-    formData.append('readSuppliers', '');
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        suppliers = JSON.parse(JSON.stringify(data));
-    }).catch(err => console.log(err));
-    fillSelectSupplier(selectSupplierR, 0);
-}
 
 
 function fillSelectSupplier(select, index) {
@@ -776,31 +1251,6 @@ let Proveedores = {};
 
 
 
-/*
-const selectEnterpriseR = document.getElementsByName('fk_id_emp_clteR')[0];
-const selectEnterpriseM = document.getElementsByName('fk_id_emp_clteM')[0];
-let enterprises = {};
-let filterEnterprises = {};
-let indexEnterprise = 0;
-let formEnterprise;
-readEnterprises();
-function readEnterprises() {
-    let formData = new FormData();
-    formData.append('readEnterprises', '');
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        enterprises = data;
-        filterEnterprises = data;
-        paginacionEnterpriseMW(Object.values(filterEnterprises).length, 1);
-        fillSelectEmp(selectEnterpriseR, indexEnterprise);
-        fillSelectEmp(selectEnterpriseM, indexEnterprise);
-    }).catch(err => console.log(err));
-}*/
-
-
-
 
 
 /*
@@ -808,65 +1258,12 @@ function readEnterprises() {
 
 
 
-listSelectEnterprise(selectEnterpriseR, 'R', 0);
-function listSelectEnterprise(select, rm, index) {
-    let formData = new FormData();
-    formData.append('readEnterpriseP', '');
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        select.innerHTML = '';
-        for (let clave in data) {
-            let option = document.createElement('option');
-            option.value = data[clave]['id_empp'];
-            option.innerText = data[clave]['nombre_empp'];
-            select.appendChild(option);
-        }
-        let options = select.querySelectorAll('option');
-        options.forEach(option => {
-            if (option.value == index) {
-                select.value = index;
-            }
-        })
-        //LLenas con solo los clientes que tiene la empresa
-        let selectSupplier = document.getElementById('selectSupplier' + rm);
-        fillSelectSupplier(selectSupplier, select.value, rm);
-    }).catch(err => console.log(err));
-}
-let SelectSupplierR = document.getElementById('selectSupplierR');
-let SelectSupplierM = document.getElementById('selectSupplierM');
-//---------LLENAR EL Proveedor AL CAMBIAR LA EMPRESA
-selectEnterpriseR.addEventListener('change', function () {
-    fillSelectSupplier(SelectSupplierR, selectEnterpriseR.value, 0);;
-});
-selectEnterpriseM.addEventListener('change', function () {
-    fillSelectSupplier(SelectSupplierM, selectEnterpriseM.value, 0);
-});
 
 //<<---------------------------------LLENAR LA LISTA DE PROVEEDORS-------------------------------------->>
 //-------LLENAR LA LISTA DE Proveedores
 
 
-//<<-----------------------------------------CRUD PROVEEDOR----------------------------------------->>
-//------Create a supplier
-const formSupplierR = document.getElementById('formSupplierR');
-formSupplierR.addEventListener('submit', createSupplier);
-function createSupplier() {
-    event.preventDefault();
-    let formData = new FormData(formSupplierR);
-    formData.append('createSupplier', '');
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.text()).then(data => {
-        supplierRMW.classList.remove('modal__show');
-        const inputsR = document.querySelectorAll('#formSupplierR .form__group input');
-        inputsR.forEach(input => { input.value = '' })
-        fillSelectSupplier(selectSupplierR, selectEnterpriseR.value, 0);
-        fillSelectSupplier(selectSupplierM, selectEnterpriseR.value, 0);
-    }).catch(err => console.log(err));
-}
+
 //------Llenar la empresa del cliente en el formulario de registrar nuevo cliente
 function enterpriseOfCustomer(rm) {
     let selectEnterpriseR2 = document.getElementById('selectEnterpriseR2');
@@ -884,213 +1281,9 @@ function enterpriseOfCustomer(rm) {
     option2.innerText = valor;
     selectEnterpriseR2.appendChild(option2);
 }
-//------Read a supplier
-function readSupplier(rm) {
-    let selectSupplierRM = document.getElementById('selectSupplier' + rm);
-    let id = selectSupplierRM.value;
-    if (id != 0) {
-        supplierMMW.classList.add('modal__show');
-        let formData = new FormData();
-        formData.append('readASupplier', id);
-        fetch('../controladores/clientes.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.json()).then(data => {
-            const selectM = document.getElementById('selectEnterpriseM2');
-            const inputsM = document.querySelectorAll('#formSupplierM .form__group input');
-            let i = 0;
-            for (let clave in data) {
-                if (i == 4) {
-                    selectM.innerHTML = '';
-                    let option = document.createElement('option');
-                    option.value = clave - 0;
-                    option.innerText = data[clave];
-                    selectM.appendChild(option);
-                } else {
-                    inputsM[i].value = data[clave];
-                }
-                i++;
-            }
-        }).catch(err => console.log(err));
-    }
-}
-//------Update a supplier
-const formClienteM = document.getElementById('formSupplierM');
-formSupplierM.addEventListener('submit', updateSupplier);
-function updateSupplier() {
-    event.preventDefault();
-    let id_prov = document.getElementsByName('id_provM')[0].value;
-    let formData = new FormData(formClienteM);
-    formData.append('updateSupplier', id_prov);
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.text()).then(data => {
-        console.log(data);
-        supplierMMW.classList.remove('modal__show');
-        const inputsM = document.querySelectorAll('#formSupplierM .form__group input');
-        inputsM.forEach(input => { input.value = '' })
-        fillSelectSupplier(selectSupplierR, selectEnterpriseR.value, selectSupplierR.value);
-        fillSelectSupplier(selectSupplierM, selectEnterpriseR.value, selectSupplierR.value);
-    }).catch(err => console.log(err));
-}
-//------Delete a supplier
-function deleteSupplier(rm) {
-    let selectSupplierRM = document.getElementById('selectSupplier' + rm);
-    if (confirm('¿Esta usted seguro?')) {
-        let id = selectSupplierRM.value;
-        let formData = new FormData();
-        formData.append('deleteSupplier', id);
-        fetch('../controladores/clientes.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            fillSelectSupplier(selectSupplierR, selectEnterpriseR.value, 0);
-            fillSelectSupplier(selectSupplierM, selectEnterpriseR.value, 0);
-        }).catch(err => console.log(err));
-    }
-}
-//<<-------------------------------------------MODAL PROVEEDOR---------------------------------------->>
-const supplierRMW = document.getElementById('supplierRMW');
-const supplierMMW = document.getElementById('supplierMMW');
-const closeSupplierRMW = document.getElementById('closeSupplierRMW');
-const closeSupplierMMW = document.getElementById('closeSupplierMMW');
-function openSupplierRMW() {
-    supplierRMW.classList.add('modal__show');
-    enterpriseOfCustomer(claveSendSupplier);
-}
-closeSupplierRMW.addEventListener('click', () => {
-    supplierRMW.classList.remove('modal__show');
-});
-closeSupplierMMW.addEventListener('click', () => {
-    supplierMMW.classList.remove('modal__show');
-});
 
 
 
-
-
-
-//<<------------------------------------------------CRUD EMPRESA------------------------------->>
-//------Craer una empresa
-const formEmpresaR = document.getElementById('formEmpresaR');
-formEmpresaR.addEventListener('submit', createEnterprise);
-function createEnterprise() {
-    event.preventDefault();
-    enterprisesRMW.classList.remove('modal__show');
-    let formData = new FormData(formEmpresaR);
-    formData.append('createEnterpriseP', '');
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.text()).then(data => {
-        alert(data);
-        //Limpiar el formulario de registrar empresa
-        let inputs = document.querySelectorAll('#formEmpresaR input.form__input');
-        inputs.forEach(input => input.value = '');
-        //En select escribir las empresas
-        listSelectEnterprise(selectEnterpriseR, 'R', 0);
-        //listSelectEnterprise(selectEnterpriseM, 'M', 0);
-        initialPageSelectEmp();
-
-    }).catch(err => console.log(err));
-}
-//------Leer una empresa
-function readEnterprise(rm) {
-    let selectEnterpriseRM = document.getElementById('selectEnterprise' + rm);
-    let id_empp = selectEnterpriseRM.value;
-    for (let empresa in empresas) {
-        if (empresas[empresa]['id_empp'] == id_empp) {
-            for (let valor in empresas[empresa]) {
-                console.log(valor)
-                if (valor == 'nombre_emp') {
-                } else {
-                    document.getElementsByName(valor + 'M')[0].value = empresas[empresa][valor];
-                }
-            }
-            break;
-        }
-    }
-    enterprisesMMW.classList.add('modal__show');
-
-
-
-
-
-    /*let selectEnterpriseRM = document.getElementById('selectEnterprise' + rm);
-    let id_empp = selectEnterpriseRM.value;
-    let formData = new FormData();
-    formData.append('readEnterpriseP', '');
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        for (let clave in data) {
-            if (data[clave]['id_empp'] == id_empp) {
-                let inputs = document.querySelectorAll('#formEmpresaM input.form__input');
-                inputs.forEach(input => input.value = data[clave][input.name]);
-            }
-        }
-        enterprisesMMW.classList.add('modal__show');
-    }).catch(err => console.log(err));
-}*/
-//------Actualizar una empresa
-/*let formEmpresaM = document.getElementById('formEmpresaM');
-formEmpresaM.addEventListener('submit', updateEnterprise);
-function updateEnterprise() {
-    event.preventDefault();
-    let formData = new FormData(formEmpresaM);
-    formData.append('updateEnterpriseP', '');
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.text()).then(data => {
-        if (data == 'modificado') {
-            enterprisesMMW.classList.remove('modal__show');
-            listSelectEnterprise(selectEnterpriseR, 'R', selectEnterpriseR.value);
-            //listSelectEnterprise(selectEnterpriseM, 'M', selectEnterpriseM.value);
-            initialPageSelectEmp();
-        } else {
-            alert(data);
-        }
-    }).catch(err => console.log(err));
-}
-//------Borrar una empresa
-function deleteEnterprise(rm) {
-    let selectEnterpriseRM = document.getElementById('selectEnterprise' + rm);
-    if (confirm('¿Esta usted seguro?')) {
-        let id_empp = selectEnterpriseRM.value;
-        let formData = new FormData();
-        formData.append('deleteEnterpriseP', id_empp);
-        fetch('../controladores/clientes.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            if (data != 'Eliminado') {
-                alert(data);
-            } else {
-                listSelectEnterprise(selectEnterpriseR, 'R', 0);
-                //listSelectEnterprise(selectEnterpriseM, 'M', 0);
-                initialPageSelectEmp();
-            }
-        }).catch(err => console.log(err));
-    }
-}
-//<<------------------------ABRIR Y CERRAR VENTANAS MODALES--------------------------------->>
-//-----------------------------------Ventana modal para empresa---------------------------------//
-const enterprisesRMW = document.getElementById('enterprisesRMW');
-const enterprisesMMW = document.getElementById('enterprisesMMW');
-const closEEnterprisesRMW = document.getElementById('closEEnterprisesRMW');
-const closEEnterprisesMMW = document.getElementById('closEEnterprisesMMW');
-function openEnterprisesRMW() {
-    enterprisesRMW.classList.add('modal__show');
-}
-closeEnterprisesRMW.addEventListener('click', () => {
-    enterprisesRMW.classList.remove('modal__show');
-});
-closeEnterprisesMMW.addEventListener('click', () => {
-    enterprisesMMW.classList.remove('modal__show');
-});
 
 
 
@@ -1156,7 +1349,7 @@ function espacioObligatorioInvMW() {
     //paginas por producto
     document.getElementById('inventoryForPageMW').selectedIndex = 3;
 }
-//-------Mostrar tabla 
+//-------Mostrar tabla
 let selectSearchInvenMW = document.getElementById('selectSearchInvenMW');
 selectSearchInvenMW.addEventListener('change', pageOneInvMW);
 function pageOneInvMW() {
@@ -1234,7 +1427,7 @@ function readAllInventoryMW() {
         inventarioMW = data;
         totalInventarioMW = Object.values(data).length;
         allPages = Math.ceil(totalInventarioMW/invPorPaginaMW);
-        paginacionInventarioMW(allPages,globalPageInvMW,totalInventarioMW);   
+        paginacionInventarioMW(allPages,globalPageInvMW,totalInventarioMW);
     }).catch(err => console.log(err));
 }*/
 //<<----------------------------------PAGINACION Inventario-------------------------------------------->>
@@ -1446,15 +1639,6 @@ function removeProduct(product, rm) {
     document.getElementById('count_cppd' + rm).innerHTML = itemProduct.length;
 }
 
-//---------------------------ventana modal para buscar inventario
-const inventorySMW = document.getElementById('inventorySMW');
-const closeInventorySMW = document.getElementById('closeInventorySMW');
-function openInventorySMW() {
-    inventorySMW.classList.add('modal__show');
-}
-closeInventorySMW.addEventListener('click', () => {
-    inventorySMW.classList.remove('modal__show');
-});
 
 /*----------------------------------------------Marca y categoria-------------------------------------------------*/
 //-------registrar Marca

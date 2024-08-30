@@ -48,16 +48,10 @@ if (isset($_POST['readSuppliers'])){
 	$readSuppliers = new consultas;
 	$readSuppliers->readSuppliers();
 }
-
-
 if (isset($_POST['createSupplier'])) {
 	$createSupplier = new consultas;
 	$createSupplier->asignarValoresPR();
 	$createSupplier->createSupplier();
-}
-if (isset($_POST['readASupplier'])) {
-	$readASupplier = new consultas;
-	$readASupplier->readASupplier($_POST['readASupplier']);
 }
 if (isset($_POST['updateSupplier'])) {
 	$updateSupplier = new consultas;
@@ -80,11 +74,6 @@ if (isset($_POST['readEnterprisesP'])) {
 	$readEnterprisesP = new consultas;
 	$readEnterprisesP->readEnterprisesP();
 }
-
-
-
-
-
 if (isset($_POST['createEnterpriseP'])) {
 	$registrarEmpresa = new consultas;
 	$registrarEmpresa->asignarValoresREP();
@@ -99,6 +88,4 @@ if (isset($_POST['deleteEnterpriseP'])) {
 	$deleteEmpresa = new consultas;
 	$deleteEmpresa->deleteEnterpriseP($_POST['deleteEnterpriseP']);
 }
-
-
 ?>
