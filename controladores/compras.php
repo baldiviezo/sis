@@ -1,16 +1,20 @@
 <?php 
 require '../modelos/consultasDeCompras.php';
+//-------read buys
+if (isset($_POST['readBuys'])) {
+	$readBuy = new Consultas;
+	$readBuy->readBuys();
+}
 //------Registrar Compra
 if (isset($_POST['createBuy'])) {
 	$createBuy = new Consultas;
-	$createBuy->asignarValores();
+	$createBuy->asignarValores($_POST['id_usua']);
 	$createBuy->createBuy($_POST['createBuy']);
 }
-//-------lee todas las Compras
-if (isset($_POST['readBuy'])) {
-	$readBuy = new Consultas;
-	$readBuy->readBuy();
-}
+
+
+
+
 //-------lee una Buy
 if (isset($_POST['readABuy'])) {
 	$readABuy = new Consultas;

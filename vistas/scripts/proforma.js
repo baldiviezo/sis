@@ -489,7 +489,7 @@ function readProformas() {
     }).then(response => response.json()).then(data => {
         proformas = JSON.parse(JSON.stringify(data));
         filterProformas = proformas;
-        paginacionProforma(Object.values(filterProformas).length, 1);
+        paginacionProforma(Object.values(proformas).length, 1);
     }).catch(err => console.log(err));
 }
 //------Select utilizado para buscar por columnas
@@ -578,29 +578,33 @@ function selectStateProformas() {
 //------Ordenar tabla descendente ascendente
 let orderProforma = document.querySelectorAll('.tbody__head--proforma');
 orderProforma.forEach(div => {
-    div.children[0].addEventListener('click', function () {
-        let array = Object.entries(filterProformas).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
-            if (first < second) { return -1 }
-            if (first > second) { return 1 }
-            return 0;
-        })
-        filterProformas = Object.fromEntries(array);
-        paginacionProforma(Object.values(filterProformas).length, 1);
+  div.children[0].addEventListener('click', function () {
+    let array = Object.entries(filterProformas).sort((a, b) => {
+      let first = a[1][div.children[0].name];
+      let second = b[1][div.children[0].name];
+      if (typeof first === 'number' && typeof second === 'number') {
+        return first - second;
+      } else {
+        return String(first).localeCompare(String(second));
+      }
     });
-    div.children[1].addEventListener('click', function () {
-        let array = Object.entries(filterProformas).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
-            if (first > second) { return -1 }
-            if (first < second) { return 1 }
-            return 0;
-        })
-        filterProformas = Object.fromEntries(array);
-        paginacionProforma(Object.values(filterProformas).length, 1);
+    filterProformas = Object.fromEntries(array);
+    paginacionProforma(Object.values(filterProformas).length, 1);
+  });
+  div.children[1].addEventListener('click', function () {
+    let array = Object.entries(filterProformas).sort((a, b) => {
+      let first = a[1][div.children[0].name];
+      let second = b[1][div.children[0].name];
+      if (typeof first === 'number' && typeof second === 'number') {
+        return second - first;
+      } else {
+        return String(second).localeCompare(String(first));
+      }
     });
-})
+    filterProformas = Object.fromEntries(array);
+    paginacionProforma(Object.values(filterProformas).length, 1);
+  });
+});
 //------PaginacionProforma
 function paginacionProforma(allProducts, page) {
     let numberProducts = Number(selectNumberProf.value);
@@ -2075,19 +2079,19 @@ selectCategoriaProdMW.addEventListener('change', searchProductsMW);
 //------buscar por:
 function searchProductsMW() {
     filterProductsMW = {};
-    for (let product in productsMW) {
-        for (let valor in productsMW[product]) {
+    for (let product in products) {
+        for (let valor in products[product]) {
             if (selectSearchProdMW.value == 'todas') {
                 if (valor == 'codigo_prod' || valor == 'nombre_prod' || valor == 'descripcion_prod') {
-                    if (productsMW[product][valor].toLowerCase().indexOf(inputSearchProdMW.value.toLowerCase()) >= 0) {
-                        filterProductsMW[product] = productsMW[product];
+                    if (products[product][valor].toLowerCase().indexOf(inputSearchProdMW.value.toLowerCase()) >= 0) {
+                        filterProductsMW[product] = products[product];
                         break;
                     }
                 }
             } else {
                 if (valor == selectSearchProdMW.value) {
-                    if (productsMW[product][valor].toLowerCase().indexOf(inputSearchProdMW.value.toLowerCase()) >= 0) {
-                        filterProductsMW[product] = productsMW[product];
+                    if (products[product][valor].toLowerCase().indexOf(inputSearchProdMW.value.toLowerCase()) >= 0) {
+                        filterProductsMW[product] = products[product];
                         break;
                     }
                 }

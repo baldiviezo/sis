@@ -1,12 +1,15 @@
 <?php
 class Consultas{
-	 public function asignarValores (){
+	 public function asignarValores ($id_usua){
 		//protegemos al servidor de los valores que el usuario esta introduciendo
 		include 'conexion.php';
-		$this->id_prov = $conexion->real_escape_string($_POST['fk_id_prov_cmpR']);
-		$this->fecha_cmp = $conexion->real_escape_string($_POST['fecha_cmpR']);//para volverlo en integer
-        $this->factura_cmp = $conexion->real_escape_string($_POST['factura_cmpR']);
-		$this->descripcion_cmp = $conexion->real_escape_string($_POST['descripcion_cmpR']);
+		$this->fecha_cmp = $conexion->real_escape_string($_POST['fecha_cmpR']);
+		$this->forma_pago_cmp = $conexion->real_escape_string($_POST['forma_pago_cmpR']);
+		$this->tpo_entrega_cmp = $conexion->real_escape_string($_POST['tpo_entrega_cmpR']);
+		$this->fk_id_prov_cmp = $conexion->real_escape_string($_POST['fk_id_prov_cmpR']);
+		$this->encargado = $id_usua;
+		$this->total_cmp = $conexion->real_escape_string($_POST['total_cmpR']);
+		$this->observacion_cmp = $conexion->real_escape_string($_POST['observacion_cmpR']);
 	}
 	public function asignarValoresM (){
 		//protegemos al servidor de los valores que el usuario esta introduciendo
@@ -17,100 +20,60 @@ class Consultas{
         $this->factura_cmp = $conexion->real_escape_string($_POST['factura_cmpM']);
 		$this->descripcion_cmp = $conexion->real_escape_string($_POST['descripcion_cmpM']);
 	}
+	 //------Read buys
+	public function readBuys(){
+		include 'conexion.php';
+		$consulta = "SELECT * FROM compra INNER JOIN proveedor ON compra.fk_id_prov_cmp = id_prov INNER JOIN empresa_prov ON proveedor.fk_id_empp_prov = id_empp INNER JOIN usuario ON compra.fk_id_usua_cmp = id_usua ORDER BY id_cmp DESC";
+		$resultado = $conexion->query($consulta);
+		$array = array();
+		while ($row = $resultado->fetch_assoc()) {
+			$buy = array('id_cmp'=>$row['id_cmp'], 'numero_cmp'=>$row['numero_cmp'], 'fecha_cmp'=>$row['fecha_cmp'], 'fk_id_usua_cmp'=>$row['fk_id_usua_cmp'], 'nombre_usua'=>$row['nombre_usua'], 'apellido_usua'=>$row['apellido_usua'], 'id_empp'=>$row['id_empp'], 'nombre_empp'=>$row['nombre_empp'], 'fk_id_prov_cmp'=>$row['fk_id_prov_cmp'], 'nombre_prov'=>$row['nombre_prov'], 'apellido_prov'=>$row['apellido_prov'], 'total_cmp'=>$row['total_cmp'], 'forma_pago_cmp'=>$row['forma_pago_cmp'], 'tpo_entrega_cmp'=>$row['tpo_entrega_cmp'], 'estado_cmp'=>$row['estado_cmp'], 'factura_cmp'=>$row['factura_cmp'], 'fecha_entrega_cmp'=>$row['fecha_entrega_cmp'], 'observacion_cmp'=>$row['observacion_cmp']);
+			$array[$row['id_cmp'].'_id_cmp'] = $buy;
+		}
+		echo json_encode($array, JSON_UNESCAPED_UNICODE);
+	}
+
 	//------Create compra
 	public function createBuy($productos){
         include 'conexion.php';
-        $consulta = "INSERT INTO compra (fecha_cmp, factura_cmp, fk_id_prov_cmp, descripcion_cmp) VALUES ('$this->fecha_cmp' , '$this->factura_cmp', '$this->id_prov', '$this->descripcion_cmp')";
-        echo $this->id_prov;
+		$consulta = "SELECT MAX(numero_cmp) as numero_cmp_max FROM compra";
+    	$resultado = $conexion->query($consulta);
+    	$numero_cmp = $resultado->fetch_assoc();
+		$nuevo_numero_cmp = ($numero_cmp['numero_cmp_max'] == null) ? 1 : $numero_cmp['numero_cmp_max'] + 1;
+		$consulta = "INSERT INTO compra (numero_cmp, fecha_cmp, fk_id_prov_cmp, fk_id_usua_cmp, total_cmp, forma_pago_cmp, tpo_entrega_cmp, estado_cmp, observacion_cmp) VALUES ('$nuevo_numero_cmp', '$this->fecha_cmp', '$this->fk_id_prov_cmp', '$this->encargado', '$this->total_cmp', '$this->forma_pago_cmp', '$this->tpo_entrega_cmp', '0', '$this->observacion_cmp')";
 		$resultado = $conexion->query($consulta);
-		$consulta = "SELECT MAX(id_cmp) as id_cmp_max FROM compra";
-		$resultado = $conexion->query($consulta);
-		$id_cmp = $resultado->fetch_assoc();
-		$this->id_cmp = $id_cmp['id_cmp_max'];
 
-
-		$productos = json_decode($productos,true);
-		foreach($productos as $celda){
-    		$codigo = $celda['codigo'];
-    		$consulta = "SELECT * FROM producto WHERE codigo_prod='$codigo'";
-			$resultado = $conexion->query($consulta);
-			$producto = $resultado->fetch_assoc();
-			$id_prod = $producto['id_prod'];
-			//-----sumar productos
-			$consulta2 = "SELECT * FROM inventario WHERE fk_id_prod_inv='$id_prod'";
-			$resultado2 = $conexion->query($consulta2);
-			$inventario = $resultado2->fetch_assoc();
-			$cantidad_inv = $inventario['cantidad_inv'];	
-
-			$cantidad_inv = $cantidad_inv + $celda['cantidad'];
-			$consulta3 = "UPDATE inventario set cantidad_inv='$cantidad_inv' WHERE fk_id_prod_inv='$id_prod'";
-			$resultado3 = $conexion->query($consulta3);
-
-    		$cantidad = $celda['cantidad'];
-    		$consulta4 = "INSERT INTO cmp_prod (fk_id_cmp_cppd, fk_id_prod_cppd, cantidad_cppd) VALUES ('$this->id_cmp' , '$id_prod', '$cantidad')";
-			$resultado4 = $conexion->query($consulta4);
+		if ($resultado) {
+			//Obteniendo el id de la compra
+			$consulta = "SELECT MAX(id_cmp) as id_cmp_max FROM compra ";
+    		$resultado = $conexion->query($consulta);
+    		$array = $resultado->fetch_assoc();
+    		$fk_id_cmp_cppd = $array['id_cmp_max'];
+			//Insertando los productos de la compra
+			$productos = json_decode($productos,true);
+			foreach($productos as $celda){
+				//Coprobar que los productos esten creados en inventario
+				$consulta = "SELECT * FROM inventario WHERE fk_id_prod_inv = '$celda[fk_id_prod_cppd]'";
+				$resultado = $conexion->query($consulta);
+				$numero_productos = $resultado->num_rows;
+				if ($numero_productos == 0) {
+					$consulta = "INSERT INTO inventario (fk_id_prod_inv, cantidad_inv, cost_uni_inv, descripcion_inv) VALUES ('$celda[fk_id_prod_cppd]', 0, 0, '')";
+					$resultado = $conexion->query($consulta);
+				}
+				//Insertando los productos de la compra
+				$fk_id_prod_cppd = $celda['fk_id_prod_cppd'];
+				$descripcion_cppd = $celda['descripcion_cppd'];
+				$cantidad_cppd = $celda['cantidad_cppd'];
+				$cost_uni_cppd = $celda['cost_uni_cppd'];
+				$consulta = "INSERT INTO cmp_prod (fk_id_cmp_cppd, fk_id_prod_cppd, descripcion_cppd, cantidad_cppd, cost_uni_cppd) VALUES ('$fk_id_cmp_cppd' , '$fk_id_prod_cppd', '$descripcion_cppd', '$cantidad_cppd', '$cost_uni_cppd')";
+				$resultado = $conexion->query($consulta);
+			}
+			echo 'Compra registrada exitosamente';
 		}
+
     }
-    //------Read buy
-    //-------TABLA DE compraS
-	public function readBuy(){
-		include 'conexion.php';
-		$input = isset($_POST['readBuy'])?$conexion->real_escape_string($_POST['readBuy']):null;
-		//convertir String en array
-		$columnas = isset($_POST['selectSearchCompra'])?explode(',',$_POST['selectSearchCompra']):null;
-		$orderByBuy = $_POST['orderByBuy'];
-		$where = "WHERE (";
-		$numeroDeColumnas = isset($_POST['selectSearchCompra'])?count($columnas):null;
-		for ($i = 0; $i < $numeroDeColumnas; $i++) {
-			$where .= $columnas[$i] . " LIKE '%" . $input . "%' OR ";
-		}
-		//Elimina ' OR', esto por seguridad, por una inyeccion sql
-		$where = substr_replace($where, "", -3);
-		$where .= ")";
-		$consulta = "SELECT * FROM compra INNER JOIN proveedor ON compra.fk_id_prov_cmp = id_prov INNER JOIN empresa_prov ON proveedor.fk_id_empp_prov = id_empp $where ORDER BY $orderByBuy";
-		$resultado = $conexion->query($consulta);
-		$numeroproveedores = $resultado->num_rows;
-		$proveedores =  array();
-		if($numeroproveedores > 0){
-			while ($fila = $resultado->fetch_assoc()){
-				$datos = array ('id_cmp'=>$fila['id_cmp'], 'fecha_cmp'=>$fila['fecha_cmp'], 'factura_cmp'=>$fila['factura_cmp'], 'nombre_empp'=>$fila['nombre_empp'], 'telefono_empp'=>$fila['telefono_empp'], 'proveedor_prov'=>$fila['nombre_prov'].' '.$fila['apellido_prov'], 'celular_prov'=>$fila['celular_prov'], 'descripcion_cmp'=>$fila['descripcion_cmp']);
-				$proveedores[$fila['id_cmp'].'_id_cmp'] = $datos;
-			}
-			$json = json_encode($proveedores, JSON_UNESCAPED_UNICODE);
-			echo $json;
-		}else{
-			echo json_encode('');
-		}
-	}
-	//-------read a buy
-	public function readABuy($id_cmp){
-		include 'conexion.php';
-		$consulta = "SELECT * FROM compra INNER JOIN proveedor ON compra.fk_id_prov_cmp = id_prov INNER JOIN empresa_prov ON proveedor.fk_id_empp_prov = id_empp WHERE id_cmp='$id_cmp'";
-		$resultado = $conexion->query($consulta);
-		$compra = $resultado->fetch_assoc();
-		$compras =  array();
-		$datos = array ('id_cmp'=>$compra['id_cmp'], 'fecha_cmp'=>$compra['fecha_cmp'], 'factura_cmp'=>$compra['factura_cmp'], 'id_prov'=>$compra["fk_id_prov_cmp"], 'proveedor_prov'=>$compra['nombre_prov'].' '.$compra['apellido_prov'], 'id_empp'=>$compra['id_empp'], 'sigla_empp'=>$compra['sigla_empp'], 'descripcion_cmp'=>$compra['descripcion_cmp']);
-		$compras['compra'] = $datos;
-		
-
-
-		$consulta = "SELECT * FROM cmp_prod INNER JOIN compra ON cmp_prod.fk_id_cmp_cppd = id_cmp INNER JOIN producto ON cmp_prod.fk_id_prod_cppd = id_prod WHERE fk_id_cmp_cppd='$id_cmp'";
-		$resultado = $conexion->query($consulta);
-		$numeroProductos = $resultado->num_rows;
-		$productos =  array();
-		if($numeroProductos > 0){
-			$i = 0;
-			while ($fila = $resultado->fetch_assoc()){
-				$datos = array ('cantidad_cppd'=>$fila['cantidad_cppd'], 'imagen_prod'=>$fila['imagen_prod'], 'codigo_prod'=>$fila['codigo_prod'] , 'nombre_prod'=>$fila['nombre_prod']);
-				$productos[$i.'_id_prod'] = $datos;
-				$i++;
-			}
-		}
-		$compras['cmp_prod'] = $productos;
-		
-		$json = json_encode($compras, JSON_UNESCAPED_UNICODE);
-		echo $json;
-	}
+   
+	
 	//-----Update compra
 	public function updateCompra($productos){
         include 'conexion.php';

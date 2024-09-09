@@ -26,7 +26,7 @@ function readCustomers() {
         }
         customers = JSON.parse(JSON.stringify(data));
         filterCustomers = customers;
-        paginacionCustomer(Object.values(data).length, 1);
+        paginacionCustomer(Object.values(customers).length, 1);
     }).catch(err => console.log(err));
 }
 //------Select utilizado para buscar por columnas

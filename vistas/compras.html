@@ -10,7 +10,7 @@
 	<link rel="stylesheet" type="text/css" href="../css/paginacion.css">
 	<link rel="stylesheet" type="text/css" href="../css/general.css">
 	<link rel="stylesheet" type="text/css" href="../css/encabezamiento.css">
-	<link rel="stylesheet" type="text/css" href="../css/proforma.css">
+	<link rel="stylesheet" type="text/css" href="../css/buy.css">
 	<link rel="stylesheet" type="text/css" href="../css/table.css">
 	<link rel="stylesheet" type="text/css" href="../css/productModal.css">
 	<link rel="stylesheet" type="text/css" href="../css/userModal.css">
@@ -28,15 +28,12 @@
 			<img src="../imagenes/registrar.svg" id="openBuyRMW">
 			<div class="combo__search">
 				<div>
-					<select id="selectSearchCompra" class="select">
-						<option value="todas">Buscar por</option>
-						<option value="nombre_prov">Fecha</option>
-						<option value="apellido_prov">Factura</option>
-						<option value="nombre_empp">Empresa</option>
+					<select id="selectSearchBuy" class="select">
+						<option value="todas">Buscar por todo</option>
 					</select>
 				</div>
 				<div class="table__search">
-					<input type="search" id="buscarCompra" placeholder="Search Data...">
+					<input type="search" id="inputSerchBuy" placeholder="Search Data...">
 					<img src="../imagenes/search.png">
 				</div>
 			</div>
@@ -48,7 +45,7 @@
 				<div class="wrapper" id="wrapperBuy"><ul></ul></div>
 			</div>
 			<div>
-				<select id="buyForPage" class="select__number">
+				<select id="selectNumberBuy" class="select__number">
 					<option value="2">2</option>
 					<option value="4">4</option>
 					<option value="6">6</option>
@@ -62,15 +59,21 @@
 				<thead>
 					<tr>
 						<th>N°</th>
+						<th><div class="tbody__head--buy">Orden de compra <img src="../imagenes/sortA_Z.svg" name="numero_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="numero_cmp" class="icon__CRUD"></div></th>
 						<th><div class="tbody__head--buy">Fecha <img src="../imagenes/sortA_Z.svg" name="fecha_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_cmp" class="icon__CRUD"></div></th>
-						<th><div class="tbody__head--buy">Factura <img src="../imagenes/sortA_Z.svg" name="factura_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="factura_cmp" class="icon__CRUD"></div></th>
+						<th>Encargado</th>
 						<th><div class="tbody__head--buy">Empresa <img src="../imagenes/sortA_Z.svg" name="nombre_empp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_empp" class="icon__CRUD"></div></th>
 						<th>Proveedor</th>
-						<th>Descripcion</th>
+						<th>Total de compra</th>
+						<th>Forma de pago</th>
+						<th>Tiempo de entrega</th>
+						<th>Factura</th>
+						<th>Fecha de entrega</th>
+						<th>Observacion</th>
 						<th>Acciones</th>
 					</tr>
 				</thead>
-				<tbody id="tbodyCompra"></tbody>
+				<tbody id="tbodyBuy"></tbody>
 			</table>
 		</section>
 	</main>
@@ -78,20 +81,19 @@
 	<section id="buyRMW" class="modal">
 		<div class="modal__container">
 			<div class="modal__header">
-				<img src='../imagenes/carrito.svg' onclick='openCmp_prodRMW()' class="icon__CRUD">
+				<img src='../imagenes/carrito.svg' onclick='openCmp_prodMW()' class="icon__CRUD">
 				<h2 class="modal__title">Compra</h2>
 				<img src="../imagenes/salir.svg" id="closeBuyRMW" class="button__close">
 			</div>
 			<form id="formBuyR" class="form">
 				<div class="form__container">
-					<input type="text" name="id_provR" placeholder=" " class="form__input" hidden>
 					<div class="form__group">
 						<input type="text" name="fecha_cmpR"  placeholder=" " class="form__input">
 						<label for="fecha_cmpR" class="form__label">Fecha:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="form_pago_cmpR"  placeholder=" " class="form__input">
-						<label for="form_pago_cmpR" class="form__label">Forma de pago:</label>
+						<input type="text" name="forma_pago_cmpR"  placeholder=" " class="form__input">
+						<label for="forma_pago_cmpR" class="form__label">Forma de pago:</label>
 					</div>
 					<div class="form__group">
 						<input type="text" name="tpo_entrega_cmpR"  placeholder=" " class="form__input">
@@ -112,9 +114,10 @@
 						<img src="../imagenes/edit.svg" onclick="readSupplier('R')" class="icon__CRUD">
 						<img src="../imagenes/trash.svg" onclick="deleteSupplier('R')" class="icon__CRUD">
 					</div>
+					<input type="hidden" name="total_cmpR">
 					<div class="form__group">
-						<input type="text" name="descripcion_cmpR" placeholder=" " class="form__input">
-						<label for="descripcion_cmp" class="form__label">Descripcion:</label>
+						<input type="text" name="observacion_cmpR" placeholder=" " class="form__input">
+						<label for="observacion_cmp" class="form__label">Observacion:</label>
 					</div>
 					<!--Lista de productos-->
 					<!--<div id="listProductsR"></div>-->
@@ -126,23 +129,21 @@
 		</div>
 	</section>
 	<!--Modal of product of a BuyR -->
-	<section id="cmp_prodRMW" class="modal">
-		<div class="modalPdpf__container">
-			<div class="modalPdpf__header">
+	<section id="cmp_prodMW" class="modal">
+		<div class="modal__container--cppd">
+			<div class="modal__header--cppd">
 				<div>
 					<img src="../imagenes/p.svg" onclick="openProductSMW()" class="icon__CRUD">
-					<img src="../imagenes/carrito.svg" onclick="openPreviwProducts()" class="icon__CRUD">
 				</div>
 				<h2 class="modal__title">Productos</h2>
-				<img src="../imagenes/salir.svg" id="closeCmp_prodRMW" class="button__close">
+				<img src="../imagenes/salir.svg" id="closeCmp_prodMW" class="button__close">
 			</div>
-			<div class="modalPdpf__body">
+			<div class="modal__body--cppd">
 				<table>
 					<thead>
 						<tr>
-							<td>cant. inv.</td>
-							<td>Img.</td>
 							<td>Codigo</td>
+							<td>Descripcion</td>
 							<td>Cant.</td>
 							<td>Cost Uni.</td>
 							<td>Cost Total</td>
@@ -155,9 +156,9 @@
 			</div>
 			<div class="foot">
 				<div class="cart"><img src="../imagenes/carrito.svg">
-					<p>0</p>
+					<p id="totalProductsCPMW">0</p>
 				</div>
-				<h2>Bs 0.00</h2>
+				<h2 id="totalCostCPMW">Bs 0.00</h2>
 			</div>
 		</div>
 	</section>
@@ -165,9 +166,9 @@
 	<section id="buyMMW" class="modal">
 		<div class="modal__container">
 			<div class="modal__header">
-				<img src='../imagenes/products.svg' onclick='openCmp_prodMMW()'>
+				<img src='../imagenes/carrito.svg' onclick='openCmp_prodMMW()' class="icon__CRUD">
 				<h2 class="modal__title">Compra</h2>
-				<img src="../imagenes/salir.svg" id="closeBuyMMW">
+				<img src="../imagenes/salir.svg" id="closeBuyMMW" class="button__close">
 			</div>
 			<form id="formBuyM" class="form">
 				<div class="form__container">
@@ -178,24 +179,20 @@
 						<label for="fecha_cmp" class="form__label">Fecha:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="factura_cmpM"  placeholder=" " class="form__input">
-						<label for="factura_cmp" class="form__label">Factura:</label>
+						<input type="text" name="forma_pago_cmpM"  placeholder=" " class="form__input">
+						<label for="forma_pago_cmpM" class="form__label">Forma de pago:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="tpo_entrega_cmpM"  placeholder=" " class="form__input">
+						<label for="tpo_entrega_cmpM" class="form__label">Tiempo de entrega:</label>
 					</div>
 					<label class="form__label--only">Empresa:</label>
 					<div class="form__group--select">
 						<select id="selectEnterpriseM" name="fk_id_emp_clteM"></select>
-						<!--<img src="../imagenes/search.svg" onclick="openEnterpriseSMW('M')">
-						<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()">-->
-						<img src="../imagenes/edit.svg" onclick="readEnterprise('M')">
-						<img src="../imagenes/trash.svg" onclick="deleteEnterprise('M')">
 					</div>
 					<label class="form__label--only">Proveedor:</label>
 					<div class="form__group--select">
 						<select id="selectSupplierM" name="fk_id_prov_cmpM"></select>
-						<!--<img src="../imagenes/search.svg"  onclick="openSupplierSMW()">-->
-						<!--<img src="../imagenes/registrar.svg" onclick="openSupplierRMW()"-->
-						<img src="../imagenes/edit.svg" onclick="readSupplier('M')">
-						<img src="../imagenes/trash.svg" onclick="deleteSupplier('M')">
 					</div>
 					<div class="form__group">
 						<input type="text" name="descripcion_cmpM" placeholder=" " class="form__input">
@@ -223,15 +220,14 @@
 					<img src="../imagenes/carrito.svg" onclick="openPreviwProducts()" class="icon__CRUD">
 				</div>
 				<h2 class="modal__title">Productos</h2>
-				<img src="../imagenes/salir.svg" id="closeProf_prodMW" class="button__close">
+				<img src="../imagenes/salir.svg" id="closeCmp_prodMW" class="button__close">
 			</div>
 			<div class="modalPdpf__body">
 				<table>
 					<thead>
 						<tr>
-							<td>cant. inv.</td>
-							<td>Img.</td>
 							<td>Codigo</td>
+							<td>Descripcion</td>
 							<td>Cant.</td>
 							<td>Cost Uni.</td>
 							<td>Cost Total</td>
