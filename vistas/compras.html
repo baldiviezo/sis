@@ -59,10 +59,10 @@
 				<thead>
 					<tr>
 						<th>N°</th>
-						<th><div class="tbody__head--buy">Orden de compra <img src="../imagenes/sortA_Z.svg" name="numero_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="numero_cmp" class="icon__CRUD"></div></th>
-						<th><div class="tbody__head--buy">Fecha <img src="../imagenes/sortA_Z.svg" name="fecha_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_cmp" class="icon__CRUD"></div></th>
+						<th><div class="tbody__head--buy">OC SMS<img src="../imagenes/sortA_Z.svg" name="numero_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="numero_cmp" class="icon__CRUD"></div></th>
+						<th><div class="tbody__head--buy">Fecha<img src="../imagenes/sortA_Z.svg" name="fecha_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_cmp" class="icon__CRUD"></div></th>
 						<th>Encargado</th>
-						<th><div class="tbody__head--buy">Empresa <img src="../imagenes/sortA_Z.svg" name="nombre_empp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_empp" class="icon__CRUD"></div></th>
+						<th><div class="tbody__head--buy">Empresa<img src="../imagenes/sortA_Z.svg" name="nombre_empp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_empp" class="icon__CRUD"></div></th>
 						<th>Proveedor</th>
 						<th>Total de compra</th>
 						<th>Forma de pago</th>
@@ -212,17 +212,13 @@
 		</div>
 	</section>
 	<!--Modal of product of a proforma-->
-	<section id="cmp_prodMMW" class="modal">
-		<div class="modalPdpf__container">
-			<div class="modalPdpf__header">
-				<div>
-					<img src="../imagenes/i.svg" onclick="openInventorySMW()" class="icon__CRUD">
-					<img src="../imagenes/carrito.svg" onclick="openPreviwProducts()" class="icon__CRUD">
-				</div>
-				<h2 class="modal__title">Productos</h2>
-				<img src="../imagenes/salir.svg" id="closeCmp_prodMW" class="button__close">
+	<section id="cmp_prodRMW" class="modal">
+		<div class="modal__container--cppd">
+			<div class="modal__header--cppd">
+				<h2 class="modal__title">Productos que se añadiran al inventario</h2>
+				<img src="../imagenes/salir.svg" id="closeCmp_prodRMW" class="button__close">
 			</div>
-			<div class="modalPdpf__body">
+			<div class="modal__body--cppd">
 				<table>
 					<thead>
 						<tr>
@@ -231,7 +227,6 @@
 							<td>Cant.</td>
 							<td>Cost Uni.</td>
 							<td>Cost Total</td>
-							<td>Elim.</td>
 						</tr>
 					</thead>
 				</table>
@@ -240,10 +235,33 @@
 			</div>
 			<div class="foot">
 				<div class="cart"><img src="../imagenes/carrito.svg">
-					<p>0</p>
+					<p id="totalProductsCPMW">0</p>
 				</div>
-				<h2>Bs 0.00</h2>
+				<h2 id="totalCostCPMW">Bs 0.00</h2>
 			</div>
+		</div>
+	</section>
+	<!--Add buy to inventory-->
+	<section id="addBuyMW" class="modal">
+		<div class="modal__container">
+			<div class="modal__header">
+				<h2 class="modal__title">Registrar compra</h2>
+				<img src="../imagenes/salir.svg" id="closeAddBuyMW" class="button__close">
+			</div>
+			<form id="formAddBuy" class="form">
+				<div class="form__container">
+					<input type="text" name="id_cmpM" placeholder=" " class="form__input" hidden>
+					<div class="form__group">
+						<input type="text" name="factura_cmpM"  placeholder=" " class="form__input">
+						<label for="factura_cmp" class="form__label">Factura:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="fecha_entrega_cmpM"  placeholder=" " class="form__input">
+						<label for="fecha_entrega_cmpM" class="form__label">Fecha de entrega:</label>
+					</div>
+				</div>
+			</form>
+			<button class="form__submit">Registrar</button>
 		</div>
 	</section>
 	<!--Modal de registro y modificacion de proveedor-->

@@ -541,11 +541,12 @@ function tableBuys(page) {
             let td = document.createElement('td');
             if (localStorage.getItem('rol_usua') == 'Gerente general') {
                 td.innerHTML = `
-            <img src='../imagenes/edit.svg' onclick='readBuy(this.parentNode.parentNode.children[0].innerText)' title='Editar cliente'>
-            <img src='../imagenes/trash.svg' onclick='deleteBuy(this.parentNode.parentNode)' title='Eliminar cliente'>`;
+            <img src='../imagenes/receipt.svg' onclick='addBuyToInventory(this.parentNode.parentNode.children[0].innerText)' title='Añadir compra a inventario'>
+            <img src='../imagenes/edit.svg' onclick='readBuy(this.parentNode.parentNode.children[0].innerText)' title='Editar compra'>
+            <img src='../imagenes/trash.svg' onclick='deleteBuy(this.parentNode.parentNode)' title='Eliminar compra'>`;
             } else {
                 td.innerHTML = `
-            <img src='../imagenes/edit.svg' onclick='readBuy(this.parentNode.parentNode.children[0].innerText)' title='Editar cliente'>`;
+            <img src='../imagenes/edit.svg' onclick='readBuy(this.parentNode.parentNode.children[0].innerText)' title='Editar compra'>`;
             }
             tr.appendChild(td);
             tbody.appendChild(tr);
@@ -571,7 +572,7 @@ closeBuyRMW.addEventListener('click', () => {
 closeBuyMMW.addEventListener('click', () => {
     buyMMW.classList.remove('modal__show');
 });
-//<<-------------------------------------CRUD DE COMPRAS-------------------------------------------->>
+//<<-----------------------------------------------CRUD DE COMPRAS-------------------------------------------->>
 //-------Create buy
 let formBuyR = document.getElementById('formBuyR');
 formBuyR.addEventListener('submit', createBuy);
@@ -605,20 +606,52 @@ function createBuy() {
     } else {
         alert('No a seleccionado ningun producto');
     }
-} 
+}
+//------read Buy
 function readBuy(id_cmp) {
     buyMMW.classList.add('modal__show');
     for (let buy in filterBuys) {
         if (filterBuys[buy]['id_cmp'] == id_cmp) {
+            console.log(filterBuys[buy])
             document.getElementsByName('id_cmpM')[0].value = filterBuys[buy]['id_cmp'].slice(0, 10);
             document.getElementsByName('fecha_cmpM')[0].value = filterBuys[buy]['fecha_cmp'];
             document.getElementsByName('forma_pago_cmpM')[0].value = filterBuys[buy]['forma_pago_cmp'];
             document.getElementsByName('tpo_entrega_cmpM')[0].value = filterBuys[buy]['tpo_entrega_cmp'];
+            
+            selectEnterpriseM.innerHTML = '';
+            let option = document.createElement('option');
+            option.value = filterBuys[buy]['id_empp'];
+            option.innerText = filterBuys[buy]['nombre_empp'];
+            selectEnterpriseM.appendChild(option);
+
+            selectSupplierM.innerHTML = '';
+            let option2 = document.createElement('option');
+            option2.value = filterBuys[buy]['fk_id_prov_cmp'];
+            option2.innerText = `${filterBuys[buy]['nombre_prov']} ${filterBuys[buy]['apellido_prov']}`;
+            selectSupplierM.appendChild(option2);
         }
     }
 }
+//------add buy to inventory
+function addBuyToInventory() {
+    addBuyMW.classList.add('modal__show');
+    let hoy = new Date();
+    let dia = hoy.getDate();
+    let mes = hoy.getMonth() + 1;
+    let year = hoy.getFullYear();
+    document.getElementsByName('fecha_entrega_cmpM')[0].value = `${year}-${mes}-${dia}`
 
-
+}
+//------show products to buy
+function cmp_prodMW() {
+    
+}
+//------------------------------MODAL ADD BUY TO INVETORY-----------------------------------------------------const closeCmp_prodMMW = document.getElementById
+const addBuyMW = document.getElementById('addBuyMW');
+const closeAddBuyMW = document.getElementById('closeAddBuyMW');
+closeAddBuyMW.addEventListener('click', (e) => {
+    addBuyMW.classList.remove('modal__show');
+});
 
 
 
