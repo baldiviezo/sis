@@ -1,8 +1,17 @@
 //--------------------------------------------Restricciones de usuario----------------------------------------------
-if(localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Administrador'){
+if(localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario'){
     document.querySelector('.table__header').classList.add('hide');
     document.querySelectorAll('.form__radio')[1].classList.add('hide');
-    document.getElementsByName('email_usuaM')[0].parentNode.classList.add('hide');
+    document.getElementsByName('email_usuaM')[0].setAttribute('readonly', 'readonly');
+    document.getElementsByName('nombre_usuaM')[0].setAttribute('readonly', 'readonly');
+    document.getElementsByName('apellido_usuaM')[0].setAttribute('readonly', 'readonly');
+}else if (localStorage.getItem('rol_usua') == 'Administrador'){
+    document.querySelectorAll('.form__radio')[0].children[4].classList.add('hide');
+    document.querySelectorAll('.form__radio')[0].children[5].classList.add('hide');
+    document.querySelectorAll('.form__radio')[1].classList.add('hide');
+    document.getElementsByName('email_usuaM')[0].setAttribute('readonly', 'readonly');
+    document.getElementsByName('nombre_usuaM')[0].setAttribute('readonly', 'readonly');
+    document.getElementsByName('apellido_usuaM')[0].setAttribute('readonly', 'readonly');
 }
 //<<-------------------------------------------CARGAR LA TABLA----------------------------------------------------->>
 //------Leer tabla de usuarios
@@ -24,14 +33,22 @@ function readUsers() {
 function  tableUsers(){
     if(localStorage.getItem('rol_usua') == 'Gerente general'){
         filterTableUsers(usuarios);
-    }else{
+    }else if (localStorage.getItem('rol_usua') == 'Administrador'){
+        let data = {};
+        for(let usuario in usuarios){
+            if (usuarios[usuario]['rol_usua'] != 'Gerente general' ){
+                data[usuarios[usuario]['id_usua']] = usuarios[usuario];
+            }
+        }
+        filterTableUsers(data);
+    }else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario'){
         let data = {};
         for(let usuario in usuarios){
             if (usuarios[usuario]['id_usua'] == localStorage.getItem('id_usua')){
                 data[usuarios[usuario]['id_usua']] = usuarios[usuario];
-                filterTableUsers(data);
             }
         }
+        filterTableUsers(data);
     }
 }
 function filterTableUsers(data){
@@ -56,12 +73,21 @@ function filterTableUsers(data){
         }
         let td = document.createElement('td');
         if(localStorage.getItem('rol_usua') == 'Gerente general'){
-            td.innerHTML = `
-            <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)' title='Editar usuario'>
-            <img src='../imagenes/trash.svg' onclick='deleteUser(this.parentNode.parentNode)' title='Eliminar usuario'>`;
+            if (data[usuario]['rol_usua'] != 'Gerente general'){
+                td.innerHTML = `
+                <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)' title='Editar usuario'>
+                <img src='../imagenes/trash.svg' onclick='deleteUser(this.parentNode.parentNode)' title='Eliminar usuario'>`;
+            }
         }else{
-            td.innerHTML = `
-            <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)' title='Editar usuario'>`;
+            if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario'){
+                td.innerHTML = `
+                <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)' title='Editar usuario'>`;
+            }else if (localStorage.getItem('rol_usua') == 'Administrador'){
+                if (data[usuario]['id_usua'] == localStorage.getItem('id_usua')){
+                    td.innerHTML = `
+                    <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)' title='Editar usuario'>`; 
+                }
+            }
         }
         tr.appendChild(td);
         tbody.appendChild(tr);
@@ -138,11 +164,12 @@ function readUser (usuario){
 //------Actualizar usuario
 document.getElementById("formUsersM").addEventListener("submit", updateUser);
 function updateUser(){
+    event.preventDefault();
     let pass1 = document.getElementsByName("contraseña_usuaM")[0];
     let pass2 = document.getElementsByName("contraseña2_usuaM")[0];
     if(pass1.value == pass2.value){
         usersMMW.classList.remove('modal__show');
-        event.preventDefault();
+        
         let form = document.getElementById("formUsersM");
         let formData = new FormData(form);
         formData.append('updateUser', 'guardar');
@@ -155,14 +182,13 @@ function updateUser(){
             alert(data)
         }).catch(err => console.log(err));
     }else{
-        event.preventDefault();
         alert("Las contraseñas no son iguales");
     }
 }
 //------Borrar usuario
 function deleteUser (usuario){
     let id_usua = usuario.children[0].innerText;
-    if (confirm('¿Esta usted seguro?')){
+    if (confirm(`¿Esta usted seguro? Se borrara el usuario "${usuario.children[2].innerText} ${usuario.children[3].innerText}"`)) {
         const formData = new FormData()
         formData.append('deleteUser', id_usua);
         fetch('../controladores/usuarios.php', {

@@ -1,3 +1,18 @@
+//----------------------------------------------------------FECHA----------------------------------------------------
+const date = new Date();
+const dateFormat = new Intl.DateTimeFormat('es-ES', {
+    timeZone: 'America/La_Paz',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+});
+const formattedDate = dateFormat.format(date);
+const datePart = formattedDate.split(', ');
+const dateActual = datePart[0].split('/');
 //-------------------------------------------------------TABLA NOTA DE ENTREGA-----------------------------------------------------
 let notasEntrega = {};
 let filterNotasEntrega = {};
@@ -11,7 +26,7 @@ function readNotasEntrega() {
     }).then(response => response.json()).then(data => {
         notasEntrega = data;
         filterNotasEntrega = data;
-        paginacionNotaEntrega(Object.values(data).length, 1);
+        filterByUserNe(Object.values(data).length, 1);
     }).catch(err => console.log(err));
 }
 //------Select utilizado para buscar por columnas
@@ -24,7 +39,7 @@ inputSearchNe.addEventListener("keyup", searchNotasEntrega);
 const selectNumberNe = document.getElementById('selectNumberNe');
 selectNumberNe.selectedIndex = 3;
 selectNumberNe.addEventListener('change', function () {
-    paginacionNotaEntrega(Object.values(filterNotasEntrega).length, 1);
+    filterByUserNe(Object.values(filterNotasEntrega).length, 1);
 });
 //-------Estado de proforma
 const selectStateNe = document.getElementById('selectStateNe');
@@ -35,8 +50,13 @@ function searchNotasEntrega() {
     for (let notaEntrega in notasEntrega) {
         for (let valor in notasEntrega[notaEntrega]) {
             if (selectSearchNe.value == 'todas') {
-                if (valor == 'id_prof' || valor == 'fecha_prof' || valor == 'nombre_usua' || valor == 'sigla_emp' || valor == 'nombre_clte') {
-                    if (valor == 'nombre_usua') {
+                if (valor == 'numero_prof' || valor == 'fecha_prof' || valor == 'fecha_ne' || valor == 'nombre_emp' || valor == 'nombre_usua' || valor == 'nombre_clte' || valor == 'orden_ne' || valor == 'observacion_ne') {
+                    if (valor == 'id_prof'){
+                        if (notasEntrega[notaEntrega][valor].toString().toLowerCase().indexOf(inputSearchNe.value.toLowerCase()) >= 0) {
+                            filterNotasEntrega[notaEntrega] = notasEntrega[notaEntrega];
+                            break;
+                        }
+                    }else if (valor == 'nombre_usua') {
                         if ((notasEntrega[notaEntrega][valor] + ' ' + notasEntrega[notaEntrega]['apellido_usua']).toLowerCase().indexOf(inputSearchNe.value.toLowerCase()) >= 0) {
                             filterNotasEntrega[notaEntrega] = notasEntrega[notaEntrega];
                             break;
@@ -69,7 +89,7 @@ function searchNotasEntrega() {
                 }
             } else {
                 if (valor == selectSearchNe.value) {
-                    if (notasEntrega[notaEntrega][valor].toLowerCase().indexOf(inputSearchNe.value.toLowerCase()) >= 0) {
+                    if (notasEntrega[notaEntrega][valor].toString().toLowerCase().indexOf(inputSearchNe.value.toLowerCase()) >= 0) {
                         filterNotasEntrega[notaEntrega] = notasEntrega[notaEntrega];
                         break;
                     }
@@ -82,47 +102,64 @@ function searchNotasEntrega() {
 //------buscar por marca y categoria:
 function selectStateNotasEntrega() {
     if (selectStateNe.value == 'notasEntrega') {
-        paginacionNotaEntrega(Object.values(filterNotasEntrega).length, 1);
+        filterByUserNe(Object.values(filterNotasEntrega).length, 1);
     } else {
-        for (let proforma in filterNotasEntrega) {
-            for (let valor in filterNotasEntrega[proforma]) {
+        for (let notaEntrega in filterNotasEntrega) {
+            for (let valor in filterNotasEntrega[notaEntrega]) {
                 if (valor == 'estado_ne') {
-                    if (filterNotasEntrega[proforma][valor] != selectStateNe.value) {
-                        delete filterNotasEntrega[proforma];
+                    if (filterNotasEntrega[notaEntrega][valor] != selectStateNe.value) {
+                        delete filterNotasEntrega[notaEntrega];
                         break;
                     }
                 }
             }
         }
-        paginacionNotaEntrega(Object.values(filterNotasEntrega).length, 1);
+        filterByUserNe(Object.values(filterNotasEntrega).length, 1);
     }
 }
 //------Ordenar tabla descendente ascendente
 let orderNotaEntrega = document.querySelectorAll('.tbody__head--ne');
 orderNotaEntrega.forEach(div => {
     div.children[0].addEventListener('click', function () {
-        let array = Object.entries(filterNotasEntrega).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
-            if (first < second) { return -1 }
-            if (first > second) { return 1 }
-            return 0;
-        })
-        filterNotasEntrega = Object.fromEntries(array);
-        paginacionNotaEntrega(Object.values(filterNotasEntrega).length, 1);
+      let array = Object.entries(filterNotasEntrega).sort((a, b) => {
+        let first = a[1][div.children[0].name];
+        let second = b[1][div.children[0].name];
+        if (typeof first === 'number' && typeof second === 'number') {
+          return first - second;
+        } else {
+          return String(first).localeCompare(String(second));
+        }
+      });
+      filterNotasEntrega = Object.fromEntries(array);
+      filterByUserNe(Object.values(filterNotasEntrega).length, 1);
     });
     div.children[1].addEventListener('click', function () {
-        let array = Object.entries(filterNotasEntrega).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
-            if (first > second) { return -1 }
-            if (first < second) { return 1 }
-            return 0;
-        })
-        filterNotasEntrega = Object.fromEntries(array);
-        paginacionNotaEntrega(Object.values(filterNotasEntrega).length, 1);
+      let array = Object.entries(filterNotasEntrega).sort((a, b) => {
+        let first = a[1][div.children[0].name];
+        let second = b[1][div.children[0].name];
+        if (typeof first === 'number' && typeof second === 'number') {
+          return second - first;
+        } else {
+          return String(second).localeCompare(String(first));
+        }
+      });
+      filterNotasEntrega = Object.fromEntries(array);
+      filterByUserNe(Object.values(filterNotasEntrega).length, 1);
     });
-})
+  });
+//------Filtras las notas de entrega dependiendo el usuario logueado
+function filterByUserNe(length, page) {
+    if(localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador'){
+        paginacionNotaEntrega(length, page);
+    }else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario'){
+        for(let notaEntrega in filterNotasEntrega){
+            if (filterNotasEntrega[notaEntrega]['fk_id_usua_ne'] != localStorage.getItem('id_usua')){
+                delete filterNotasEntrega[notaEntrega];
+            }
+        }
+        paginacionNotaEntrega(length, page);
+    }
+}
 //------PaginacionNotaEntrega
 function paginacionNotaEntrega(allProducts, page) {
     let numberProducts = Number(selectNumberNe.value);
@@ -174,24 +211,21 @@ function tableNotaEntrega(page) {
                     td.setAttribute('hidden', '');
                     tr.appendChild(td);
                 } else if (valor == 'id_prof') {
-                    td.innerText = filterNotasEntrega[notaEntrega]['id_clte'];
+                    td.innerText = filterNotasEntrega[notaEntrega]['id_prof'];
                     td.setAttribute('hidden', '');
                     tr.appendChild(td);
                     td = document.createElement('td');
                     td.innerText = i;
                     tr.appendChild(td);
                     i++;
-                    td = document.createElement('td');
-                    td.innerText = 'SMS23-' + filterNotasEntrega[notaEntrega][valor];
-                    tr.appendChild(td);
-                } else if (valor == 'fecha_prof') {
-                    td.innerText = filterNotasEntrega[notaEntrega][valor].slice(0, 10);
+                }else if (valor == 'fecha_prof') {
+                    td.innerText = filterNotasEntrega[notaEntrega][valor];
                     tr.appendChild(td);
                 }
                 else if (valor == 'nombre_usua') {
                     td.innerText = filterNotasEntrega[notaEntrega][valor] + ' ' + filterNotasEntrega[notaEntrega]['apellido_usua'];
                     tr.appendChild(td);
-                } else if (valor == 'apellido_usua' || valor == 'apellido_clte' || valor == 'id_clte' || valor == 'estado_ne') {
+                } else if (valor == 'fk_id_usua_ne' || valor == 'apellido_usua' || valor == 'apellido_clte' || valor == 'id_clte' || valor == 'estado_ne') {
                 } else if (valor == 'nombre_clte') {
                     td.innerText = filterNotasEntrega[notaEntrega][valor] + ' ' + filterNotasEntrega[notaEntrega]['apellido_clte'];
                     tr.appendChild(td);
@@ -202,18 +236,17 @@ function tableNotaEntrega(page) {
             }
             //------Restricciones de usuario
             let td = document.createElement('td');
-            if (localStorage.getItem('usua_rol') == 'Ingeniero') {
+            if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
                 td.innerHTML = `
-            <img src='../imagenes/pdf.svg' onclick='pdfNotaEntrega(this.parentNode.parentNode)'>`;
+                <img src='../imagenes/pdf.svg' onclick='pdfNotaEntrega(this.parentNode.parentNode)'>`;
             } else {
                 if (filterNotasEntrega[notaEntrega]['estado_ne'] == 'vendido') {
                     td.innerHTML = `
-                <img src='../imagenes/pdf.svg' onclick='pdfNotaEntrega(this.parentNode.parentNode)'>`;
+                    <img src='../imagenes/pdf.svg' onclick='pdfNotaEntrega(this.parentNode.parentNode)'>`;
                 } else {
                     td.innerHTML = `
-                <img src='../imagenes/receipt.svg' onclick='readSale(this.parentNode.parentNode)'>
-                <img src='../imagenes/pdf.svg' onclick='pdfNotaEntrega(this.parentNode.parentNode)'>
-                <img src='../imagenes/trash.svg' onclick='deleteNotaEntrega(this.parentNode.parentNode)'>`;
+                    <img src='../imagenes/receipt.svg' onclick='readSale(this.parentNode.parentNode)'>
+                    <img src='../imagenes/pdf.svg' onclick='pdfNotaEntrega(this.parentNode.parentNode)'>`;
                 }
             }
             tr.appendChild(td);
@@ -223,203 +256,17 @@ function tableNotaEntrega(page) {
         }
     }
 }
-//----------------------------------------------------------- CRUD NOTA ENTREGA----------------------------------------------
-//------Delete a nota de entrega
-function deleteNotaEntrega(tr) {
-    if (confirm('¿Esta usted seguro?')) {
-        let id_ne = tr.children[0].innerText;
-        let formData = new FormData();
-        formData.append('deleteNotaEntrega', id_ne);
-        fetch('../controladores/notaEntrega.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            alert(data);
-            readNotasEntrega();
-        }).catch(err => console.log(err));
-    }
-}
-//----------------------------------------------------------FECHA----------------------------------------------------
-let hoy = new Date();
-let dia = hoy.getDate();
-let mes = hoy.getMonth() + 1;
-let year = hoy.getFullYear();
-onlyYear = year % 100;
-//------------------------------------------------------CRUD VENTA--------------------------------------------------------
-//-----Create a venta
-const formsaleR = document.getElementById('formsaleR');
-formsaleR.addEventListener('submit', createSale)
-function createSale() {
-    event.preventDefault();
-    let productos = document.querySelectorAll('#vnt_prodRMW div.modal__body .cart-item');
-    if (productos.length > 0) {
-        let array = [];
-        let i = 0;
-        productos.forEach(producto => {
-            if (Number(producto.children[0].innerHTML) < Number(producto.children[3].value)) {
-                i++;
-            }
-            let objeto = { producto };
-            objeto['codigo'] = producto.children[2].innerHTML;
-            objeto['cantidad'] = producto.children[3].value;
-            objeto['precio'] = producto.children[4].value;
-            array.push(objeto);
-        });
-        if (i == 0) {
-            let products = JSON.stringify(array);
-            let formData = new FormData(formsaleR);
-            formData.append('createVenta', products);
-            fetch('../controladores/ventas.php', {
-                method: "POST",
-                body: formData
-            }).then(response => response.text()).then(data => {
-                readInventories();
-                readNotasEntrega();
-            }).catch(err => console.log(err));
-            saleRMW.classList.remove('modal__show');
-        } else {
-            alert("Falta de stock");
-        }
-    } else {
-        alert('No a seleccionado ningun producto');
-    }
-}
-//-----Read a venta
-function readSale(tr) {
-    let id_prof = tr.children[3].innerText.slice(6);
-    //-----leer proforma
-    document.getElementsByName('fecha_vntR')[0].value = year + '-' + mes + '-' + dia;
-    document.getElementsByName('id_neR')[0].value = tr.children[0].innerText;
-    document.getElementsByName('id_clteR')[0].value = tr.children[1].innerText;
-    document.getElementsByName('id_profR')[0].value = id_prof;
-    //-----Leer los productos
-    modalProf_prod.innerHTML = '';
-    saleRMW.classList.add('modal__show');
-    for (let product in prof_prods) {
-        for (let valor in prof_prods[product]) {
-            if (prof_prods[product]['fk_id_prof_pfpd'] == id_prof) {
-                cartProduct_pfpd(prof_prods[product]);
-                break;
-            }
-        }
-    }
-}
-//--------Muestra la lista de los productos de la proforma
-const modalProf_prod = document.querySelector('#vnt_prodRMW div.modal__body');
-function cartProduct_pfpd(product) {
-    let cantidad_inv;
-    for (let inventory in inventories) {
-        for (let valor in inventories[inventory]) {
-            if (inventories[inventory]['codigo_prod'] == product['codigo_prod']) {
-                cantidad_inv = inventories[inventory]['cantidad_inv'];
 
-
-                let cantidad_prod = (product['cantidad_pfpd'] == undefined) ? (product['cantidad_inv'] == undefined) ? 1 : product['cantidad_inv'] : product['cantidad_pfpd'];
-                let costo_uni = (product['cost_uni_pfpd'] == undefined) ? (product['cost_uni_inv'] == undefined) ? 0 : product['cost_uni_inv'] : product['cost_uni_pfpd'];
-                let item = document.createElement('div');
-                item.classList.add('cart-item');
-                let html =
-                    `<p class="cart-item__cantInv">${cantidad_inv}</p>
-                    <div class="row-img">
-                        <img src="../modelos/imagenes/`+ product['imagen_prod'] + `" class="rowimg">
-                    </div>
-                    <p class="cart-item__codigo">`+ product['codigo_prod'] + `</p>
-                    <input type="number" value = "${cantidad_prod}" min="1" " class="cart-item__cantidad" readonly>
-                    <input type="number" value = "${costo_uni}" " class="cart-item__costUnit" readonly>
-                    <input type="number" value = "`+ cantidad_prod * costo_uni + `" class="cart-item__costTotal" readonly>
-                    <img src="../imagenes/trash.svg" >
-                    <h3 hidden>`+ product['descripcion_prod'] + `</h3>
-                    <h3 hidden>`+ product['nombre_prod'] + `</h3>`;
-                item.innerHTML = html;
-                //-------drag drop
-                item.setAttribute('draggable', true)
-                item.addEventListener("dragstart", () => {
-                    setTimeout(() => item.classList.add("dragging"), 0);
-                });
-                item.addEventListener("dragend", () => item.classList.remove("dragging"));
-                modalProf_prod.appendChild(item);
-
-
-                break;
-            }
-        }
-    }
-
-}
-//-----------------------------------Ventana modal para VENTA---------------------------------//
-const saleRMW = document.getElementById('saleRMW');
-const closeSaleRMW = document.getElementById('closeSaleRMW');
-closeSaleRMW.addEventListener('click', () => {
-    saleRMW.classList.remove('modal__show');
-});
-//-------------------------------------------PROF_PROD
-let prof_prods = {};
-readProf_prods();
-function readProf_prods() {
-    let formData = new FormData();
-    formData.append('readProf_prods', '');
-    fetch('../controladores/proforma.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        prof_prods = JSON.parse(JSON.stringify(data));
-    }).catch(err => console.log(err));
-}
-//-------------------------------------MODAL DE PRODUCTS DE UNA PROFORMA MODIFICAR-------------------------------------------->>
-const closeVnt_prodRMW = document.getElementById('closeVnt_prodRMW');
-const vnt_prodRMW = document.getElementById('vnt_prodRMW');
-function openVnt_prodRMW() {
-    vnt_prodRMW.classList.add('modal__show');
-}
-closeVnt_prodRMW.addEventListener('click', (e) => {
-    vnt_prodRMW.classList.remove('modal__show');
-});
-
-
-//-------------------------------------------------------INVENTARIO-------------------------------------------------------------
-let inventories = {};
-readInventories();
-function readInventories() {
-    let formData = new FormData();
-    formData.append('readInventories', '');
-    fetch('../controladores/inventario.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        inventories = data;
-    }).catch(err => console.log(err));
-}
-//------imprimir pdf
+//-------------------------------------------------------PDF NOTA DE ENTREGA------------------------------------------------->>
 function pdfNotaEntrega(tr) {
     let id_ne = tr.children[0].innerText;
-    let id_prof = tr.children[3].innerText.slice(6);
+    let id_prof = tr.children[1].innerText;
     let pdf = 'ne';
     let prof_mprof_ne = {};
     let pf_pd = [];
     for (let proforma in proformas) {
         if (proformas[proforma]['id_prof'] == id_prof) {
-            prof_mprof_ne = {
-                'fecha_prof': proformas[proforma]['fecha_prof'],
-                'numero_prof': proformas[proforma]['numero_prof'],
-                'nombre_clte': proformas[proforma]['nombre_clte'],
-                'apellido_clte': proformas[proforma]['apellido_clte'],
-                'celular_clte': proformas[proforma]['celular_clte'],
-                'nombre_emp': proformas[proforma]['nombre_emp'],
-                'sigla_emp': proformas[proforma]['sigla_emp'],
-                'direccion_emp': proformas[proforma]['direccion_emp'],
-                'telefono_emp': proformas[proforma]['telefono_emp'],
-                'moneda_prof': proformas[proforma]['moneda_prof'],
-                'nombre_usua': proformas[proforma]['nombre_usua'],
-                'apellido_usua': proformas[proforma]['apellido_usua'],
-                'email_usua': proformas[proforma]['email_usua'],
-                'celular_usua': proformas[proforma]['celular_usua'],
-                'descuento_prof': proformas[proforma]['descuento_prof'],
-                'tpo_valido_prof': proformas[proforma]['tpo_valido_prof'],
-                'cond_pago_prof': proformas[proforma]['cond_pago_prof'],
-                'tpo_entrega_prof': proformas[proforma]['tpo_entrega_prof'],
-                'observacion_prof': proformas[proforma]['observacion_prof'],
-                'tipo_cambio_prof': proformas[proforma]['tipo_cambio_prof'],
-            }
+            prof_mprof_ne = proformas[proforma];
             break;
         }
     }
@@ -480,6 +327,19 @@ function pdfNotaEntrega(tr) {
     form.submit();
 
 }
+//-------------------------------------------PROF_PROD
+let prof_prods = {};
+readProf_prods();
+function readProf_prods() {
+    let formData = new FormData();
+    formData.append('readProf_prods', '');
+    fetch('../controladores/proforma.php', {
+        method: "POST",
+        body: formData
+    }).then(response => response.json()).then(data => {
+        prof_prods = JSON.parse(JSON.stringify(data));
+    }).catch(err => console.log(err));
+}
 //-------------------------------------------------------PROFORMA-----------------------------------------------------
 let proformas = {};  //base de datos de proformas
 readProformas();
@@ -504,5 +364,155 @@ function readProducts() {
         body: formData
     }).then(response => response.json()).then(data => {
         products = JSON.parse(JSON.stringify(data));
+    }).catch(err => console.log(err));
+}
+//----------------------------------------------------------- CRUD NOTA ENTREGA----------------------------------------------
+//------Delete a nota de entrega
+function deleteNotaEntrega(tr) {
+    if (confirm('¿Esta usted seguro?')) {
+        let id_ne = tr.children[0].innerText;
+        let formData = new FormData();
+        formData.append('deleteNotaEntrega', id_ne);
+        fetch('../controladores/notaEntrega.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            alert(data);
+            readNotasEntrega();
+        }).catch(err => console.log(err));
+    }
+}
+//------------------------------------------------------CRUD SALES--------------------------------------------------------
+//-----Read a sale
+function readSale(tr) {
+    let id_ne = tr.children[0].innerText;
+    id_prof = tr.children[1].innerText;
+    saleRMW.classList.add('modal__show');
+    //-----leer proforma
+    document.getElementsByName('fecha_vnt')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
+    document.getElementsByName('id_ne')[0].value = id_ne;
+    document.getElementsByName('id_prof')[0].value = id_prof;
+   
+}
+function openPreviwProductsSold() {
+    let id_prof = document.getElementsByName('id_prof')[0].value;
+    vnt_prodRMW.classList.add('modal__show');
+    let nuevo_array = [];
+    for (let product in prof_prods) {
+        if (prof_prods[product]['fk_id_prof_pfpd'] == id_prof) {
+            for (let inventory in inventories) {
+                if (inventories[inventory]['fk_id_prod_inv'] == prof_prods[product]['fk_id_prod_pfpd']) {
+                    nuevo_array.push({ ...prof_prods[product], ...inventories[inventory] });
+                }
+            }
+        }
+    }
+    cartProd(nuevo_array);
+}
+const productsSold = document.querySelector('#vnt_prodRMW');
+function cartProd(products) {
+    let id_prof = document.getElementsByName('id_prof')[0].value;
+    let subTotal = document.getElementById('subTotal');
+    let desc = document.getElementById('desc');
+    let total = document.getElementById('total');
+    let item = productsSold.querySelector('.modal__body');
+    item.innerHTML = '';
+    let costTotal = 0;
+    products.forEach(product => {
+        let cart = document.createElement('div');
+        cart.classList.add('cart-item');
+        let html =
+        `<p class="cart-item__cantInv">${product['cantidad_inv']}</p>
+        <div class="row-img">
+            <img src="../modelos/imagenes/`+ product['imagen_prod'] + `" class="rowimg">
+        </div>
+        <p class="cart-item__codigo">`+ product['codigo_prod'] + `</p>
+        <input type="number" value = "${product['cantidad_pfpd']}" min="1" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__cantidad">
+        <input type="number" value = "${parseInt(product['cost_uni_pfpd']).toFixed(2)}" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__costUnit">
+        <input type="number" value = "`+ product['cantidad_pfpd'] * parseInt(product['cost_uni_pfpd']).toFixed(2) + `" class="cart-item__costTotal" readonly>
+        <p hidden>${product['id_inv']}</p>`;
+        cart.innerHTML = html;
+        item.appendChild(cart);
+        costTotal += parseFloat(product['cost_uni_pfpd']).toFixed(2) * product['cantidad_pfpd'];
+    });
+    for (let proforma in proformas) {
+        if (proformas[proforma]['id_prof'] == id_prof) {
+            document.getElementsByName('descuento_prof')[0].value = proformas[proforma]['descuento_prof'];         
+            break;
+        }
+    }
+    subTotal.innerText = `Sub-Total: ${costTotal.toFixed(2)} Bs`;
+    desc.innerHTML = `Desc. ${document.getElementsByName('descuento_prof')[0].value}%: ${(costTotal * document.getElementsByName('descuento_prof')[0].value / 100).toFixed(2)} Bs`;
+    total.innerText = `Total: ${(costTotal - (costTotal * document.getElementsByName('descuento_prof')[0].value / 100)).toFixed(2)} Bs`;
+    document.getElementsByName('total_vnt')[0].value = (costTotal - (costTotal * document.getElementsByName('descuento_prof')[0].value / 100)).toFixed(2);
+    document.getElementById('quantity').innerHTML = products.length;
+}
+//create a sale
+function createSale(){
+    let id_prof = document.getElementsByName('id_prof')[0].value;
+    let factura_vnt = document.getElementsByName('factura_vnt')[0].value;
+    let observacion_vnt = document.getElementsByName('observacion_vnt')[0].value;
+    let prof = {};
+    let id_ne = document.getElementsByName('id_ne')[0].value;
+    let prodCart = [];
+    for (let proforma in proformas) {
+        if (proformas[proforma]['id_prof'] == id_prof) {
+            prof = proformas[proforma];           
+            break;
+        }
+    }
+    for (let product in prof_prods) {
+        if (prof_prods[product]['fk_id_prof_pfpd'] == id_prof) {
+            for (let inventory in inventories) {
+                if (inventories[inventory]['fk_id_prod_inv'] == prof_prods[product]['fk_id_prod_pfpd']) {
+                    prodCart.push({ ...prof_prods[product], ...inventories[inventory] });
+                }
+            }
+        }
+    }
+    vnt_prodRMW.classList.remove('modal__show');
+    saleRMW.classList.remove('modal__show');
+    
+
+    let formData = new FormData();
+    formData.append('createSale', id_ne);
+    formData.append('prodCart', JSON.stringify(prodCart));
+    formData.append('id_usua', localStorage.getItem('id_usua'));
+    formData.append('total_vnt', document.getElementsByName('total_vnt')[0].value);
+    formData.append('fecha_vnt', `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`);
+    formData.append('factura_vnt', factura_vnt);
+    formData.append('observacion_vnt', observacion_vnt);
+    fetch('../controladores/ventas.php', {
+        method: "POST",
+        body: formData
+    }).then(response => response.text()).then(data => {
+        alert(data);
+        readNotasEntrega();
+    }).catch(err => console.log(err));
+}
+//-----------------------------------MODAL CREATE SALE-------------------------------------------------//
+const saleRMW = document.getElementById('saleRMW');
+const closeSaleRMW = document.getElementById('closeSaleRMW');
+closeSaleRMW.addEventListener('click', () => {
+    saleRMW.classList.remove('modal__show');
+});
+//-------------------------------------MODAL PREVIEW PRODUCTS SOLD----------------------------------------------->>
+const closeVnt_prodRMW = document.getElementById('closeVnt_prodRMW');
+const vnt_prodRMW = document.getElementById('vnt_prodRMW');
+closeVnt_prodRMW.addEventListener('click', (e) => {
+    vnt_prodRMW.classList.remove('modal__show');
+});
+
+//-------------------------------------------------------INVENTARIO---------------------------------------------------
+let inventories = {};
+readInventories();
+function readInventories() {
+    let formData = new FormData();
+    formData.append('readInventories', '');
+    fetch('../controladores/inventario.php', {
+        method: "POST",
+        body: formData
+    }).then(response => response.json()).then(data => {
+        inventories = data;
     }).catch(err => console.log(err));
 }

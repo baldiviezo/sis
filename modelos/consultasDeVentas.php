@@ -22,63 +22,58 @@ class Consultas{
 		$this->descripcion_vnt = $conexion->real_escape_string($_POST['descripcion_vntM']);
 	}
 	//-----read ventas
-	public function readVentas(){
+	public function readSales(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM venta INNER JOIN cliente ON venta.fk_id_clte_vnt = id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = id_emp INNER JOIN proforma ON venta.fk_id_prof_vnt = id_prof INNER JOIN usuario ON proforma.fk_id_usua_prof = id_usua ORDER BY fecha_vnt DESC";
+		$consulta = "SELECT * FROM venta INNER JOIN nota_entrega ON venta.fk_id_ne_vnt = id_ne INNER JOIN proforma ON nota_entrega.fk_id_prof_ne = id_prof INNER JOIN cliente ON proforma.fk_id_clte_prof = id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = id_emp INNER JOIN usuario ON venta.fk_id_usua_vnt = id_usua ORDER BY fecha_vnt DESC";
 		$resultado = $conexion->query($consulta);
 		$numeroClientes = $resultado->num_rows;
 		$clientes =  array();
 		if($numeroClientes > 0){
 			while ($fila = $resultado->fetch_assoc()){
-				$datos = array ('id_vnt'=>$fila['id_vnt'], 'fecha_vnt'=>$fila['fecha_vnt'], 'factura_vnt'=>$fila['factura_vnt'], 'id_prof'=>$fila['id_prof'], 'sigla_emp'=>$fila['sigla_emp'], 'cliente_clte'=>$fila['nombre_clte'].' '.$fila['apellido_clte'], 'nombre_usua'=>$fila['nombre_usua'], 'apellido_usua'=>$fila['apellido_usua'], 'descripcion_vnt'=>$fila['descripcion_vnt']);
+				$datos = array ('id_vnt'=>$fila['id_vnt'], 'fecha_vnt'=>$fila['fecha_vnt'], 'factura_vnt'=>$fila['factura_vnt'], 'id_prof'=>$fila['id_prof'], 'nombre_emp'=>$fila['nombre_emp'], 'cliente_clte'=>$fila['nombre_clte'].' '.$fila['apellido_clte'], 'nombre_usua'=>$fila['nombre_usua'], 'apellido_usua'=>$fila['apellido_usua'], 'observacion_vnt'=>$fila['observacion_vnt']);
 				$clientes[$fila['id_vnt'].'_id_vnt'] = $datos;
 			}
 			$json = json_encode($clientes, JSON_UNESCAPED_UNICODE);
 			echo $json;
-		}else{
-			echo json_encode('');
 		}
 	}
 	//-----Create venta
-    public function createVenta($productos){
+    public function createSale(){
+		$id_ne = $_POST['createSale'];
+		$products = $_POST['prodCart'];
+		$fecha_vnt = $_POST['fecha_vnt'];
+		$total_vnt = $_POST['total_vnt'];
+		$id_usua = $_POST['id_usua'];
+		$factura_vnt = $_POST['factura_vnt'];
+		$observacion_vnt = $_POST['observacion_vnt'];
         include 'conexion.php';
-        $consulta = "INSERT INTO venta (fecha_vnt, factura_vnt, fk_id_prof_vnt, fk_id_clte_vnt, descripcion_vnt) VALUES ('$this->fecha_vnt' , '$this->factura_vnt', '$this->fk_id_prof_vnt', '$this->id_clte', '$this->descripcion_vnt')";
+
+	
+		
+
+		$consulta = "UPDATE nota_entrega set estado_ne='vendido' WHERE id_ne = '$id_ne'";
 		$resultado = $conexion->query($consulta);
-		$consulta = "SELECT MAX(id_vnt) as id_vnt_max FROM venta";
-		$resultado = $conexion->query($consulta);
-		$id_vnt = $resultado->fetch_assoc();
-		$this->id_vnt = $id_vnt['id_vnt_max'];
-
-		$productos = json_decode($productos,true);
-		foreach($productos as $celda){
-    		$codigo = $celda['codigo'];
-    		$consulta = "SELECT * FROM producto WHERE codigo_prod='$codigo'";
+		if($resultado){
+			$consulta = "INSERT INTO venta (fecha_vnt, factura_vnt, total_vnt, fk_id_ne_vnt, fk_id_usua_vnt, observacion_vnt) VALUES ('$fecha_vnt' , '$factura_vnt', '$total_vnt', '$id_ne', '$id_usua', '$observacion_vnt')"; 
 			$resultado = $conexion->query($consulta);
-			$producto = $resultado->fetch_assoc();
-			$id_prod = $producto['id_prod'];
-			echo $celda['cantidad'];
-			//-----restar productos
-			
-			/*$consulta2 = "SELECT * FROM inventario WHERE fk_id_prod_inv='$id_prod'";
-			$resultado2 = $conexion->query($consulta2);
-			$inventario = $resultado2->fetch_assoc();
-			$cantidad_inv = $inventario['cantidad_inv'];	
-
-			$cantidad_inv = $cantidad_inv - $celda['cantidad'];
-			$consulta3 = "UPDATE inventario set cantidad_inv='$cantidad_inv' WHERE fk_id_prod_inv='$id_prod'";
-			$resultado3 = $conexion->query($consulta3);*/
-
-			$precio = $celda['precio'];
-    		$cantidad = $celda['cantidad'];
-    		$precio_total = $precio*$cantidad;
-    		$consulta2 = "INSERT INTO vnt_prod (fk_id_vnt_vtpd, fk_id_prod_vtpd, cantidad_vtpd, cost_uni_vtpd, cost_total_vtpd) VALUES ('$this->id_vnt' , '$id_prod', '$cantidad', '$precio', '$precio_total')";
-			$resultado2 = $conexion->query($consulta2);
-
-		}
-		//------Cambiar el estado de la nota de entrega
-			$consulta = "UPDATE nota_entrega set estado_ne='vendido' WHERE id_ne = '$this->id_ne'";
-			$resultado = $conexion->query($consulta);
-    }
+			if($resultado){
+				$consulta = "SELECT MAX(id_vnt) as id_vnt_max FROM venta";
+				$resultado = $conexion->query($consulta);
+				$id_vnt = $resultado->fetch_assoc();
+				$id_vnt = $id_vnt['id_vnt_max'];
+				$productos = json_decode($products,true);
+				foreach($productos as $celda){
+					$id_prod = $celda['fk_id_prod_inv'];
+					$codigo_vtpd = $celda['codigo_prod'];
+					$cantidad_vtpd = $celda['cantidad_pfpd'];
+					$cost_uni_vtpd = $celda['cost_uni_pfpd'];
+					$consulta = "INSERT INTO vnt_prod (fk_id_vnt_vtpd, fk_id_prod_vtpd, codigo_vtpd, cantidad_vtpd, cost_uni_vtpd) VALUES ('$id_vnt', '$id_prod', '$codigo_vtpd', '$cantidad_vtpd', '$cost_uni_vtpd')";
+					$resultado = $conexion->query($consulta);
+				}
+				echo "Venta registrada exitosamente";
+			}
+    	}
+	}
 	//-----Update venta
 	public function updateVenta($productos){
         include 'conexion.php';

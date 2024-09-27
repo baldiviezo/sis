@@ -55,9 +55,9 @@
 					<div>
 						<select id="selectSearchProduct" class="select">
 							<option value="todas">Buscar por todo</option>
-							<option value="codigo_prod">Código</option>
-							<option value="nombre_prod">Nombre</option>
-							<option value="descripcion_prod">Descripcion</option>
+							<option value="codigo_prod">Por código</option>
+							<option value="nombre_prod">Por nombre</option>
+							<option value="descripcion_prod">Por descripcion</option>
 						</select>
 					</div>
 					<div class="table__search">
@@ -110,10 +110,9 @@
 					<div>
 						<select id="selectSearchInv" class="select">
 							<option value="todas">Buscar por todo</option>
-							<option value="codigo_prod">Código</option>
-							<option value="nombre_prod">Nombre</option>
-							<option value="descripcion_prod">Descripcion</option>
-							<option value="cost_uni_inv">Precio</option>
+							<option value="codigo_prod">Por código</option>
+							<option value="nombre_prod">Por nombre</option>
+							<option value="descripcion_prod">Por descripcion</option>
 						</select>
 					</div>
 					<div class="table__search">
@@ -223,11 +222,11 @@
 						<div>
 							<select id="selectSearchProf" class="select">
 								<option value="todas">Buscar por todo</option>
-								<option value="id_prof">Proforma</option>
-								<option value="fecha_Prof">Fecha</option>
-								<option value="encargado">Encargado</option>
-								<option value="sigla_emp">Empresa</option>
-								<option value="cliente">Cliente</option>
+								<option value="numero_prof">Por proforma</option>
+								<option value="fecha_Prof">Por fecha</option>
+								<option value="encargado">Por encargado</option>
+								<option value="sigla_emp">Por empresa</option>
+								<option value="cliente">Por cliente</option>
 							</select>
 						</div>
 						<div class="table__search">
@@ -339,6 +338,10 @@
 			<form id="formNotaEntregaR" class="form">
 				<div class="form__container">
 					<input type="text" name="fk_id_prof_ne" placeholder=" " class="form__input" hidden>
+					<div class="form__group">
+						<input type="text" name="fecha_ne" placeholder=" " class="form__input">
+						<label for="fecha_ne" class="form__label">Fecha:</label>
+					</div>
 					<div class="form__group">
 						<input type="text" name="orden_ne" placeholder=" " class="form__input">
 						<label for="orden_ne" class="form__label">Según Orden/Invit:</label>

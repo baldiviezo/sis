@@ -88,7 +88,7 @@
 						<th>imagen</th>
 						<th>Cantidad</th>
 						<th>Costo unitario</th>
-						<th>Detalles</th>
+						<th>Ubicación</th>
 						<th hidden>Acciones</th>
 					</tr>
 				</thead>
@@ -140,12 +140,12 @@
 			<form id="formInventarioM" class="form">
 				<div class="form__container">
 					<input type="label" name="id_invM"  placeholder=" " class="form__input" hidden>
-					<label class="form__label--only">Producto:</label>
+					<label class="form__label--only" style="display: none;">Producto:</label>
 					<div class="form__group--select">
-						<select id="selectProductM" name="fk_id_prod_invM"></select>
-						<img class="icon__CRUD" src="../imagenes/search.svg" onclick="openProductSMW('M')" title="Buscar Producto">
-						<img class="icon__CRUD" src="../imagenes/registrar.svg" onclick="openProductsRMW()" title="Registrar Producto">
-						<img class="icon__CRUD" src="../imagenes/edit.svg" onclick="readProduct(this.parentNode)" title="Editar Producto">
+						<select id="selectProductM" name="fk_id_prod_invM" hidden></select>
+						<img class="icon__CRUD" src="../imagenes/search.svg" onclick="openProductSMW('M')" title="Buscar Producto" hidden>
+						<img class="icon__CRUD" src="../imagenes/registrar.svg" onclick="openProductsRMW()" title="Registrar Producto" hidden>
+						<img class="icon__CRUD" src="../imagenes/edit.svg" onclick="readProduct(this.parentNode)" title="Editar Producto" hidden>
 						<img class="icon__CRUD" src="../imagenes/trash.svg" onclick="deleteProduct(this.parentNode)" title="Eliminar Producto" hidden>
 					</div> 
 					<div class="form__group">

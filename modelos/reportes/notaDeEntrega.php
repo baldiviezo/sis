@@ -139,12 +139,12 @@ $fpdf->MultiCell(24,6, number_format($total, 2, ',', '.').' '.$moneda.'',1,'R',t
 if($_descuento!='0'){
     $fpdf->SetX(143);
     $fpdf->Cell(32,6, 'Desc. '.($_descuento).'%('.$unidad2.')',1,0,'R',true);
-    $descuento = ($total*$_descuento)/100;
-    $fpdf->MultiCell(24,6, number_format($descuento,2, ',', '.').' '.$moneda.'',1,'R',true);
+    $_descuento = ($total*$_descuento)/100;
+    $fpdf->MultiCell(24,6, number_format($_descuento,2, ',', '.').' '.$moneda.'',1,'R',true);
 }
 $fpdf->SetX(143);
 $fpdf->Cell(32,6, 'TOTAL('.$unidad2.')',1,0,'R',true);
-$total = $total-$descuento;
+$total = $total-$_descuento;
 $total = round($total, 2);
 $fpdf->MultiCell(24,6, number_format($total, 2, ',', '.').' '.$moneda.'',1,'R',true);
 
@@ -265,6 +265,7 @@ $fpdf->Image('logos/knx.png',150,215,40,15);
 $fpdf->Image('logos/quanser.jpg',25,240,56,12);
 $fpdf->Image('logos/balluff.png',87,240,56,15);
 $fpdf->Image('logos/kimo.jpg',147,240,44,15);
+$fpdf->setTitle($_prof_mprof_ne);
 $fpdf->Output();
 //$fpdf->Output('D',$_SESSION['nProforma'].'.pdf','UTF-8');
 //$fpdf->Output('F','../../reportes/'.$_SESSION['nProforma'].'.pdf');

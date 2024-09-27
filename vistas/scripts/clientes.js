@@ -1,9 +1,22 @@
 //--------------------------------------------Restricciones de usuario----------------------------------------------
-if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Administrador') {
+if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
     //customersRMW
+    document.querySelector('#formClienteR .form__group--select').children[3].classList.add('hide');
     document.querySelector('#formClienteR .form__group--select').children[4].classList.add('hide');
     //customersMMW
+    document.querySelector('#formClienteM .form__label--only').classList.add('hide');
+    document.querySelector('#formClienteM .form__group--select').children[0].classList.add('hide');
+    document.querySelector('#formClienteM .form__group--select').children[1].classList.add('hide');
+    document.querySelector('#formClienteM .form__group--select').children[2].classList.add('hide');
+    document.querySelector('#formClienteM .form__group--select').children[3].classList.add('hide');
     document.querySelector('#formClienteM .form__group--select').children[4].classList.add('hide');
+    document.getElementsByName('nombre_clteM')[0].setAttribute('readonly', 'readonly');
+    document.getElementsByName('apellido_clteM')[0].setAttribute('readonly', 'readonly');
+}else if (localStorage.getItem('rol_usua') == 'Administrador') {
+    //customersMMW
+    document.getElementsByName('nombre_clteM')[0].setAttribute('readonly', 'readonly');
+    document.getElementsByName('apellido_clteM')[0].setAttribute('readonly', 'readonly');
+    document.getElementsByName('nombre_empM')[0].setAttribute('readonly', 'readonly');
 }
 /************************************************TABLA DE CLIENTES*********************************************/
 let customers = {};
@@ -162,7 +175,7 @@ function tableCustomers(page) {
                 }
             }
             let td = document.createElement('td');
-            if (localStorage.getItem('rol_usua') == 'Gerente general') {
+            if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
                 td.innerHTML = `
             <img src='../imagenes/edit.svg' onclick='readCustomer(this.parentNode.parentNode)' title='Editar cliente'>
             <img src='../imagenes/trash.svg' onclick='deleteCustomer(this.parentNode.parentNode)' title='Eliminar cliente'>`;
@@ -284,11 +297,12 @@ function readEnterprises() {
     }).catch(err => console.log(err));
 }
 function fillSelectEmp(select, index) {
+    let ordNameEnterprises = Object.values(enterprises).sort((a, b) => a['nombre_emp'].localeCompare(b['nombre_emp']));
     select.innerHTML = '';
-    for (let enterprise in enterprises) {
+    for (let enterprise in ordNameEnterprises) {
         let option = document.createElement('option');
-        option.value = enterprises[enterprise]['id_emp'];
-        option.innerText = enterprises[enterprise]['nombre_emp'];
+        option.value = ordNameEnterprises[enterprise]['id_emp'];
+        option.innerText = ordNameEnterprises[enterprise]['nombre_emp'];
         select.appendChild(option);
     }
     if (index > 0) { select.value = index }

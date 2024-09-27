@@ -23,7 +23,8 @@
 			<h1>Ventas</h1>
 		</div>
 		<section class="table__header">
-			<img src="../imagenes/folder.svg" onclick="openVnt_prodSMW()">
+			<!--<img src="../imagenes/folder.svg" onclick="openVnt_prodSMW()">-->
+			<div></div>
 			<div class="combo__search">
 				<div>
 					<select id="selectSearchVnt" class="select">
@@ -46,7 +47,7 @@
 				<div class="wrapper" id="wrapperVenta"><ul></ul></div>
 			</div>
 			<div>
-				<select id="selectNumberVnt">
+				<select id="selectNumberVnt" class="select__number">
 					<option value="2">2</option>
 					<option value="4">4</option>
 					<option value="6">6</option>
@@ -60,15 +61,15 @@
 				<thead>
 					<tr>
 						<th>N°</th>
-						<th><div class="tbody__head--venta">N° Venta<img src="../imagenes/sortA_Z.svg" name="id_vnt"><img src="../imagenes/sortZ_A.svg" name="id_vnt"></div></th>
-						<th><div class="tbody__head--venta">Fecha <img src="../imagenes/sortA_Z.svg" name="fecha_vnt"><img src="../imagenes/sortZ_A.svg" name="fecha_vnt"></div></th>
-						<th><div class="tbody__head--venta">Factura <img src="../imagenes/sortA_Z.svg" name="factura_vnt"><img src="../imagenes/sortZ_A.svg" name="factura_vnt"></div></th>
+						<th><div class="tbody__head--venta">N° Venta<img src="../imagenes/sortA_Z.svg" name="id_vnt"  class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="id_vnt" class="icon__CRUD"></div></th>
+						<th><div class="tbody__head--venta">Fecha <img src="../imagenes/sortA_Z.svg" name="fecha_vnt" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_vnt" class="icon__CRUD"></div></th>
+						<th><div class="tbody__head--venta">Factura <img src="../imagenes/sortA_Z.svg" name="factura_vnt" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="factura_vnt" class="icon__CRUD"></div></th>
 						<th>Proforma</th>
-						<th><div class="tbody__head--venta">Empresa <img src="../imagenes/sortA_Z.svg" name="sigla_emp"><img src="../imagenes/sortZ_A.svg" name="sigla_emp"></div></th>
+						<th><div class="tbody__head--venta">Empresa <img src="../imagenes/sortA_Z.svg" name="nombre_emp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_emp" class="icon__CRUD"></div></th>
 						<th>Cliente</th>
 						<th>Encargado</th>
 						<th>Descripcion</th>
-						<th>Acciones</th>
+						<!--<th>Acciones</th>-->
 					</tr>
 				</thead>
 				<tbody id="tbodyVenta"></tbody>
@@ -162,9 +163,6 @@
 			</div>		
 		</div>
 	</section>
-
-
-
 	<!--Ventana modal para registrar venta-->
 	<!--<section id="saleRMW" class="modal">
 		<div class="modal__container">
@@ -270,10 +268,6 @@
 			</form>
 		</div>
 	</section>
-
-
-
-
 
 	<!--Tabla nota de entrega-->
 	<section id="notaEntregaSMW" class="modalTable">

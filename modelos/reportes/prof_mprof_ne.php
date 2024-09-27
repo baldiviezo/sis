@@ -84,14 +84,14 @@ if ($_POST['pdf'] == 'prof') {
     }
 } else if ($_POST['pdf'] == 'ne'){
     if($prof_mprof_ne['nombre_emp'] == 'Ninguna'){
-        $_prof_mprof_ne = strtoupper('SMS'.substr($prof_mprof_ne['fecha_prof'],2,2).'-'.$prof_mprof_ne['numero_prof'].'-'.$prof_mprof_ne['apellido_clte']);
+        $_prof_mprof_ne = strtoupper('NE-SMS'.substr($prof_mprof_ne['fecha_prof'],2,2).'-'.$prof_mprof_ne['numero_prof'].'-'.$prof_mprof_ne['apellido_clte']);
         $_empresa = $prof_mprof_ne['nombre_clte'].' '.$prof_mprof_ne['apellido_clte'];
         $_cliente = '';
         $_direccion = '';
         $_telefono = $prof_mprof_ne['celular_clte'];
     
     }else{
-        $_prof_mprof_ne = strtoupper('SMS'.substr($prof_mprof_ne['fecha_prof'],2,2).'-'.$prof_mprof_ne['numero_prof'].'-'.$sigla_emp = $prof_mprof_ne['sigla_emp']);
+        $_prof_mprof_ne = strtoupper('NE-SMS'.substr($prof_mprof_ne['fecha_prof'],2,2).'-'.$prof_mprof_ne['numero_prof'].'-'.$sigla_emp = $prof_mprof_ne['sigla_emp']);
         $_empresa = $prof_mprof_ne['nombre_emp'];
         $_cliente = $prof_mprof_ne['nombre_clte'].' '.$prof_mprof_ne['apellido_clte'];
         $_direccion = $prof_mprof_ne['direccion_emp'];
@@ -114,6 +114,14 @@ if ($_POST['pdf'] == 'prof') {
     $_celular_usua = $prof_mprof_ne['celular_usua'];
     $_orden = $prof_mprof_ne['orden_ne'];
     $_observacion = $prof_mprof_ne['observacion_ne'];
+} else if ($_POST['pdf'] == 'oc'){
+    $_prof_mprof_ne = strtoupper('OC-SMS'.substr($prof_mprof_ne['fecha_cmp'],2,2).'-'.$prof_mprof_ne['numero_cmp']);
+    $_encargado = "Benjamín A. Aparicio García";
+    $_fecha = substr($prof_mprof_ne['fecha_cmp'],0,10);
+    $_empresa = $prof_mprof_ne['nombre_empp'];
+    $_cliente = $prof_mprof_ne['nombre_prov'].' '.$prof_mprof_ne['apellido_prov'];
+    $_tipo_cambio = $prof_mprof_ne['tipo_cambio_cmp'];
+    $_descuento = $prof_mprof_ne['descuento_cmp'];
 }
 
 ?>

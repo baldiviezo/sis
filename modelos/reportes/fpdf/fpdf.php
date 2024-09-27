@@ -865,8 +865,7 @@ function Ln($h=null)
 		$this->y += $h;
 }
 
-function Image($file, $x=null, $y=null, $w=0, $h=0, $type='', $link='')
-{
+function Image($file, $x=null, $y=null, $w=0, $h=0, $type='', $link=''){
 	// Put an image on the page
 	if($file=='')
 		$this->Error('Image file name is empty');

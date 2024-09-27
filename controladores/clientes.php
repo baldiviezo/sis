@@ -64,11 +64,6 @@ if (isset($_POST['deleteSupplier'])) {
 }
 
 
-if (isset($_POST['leerProveedor'])){
-	$leerProveedor = new consultas;
-	$leerProveedor->leerProveedor();
-}
-
 //------CRUD ENTERPRISEP
 if (isset($_POST['readEnterprisesP'])) {
 	$readEnterprisesP = new consultas;

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1:3305
--- Tiempo de generación: 10-09-2024 a las 00:23:14
+-- Tiempo de generación: 20-09-2024 a las 22:29:53
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -193,15 +193,9 @@ CREATE TABLE `cmp_prod` (
 --
 
 INSERT INTO `cmp_prod` (`id_cppd`, `fk_id_cmp_cppd`, `fk_id_prod_cppd`, `descripcion_cppd`, `cantidad_cppd`, `cost_uni_cppd`) VALUES
-(1, 46, 1295, 'nombre prueba', 1, 20),
-(2, 46, 1287, 'VALVULA DE ACCIONAMIENTO MANUAL', 3, 50),
-(3, 47, 1296, 'dasdasd', 2, 10),
-(4, 48, 1295, 'nombre prueba', 1, 3),
-(5, 48, 1296, 'dasdasd', 1, 3),
-(6, 48, 1287, 'VALVULA DE ACCIONAMIENTO MANUAL', 1, 3),
-(7, 49, 1239, 'TUBERIA DE POLIURETANO', 1, 9),
-(8, 49, 1155, 'TUBERIA DE POLIURETANO', 1, 10),
-(9, 49, 1154, 'TUBERIA DE POLIURETANO', 1, 12);
+(1, 83, 1302, 'descripcion', 10, 100),
+(2, 84, 1301, 'descripcion', 10, 200),
+(3, 85, 1300, 'descripcion', 10, 500);
 
 -- --------------------------------------------------------
 
@@ -212,13 +206,16 @@ INSERT INTO `cmp_prod` (`id_cppd`, `fk_id_cmp_cppd`, `fk_id_prod_cppd`, `descrip
 CREATE TABLE `compra` (
   `id_cmp` int(11) NOT NULL,
   `numero_cmp` int(11) NOT NULL,
-  `fecha_cmp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `fecha_cmp` date NOT NULL,
   `fk_id_prov_cmp` int(11) NOT NULL,
   `fk_id_usua_cmp` int(11) NOT NULL,
   `total_cmp` float NOT NULL,
   `forma_pago_cmp` varchar(100) NOT NULL,
   `tpo_entrega_cmp` varchar(100) NOT NULL,
   `estado_cmp` varchar(100) NOT NULL,
+  `moneda_cmp` varchar(10) NOT NULL,
+  `tipo_cambio_cmp` float NOT NULL,
+  `descuento_cmp` float NOT NULL,
   `factura_cmp` int(11) NOT NULL,
   `fecha_entrega_cmp` date NOT NULL,
   `observacion_cmp` varchar(100) NOT NULL
@@ -228,11 +225,10 @@ CREATE TABLE `compra` (
 -- Volcado de datos para la tabla `compra`
 --
 
-INSERT INTO `compra` (`id_cmp`, `numero_cmp`, `fecha_cmp`, `fk_id_prov_cmp`, `fk_id_usua_cmp`, `total_cmp`, `forma_pago_cmp`, `tpo_entrega_cmp`, `estado_cmp`, `factura_cmp`, `fecha_entrega_cmp`, `observacion_cmp`) VALUES
-(46, 1, '2024-09-09 04:00:00', 18, 2, 170, 'credito', '10 dias', '0', 0, '0000-00-00', 'niguna'),
-(47, 2, '2024-09-09 04:00:00', 22, 2, 20, 'credito', '10 dias', '0', 0, '0000-00-00', 'niguna'),
-(48, 3, '2024-09-09 04:00:00', 23, 2, 9, 'credito', '10 dias', '0', 0, '0000-00-00', 'niguna'),
-(49, 4, '2024-09-09 04:00:00', 18, 2, 31, 'credito', '10 dias', '0', 0, '0000-00-00', 'niguna');
+INSERT INTO `compra` (`id_cmp`, `numero_cmp`, `fecha_cmp`, `fk_id_prov_cmp`, `fk_id_usua_cmp`, `total_cmp`, `forma_pago_cmp`, `tpo_entrega_cmp`, `estado_cmp`, `moneda_cmp`, `tipo_cambio_cmp`, `descuento_cmp`, `factura_cmp`, `fecha_entrega_cmp`, `observacion_cmp`) VALUES
+(83, 1, '2024-09-20', 26, 2, 650, 'Al contado', '10 dias', '1', 'Bs', 9.8, 35, 43434343, '2024-09-20', 'niguna observacion'),
+(84, 2, '2024-09-20', 14, 2, 1800, 'Al contado', '10 dias', '1', 'Bs', 9.8, 10, 544312, '2024-09-20', 'niguna observacion'),
+(85, 3, '2024-09-20', 14, 2, 3250, 'Al contado', '10 dias', '1', 'Bs', 9.8, 35, 12345, '2024-09-20', 'niguna observacion');
 
 -- --------------------------------------------------------
 
@@ -306,23 +302,18 @@ CREATE TABLE `empresa_prov` (
   `nombre_empp` varchar(100) NOT NULL,
   `nit_empp` int(11) NOT NULL,
   `direccion_empp` varchar(50) NOT NULL,
-  `telefono_empp` int(11) NOT NULL
+  `telefono_empp` int(11) NOT NULL,
+  `descuento_empp` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `empresa_prov`
 --
 
-INSERT INTO `empresa_prov` (`id_empp`, `sigla_empp`, `nombre_empp`, `nit_empp`, `direccion_empp`, `telefono_empp`) VALUES
-(1, 'SIEMENS', 'Siemens', 25, 'ALEMANIA', 43451687),
-(2, 'smc', 'Smc', 0, 'japon', 534636346),
-(3, '', 'Enubo', 0, 'av. santa cruz la paz ', 22498987),
-(5, 'sigla prueba', 'Emp De Preuba', 0, 'por ahi', 22),
-(6, 'segunda preuba ', 'Emp De Preuba  33', 0, 'por ahi 33 ', 22),
-(8, 'Perno', 'Perno Centro', 0, 'San pedro', 765413),
-(9, 'prup', 'Nomb', 0, 'el alto', 32164),
-(10, 'prupm', 'Nomb2', 222, 'el altom', 2222),
-(11, 'prup', 'Nomb3', 123, 'el alto', 32164);
+INSERT INTO `empresa_prov` (`id_empp`, `sigla_empp`, `nombre_empp`, `nit_empp`, `direccion_empp`, `telefono_empp`, `descuento_empp`) VALUES
+(1, 'SIEMENS', 'Siemens', 25, 'ALEMANIA', 43451687, 0),
+(2, 'smc', 'Smc', 0, 'japon', 534636346, 0),
+(12, 'gismar', 'Gismar', 0, 'estadio', 22787149, 35);
 
 -- --------------------------------------------------------
 
@@ -783,11 +774,12 @@ INSERT INTO `inventario` (`id_inv`, `fk_id_prod_inv`, `cantidad_inv`, `cost_uni_
 (441, 1142, 0, 0, 'A20001'),
 (442, 1143, 0, 0, 'A20001'),
 (443, 1144, 0, 0, 'A20001'),
-(444, 1055, 3, 0, 'A20001'),
+(444, 1055, 5, 0, 'A20001'),
 (445, 1284, 0, 0, 'A20001'),
-(447, 1295, 0, 0, ''),
 (448, 1287, 0, 0, ''),
-(449, 1296, 0, 0, '');
+(453, 1300, 8, 0, ''),
+(454, 1302, 8, 0, ''),
+(455, 1301, 8, 0, '');
 
 -- --------------------------------------------------------
 
@@ -835,15 +827,7 @@ CREATE TABLE `mdf_proforma` (
 --
 
 INSERT INTO `mdf_proforma` (`id_mprof`, `id_prof_mprof`, `numero_mprof`, `fecha_mprof`, `fk_id_clte_mprof`, `fk_id_usua_mprof`, `tpo_valido_mprof`, `cond_pago_mprof`, `tpo_entrega_mprof`, `observacion_mprof`, `descuento_mprof`, `moneda_mprof`, `tipo_cambio_mprof`) VALUES
-(5, 6, 1, '2024-08-12 04:00:00', 127, 2, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 5, 'Bs', 6.96),
-(6, 6, 1, '2024-08-12 04:00:00', 127, 2, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 5, 'Bs', 6.96),
-(7, 8, 3, '2024-08-13 04:00:00', 128, 2, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 5, 'Bs', 6.96),
-(8, 7, 2, '2024-08-12 04:00:00', 123, 2, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 3, 'Bs', 6.96),
-(9, 7, 2, '2024-08-19 04:00:00', 123, 2, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 3, 'Bs', 6.96),
-(10, 19, 13, '2024-08-26 04:00:00', 205, 2, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 33, 'Bs', 6.96),
-(11, 18, 12, '2024-08-22 04:00:00', 205, 2, '30 dias', 'efectivo', 'go go go', 'jejeje', 11, 'Bs', 6.96),
-(12, 21, 15, '2024-08-28 04:00:00', 205, 6, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 22, 'Bs', 6.96),
-(13, 24, 18, '2024-08-29 04:00:00', 127, 2, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 5, '$', 6.96);
+(14, 26, 2, '2024-09-20 04:00:00', 123, 2, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 0, 'Bs', 6.96);
 
 -- --------------------------------------------------------
 
@@ -864,36 +848,7 @@ CREATE TABLE `mdf_prof_prod` (
 --
 
 INSERT INTO `mdf_prof_prod` (`id_mpfpd`, `fk_id_mprof_mpfpd`, `fk_id_prod_mpfpd`, `cantidad_mpfpd`, `cost_uni_mpfpd`) VALUES
-(7, 5, 1287, 2, 1200),
-(8, 5, 1284, 2, 12),
-(9, 5, 1283, 2, 260),
-(10, 6, 1284, 1, 1),
-(11, 6, 1283, 2, 2),
-(12, 6, 1278, 3, 3),
-(13, 6, 1277, 4, 4),
-(14, 6, 1276, 5, 5),
-(15, 6, 1240, 6, 6),
-(16, 6, 1246, 7, 7),
-(17, 6, 1245, 8, 8),
-(18, 6, 1261, 9, 9),
-(19, 6, 1275, 10, 10),
-(20, 7, 983, 1, 520),
-(21, 7, 984, 1, 480),
-(22, 8, 1282, 1, 0),
-(23, 8, 1281, 1, 0),
-(24, 9, 1282, 1, 250),
-(25, 9, 1281, 1, 160),
-(26, 9, 1287, 1, 250),
-(27, 10, 1055, 1, 0),
-(28, 10, 1238, 1, 0),
-(29, 10, 1140, 1, 0),
-(30, 11, 361, 30, 8),
-(31, 11, 1154, 20, 9),
-(32, 11, 1155, 10, 7),
-(33, 12, 1055, 1, 0),
-(34, 13, 1283, 1, 20),
-(35, 13, 1284, 1, 1.7),
-(36, 13, 1287, 1, 50);
+(37, 14, 1301, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -959,8 +914,9 @@ CREATE TABLE `nota_entrega` (
 --
 
 INSERT INTO `nota_entrega` (`id_ne`, `fk_id_prof_ne`, `orden_ne`, `observacion_ne`, `estado_ne`) VALUES
-(77, 20, 312, 'ninguna', 'pendiente'),
-(78, 22, 312, 'ninguna', 'pendiente');
+(80, 27, 321, 'nada', 'pendiente'),
+(81, 26, 123, 'nada', 'pendiente'),
+(82, 25, 1122, 'nada', 'pendiente');
 
 -- --------------------------------------------------------
 
@@ -2057,8 +2013,9 @@ INSERT INTO `producto` (`id_prod`, `codigo_prod`, `fk_id_mrc_prod`, `fk_id_ctgr_
 (1283, 'GRS-200-BO', 15, 52, 'GRASA NEUMATICA', 'GRASA NEUMATICA		\r\nCaracterísticas Técnicas		\r\nDensidad a 20ºC:		0.89 g/ml\r\nViscosidad a 40ºC:		114\r\nPunto de goteo: 		Mayor o igual a 175°C\r\nTemperatura de servicio:		-30 a 130 °C\r\nComponentes Adicionales y Observaciones		\r\nMínimo pedido de 5 piezas		\r\nPresentación		Envase de 200 gr', '1722288707_grasa.jpg'),
 (1284, 'KQ2H04-01AS1', 15, 62, 'CONECTOR RAPIDO', 'CONECTOR RAPIDO\r\nCaracterísticas Técnicas\r\nFluido: Aire\r\nConexión: 1/8\"\r\nTubo aplicable: 4 mm\r\nTemperatura ambiente y fluido: -5 a 60ºC\r\nRango de presion de operación: -1 a 10 bar\r\nMaxima presion de prueba: 30 bar\r\nComponentes adicionales y observaciones\r\nForma del conector: RECTO', '1722352156_download.jpg'),
 (1287, 'VM230-02-32RA', 15, 67, 'VALVULA DE ACCIONAMIENTO MANUAL', 'VÁLVULA NEUMÁTICA DE		\r\nACCIONAMIENTO MECANICO	\r\nCaracterísticas Técnicas	\r\nFluido: 		Aire\r\nConexión de ingreso y salida: 		1/4\"\r\nPresión de operación: 		-1 a 10 bar\r\nTemperatura de ambiente y fluido: -5 a 60ºC		\r\nCaudal de ingreso a salida:		856 l/min\r\nCaudal de salida a escape:		678 l/min\r\nTipo de accionamiento:		Botonera pulsador extendido\r\nComponentes adicionales y observaciones		\r\nFunción:		3 vías / 2 posiciones\r\nBotonera de color rojo		\r\nNo requiere lubricación en caso de existir 		\r\nusar aceite ISO VG32', '1722617462_VM220-32_product_image.jpg'),
-(1295, 'codigo pueba', 15, 47, 'nombre prueba', 'asdqweqweqe', '1725112258_boton.jpg'),
-(1296, 'dasd', 15, 52, 'dasdasd', 'des', '1725112288_grasa.jpg');
+(1300, 'productoPrueba1', 1, 28, 'descripcion', 'sdadasdasd', '1726520805_C96SB32-125-BO.jpg'),
+(1301, 'productoPrueba2', 1, 28, 'descripcion', 'adasdad', '1726520821_grasa.jpg'),
+(1302, 'productoPrueba3', 1, 28, 'descripcion', 'sAASDASD', '1726520836_valmanu.jpg');
 
 -- --------------------------------------------------------
 
@@ -2087,24 +2044,9 @@ CREATE TABLE `proforma` (
 --
 
 INSERT INTO `proforma` (`id_prof`, `numero_prof`, `fecha_prof`, `fk_id_clte_prof`, `fk_id_usua_prof`, `tpo_valido_prof`, `cond_pago_prof`, `tpo_entrega_prof`, `observacion_prof`, `descuento_prof`, `moneda_prof`, `tipo_cambio_prof`, `estado_prof`) VALUES
-(6, 1, '2024-08-17 04:00:00', 127, 2, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 3, 'Bs', 6.96, 'pendiente'),
-(7, 2, '2024-08-19 04:00:00', 123, 2, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 3, 'Bs', 6.96, 'pendiente'),
-(8, 3, '2024-08-17 04:00:00', 128, 2, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 3, 'Bs', 6.96, 'pendiente'),
-(9, 4, '2024-08-20 04:00:00', 111, 2, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 3, 'Bs', 6.96, 'pendiente'),
-(10, 5, '2024-08-20 04:00:00', 203, 2, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 10, 'Bs', 6.96, 'pendiente'),
-(11, 6, '2024-08-20 04:00:00', 205, 2, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 33, 'Bs', 6.96, 'pendiente'),
-(12, 7, '2024-08-20 04:00:00', 204, 2, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 33, 'Bs', 6.96, 'pendiente'),
-(14, 8, '2024-08-21 04:00:00', 198, 6, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 2, 'Bs', 6.96, 'pendiente'),
-(15, 9, '2024-08-21 04:00:00', 124, 6, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 12, 'Bs', 6.96, 'pendiente'),
-(16, 10, '2024-08-21 04:00:00', 139, 6, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 6, 'Bs', 6.96, 'pendiente'),
-(17, 11, '2024-08-22 04:00:00', 203, 2, '30 dias', 'Efectivo', 'pero ya', 'prueba 1', 33, 'Bs', 6.96, 'pendiente'),
-(18, 12, '2024-08-26 04:00:00', 205, 2, '30 dias', 'efectivo', 'go go go', 'jejeje', 11, 'Bs', 6.96, 'pendiente'),
-(19, 13, '2024-08-28 19:00:04', 205, 2, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 33, 'Bs', 6.96, 'pendiente'),
-(20, 14, '2024-08-28 19:05:53', 100, 2, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 3, 'Bs', 6.96, 'vendido'),
-(21, 15, '2024-08-28 04:00:00', 205, 2, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 11, 'Bs', 6.96, 'pendiente'),
-(22, 16, '2024-08-28 19:42:19', 203, 6, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 0, 'Bs', 6.96, 'vendido'),
-(23, 17, '2024-08-28 20:29:09', 139, 2, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 3, 'Bs', 6.96, 'pendiente'),
-(24, 18, '2024-08-29 04:00:00', 127, 2, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 5, 'Bs', 6.96, 'pendiente');
+(25, 1, '2024-09-20 20:16:36', 119, 2, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 0, 'Bs', 6.96, 'vendido'),
+(26, 2, '2024-09-20 20:16:21', 123, 2, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 0, 'Bs', 6.96, 'vendido'),
+(27, 3, '2024-09-20 20:14:24', 198, 2, '30 dias', 'CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					\r\nTransferencia / Deposito: Banco BISA					\r\nTitular: SMS INTEGRACION Y CONTROL LTDA					\r\nNIT: 153578020					\r\nNumero de cuenta en Bs.: 1675590024', '48 Horas después de la confirmación de su pedido.', 'Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta', 0, 'Bs', 6.96, 'vendido');
 
 -- --------------------------------------------------------
 
@@ -2125,49 +2067,9 @@ CREATE TABLE `prof_prod` (
 --
 
 INSERT INTO `prof_prod` (`id_pfpd`, `fk_id_prof_pfpd`, `fk_id_prod_pfpd`, `cantidad_pfpd`, `cost_uni_pfpd`) VALUES
-(883, 6, 1284, 1, 1),
-(884, 6, 1283, 2, 2),
-(885, 6, 1278, 3, 3),
-(886, 6, 1277, 4, 4),
-(887, 6, 1276, 5, 5),
-(888, 6, 1240, 6, 6),
-(889, 6, 1246, 7, 7),
-(890, 6, 1245, 8, 8),
-(891, 6, 1261, 9, 9),
-(892, 6, 1275, 10, 10),
-(893, 8, 983, 1, 520),
-(894, 8, 984, 1, 480),
-(898, 7, 1282, 1, 250),
-(899, 7, 1281, 1, 160),
-(900, 7, 1287, 1, 250),
-(901, 7, 1144, 0, 1200),
-(902, 7, 1055, 5, 5200),
-(903, 9, 1283, 1, 50),
-(904, 10, 1130, 1, 1200),
-(905, 11, 1287, 1, 0),
-(906, 12, 1287, 1, 0),
-(907, 12, 1284, 1, 0),
-(908, 14, 1283, 1, 25),
-(909, 15, 1284, 1, 13),
-(910, 16, 1287, 1, 20),
-(911, 16, 1284, 1, 30),
-(912, 16, 1283, 1, 40),
-(913, 17, 1055, 1, 1250),
-(920, 19, 1055, 3, 125),
-(921, 19, 1238, 2, 1200.5),
-(922, 19, 1140, 1, 600),
-(923, 18, 361, 30, 8),
-(924, 18, 1154, 20, 9),
-(925, 18, 1155, 10, 7),
-(926, 18, 1287, 1, 520),
-(927, 20, 1055, 1, 352),
-(929, 21, 1055, 1, 0),
-(930, 22, 1055, 1, 0),
-(931, 23, 1055, 1, 15),
-(932, 23, 1238, 1, 10),
-(936, 24, 1283, 1, 140),
-(937, 24, 1284, 1, 15),
-(938, 24, 1287, 1, 350);
+(939, 25, 1302, 2, 500),
+(941, 27, 1300, 2, 600),
+(942, 26, 1301, 2, 400);
 
 -- --------------------------------------------------------
 
@@ -2188,16 +2090,9 @@ CREATE TABLE `proveedor` (
 --
 
 INSERT INTO `proveedor` (`id_prov`, `nombre_prov`, `apellido_prov`, `celular_prov`, `fk_id_empp_prov`) VALUES
-(13, 'Pedro', 'Mendoza', 764654987, 1),
 (14, 'Pedro', 'Gonzales', 5646, 2),
 (18, 'Alvaro', 'Baldiviezo', 69765488, 1),
-(19, 'Pp', 'Pp', 123, 2),
-(20, 'Cliente D.', 'Prueba 2', 0, 2),
-(21, 'Cliente D.', 'Prueba 3', 1231241, 2),
-(22, 'Cliente D.', 'Prueba 1', 1245373, 3),
-(23, 'Cliente D.', 'Prueba 7', 1245373, 2),
-(24, 'Cliente D.', 'Prueba 7', 131313, 9),
-(25, 'Cliente D.', 'Prueba 5', 0, 1);
+(26, 'Maria', 'Ali', 2147483647, 12);
 
 -- --------------------------------------------------------
 
@@ -2422,13 +2317,13 @@ ALTER TABLE `cliente`
 -- AUTO_INCREMENT de la tabla `cmp_prod`
 --
 ALTER TABLE `cmp_prod`
-  MODIFY `id_cppd` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id_cppd` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `compra`
 --
 ALTER TABLE `compra`
-  MODIFY `id_cmp` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `id_cmp` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=86;
 
 --
 -- AUTO_INCREMENT de la tabla `empresa`
@@ -2440,13 +2335,13 @@ ALTER TABLE `empresa`
 -- AUTO_INCREMENT de la tabla `empresa_prov`
 --
 ALTER TABLE `empresa_prov`
-  MODIFY `id_empp` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id_empp` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de la tabla `inventario`
 --
 ALTER TABLE `inventario`
-  MODIFY `id_inv` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=450;
+  MODIFY `id_inv` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=456;
 
 --
 -- AUTO_INCREMENT de la tabla `marca`
@@ -2458,13 +2353,13 @@ ALTER TABLE `marca`
 -- AUTO_INCREMENT de la tabla `mdf_proforma`
 --
 ALTER TABLE `mdf_proforma`
-  MODIFY `id_mprof` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id_mprof` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT de la tabla `mdf_prof_prod`
 --
 ALTER TABLE `mdf_prof_prod`
-  MODIFY `id_mpfpd` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `id_mpfpd` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT de la tabla `mrc_ctgr`
@@ -2476,31 +2371,31 @@ ALTER TABLE `mrc_ctgr`
 -- AUTO_INCREMENT de la tabla `nota_entrega`
 --
 ALTER TABLE `nota_entrega`
-  MODIFY `id_ne` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
+  MODIFY `id_ne` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
 
 --
 -- AUTO_INCREMENT de la tabla `producto`
 --
 ALTER TABLE `producto`
-  MODIFY `id_prod` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1297;
+  MODIFY `id_prod` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1303;
 
 --
 -- AUTO_INCREMENT de la tabla `proforma`
 --
 ALTER TABLE `proforma`
-  MODIFY `id_prof` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id_prof` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT de la tabla `prof_prod`
 --
 ALTER TABLE `prof_prod`
-  MODIFY `id_pfpd` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=939;
+  MODIFY `id_pfpd` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=943;
 
 --
 -- AUTO_INCREMENT de la tabla `proveedor`
 --
 ALTER TABLE `proveedor`
-  MODIFY `id_prov` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id_prov` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT de la tabla `usuario`

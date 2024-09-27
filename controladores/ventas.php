@@ -2,15 +2,15 @@
 require '../modelos/consultasDeVentas.php';
 //-----------------------------------------------VENTAS-------------------------
 //-------lee todas las ventas
-if (isset($_POST['readVentas'])) {
-	$readVentas = new Consultas;
-	$readVentas->readVentas();
+if (isset($_POST['readSales'])) {
+	$readSales = new Consultas;
+	$readSales->readSales();
 }
 //------Registrar inventario
-if (isset($_POST['createVenta'])) {
-	$createVenta = new Consultas;
-	$createVenta->asignarValores();
-	$createVenta->createVenta($_POST['createVenta']);
+if (isset($_POST['createSale'])) {
+	$createSale = new Consultas;
+	//$createSale->asignarValores();
+	$createSale->createSale();
 }
 //------Update inventario
 if (isset($_POST['updateVenta'])) {

@@ -51,7 +51,7 @@ class consultas{
     	$resultado = $conexion->query($consulta);
     	$numero_prof = $resultado->fetch_assoc();
     	$nuevo_numero_prof = ($numero_prof['numero_prof_max'] == null) ? 1 : $numero_prof['numero_prof_max'] + 1;
-		$consulta = "INSERT INTO proforma (numero_prof, fecha_prof, fk_id_clte_prof, xfk_id_usua_prof, cond_pago_prof, tpo_entrega_prof, tpo_valido_prof, descuento_prof, moneda_prof, observacion_prof, tipo_cambio_prof, estado_prof) VALUES ('$nuevo_numero_prof' ,'$this->fecha', '$this->cliente' , '$this->encargado', '$this->condicionesDePago', '$this->tiempoDeEntrega', '$this->tiempoValido', '$this->descuento', '$this->moneda', '$this->observacion', '$this->tipo_cambio_prof', 'pendiente')";
+		$consulta = "INSERT INTO proforma (numero_prof, fecha_prof, fk_id_clte_prof, fk_id_usua_prof, cond_pago_prof, tpo_entrega_prof, tpo_valido_prof, descuento_prof, moneda_prof, observacion_prof, tipo_cambio_prof, estado_prof) VALUES ('$nuevo_numero_prof' ,'$this->fecha', '$this->cliente' , '$this->encargado', '$this->condicionesDePago', '$this->tiempoDeEntrega', '$this->tiempoValido', '$this->descuento', '$this->moneda', '$this->observacion', '$this->tipo_cambio_prof', 'pendiente')";
 		$resultado = $conexion->query($consulta);
 		$consulta = "SELECT MAX(id_prof) as id_prof_max FROM proforma ";
     	$resultado = $conexion->query($consulta);
@@ -209,41 +209,6 @@ class consultas{
 		$consulta = "DELETE FROM mdf_proforma WHERE id_mprof = '$id_mprof'";
 		$resultado = $conexion->query($consulta);
 		echo "Proforma eliminada con exito";
-	}
-	//--------------------------------------------Estado de proforma---------------------------------
-	public function proformaStatus(){
-		$object = json_decode($_POST['createNotaEntrega'], true);
-		include 'conexion.php';
-		$id_prof = $object['fk_id_prof_ne'];
-		$consulta = "UPDATE proforma set estado_prof='vendido' WHERE id_prof = '$id_prof'";
-		$resultado = $conexion->query($consulta);
-	}
-	//------Crear nota de entrega
-	public function createNotaEntrega(){
-		$arrayObjetos = json_decode($_POST['arrayObjetos'], true);
-		$object = json_decode($_POST['createNotaEntrega'], true);
-		include 'conexion.php';
-		$id_prof = trim($conexion->real_escape_string($object['fk_id_prof_ne']));
-		$orden = trim($conexion->real_escape_string($object['orden_ne']));
-		$observacion = trim($conexion->real_escape_string($object['observacion_ne']));
-		$consulta = "INSERT INTO nota_entrega (fk_id_prof_ne, orden_ne, observacion_ne, estado_ne) VALUES ('$id_prof', '$orden' , '$observacion', 'pendiente')";
-		$resultado = $conexion->query($consulta);
-		//Restar cantidades
-		foreach ($arrayObjetos as $valor) {
-			$id_inv = $valor['id_inv'];
-			$cantidad =	$valor['cantidad'];
-			$consulta2 = "SELECT * FROM inventario WHERE id_inv = '$id_inv'";
-			$resultado2 = $conexion->query($consulta2);
-			$numeroNotaEntrega = $resultado2->num_rows;
-			if($numeroNotaEntrega > 0){
-				$inventario = $resultado2->fetch_assoc();
-				$cantidad_inv = $inventario['cantidad_inv'];
-				$cantidad_inv = $cantidad_inv - $cantidad;
-				$consulta3 = "UPDATE inventario set cantidad_inv='$cantidad_inv' WHERE id_inv='$id_inv'";
-				$resultado3 = $conexion->query($consulta3);
-			}
-		}
-		echo 'Nota de entrega creada con exito';
 	}
 }
 ?>

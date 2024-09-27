@@ -1,9 +1,15 @@
 //--------------------------------------------Restricciones de usuario----------------------------------------------
-if(localStorage.getItem('rol_usua') == 'Gerente general'){
+if(localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador'){
+    //marca y categoria create delete
     document.querySelector('.select__search').children[0].children[2].removeAttribute('hidden');
     document.querySelector('.select__search').children[0].children[3].removeAttribute('hidden');
     document.querySelector('.select__search').children[1].children[2].removeAttribute('hidden');
     document.querySelector('.select__search').children[1].children[3].removeAttribute('hidden');
+}else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
+    //marca y categoria create
+    document.querySelector('.select__search').children[0].children[2].removeAttribute('hidden');
+    document.querySelector('.select__search').children[1].children[2].removeAttribute('hidden');
+    document.getElementsByName('codigo_prodM')[0].setAttribute('readonly', 'readonly');
 }
 //-------Marca y categoria
 const selectMarcaProduct = document.getElementById('selectMarcaProduct');
@@ -186,7 +192,7 @@ function tableProducts(page) {
             }
         }
         let td = document.createElement('td');
-        if(localStorage.getItem('rol_usua')=='Gerente general'){
+        if(localStorage.getItem('rol_usua')=='Gerente general' || localStorage.getItem('rol_usua')=='Administrador'){
             td.innerHTML = `
             <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)' title='Editar producto'>
             <img src='../imagenes/trash.svg' onclick='deleteProduct(this.parentNode.parentNode)' title='Eliminar Producto'>`;
@@ -278,7 +284,7 @@ function updateProduct(){
 }
 //------Delete un producto
 function deleteProduct (tr){
-    if (confirm('¿Esta usted seguro?')){
+    if (confirm(`¿Esta usted seguro? Se eliminará el producto "${tr.children[4].innerText}"`)) {
         let id_prod = tr.children[0].innerText;
         let formData = new FormData()
         formData.append('deleteProduct', id_prod);

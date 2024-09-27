@@ -105,34 +105,63 @@ class consultas {
 	//------Borrar un producto
 	public function borrar($id){
 		include 'conexion.php';
+		//------Verificar que el producto no este en una o mas proformas
 		$consulta = "SELECT * FROM prof_prod WHERE fk_id_prod_pfpd ='$id'";
 		$resultado = $conexion->query($consulta);
 		$numeroFilas = $resultado->num_rows;
 		if($numeroFilas > 0){
 			echo ("No se puede eliminar, el producto está siendo utilizado por una o más proformas");
 		}else{
-			$consulta = "SELECT * FROM inventario WHERE fk_id_prod_inv ='$id'";
-			$resultado = $conexion->query($consulta);
-			$numeroFilas = $resultado->num_rows;
-			if($numeroFilas > 0){
-				echo ("No se puede eliminar, el producto está en el inventario");
-			}else{
-				//Eliminar imagen de la carpeta imagenes
-				$consulta = "SELECT * FROM producto WHERE id_prod='$id'";
-				$resultado = $conexion->query($consulta);
-				$producto = $resultado->fetch_assoc();
-				//Eliminar en la base de datos
-				$consulta = "DELETE FROM producto WHERE id_prod='$id'";
-				$resultado = $conexion->query($consulta);
-				if ($resultado){
-					if($producto['imagen_prod'] != 'imagen.jpg'){
-						if(file_exists("../modelos/imagenes/".$producto['imagen_prod'])){
-							unlink("../modelos/imagenes/".$producto['imagen_prod']);
+			//------Verificar que el producto no este en una o mas proformas modificadas
+			$consulta2 = "SELECT * FROM mdf_prof_prod WHERE fk_id_prod_mpfpd ='$id'";
+			$resultado2 = $conexion->query($consulta2);
+			$numeroFilas2 = $resultado2->num_rows;
+			if($numeroFilas2 > 0){
+				echo ("No se puede eliminar, el producto está siendo utilizado por una o más proformas modificadas");
+			}else {
+				//------Verificar que el producto no este en una o mas ventas
+				$consulta3 = "SELECT * FROM vnt_prod WHERE fk_id_prod_vtpd = '$id'";
+				$resultado3 = $conexion->query($consulta3);
+				$numeroFilas3 = $resultado3->num_rows;
+				if($numeroFilas3 > 0){
+					echo ("No se puede eliminar, el producto está siendo utilizado por una o más ventas");
+				}else{
+					//------Verificar que el proyecto no este en una o mas Compras
+					$consulta4 = "SELECT * FROM cmp_prod WHERE fk_id_prod_cppd = '$id'";
+					$resultado4 = $conexion->query($consulta4);
+					$numeroFilas4 = $resultado4->num_rows;
+					if($numeroFilas4 > 0){
+						echo ("No se puede eliminar, el proyecto está siendo utilizado por una o más compras");
+					}else{
+						//verificar que no exista en inventario
+						$consulta = "SELECT * FROM inventario WHERE fk_id_prod_inv ='$id'";
+						$resultado = $conexion->query($consulta);
+						$numeroFilas = $resultado->num_rows;
+						if($numeroFilas > 0){
+							echo ("No se puede eliminar, el producto está en el inventario");
+						}else{
+							//Eliminar imagen de la carpeta imagenes
+							$consulta = "SELECT * FROM producto WHERE id_prod='$id'";
+							$resultado = $conexion->query($consulta);
+							$producto = $resultado->fetch_assoc();
+							//Eliminar en la base de datos
+							$consulta = "DELETE FROM producto WHERE id_prod='$id'";
+							$resultado = $conexion->query($consulta);
+							if ($resultado){
+								if($producto['imagen_prod'] != 'imagen.jpg'){
+									if(file_exists("../modelos/imagenes/".$producto['imagen_prod'])){
+										unlink("../modelos/imagenes/".$producto['imagen_prod']);
+									}
+								}
+							}
+							echo ("Producto eliminado exitosamente");
 						}
 					}
 				}
-				echo ("Producto eliminado exitosamente");
 			}
+
+
+			
 		}
 	}
 	//-----------------------------------CRUD MARCAS----------------------------------

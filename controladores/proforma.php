@@ -46,11 +46,4 @@ if (isset($_POST['deletemProforma'])) {
 	$deletemProforma = new consultas;
 	$deletemProforma->deletemProforma($_POST['deletemProforma']);
 }
-//----------------------------------------------CRUD NOTA DE ENTREGA
-//-------Create a nota de entrega
-if (isset($_POST['createNotaEntrega'])&&isset($_POST['arrayObjetos'])) {
-	$createNotaEntrega = new consultas;
-	$createNotaEntrega->proformaStatus();
-	$createNotaEntrega->createNotaEntrega();
-}
 ?>

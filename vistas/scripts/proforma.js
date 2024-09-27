@@ -21,6 +21,21 @@ function showMain() {
         paginacionProduct(Object.values(filterProducts).length, 1);
     }
 }
+//-----------------------------------------------FECHA ACTUAL-------------------------------------
+const date = new Date();
+const dateFormat = new Intl.DateTimeFormat('es-ES', {
+    timeZone: 'America/La_Paz',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  });
+const formattedDate = dateFormat.format(date);
+const datePart = formattedDate.split(', ');
+const dateActual = datePart[0].split('/');
 //------------------------------------------------------CARDS INVENTARIO----------------------------------------------------------
 let inventories = {};
 let filterInventories = {};
@@ -513,8 +528,13 @@ function searchProforma() {
     for (let proforma in proformas) {
         for (let valor in proformas[proforma]) {
             if (selectSearchProf.value == 'todas') {
-                if (valor == 'id_prof' || valor == 'fecha_prof' || valor == 'nombre_usua' || valor == 'nombre_emp' || valor == 'nombre_clte') {
-                    if (valor == 'nombre_usua') {
+                if (valor == 'id_prof' || valor == 'numero_prof' || valor == 'fecha_prof' || valor == 'nombre_usua' || valor == 'nombre_emp' || valor == 'nombre_clte') {
+                    if (valor == 'numero_prof'){
+                        if (proformas[proforma][valor].toString().toLowerCase().indexOf(inputSearchProf.value.toLowerCase()) >= 0) {
+                            filterProformas[proforma] = proformas[proforma];
+                            break;
+                        }
+                    }else if (valor == 'nombre_usua') {
                         if ((proformas[proforma][valor] + ' ' + proformas[proforma]['apellido_usua']).toLowerCase().indexOf(inputSearchProf.value.toLowerCase()) >= 0) {
                             filterProformas[proforma] = proformas[proforma];
                             break;
@@ -547,7 +567,7 @@ function searchProforma() {
                 }
             } else {
                 if (valor == selectSearchProf.value) {
-                    if (proformas[proforma][valor].toLowerCase().indexOf(inputSearchProf.value.toLowerCase()) >= 0) {
+                    if (proformas[proforma][valor].toString().toLowerCase().indexOf(inputSearchProf.value.toLowerCase()) >= 0) {
                         filterProformas[proforma] = proformas[proforma];
                         break;
                     }
@@ -663,7 +683,7 @@ function tableProformas(page) {
                     td.innerText = 'SMS' + filterProformas[proforma]['fecha_prof'].slice(2, 4) + '-' + filterProformas[proforma]['numero_prof'];
                     tr.appendChild(td);
                 } else if (valor == 'fecha_prof') {
-                    td.innerText = filterProformas[proforma][valor].slice(0, 10);
+                    td.innerText = filterProformas[proforma][valor];
                     tr.appendChild(td);
                 }
                 else if (valor == 'nombre_usua') {
@@ -687,32 +707,23 @@ function tableProformas(page) {
             <img src='../imagenes/folder.svg' onclick='showMdfProforma(this.parentNode.parentNode.children[0].innerText)' title='Proformas anteriores'>
             <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")' title='Mostrar PDF'>`;
             } else {
-                if (localStorage.getItem('rol_usua') == 'Gerente general') {
+                if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
                     td.innerHTML = `
                 <img src='../imagenes/notaEntrega.svg' onclick='openNotaEntregaRMW(this.parentNode.parentNode.children[0].innerText)' title='Generar Nota de Entrega'>
                 <img src='../imagenes/folder.svg' onclick='showMdfProforma(this.parentNode.parentNode.children[0].innerText)' title='Proformas anteriores'>
                 <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")' title='Mostrar PDF'>
-                <img src='../imagenes/edit.svg' onclick='readProforma(this.parentNode.parentNode)' title='Editar Proforma'>
-                <img src='../imagenes/trash.svg' onclick='deleteProforma(this.parentNode.parentNode)' title='Eliminar Proforma'>`;
+                <img src='../imagenes/edit.svg' onclick='readProforma(this.parentNode.parentNode)' title='Editar Proforma'>`;
                 } else {
                     if (localStorage.getItem('id_usua') != filterProformas[proforma]['fk_id_usua_prof']) {
                         td.innerHTML = `
-                    <img src='../imagenes/folder.svg' onclick='showMdfProforma(this.parentNode.parentNode.children[0].innerText)' title='Proformas anteriores' >
-                    <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")' title='Mostrar PDF'>`;
+                        <img src='../imagenes/folder.svg' onclick='showMdfProforma(this.parentNode.parentNode.children[0].innerText)' title='Proformas anteriores' >
+                        <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")' title='Mostrar PDF'>`;
                     } else {
-                        if (localStorage.getItem('rol_usua') == 'Administrador') {
-                            console.log('entro')
-                            td.innerHTML = `
+                        td.innerHTML = `
                         <img src='../imagenes/notaEntrega.svg' onclick='openNotaEntregaRMW(this.parentNode.parentNode.children[0].innerText)' title='Generar Nota de Entrega'>
                         <img src='../imagenes/folder.svg' onclick='showMdfProforma(this.parentNode.parentNode.children[0].innerText)' title='Proformas anteriores'>
                         <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")' title='Mostrar PDF'>
                         <img src='../imagenes/edit.svg' onclick='readProforma(this.parentNode.parentNode)' title='Editar Proforma'>`;
-                        } else {
-                            td.innerHTML = `
-                        <img src='../imagenes/folder.svg' onclick='showMdfProforma(this.parentNode.parentNode.children[0].innerText)' title='Proformas anteriores'>
-                        <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")' title='Mostrar PDF'>
-                        <img src='../imagenes/edit.svg' onclick='readProforma(this.parentNode.parentNode)' title='Editar Proforma'>`;
-                        }
                     }
                 }
             }
@@ -754,6 +765,7 @@ function createProforma() {
         let form = document.getElementById("formProformaR");
         let moneda = selectMoneyCart.value;
         let formData = new FormData(form);
+        formData.set("fecha_profR", `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`);
         formData.append('createProforma', productos);
         formData.append('moneda_profR', moneda);
         formData.append('tipo_cambio_profR', tipoDeCambioProf.value);
@@ -780,11 +792,7 @@ function readProforma(tr) {
         for (let valor in filterProformas[proforma]) {
             if (filterProformas[proforma]['id_prof'] == id_prof) {
                 if (valor == 'fecha_prof') {
-                    let hoy = new Date();
-                    let dia = hoy.getDate();
-                    let mes = hoy.getMonth() + 1;
-                    let year = hoy.getFullYear();
-                    document.getElementsByName('fecha_profM')[0].value = `${year}-${mes}-${dia}`;
+                    document.getElementsByName('fecha_profM')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
                 } else if (valor == 'id_emp') {
                     selectEnterpriseM.innerHTML = '';
                     let option = document.createElement('option');
@@ -820,11 +828,11 @@ formProformaM.addEventListener('submit', updateProforma)
 function updateProforma() {
     event.preventDefault();
     let modal = document.querySelector('#cartsProf_prodMW');
-    let products = modal.querySelectorAll('div.cart-item');
-    if (products.length > 0) {
+    let cartItems = modal.querySelectorAll('div.cart-item');
+    if (cartItems.length > 0) {
         proformaMMW.classList.remove('modal__show');
         let array = [];
-        products.forEach(product => {
+        cartItems.forEach(product => {
             let valor = {};
             valor['codigo'] = product.children[2].innerText;
             valor['cantidad'] = product.children[3].value;
@@ -834,6 +842,7 @@ function updateProforma() {
         let productos = JSON.stringify(array); //string json
         let form = document.getElementById('formProformaM');
         let formData = new FormData(form);
+        formData.set("fecha_profM", `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`);
         formData.append('updateProforma', productos);
         formData.append('id_usua', localStorage.getItem('id_usua'));
         fetch('../controladores/proforma.php', {
@@ -873,6 +882,7 @@ const closeProformaMMW = document.getElementById('closeProformaMMW');
 const proformaRMW = document.getElementById('proformaRMW');
 const proformaMMW = document.getElementById('proformaMMW');
 openProformaRMW.addEventListener('click', () => {
+    document.getElementsByName('fecha_profR')[0].value =  `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
     formProformas = 'R';
     if (findOutCartItem() == '') {
         proformaRMW.classList.add('modal__show');
@@ -890,11 +900,6 @@ closeProformaMMW.addEventListener('click', (e) => {
 //-----Llenar campos de la porforma
 fillFormProfR();
 function fillFormProfR() {
-    let hoy = new Date();
-    let dia = hoy.getDate();
-    let mes = hoy.getMonth() + 1;
-    let year = hoy.getFullYear();
-    document.getElementsByName('fecha_profR')[0].value = `${year}-${mes}-${dia}`;
     document.getElementsByName('tpo_valido_profR')[0].value = '30 dias';
     document.getElementsByName('cond_pago_profR')[0].innerHTML = `CHEQUE A NOMBRE DE: SMS INTEGRACION Y CONTROL LTDA					
 Transferencia / Deposito: Banco BISA					
@@ -961,7 +966,7 @@ function showMdfProforma(id_prof) {
                     tr.appendChild(td);
                     i++;
                 } else if (dato == 'fecha_mprof') {
-                    td.innerText = mdfPproforma[proforma][dato].slice(0, 10);
+                    td.innerText = mdfPproforma[proforma][dato];
                     tr.appendChild(td);
                 } else if (dato == 'nombre_usua') {
                     td.innerText = mdfPproforma[proforma][dato] + ' ' + mdfPproforma[proforma]['apellido_usua'];
@@ -980,15 +985,12 @@ function showMdfProforma(id_prof) {
             }
             let td = document.createElement('td');
             td.innerHTML = `
-            <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[1].innerText, "mprof")'>
-            <img src='../imagenes/trash.svg' onclick='deleteMdfProforma(this.parentNode.parentNode)'>`;
+            <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[1].innerText, "mprof")'>`;
             tr.appendChild(td);
             tbody.appendChild(tr);
         }
     }
 }
-
-
 //-------Delete una proforma modificada
 function deleteMdfProforma(tr) {
     if (confirm('¿Esta usted seguro?')) {
@@ -1334,7 +1336,6 @@ function openPreviwProductsSold() {
 closeProductsSold.addEventListener('click', (e) => {
     productsSold.classList.remove('modal__show');
 });
-
 function readProductsSold(products) {
     let countProductsSold = document.getElementById('countProductsSold');
     let totalProductsSold = document.getElementById('totalProductsSold');
@@ -1367,7 +1368,7 @@ function createNotaEntrega() {
     let count = true;
     let arrayObjetos = [];
     for (let i = 0; i < carts.length; i++) {
-        if (carts[i].children[0].innerText < carts[i].children[3].value) {
+        if (Number(carts[i].children[0].innerText) < Number(carts[i].children[3].value)) {
             alert('No hay la cantidad suficiente en inventario del prducto: ' + carts[i].children[2].innerText);
             count = false;
             break; // Detiene la ejecución del bucle
@@ -1383,7 +1384,11 @@ function createNotaEntrega() {
         let formNotaEntregaR = document.querySelectorAll('#formNotaEntregaR input.form__input');
         let object = {};
         formNotaEntregaR.forEach(input => {
-            object[input.name] = input.value;
+            if (input.name == 'fecha_ne'){
+                object[input.name] = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`;
+            }else{
+                object[input.name] = input.value;
+            }
         });
         if (confirm('¿Esta usted seguro?')) {
             notaEntregaRMW.classList.remove('modal__show');
@@ -1391,7 +1396,8 @@ function createNotaEntrega() {
             let formData = new FormData();
             formData.append('createNotaEntrega', JSON.stringify(object));
             formData.append('arrayObjetos', JSON.stringify(arrayObjetos));
-            fetch('../controladores/proforma.php', {
+            formData.append('id_usua', localStorage.getItem('id_usua'));
+            fetch('../controladores/notaEntrega.php', {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
@@ -1408,8 +1414,9 @@ function createNotaEntrega() {
 const closeNotaEntregaRMW = document.getElementById('closeNotaEntregaRMW');
 const notaEntregaRMW = document.getElementById('notaEntregaRMW');
 function openNotaEntregaRMW(id_prof) {
-    notaEntregaRMW.classList.add('modal__show');
+    document.getElementsByName('fecha_ne')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
     document.getElementsByName('fk_id_prof_ne')[0].value = id_prof;
+    notaEntregaRMW.classList.add('modal__show');
 }
 closeNotaEntregaRMW.addEventListener('click', (e) => {
     notaEntregaRMW.classList.remove('modal__show');

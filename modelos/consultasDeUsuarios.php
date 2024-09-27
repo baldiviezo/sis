@@ -92,10 +92,42 @@ class consultas {
 	//-------Delete user
 	public function deleteUser($id){
 		include 'conexion.php';
-		$consulta = "DELETE FROM usuario WHERE id_usua='$id'";
+		//------Verificar si el usuario tiene una proforma
+		$consulta = "SELECT * FROM proforma WHERE fk_id_usua_prof = '$id'";
 		$resultado = $conexion->query($consulta);
-		if ($resultado){
-			echo ("Usuario eliminado con éxito");
+		$numeroProformas = $resultado->num_rows;
+		if ($numeroProformas > 0){
+			echo "No se puede eliminar, El usuario está siendo utilizado por una proforma";
+		}else{
+			//------Verificar si el usuario tiene una nota de entrega
+			$consulta2 = "SELECT * FROM nota_entrega WHERE fk_id_usua_ne = '$id'";
+			$resultado2 = $conexion->query($consulta2);
+			$numeroNotas = $resultado2->num_rows;
+			if ($numeroNotas > 0){
+				echo "No se puede eliminar, El usuario está siendo utilizado por una nota de entrega";
+			}else{
+				//------Verificar si el usuario tiene una Venta
+				$consulta3 = "SELECT * FROM venta WHERE fk_id_usua_vnt = '$id'";
+				$resultado3 = $conexion->query($consulta3);
+				$numeroVentas = $resultado3->num_rows;
+				if ($numeroVentas > 0){
+					echo "No se puede eliminar, El usuario está siendo utilizado por una venta";
+				}else{
+					//------Verificar si el usuario tiene una Compra
+					$consulta4 = "SELECT * FROM compra WHERE fk_id_usua_cmp = '$id'";
+					$resultado4 = $conexion->query($consulta4);
+					$numeroCompras = $resultado4->num_rows;
+					if ($numeroCompras > 0){
+						echo "No se puede eliminar, El usuario está siendo utilizado por una compra";
+					}else{
+						$consulta = "DELETE FROM usuario WHERE id_usua='$id'";
+						$resultado = $conexion->query($consulta);
+						if ($resultado){
+							echo ("Usuario eliminado con éxito");
+						}
+					}
+				}
+			}
 		}
 	}
 }

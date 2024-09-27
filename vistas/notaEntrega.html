@@ -13,6 +13,7 @@
 	<link rel="stylesheet" type="text/css" href="../css/table.css">
 	<link rel="stylesheet" type="text/css" href="../css/productModal.css">
 	<link rel="stylesheet" type="text/css" href="../css/userModal.css">
+    <link rel="stylesheet" href="../css/notaEntrega.css">
 </head>
 <body class="body">
 	<header class="header">
@@ -37,11 +38,12 @@
                 <div>
                     <select id="selectSearchNe" class="select">
                         <option value="todas">Buscar por</option>
-                        <option value="fk_id_prof_ne">Proforma</option>
-                        <option value="fecha_Prof">Fecha</option>
-                        <option value="encargado">Encargado</option>
-                        <option value="sigla_emp">Empresa</option>
-                        <option value="cliente">Cliente</option>
+                        <option value="numero_prof"> Por nota de entrega</option>
+                        <option value="fecha_prof">Por fecha proforma</option>
+                        <option value="fecha_ne">Por fecha nota entrega</option>
+                        <option value="encargado">Por encargado</option>
+                        <option value="nombre_emp">Por empresa</option>
+                        <option value="cliente">Por cliente</option>
                     </select>
                 </div>
                 <div class="table__search">
@@ -71,10 +73,11 @@
                 <thead>
                     <tr>
                         <th>N°</th>
-                        <th><div class="tbody__head--ne">Proforma <img src="../imagenes/sortA_Z.svg" name="fk_id_prof_ne"><img src="../imagenes/sortZ_A.svg" name="fk_id_prof_ne"></div></th>
-                        <th><div class="tbody__head--ne">Fecha <img src="../imagenes/sortA_Z.svg" name="fecha_prof"><img src="../imagenes/sortZ_A.svg" name="fecha_prof"></div></th>
+                        <th><div class="tbody__head--ne">Proforma <img src="../imagenes/sortA_Z.svg" name="id_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="id_prof" class="icon__CRUD"></div></th>
+                        <th><div class="tbody__head--ne">Fecha PROF<img src="../imagenes/sortA_Z.svg" name="fecha_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_prof" class="icon__CRUD"></div></th>
+                        <th><div class="tbody__head--ne">Fecha NE <img src="../imagenes/sortA_Z.svg" name="fecha_ne" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_ne" class="icon__CRUD"></div></th>
                         <th>Encargado</th>
-                        <th><div class="tbody__head--ne">Empresa <img src="../imagenes/sortA_Z.svg" name="sigla_emp"><img src="../imagenes/sortZ_A.svg" name="sigla_emp"></div></th>
+                        <th><div class="tbody__head--ne">Empresa <img src="../imagenes/sortA_Z.svg" name="nombre_emp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_emp" class="icon__CRUD"></div></th>
                         <th>Cliente</th>
                         <th>Según Orden/Invit</th>
                         <th>Observaciones</th>
@@ -89,60 +92,70 @@
     <section id="saleRMW" class="modal">
         <div class="modal__container">
             <div class="modal__header">
-                <img src='../imagenes/products.svg' onclick='openVnt_prodRMW()'>
                 <h2 class="modal__title">Venta</h2>
-                <img src="../imagenes/salir.svg" id="closeSaleRMW">
+                <img src="../imagenes/salir.svg" id="closeSaleRMW" class="button__close">
             </div>
             <form id="formsaleR" class="form">
                 <div class="form__container">
-                    <input type="text" name="id_neR" placeholder=" " class="form__input" hidden>
-                    <input type="text" name="id_profR" placeholder=" " class="form__input" hidden>
-                    <input type="text" name="id_clteR" placeholder=" " class="form__input" hidden>
+                    <input type="text" name="id_ne" placeholder=" " class="form__input" hidden>
+                    <input type="text" name="id_prof" placeholder=" " class="form__input" hidden>
+                    <input type="text" name="total_vnt" placeholder=" " class="form__input" hidden>
+                    <input type="text" name="descuento_prof" placeholder=" " class="form__input" hidden>
                     <div class="form__group">
-                        <input type="text" name="fecha_vntR"  placeholder=" " class="form__input" readonly>
+                        <input type="text" name="fecha_vnt"  placeholder=" " class="form__input" readonly>
                         <label for="fecha_vnt" class="form__label">Fecha:</label>
                     </div>
                     <div class="form__group">
-                        <input type="text" name="factura_vntR"  placeholder=" " class="form__input">
+                        <input type="text" name="factura_vnt"  placeholder=" " class="form__input">
                         <label for="factura_vnt" class="form__label">Factura:</label>
                     </div>
                     <div class="form__group">
-                        <input type="text" name="descripcion_vntR" placeholder=" " class="form__input">
-                        <label for="descripcion_vnt" class="form__label">Descripcion:</label>
+                        <input type="text" name="observacion_vnt" placeholder=" " class="form__input">
+                        <label for="observacion_vnt" class="form__label">observacion:</label>
                     </div>
                 </div>
-                <div class="form__container--button">
-                    <input type="submit" value="Vender" class="form__submit">
-                </div>
             </form>
+            <button onclick="openPreviwProductsSold()" class="form__submit">Facturar</button>
         </div>
     </section>
     <!--Modal of product of a BuyR -->
     <section id="vnt_prodRMW" class="modal">
-        <div class="modal__container">
-            <div class="modal__header">
-                <h2 class="modal__title">Productos</h2>
-                <img src="../imagenes/salir.svg" id="closeVnt_prodRMW">
-            </div>
-            <div class="cartItem__head">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <td>cant. inv.</td>
-                                    <td>Img.</td>
-                                    <td>Codigo</td>
-                                    <td>Cant.</td>
-                                    <td>Elim.</td>
-                                </tr>
-                            </thead>
-                        </table>
+        <div class="modalPdpf__container">
+			<div class="modalPdpf__header">
+				<h2 class="modal__title">Productos</h2>
+				<img src="../imagenes/salir.svg" id="closeVnt_prodRMW" class="button__close">
+			</div>
+			<div class="modalPdpf__body">
+				<table>
+					<thead>
+						<tr>
+							<td>cant. inv.</td>
+							<td>Img.</td>
+							<td>Codigo</td>
+							<td>Cant.</td>
+							<td>Cost Uni.</td>
+							<td>Cost Total</td>
+						</tr>
+					</thead>
+				</table>
+			</div>
+			<div id="cartsProductsSold" class="modal__body">
+			</div>
+			<div class="foot">
+                <div class="foot__left">
+                    <p id="subTotal">Sub-Total (Bs)</p>
+                    <p id="desc">Desc. (Bs)</p>
+                    <p id="total">Total (Bs)</p>
+                </div>
+				<div class="foot__right">
+                    <div class="cart">
+                        <img src="../imagenes/carrito.svg">
+                        <p id="quantity">0</p>
                     </div>
-            <div class="modal__body">
-            </div>
-            <div class="foot">
-                <div class="cart"><img src="../imagenes/carrito.svg"><p id="count_vtpdR">0</p></div>
-            </div>
-        </div>
+                    <button class="button--sell" onclick="createSale()">FACTURAR</button>
+                </div>
+			</div>
+		</div>
     </section>
 	<script src="scripts/header.js"></script>
 	<script src="scripts/notaEntrega.js"></script>

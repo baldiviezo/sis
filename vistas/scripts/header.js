@@ -1,5 +1,5 @@
 const header = document.querySelector('header.header nav');
-if(localStorage.getItem('rol_usua')=='Gerente general'){
+if(localStorage.getItem('rol_usua')=='Gerente general' || localStorage.getItem('rol_usua')=='Administrador'){
 	header.innerHTML = `
 					<div class="nav__logo"></div>
 					<ul class="nav__list">
@@ -10,15 +10,15 @@ if(localStorage.getItem('rol_usua')=='Gerente general'){
 						<li><a href="inventario.html" class="nav__link">Inventario</a></li>
 						<li><a href="proforma.html" class="nav__link">Proforma</a></li>
 						<li><a href="notaEntrega.html" class="nav__link">Nota de entrega</a></li>
-						<li><a href="ventas.html" class="nav__link">Ventas</a></li>
 						<li><a href="compras.html" class="nav__link">Compras</a></li>
+						<li><a href="ventas.html" class="nav__link">Ventas</a></li>
 						<li><a href="cerrar.html" class="nav__link">Cerrar sesión</a></li>
 					</ul>
 					<figure class="nav__menu">
 					<img src="../imagenes/manu.svg" alt="Imagen de muestra" class="nav__icon">
 					</figure>`;
 }
-if(localStorage.getItem('rol_usua')=='Ingeniero' || localStorage.getItem('rol_usua')=='Administrador'){
+if(localStorage.getItem('rol_usua')=='Ingeniero' || localStorage.getItem('rol_usua')=='Gerente De Inventario'){
 	header.innerHTML = `
 						<div class="nav__logo"></div>
 							<ul class="nav__list">
@@ -28,6 +28,8 @@ if(localStorage.getItem('rol_usua')=='Ingeniero' || localStorage.getItem('rol_us
 								<li><a href="productos.html" class="nav__link">Productos</a></li>
 								<li><a href="inventario.html" class="nav__link">Inventario</a></li>
 								<li><a href="proforma.html" class="nav__link">Proforma</a></li>
+								<li><a href="notaEntrega.html" class="nav__link">Nota de entrega</a></li>
+								<li><a href="compras.html" class="nav__link">Compras</a></li>
 								<li><a href="cerrar.html" class="nav__link">Cerrar sesión</a></li>
 							</ul>
 						<figure class="nav__menu">

@@ -12,7 +12,7 @@
 .modal__header--cppd{
 	display: flex;
 	justify-content: space-between;
-	padding: .5rem 1rem;
+	padding: .5rem;
 }
 .modal__header--cppd .button__close{
 	height: 2.2rem;
@@ -59,6 +59,7 @@
 /***********************************************a*/
 .modal__container--cppd .modal__body{
 	overflow: auto;
+	padding: 0 .5rem;
 }
 .modal__container--cppd .modal__body::-webkit-scrollbar{
 	width: 0.5rem;
@@ -75,7 +76,8 @@
 .foot{
 	display: flex;
 	justify-content: space-between;
-	padding: .5rem 0;
+	padding: .5rem;
+	padding-right: 1rem;
 	border-top: 1px solid #333;
 }
 .cart{
@@ -130,4 +132,20 @@
 .cart__item--delete{
 	width: 3rem;
 	border: none;
+}
+
+
+/****************  Momentaneo*********************/
+.button--sell{
+	background: var(--color-egeo-blue);
+	color: #fff;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 300;
+	font-size: 1rem;
+	padding: .5rem 0;
+	border: none;
+	cursor: pointer;
+	border-radius: .5rem;
+	display: inline-block;
+	width: 10rem;
 }

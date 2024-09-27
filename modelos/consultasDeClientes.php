@@ -73,22 +73,24 @@ class consultas {
 		//protegemos al servidor de los valores que el usuario esta introduciendo
 		include 'conexion.php';
 		//Primero vovlemos toda la palabra en minusculas y despues la primera letra en mayuscula
-		$this->sigla_empp = $conexion->real_escape_string($_POST['sigla_emppR']);
-		$this->nombre_empp = ucwords(strtolower(trim($conexion->real_escape_string($_POST['nombre_emppR']))));
-		$this->nit_empp = $conexion->real_escape_string($_POST['nit_emppR']);
-		$this->direccion_empp = $conexion->real_escape_string($_POST['direccion_emppR']);
-		$this->telefono_empp = $conexion->real_escape_string($_POST['telefono_emppR']);
+		$this->sigla_empp = strtoupper(trim($conexion->real_escape_string($_POST['sigla_emppR'])));
+		$this->nombre_empp = strtoupper(trim($conexion->real_escape_string($_POST['nombre_emppR'])));
+		$this->nit_empp = trim($conexion->real_escape_string($_POST['nit_emppR']));
+		$this->descuento_empp = trim($conexion->real_escape_string($_POST['descuento_emppR']));
+		$this->direccion_empp = trim($conexion->real_escape_string($_POST['direccion_emppR']));
+		$this->telefono_empp = trim($conexion->real_escape_string($_POST['telefono_emppR']));
 	}
 	public function asignarValoresMEP(){
 		//protegemos al servidor de los valores que el usuario esta introduciendo
 		include 'conexion.php';
 		//Primero vovlemos toda la palabra en minusculas y despues la primera letra en mayuscula
 		$this->id_empp = $conexion->real_escape_string($_POST['id_emppM']);
-		$this->sigla_empp = $conexion->real_escape_string($_POST['sigla_emppM']);
-		$this->nombre_empp = ucwords(strtolower(trim($conexion->real_escape_string($_POST['nombre_emppM']))));
-		$this->nit_empp = $conexion->real_escape_string($_POST['nit_emppM']);
-		$this->direccion_empp = $conexion->real_escape_string($_POST['direccion_emppM']);
-		$this->telefono_empp = $conexion->real_escape_string($_POST['telefono_emppM']);
+		$this->sigla_empp = strtoupper(trim($conexion->real_escape_string($_POST['sigla_emppM'])));
+		$this->nombre_empp = strtoupper(trim($conexion->real_escape_string($_POST['nombre_emppM'])));
+		$this->nit_empp = trim($conexion->real_escape_string($_POST['nit_emppM']));
+		$this->descuento_empp = trim($conexion->real_escape_string($_POST['descuento_emppM']));
+		$this->direccion_empp = trim($conexion->real_escape_string($_POST['direccion_emppM']));
+		$this->telefono_empp = trim($conexion->real_escape_string($_POST['telefono_emppM']));
 	}
 	//<<----------------------------------- CUSTOMERS----------------------------------------------->>
 	//------Leer clientes
@@ -138,7 +140,7 @@ class consultas {
 	//------Leer empresas
 	public function readEnterprises(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM empresa ORDER BY nombre_emp ASC";
+		$consulta = "SELECT * FROM empresa ORDER BY id_emp DESC";
 		$resultado = $conexion->query($consulta);
 		$numeroClientes = $resultado->num_rows;
 		$empresas =  array();
@@ -219,25 +221,6 @@ class consultas {
 			}
 		}
 	}
-	//------PARA LA compta --Leer todos los proveedores
-	public function leerProveedor(){
-		include 'conexion.php';
-		$id_empp = $_POST['id_empp'];
-		$consulta = "SELECT * FROM proveedor INNER JOIN empresa_prov ON proveedor.fk_id_empp_prov = id_empp WHERE id_empp ='$id_empp' ORDER BY nombre_prov";
-		$resultado = $conexion->query($consulta);
-		$numeroClientes = $resultado->num_rows;
-		$clientes =  array();
-		if($numeroClientes > 0){
-			while ($fila = $resultado->fetch_assoc()){
-				$datos = array ( 'id_prov'=>$fila['id_prov'], 'nombre_prov'=>$fila['nombre_prov'], 'apellido_prov'=>$fila['apellido_prov'], 'celular_prov'=>$fila['celular_prov'], 'fk_id_empp_prov'=>$fila['nombre_empp'], 'direccion_empp'=>$fila['direccion_empp'], 'telefono_empp'=>$fila['telefono_empp']);
-				$clientes[$fila['id_prov'].'_prov'] = $datos;
-			}
-			$json = json_encode($clientes, JSON_UNESCAPED_UNICODE);
-			echo $json;
-		}else{
-			echo json_encode('');
-		}
-	}
 	//<<-----------------------------------SUPPLIER----------------------------->>
 	//-----Read all supplier
 	public function readSuppliers(){
@@ -280,7 +263,6 @@ class consultas {
 			echo "Usuario eliminado con éxito";
 		}
 	}
-
 	//<<----------------------------------- ENTERPRISE DE PROVEEDOR----------------------------->>
 	//------Leer todas la empresas
 	public function readEnterprisesP(){
@@ -291,7 +273,7 @@ class consultas {
 		$empresas =  array();
 		if($numeroClientes > 0){
 			while ($fila = $resultado->fetch_assoc()){
-				$datos = array ( 'id_empp'=>$fila['id_empp'], 'sigla_empp'=>$fila['sigla_empp'], 'nombre_empp'=>$fila['nombre_empp'], 'nit_empp'=>$fila['nit_empp'],  'direccion_empp'=>$fila['direccion_empp'], 'telefono_empp'=>$fila['telefono_empp']);
+				$datos = array ( 'id_empp'=>$fila['id_empp'], 'sigla_empp'=>$fila['sigla_empp'], 'nombre_empp'=>$fila['nombre_empp'], 'nit_empp'=>$fila['nit_empp'], 'descuento_empp'=>$fila['descuento_empp'], 'direccion_empp'=>$fila['direccion_empp'], 'telefono_empp'=>$fila['telefono_empp']);
 				$empresas[$fila['id_empp']] = $datos;
 			}
 			$json = json_encode($empresas, JSON_UNESCAPED_UNICODE);
@@ -309,7 +291,7 @@ class consultas {
 		if ($numeroClientes > 0){
 			echo ("La empresa ya existe");
 		}else{
-			$consulta = "INSERT INTO empresa_prov (sigla_empp, nombre_empp, nit_empp, direccion_empp, telefono_empp) VALUES ( '$this->sigla_empp', '$this->nombre_empp', '$this->nit_empp', '$this->direccion_empp', '$this->telefono_empp')";
+			$consulta = "INSERT INTO empresa_prov (sigla_empp, nombre_empp, nit_empp, descuento_empp, direccion_empp, telefono_empp) VALUES ( '$this->sigla_empp', '$this->nombre_empp', '$this->nit_empp', '$this->descuento_empp', '$this->direccion_empp', '$this->telefono_empp')";
 			$resultado = $conexion->query($consulta);
 			echo ("Empresa creada exitosamente");
 		}
@@ -324,14 +306,14 @@ class consultas {
 			$empresa = $resultado->fetch_assoc();
 			$id_empp = $empresa['id_empp'];
 			if($id_empp == $this->id_empp){
-				$consulta = "UPDATE empresa_prov set sigla_empp='$this->sigla_empp', nombre_empp='$this->nombre_empp', nit_empp='$this->nit_empp', direccion_empp='$this->direccion_empp', telefono_empp='$this->telefono_empp' WHERE id_empp='$this->id_empp'";
+				$consulta = "UPDATE empresa_prov set sigla_empp='$this->sigla_empp', nombre_empp='$this->nombre_empp', nit_empp='$this->nit_empp', descuento_empp='$this->descuento_empp', direccion_empp='$this->direccion_empp', telefono_empp='$this->telefono_empp' WHERE id_empp='$this->id_empp'";
 				$resultado = $conexion->query($consulta);
 				echo ("Empresa actualizada exitosamente");
 			}else{
 				echo json_encode("El nombre de la empresa ya existe");
 			}
 		}else{
-			$consulta = "UPDATE empresa_prov set sigla_empp='$this->sigla_empp', nombre_empp='$this->nombre_empp', nit_empp='$this->nit_empp', direccion_empp='$this->direccion_empp', telefono_empp='$this->telefono_empp' WHERE id_empp='$this->id_empp'";
+			$consulta = "UPDATE empresa_prov set sigla_empp='$this->sigla_empp', nombre_empp='$this->nombre_empp', nit_empp='$this->nit_empp', descuento_empp='$this->descuento_empp', direccion_empp='$this->direccion_empp', telefono_empp='$this->telefono_empp' WHERE id_empp='$this->id_empp'";
 			$resultado = $conexion->query($consulta);
 			echo ("Empresa actualizada exitosamente");
 		}

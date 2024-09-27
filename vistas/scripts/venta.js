@@ -1,89 +1,101 @@
-//----------------------------------------------------------------FECHA----------------------------------------------------
-let hoy = new Date();
-let dia = hoy.getDate();
-let mes = hoy.getMonth()+1;
-let year = hoy.getFullYear();
-onlyYear = year%100;
-//--------------------------------------------------------PRODUCTOS VENDIDOS--------------------------------------------
-let ventas = {};
-let filterVentas = {};
-readVentas();
-function readVentas() {
+//----------------------------------------------------------FECHA----------------------------------------------------
+const date = new Date();
+const dateFormat = new Intl.DateTimeFormat('es-ES', {
+    timeZone: 'America/La_Paz',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  });
+const formattedDate = dateFormat.format(date);
+const datePart = formattedDate.split(', ');
+const dateActual = datePart[0].split('/');
+
+
+//--------------------------------------------------------TABLE SALES--------------------------------------------
+let sales = {};
+let filterSales = {};
+readSales();
+function readSales() {
     let formData = new FormData();
-    formData.append('readVentas','');
+    formData.append('readSales','');
     fetch('../controladores/ventas.php', {
         method: "POST",
         body: formData
     }).then(response => response.json()).then(data => {
-        ventas = data;
-        filterVentas = data;
-        paginacionVenta(Object.values(data).length, 1);
+        console.log(data);
+        sales = data;
+        filterSales = data;
+        paginationSales(Object.values(data).length, 1);
     }).catch(err => console.log(err));
 }
 //------Select utilizado para buscar por columnas
 const selectSearchVnt = document.getElementById('selectSearchVnt');
-selectSearchVnt.addEventListener('change', searchVentas);
+selectSearchVnt.addEventListener('change', searchSales);
 //------buscar por input
 const inputSerchVnt = document.getElementById("inputSerchVnt");
-inputSerchVnt.addEventListener("keyup", searchVentas);
+inputSerchVnt.addEventListener("keyup", searchSales);
 //------Clientes por pagina
 const selectNumberVnt = document.getElementById('selectNumberVnt');
 selectNumberVnt.selectedIndex = 3;
 selectNumberVnt.addEventListener('change', function(){
-    paginacionVenta(Object.values(filterVentas).length, 1);
+    paginationSales(Object.values(filterSales).length, 1);
 });
 //------buscar por:
-function searchVentas(){
-    filterVentas = {};
-    for(let venta in ventas){
-        for(let valor in ventas[venta]){
+function searchSales(){
+    filterSales = {};
+    for(let sale in sales){
+        for(let valor in sales[sale]){
             if(selectSearchVnt.value == 'todas'){
-                if(valor == 'nombre_clte' ||  valor == 'apellido_clte' || valor == 'nombre_emp'){
-                    if(ventas[venta][valor].toLowerCase().indexOf(inputSerchVnt.value.toLowerCase())>=0){
-                        filterVentas[venta] = ventas[venta];
+                if(valor != 'id_prof'){
+                    if(sales[sale][valor].toLowerCase().indexOf(inputSerchVnt.value.toLowerCase())>=0){
+                        filterSales[sale] = sales[sale];
                         break;
                     }
                 }
             }else{
                 if(valor == selectSearchVnt.value){
-                    if(ventas[venta][valor].toLowerCase().indexOf(inputSerchVnt.value.toLowerCase())>=0){
-                        filterVentas[venta] = ventas[venta];
+                    if(sales[sale][valor].toLowerCase().indexOf(inputSerchVnt.value.toLowerCase())>=0){
+                        filterSales[sale] = sales[sale];
                         break;
                     }
                 }
             }
         }
     }
-    paginacionVenta(Object.values(filterVentas).length, 1);
+    paginationSales(Object.values(filterSales).length, 1);
 }
 //------Ordenar tabla descendente ascendente
-let orderVentas = document.querySelectorAll('.tbody__head--venta');
-orderVentas.forEach(div=>{
+let orderSales = document.querySelectorAll('.tbody__head--venta');
+orderSales.forEach(div=>{
     div.children[0].addEventListener('click', function() {
-        let array = Object.entries(filterVentas).sort((a,b)=>{
+        let array = Object.entries(filterSales).sort((a,b)=>{
             let first = a[1][div.children[0].name].toLowerCase();
             let second = b[1][div.children[0].name].toLowerCase();
             if( first < second){return -1}
             if(first > second){return 1}
             return 0;
         })
-        filterVentas = Object.fromEntries(array);
-        paginacionVenta(Object.values(filterVentas).length, 1);
+        filterSales = Object.fromEntries(array);
+        paginationSales(Object.values(filterSales).length, 1);
     });
     div.children[1].addEventListener('click', function() {
-        let array = Object.entries(filterVentas).sort((a,b)=>{
+        let array = Object.entries(filterSales).sort((a,b)=>{
             let first = a[1][div.children[0].name].toLowerCase();
             let second = b[1][div.children[0].name].toLowerCase();
             if( first > second){return -1}
             if(first < second){return 1}
             return 0;
         })
-        filterVentas = Object.fromEntries(array);
-        paginacionVenta(Object.values(filterVentas).length, 1);
+        filterSales = Object.fromEntries(array);
+        paginationSales(Object.values(filterSales).length, 1);
     });
 })
-//------PaginacionVenta
-function paginacionVenta(allVentas, page){
+//------PaginationSales
+function paginationSales(allVentas, page){
     let numberVentas = Number(selectNumberVnt.value);
     let allPages = Math.ceil(allVentas/numberVentas);
     let ul = document.querySelector('#wrapperVenta ul');
@@ -92,7 +104,7 @@ function paginacionVenta(allVentas, page){
     let afterPages = page +1;
     let liActive;
     if(page > 1){
-        li+= `<li class="btn" onclick="paginacionVenta(${allVentas}, ${page-1})"><img src="../imagenes/arowLeft.svg"></li>`;
+        li+= `<li class="btn" onclick="paginationSales(${allVentas}, ${page-1})"><img src="../imagenes/arowLeft.svg"></li>`;
     }
     for(let pageLength = beforePages; pageLength <= afterPages; pageLength++){
         if(pageLength > allPages){
@@ -106,61 +118,77 @@ function paginacionVenta(allVentas, page){
         }else{
             liActive = '';
         }
-        li+= `<li class="numb ${liActive}" onclick="paginacionVenta(${allVentas}, ${pageLength})"><span>${pageLength}</span></li>`;
+        li+= `<li class="numb ${liActive}" onclick="paginationSales(${allVentas}, ${pageLength})"><span>${pageLength}</span></li>`;
     }
     if(page < allPages){
-        li += `<li class="btn" onclick="paginacionVenta(${allVentas}, ${page+1})"><img src="../imagenes/arowRight.svg"></li>`;
+        li += `<li class="btn" onclick="paginationSales(${allVentas}, ${page+1})"><img src="../imagenes/arowRight.svg"></li>`;
     }
     ul.innerHTML = li;
     let h2= document.querySelector('#showPageVenta h2');
     h2.innerHTML =`Pagina ${page}/${allPages}, ${allVentas} Clientes`;
-    tableVentas(page);
+    tableSales(page);
 }
 //------Crear la tabla
-function tableVentas(page) {
+function tableSales(page) {
     let tbody = document.getElementById('tbodyVenta');
     inicio = (page-1)*Number(selectNumberVnt.value); 
     final = inicio + Number(selectNumberVnt.value);
     let i=1;
     tbody.innerHTML = '';
-    for(let venta in filterVentas){
+    for(let sale in filterSales){
        if( i > inicio && i <= final){
         let tr = document.createElement('tr');
-        for(let valor in filterVentas[venta]){
+        for(let valor in filterSales[sale]){
             let td = document.createElement('td');
             if(valor == 'id_vnt'){
                 td.innerText = i;
                 tr.appendChild(td);
                 i++;
                 td = document.createElement('td');
-                td.innerText = 'Venta-'+ventas[venta][valor];
+                td.innerText = 'VNT-SMS-'+filterSales[sale][valor];
                 tr.appendChild(td);
             }else if(valor == 'id_prof'){
-                td.innerText = 'SMSIC'+onlyYear+'-'+ventas[venta][valor];
+                td.innerText = 'SMSIC'+filterSales[sale]['fecha_vnt'].slice(2, 4)+'-'+filterSales[sale][valor];
                 tr.appendChild(td);
             }else if(valor == 'nombre_usua'){
-                td.innerText = ventas[venta][valor]+' '+ventas[venta]['apellido_usua'];
+                td.innerText = filterSales[sale][valor]+' '+filterSales[sale]['apellido_usua'];
                 tr.appendChild(td);
             }else if(valor == 'apellido_usua'){
             }else if(valor == 'fecha_vnt'){
-                td.innerText = ventas[venta][valor].slice(0,10);
+                td.innerText = filterSales[sale][valor].slice(0,10);
                 tr.appendChild(td);
             }else{
-                td.innerText = ventas[venta][valor];
+                td.innerText = filterSales[sale][valor];
                 tr.appendChild(td);
             }
         }
-        let td = document.createElement('td');
+        /*let td = document.createElement('td');
         td.innerHTML = `
         <img src='../imagenes/edit.svg' onclick='readVenta(this.parentNode.parentNode)'>
         <img src='../imagenes/trash.svg' onclick='deleteVenta(this.parentNode.parentNode)'>`;
-        tr.appendChild(td);
+        tr.appendChild(td);*/
         tbody.appendChild(tr);
         }else{
             i++;    
         }
     }   
 }
+
+
+
+
+
+
+
+
+//----------------------------------------------------------------FECHA----------------------------------------------------
+/*let hoy = new Date();
+let dia = hoy.getDate();
+let mes = hoy.getMonth()+1;
+let year = hoy.getFullYear();
+onlyYear = year%100;
+
+
 //<<--------------------------------------CRUD VENTA-------------------------------------------->>
 //------READ VENTA
 function readVenta(tr) {
@@ -198,7 +226,7 @@ function updateASale(){
     }
 }*/
 //------Delete venta
-function deleteVenta(tr){
+/*function deleteVenta(tr){
     if(confirm('¿Esta usted seguro?')){
         let id_vnt = tr.children[1].innerText.slice(6);
         let id_prof = tr.children[4].innerText.slice(8);
@@ -210,7 +238,7 @@ function deleteVenta(tr){
             body: formData
         }).then(response => response.text()).then(data => {
             console.log(data)
-            readVentas();
+            readSales();
         }).catch(err => console.log(err));
     }
 }
@@ -236,7 +264,7 @@ selectMarcaProduct.addEventListener('change', searchVnt_prod);
 const selectCategoriaProduct = document.getElementById('selectCategoriaProduct');
 selectCategoriaProduct.addEventListener('change', searchVnt_prod);*/
 //------read vnt-prods
-let vnt_prods = {};
+/*let vnt_prods = {};
 let filterVnt_prods = {};
 readVnt_prods();
 function readVnt_prods() {
@@ -318,7 +346,7 @@ function searchVnt_prod(){
     }
 }*/
 //------Ordenar tabla descendente ascendente
-let orderVvt_prod = document.querySelectorAll('.tbody__head--vtpd');
+/*let orderVvt_prod = document.querySelectorAll('.tbody__head--vtpd');
 orderVvt_prod.forEach(div=>{
     div.children[0].addEventListener('click', function() {
         let array = Object.entries(filterVnt_prods).sort((a,b)=>{

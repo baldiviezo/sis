@@ -1,17 +1,28 @@
 //--------------------------------------------Restricciones de usuario----------------------------------------------
-if (localStorage.getItem('rol_usua') == 'Gerente general') {
-    //tabla inventario
-    document.querySelector('main section.table__body tr').children[10].removeAttribute('hidden');
+if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
     //Marca y Categoria
     document.querySelector('.select__search').children[0].children[2].removeAttribute('hidden');
     document.querySelector('.select__search').children[0].children[3].removeAttribute('hidden');
     document.querySelector('.select__search').children[1].children[2].removeAttribute('hidden');
     document.querySelector('.select__search').children[1].children[3].removeAttribute('hidden');
-    //inventoryRMW
-    document.querySelector('#openInventoryRMW').removeAttribute('hidden');
-    document.querySelector('#inventoryRMW .form__group--select').children[4].removeAttribute('hidden');
+    //tabla inventario
+    document.querySelector('main section.table__body tr').children[10].removeAttribute('hidden');
     //inventoryMMW
-    document.querySelector('#inventoryMMW .form__group--select').children[4].removeAttribute('hidden');
+    document.getElementsByName('cantidad_invM')[0].setAttribute('readonly', 'readonly');
+
+    //inventoryRMW
+    //document.querySelector('#openInventoryRMW').removeAttribute('hidden');
+    //document.getElementsByName('cantidad_invR')[0].setAttribute('readonly', 'readonly');
+    //document.querySelector('#inventoryRMW .form__group--select').children[4].removeAttribute('hidden');
+
+}else if (localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
+    //Marca y Categoria
+    document.querySelector('.select__search').children[0].children[2].removeAttribute('hidden');
+    document.querySelector('.select__search').children[1].children[2].removeAttribute('hidden');
+    //tabla inventario
+    document.querySelector('main section.table__body tr').children[10].removeAttribute('hidden');
+    //inventoryMMW
+    document.getElementsByName('cantidad_invM')[0].setAttribute('readonly', 'readonly');
 }
 //-------Marca y categoria
 const selectMarcaInventory = document.getElementById('selectMarcaInventory');
@@ -197,14 +208,13 @@ function tableInventories(page) {
                 }
             }
             let td = document.createElement('td');
-            if(localStorage.getItem('rol_usua')=='Gerente general'){
+            if(localStorage.getItem('rol_usua')=='Gerente general' || localStorage.getItem('rol_usua')=='Administrador' || localStorage.getItem('rol_usua')=='Gerente De Inventario'){
                 td.innerHTML = `
-                <img src='../imagenes/edit.svg' onclick='readInventory(this.parentNode.parentNode)' title='Editar en Inventario'>
-                <img src='../imagenes/trash.svg' onclick='deleteInventory(this.parentNode.parentNode)' title='Eliminar en Inventario'>`;
+                <img src='../imagenes/edit.svg' onclick='readInventory(this.parentNode.parentNode)' title='Editar en Inventario'>`;
+                tr.appendChild(td);
             }else{
                 //td.innerHTML = ``;
             }
-            tr.appendChild(td);
             tbody.appendChild(tr);
         } else {
             i++;
@@ -324,14 +334,8 @@ function readProductsMW() {
         filterProducts = products;
         sortProducts = products;
         let array = Object.entries(sortProducts).sort((a, b) => {
-            if (a[1].codigo_prod.toLowerCase() < b[1].codigo_prod.toLowerCase()) {
-                return -1;
-            }
-            if (a[1].codigo_prod.toLowerCase() > b[1].codigo_prod.toLowerCase()) {
-                return 1;
-            }
-            return 0;
-        })
+            return a[1].codigo_prod.toLowerCase().localeCompare(b[1].codigo_prod.toLowerCase());
+          });
         sortProducts = Object.fromEntries(array);
         fillSelectProd(selectProductR, indexProduct);
         fillSelectProd(selectProductM, indexProduct);
@@ -429,7 +433,7 @@ function updateProduct() {
 }
 //------Delete un producto
 function deleteProduct(div) {
-    if (confirm('¿Esta usted seguro?')) {
+    if (confirm(`¿Esta usted seguro? Se eliminará el producto "${div.children[0].options[div.children[0].selectedIndex].text}"`)){
         let id_prod = div.children[0].value;
         const formData = new FormData()
         formData.append('deleteProduct', id_prod);
