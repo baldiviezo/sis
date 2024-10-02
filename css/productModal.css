@@ -38,19 +38,7 @@
 }
 .modalP__inputs--container{
 	width: 100%;
-	height: 20rem;
-}
-.modalP__form--container::-webkit-scrollbar{
-	width: 0.5rem;
-	height: 0.5rem;
-}
-.modalP__form--container::-webkit-scrollbar-thumb{
-	border-radius: .5rem;
-	background-color: #0004;
-	visibility: hidden;
-}
-.modalP__form--container:hover::-webkit-scrollbar-thumb{
-	visibility: visible;
+	height: 28rem;
 }
 .modalP__form{
 	background-color: #fff4;
@@ -59,6 +47,20 @@
 	width: 100%;
 	overflow: auto;
 }
+.modalP__form::-webkit-scrollbar{
+	width: 0.5rem;
+	height: 0.5rem;
+}
+.modalP__form::-webkit-scrollbar-thumb{
+	border-radius: .5rem;
+	background-color: #0004;
+	visibility: hidden;
+}
+.modalP__form:hover::-webkit-scrollbar-thumb{
+	visibility: visible;
+}
+
+
 .modalP__select{
 	width: 100%;
 	display: flex;
@@ -156,25 +158,38 @@
 	border-radius: 5px;
 }
 .modalP__textarea textarea{
+	resize: none;
 	width: 100%;
-	height:	10rem;
-	padding-top: 5px;
 	border-radius: .3rem;
-	overflow: auto;
-	border: 3px solid #225c74;
+	border: .1rem solid #225c74;
 	font-family: 'Roboto', sans-serif;
 	background-color: #fffb;
-	font-size: .8rem;
-	margin: 1rem 0;
 }
-textarea:is(:focus, :valid){
-	border-width: 2px;
-	padding: 14px;
-	border-color: #4671ea;
+textarea[name="nombre_prodR"], textarea[name="nombre_prodM"] {
+	height: 5rem;
 }
-textarea::-webkit-scrollbar{
-	width: 0px
+textarea[name="descripcion_prodR"], textarea[name="descripcion_prodM"] {
+	height: 10rem;
 }
+.modalP__textarea textarea:is(:focus, :valid){
+	padding: .5rem;
+}
+.modalP__textarea textarea:focus{
+	outline: none;
+}
+.modalP__textarea textarea::-webkit-scrollbar{
+	width: 0.5rem;
+	height: 0.5rem;
+}
+.modalP__textarea textarea::-webkit-scrollbar-thumb{
+	border-radius: .5rem;
+	background-color: #0004;
+	visibility: hidden;
+}
+.modalP__textarea textarea:hover::-webkit-scrollbar-thumb{
+	visibility: visible;
+}
+
 /*------Arrastrar imagen Drag and Drop*/
 .drop__areaR{
 	border: 5px dashed #ddd;

@@ -1,3 +1,24 @@
+//--------------------------------------------Restricciones de usuario----------------------------------------------
+if(localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador'){
+}else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
+    //marca y categoria create
+    document.getElementsByName('codigo_prodM')[0].setAttribute('readonly', 'readonly');
+}
+//-----------------------------------------------FECHA ACTUAL-------------------------------------
+const date = new Date();
+const dateFormat = new Intl.DateTimeFormat('es-ES', {
+    timeZone: 'America/La_Paz',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  });
+const formattedDate = dateFormat.format(date);
+const datePart = formattedDate.split(', ');
+const dateActual = datePart[0].split('/');
 //-------------------------------------------------SUPPLIER--------------------------------------------------
 //<<-----------------------------------------CRUD SUPPLIER----------------------------------------->>
 let suppliers = {};
@@ -317,6 +338,7 @@ function createEnterprise() {
         if (data != 'La empresa ya existe') {
             cleanFormEnterpriseR();
             readEnterprises();
+            readSuppliers();
         }
     }).catch(err => console.log(err));
 }
@@ -388,9 +410,6 @@ closeEnterprisesRMW.addEventListener('click', () => {
 closeEnterprisesMMW.addEventListener('click', () => {
     enterprisesMMW.classList.remove('modal__show');
 });
-
-
-
 //<<---------------------------------------------------TABLA DE COMPRA------------------------------------------>>
 let buys = {};
 let filterBuys = {};
@@ -429,7 +448,22 @@ function searchBuys() {
     for (let buy in buys) {
         for (let valor in buys[buy]) {
             if (selectSearchBuy.value == 'todas') {
-                if (valor != 'estado_cmp' || valor == 'fk_id_prov_clte' || valor == 'fk_id_usua_cmp' || valor == 'id_cmp' || valor == 'id_empp' || valor == 'descuento_cmp') {
+                if (valor == 'numero_cmp') {
+                    if (buys[buy][valor].toLowerCase().indexOf(inputSerchBuy.value.toLowerCase()) >= 0) {
+                        filterBuys[buy] = buys[buy];
+                        break;
+                    }
+                } else if (valor == 'nombre_usua') {
+                    if ((buys[buy][valor] + ' ' + buys[buy]['apellido_usua']).toLowerCase().indexOf(inputSerchBuy.value.toLowerCase()) >= 0) {
+                        filterBuys[buy] = buys[buy];
+                        break;
+                    }
+                } else if (valor == 'nombre_prov') {
+                    if ((buys[buy][valor] + ' ' + buys[buy]['apellido_prov']).toLowerCase().indexOf(inputSerchBuy.value.toLowerCase()) >= 0) {
+                        filterBuys[buy] = buys[buy];
+                        break;
+                    }
+                } else if (valor == 'fecha_cmp' || valor == 'nombre_empp') {
                     if (buys[buy][valor].toLowerCase().indexOf(inputSerchBuy.value.toLowerCase()) >= 0) {
                         filterBuys[buy] = buys[buy];
                         break;
@@ -443,6 +477,9 @@ function searchBuys() {
                     }
                 }
             }
+
+
+
         }
     }
     selectStateBuys();
@@ -562,9 +599,6 @@ function tableBuys(page) {
                     td.innerText = i;
                     tr.appendChild(td);
                     i++;
-                } else if (valor == 'numero_cmp') {
-                    td.innerText = `OC SMS${filterBuys[buy]['fecha_cmp'].slice(2, 4)}-${filterBuys[buy][valor]}`;
-                    tr.appendChild(td);
                 } else if (valor == 'fecha_cmp') {
                     td.innerText = filterBuys[buy][valor].slice(0, 10);
                     tr.appendChild(td);
@@ -586,19 +620,21 @@ function tableBuys(page) {
             let td = document.createElement('td');
 
             if (filterBuys[buy]['estado_cmp'] == '0') {
-                if (localStorage.getItem('rol_usua') == 'Gerente general') {
+                if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
                     td.innerHTML = `
                 <img src='../imagenes/receipt.svg' onclick='openProductBuyMW(this.parentNode.parentNode.children[0].innerText)' title='Añadir compra a inventario'>
-                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir pdf'>
-                <img src='../imagenes/edit.svg' onclick='readBuy(this.parentNode.parentNode.children[0].innerText)' title='Editar compra'>`;
+                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir orden de compra'>
+                <img src='../imagenes/edit.svg' onclick='readBuy(parseInt(this.parentNode.parentNode.children[0].innerText))' title='Editar compra'>
+                <img src='../imagenes/trash.svg' onclick='deleteBuy(parseInt(this.parentNode.parentNode.children[0].innerText))' title='Eliminar compra'>`;
                 } else {
                     td.innerHTML = `
                 <img src='../imagenes/receipt.svg' onclick='openProductBuyMW(this.parentNode.parentNode.children[0].innerText)' title='Añadir compra a inventario'>
-                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir pdf'>`;
+                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir orden de compra'>
+                <img src='../imagenes/edit.svg' onclick='readBuy(parseInt(this.parentNode.parentNode.children[0].innerText))' title='Editar compra'>`;
                 }
             } else {
                     td.innerHTML = `
-                    <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir pdf'>`;
+                    <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir orden de compra'>`;
             }
             tr.appendChild(td);
             tbody.appendChild(tr);
@@ -620,9 +656,9 @@ function createBuy() {
         products.forEach(producto => {
             let object = {
                 'fk_id_prod_cppd': producto.children[0].value,
-                'descripcion_cppd': producto.children[2].value,
-                'cantidad_cppd': producto.children[3].value,
-                'cost_uni_cppd': producto.children[4].value
+                'descripcion_cppd': producto.children[3].value,
+                'cantidad_cppd': producto.children[4].value,
+                'cost_uni_cppd': producto.children[5].value
             };
             array.push(object);
         });
@@ -635,9 +671,9 @@ function createBuy() {
             body: formData
         }).then(response => response.text()).then(data => {
             alert(data);
-            cleanFormBuyR();
             readBuys();
             readCmp_prods();
+            cleanFormBuyR();
         }).catch(err => console.log(err));
     } else {
         alert('No a seleccionado ningun producto');
@@ -646,9 +682,9 @@ function createBuy() {
 //------read Buy
 function readBuy(id_cmp) {
     buyMMW.classList.add('modal__show');
-    const filterBuy = Object.values(filterBuys).find(buy => buy['id_cmp'] === id_cmp);
+    let filterBuy = Object.values(filterBuys).find(buy => buy['id_cmp'] === id_cmp);
     if (filterBuy) {
-        const properties = ['id_cmp', 'fecha_cmp', 'forma_pago_cmp', 'tpo_entrega_cmp', 'tipo_cambio_cmp', 'descuento_cmp', 'observacion_cmp'];
+        const properties = ['id_cmp', 'fecha_cmp', 'numero_cmp', 'forma_pago_cmp', 'tpo_entrega_cmp', 'tipo_cambio_cmp', 'descuento_cmp', 'observacion_cmp'];
         properties.forEach(property => {
             document.getElementsByName(property+'M')[0].value = filterBuy[property];
         }); 
@@ -669,13 +705,14 @@ function readBuy(id_cmp) {
 }
 function readCmp_prod(id_cmp) {
     formBuy = 'M';
-    const filterCmp_prods = Object.values(cmp_prods).filter(cmp_prod => cmp_prod['fk_id_cmp_cppd'] === id_cmp);
+    const filterCmp_prods = Object.values(cmp_prods).filter(cmp_prod => cmp_prod['fk_id_cmp_cppd'] == id_cmp);
     cmp_prodMMW.querySelector('div.modal__body').innerHTML = '';
     filterCmp_prods.forEach(cmp_prod => {
         let div = document.createElement('div');
         div.classList.add('cart__item');
         div.innerHTML = `
         <input type="hidden"  value = "${cmp_prod['fk_id_prod_cppd']}" class="cart__item--id">
+        <p class="cart__item--position">1</p>
         <input type="text" value = "${cmp_prod['codigo_prod']}" class="cart__item--code">
         <textarea class="cart__item--name">${cmp_prod['descripcion_cppd']}</textarea>
         <input type="number" value = "${cmp_prod['cantidad_cppd']}" min="1" onChange="changeQuantityCPPDM(this.parentNode)" class="cart__item--quantity">
@@ -698,9 +735,9 @@ function updateBuy() {
         products.forEach(producto => {
             let object = {
                 'fk_id_prod_cppd': producto.children[0].value,
-                'descripcion_cppd': producto.children[2].value,
-                'cantidad_cppd': producto.children[3].value,
-                'cost_uni_cppd': producto.children[4].value
+                'descripcion_cppd': producto.children[3].value,
+                'cantidad_cppd': producto.children[4].value,
+                'cost_uni_cppd': producto.children[5].value
             };
             array.push(object);
         });
@@ -733,14 +770,18 @@ function deleteBuy(id_cmp){
         }).catch(err => console.log(err));
     }
 }
-//------Limpiar formulario despues de registrar una compra
-function cleanFormBuyR() {
-    formBuyR.querySelectorAll('input.form__input').forEach(input => {
-        input.value = '';
-    })
-    cmp_prodRMW.querySelector('div.modal__body').innerHTML = '';
-    document.querySelector('#totalProductsCPRMW').innerHTML = '0';
-    document.querySelector('#totalCostCPRMW').innerHTML = 'Bs. 0.00';
+function cleanFormBuyR(){
+    document.querySelector('#cmp_prodRMW .modal__body').innerHTML = '';
+    document.getElementsByName('forma_pago_cmpR')[0].value = '';
+    document.getElementsByName('tpo_entrega_cmpR')[0].value = '';
+    document.getElementsByName('total_cmpR')[0].value = '0';
+    document.getElementsByName('tipo_cambio_cmpR')[0].value = '';
+    document.getElementsByName('observacion_cmpR')[0].value = '';
+    quantityCPRMW.innerHTML = '0';
+    subTotalCPRMW.innerHTML = 'Sub-Total (Bs):';
+    descCPRMW.innerHTML = 'Desc. (Bs):';
+    totalCPRMW.innerHTML = 'Total (Bs):';
+
 }
 //<<------------------------ABRIR Y CERRAR MODALES DE  COMPRA--------------------------------->>
 const closeBuyRMW = document.getElementById('closeBuyRMW');
@@ -749,9 +790,7 @@ const openBuyRMW = document.getElementById('openBuyRMW');
 const openBuyMMW = document.getElementById('openBuyMMW');
 openBuyRMW.addEventListener('click', () => {
     buyRMW.classList.add('modal__show');
-    const fechaHoy = new Date();
-    const fechaCorta = fechaHoy.toISOString().slice(0, 10);
-    document.getElementsByName('fecha_cmpR')[0].value = fechaCorta;
+    document.getElementsByName('fecha_cmpR')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
     formBuy = 'R';
 });
 closeBuyRMW.addEventListener('click', () => {
@@ -913,8 +952,6 @@ const closeProductBuyMW = document.getElementById('closeProductBuyMW');
 closeProductBuyMW.addEventListener('click', (e) => {
     productBuyMW.classList.remove('modal__show');
 });
-
-
 //------------------------------------------CRUD COMPRAS--------------------------------------------------
 //--------read Cmp_prods
 let cmp_prods;
@@ -929,10 +966,6 @@ function readCmp_prods() {
         cmp_prods = data;
     }).catch(err => console.log(err));
 }
-
-
-
-
 //------------------------------MODAL ADD BUY TO INVETORY-----------------------------------------------------
 const addBuyMW = document.getElementById('addBuyMW');
 const closeAddBuyMW = document.getElementById('closeAddBuyMW');
@@ -1137,7 +1170,8 @@ function tableProductsMW(page) {
             }
             let td = document.createElement('td');
             td.innerHTML = `
-        <img src='../imagenes/send.svg' onclick='sendProduct(this.parentNode.parentNode)'>`;
+            <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)' title='Editar producto'>
+            <img src='../imagenes/send.svg' onclick='sendProduct(this.parentNode.parentNode)' title='Seleccionar producto'>`;
             tr.appendChild(td);
             tbody.appendChild(tr);
         } else {
@@ -1177,6 +1211,7 @@ function cartProduct_cppdR(product) {
     item.classList.add('cart__item');
     let html =
         `<input type="hidden"  value = "${product['id_prod']}" class="cart__item--id">
+        <p class="cart__item--position">1</p>
         <input type="text" value = "${product['codigo_prod']}" class="cart__item--code">
         <textarea class="cart__item--name" >${product['nombre_prod']}</textarea>
         <input type="number" value = "1" min="1" onChange="changeQuantityCPPDR(this.parentNode)" class="cart__item--quantity">
@@ -1184,27 +1219,9 @@ function cartProduct_cppdR(product) {
         <input type="number" value = "0" class="cart__item--costTotal" readonly>
         <img src="../imagenes/trash.svg" onClick="removeCartR(this.parentNode)" class='icon__CRUD'>`;
     item.innerHTML = html;
-    //-------drag drop
-    item.setAttribute('draggable', true)
-    item.addEventListener("dragstart", () => {
-        setTimeout(() => item.classList.add("dragging"), 0);
-    });
-    item.addEventListener("dragend", () => item.classList.remove("dragging"));
     cmpProdRMW.appendChild(item);
     totalPriceCPPDR();
 }
-//-----Drag drop
-const initSortableListM = (e) => {
-    e.preventDefault();
-    const draggingItem = document.querySelector(".dragging");
-    let siblings = [...cmpProdRMW.querySelectorAll(".cart__item:not(.dragging)")];
-    let nextSibling = siblings.find(sibling => {
-        return e.clientY <= sibling.offsetTop + sibling.offsetHeight / 2;
-    });
-    cmpProdRMW.insertBefore(draggingItem, nextSibling);
-}
-cmpProdRMW.addEventListener("dragover", initSortableListM);
-cmpProdRMW.addEventListener("dragenter", e => e.preventDefault());
 //-------Eliminar producto 
 function removeCartR(product) {
     let listProducts = document.querySelector('#cmp_prodRMW div.modal__body');
@@ -1213,22 +1230,31 @@ function removeCartR(product) {
 }
 //-------Cuando cambia la cantidad
 function changeQuantityCPPDR(product) {
-    let cantidad_prod = product.children[3].value;
-    let costo_uni = product.children[4].value;
+    let cantidad_prod = product.children[4].value;
+    let costo_uni = product.children[5].value;
     let cost_uni_total = cantidad_prod * costo_uni;
-    product.children[5].value = cost_uni_total.toFixed(2);
+    product.children[6].value = cost_uni_total.toFixed(2);
     totalPriceCPPDR();
 }
+const quantityCPRMW = document.getElementById('quantityCPRMW');
+const subTotalCPRMW = document.getElementById('subTotalCPRMW');
+const descCPRMW = document.getElementById('descCPRMW');
+const totalCPRMW = document.getElementById('totalCPRMW');
 function totalPriceCPPDR() {
     let divs = document.querySelectorAll('#cmp_prodRMW div.modal__body div.cart__item');
     let total = 0;
+    let desc = 0;
     divs.forEach(div => {
-        costo_uni = Number(div.children[5].value);
+        costo_uni = Number(div.children[6].value);
         total = total + costo_uni;
     })
-    document.getElementById('totalCostCPRMW').innerHTML = 'Bs ' + total.toFixed(2);
-    document.getElementById('totalProductsCPRMW').innerHTML = divs.length;
-    document.getElementsByName('total_cmpR')[0].value = total.toFixed(2) - document.getElementsByName('descuento_cmpR')[0].value*total/100;
+    subTotalCPRMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2)+' Bs';
+    desc = document.getElementsByName('descuento_cmpR')[0].value*total/100;
+    desc = desc.toFixed(2);
+    descCPRMW.innerHTML = `Desc. ${document.getElementsByName('descuento_cmpR')[0].value}% (Bs): ${desc} Bs` ;
+    totalCPRMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2)-desc).toFixed(2)}`;
+    document.getElementsByName('total_cmpR')[0].value = Number(total.toFixed(2)-desc).toFixed(2);
+    quantityCPRMW.innerHTML = divs.length;
 }
 const cmpProdMMW = document.querySelector('#cmp_prodMMW div.modal__body');
 function cartProduct_cppdM(product) {
@@ -1236,6 +1262,7 @@ function cartProduct_cppdM(product) {
     item.classList.add('cart__item');
     let html =
         `<input type="hidden"  value = "${product['id_prod']}" class="cart__item--id">
+        <p class="cart__item--position">1</p>
         <input type="text" value = "${product['codigo_prod']}" class="cart__item--code">
         <textarea class="cart__item--name">${product['nombre_prod']}</textarea>
         <input type="number" value = "1" min="1" onChange="changeQuantityCPPDM(this.parentNode)" class="cart__item--quantity">
@@ -1243,12 +1270,6 @@ function cartProduct_cppdM(product) {
         <input type="number" value = "0" class="cart__item--costTotal" readonly>
         <img src="../imagenes/trash.svg" onClick="removeCartM(this.parentNode)" class='icon__CRUD'>`;
     item.innerHTML = html;
-    //-------drag drop
-    item.setAttribute('draggable', true)
-    item.addEventListener("dragstart", () => {
-        setTimeout(() => item.classList.add("dragging"), 0);
-    });
-    item.addEventListener("dragend", () => item.classList.remove("dragging"));
     cmpProdMMW.appendChild(item);
     totalPriceCPPDM();
 }
@@ -1258,22 +1279,31 @@ function removeCartM(product) {
     totalPriceCPPDM();
 }
 function changeQuantityCPPDM(product) {
-    let cantidad_prod = product.children[3].value;
-    let costo_uni = product.children[4].value;
+    let cantidad_prod = product.children[4].value;
+    let costo_uni = product.children[5].value;
     let cost_uni_total = cantidad_prod * costo_uni;
-    product.children[5].value = cost_uni_total.toFixed(2);
+    product.children[6].value = cost_uni_total.toFixed(2);
     totalPriceCPPDM();
 }
 function totalPriceCPPDM() {
     let divs = document.querySelectorAll('#cmp_prodMMW div.modal__body div.cart__item');
+    let quantityCPMMW = document.getElementById('quantityCPMMW');
+    let subTotalCPMMW = document.getElementById('subTotalCPMMW');
+    let descCPMMW = document.getElementById('descCPMMW');
+    let totalCPMMW = document.getElementById('totalCPMMW');
     let total = 0;
+    let desc = 0;
     divs.forEach(div => {
-        costo_uni = Number(div.children[5].value);
-        total = total + costo_uni;
+        costo_total = Number(div.children[6].value);
+        total = total + costo_total;
     })
-    document.getElementById('totalCostCPMMW').innerHTML = 'Bs ' + total.toFixed(2);
-    document.getElementById('totalProductsCPMMW').innerHTML = divs.length;
-    document.getElementsByName('total_cmpM')[0].value = total.toFixed(2) - document.getElementsByName('descuento_cmpM')[0].value*total/100;
+    subTotalCPMMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2)+' Bs';
+    desc = document.getElementsByName('descuento_cmpM')[0].value*total/100;
+    desc = desc.toFixed(2);
+    descCPMMW.innerHTML = `Desc. ${document.getElementsByName('descuento_cmpM')[0].value}% (Bs): ${desc} Bs` ;
+    totalCPMMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2)-desc).toFixed(2)}`;
+    document.getElementsByName('total_cmpM')[0].value = Number(total.toFixed(2)-desc).toFixed(2);
+    quantityCPMMW.innerHTML = divs.length;
 }
 //---------------------------VENTANA MODAL PARA BUSCAR PRODUCTOS
 const productSMW = document.getElementById('productSMW');
@@ -1299,6 +1329,7 @@ function readAllMarcas() {
         marcas = JSON.parse(JSON.stringify(data));
         selectMarcaProdR();
         selectMarcaProductMW();
+        selectMarcaProdM();
     }).catch(err => console.log(err));
 }
 //-------Read all categorias
@@ -1351,7 +1382,42 @@ function selectCategoriaProdR() {
         }
     }
 }
-
+const marca_prodM = document.getElementById('marca_prodM');
+marca_prodM.addEventListener('change', selectCategoriaProdM);
+const categoria_prodM = document.getElementById('categoria_prodM');
+//-------Select de marcas registrar
+function selectMarcaProdM(){
+    marca_prodM.innerHTML = '';
+    let option = document.createElement('option');
+    option.value = 'todasLasMarcas';
+    option.innerText = 'Todas las marcas';
+    marca_prodM.appendChild(option); 
+    for ( let clave in marcas){
+        let option = document.createElement('option');
+        option.value = marcas[clave]['id_mrc'];
+        option.innerText = marcas[clave]['nombre_mrc'];
+        marca_prodM.appendChild(option);
+    }
+    selectCategoriaProdM();        
+}
+function selectCategoriaProdM(){
+    categoria_prodM.innerHTML = ''; 
+    let option = document.createElement('option');
+    option.value = 'todasLasCategorias';
+    option.innerText = 'Todas las categorias';
+    categoria_prodM.appendChild(option);
+    if(marca_prodM.value != 'todasLasMarcas'){
+        let id_mrc = marca_prodM.value;
+        for ( let clave in categorias){
+            if (categorias[clave]['id_mrc'] == id_mrc){
+                let option = document.createElement('option');
+                option.value = categorias[clave]['id_ctgr'];
+                option.innerText = categorias[clave]['nombre_ctgr'];
+                categoria_prodM.appendChild(option);
+            }
+        }
+    }
+}
 //-------Select de marcas
 function selectMarcaProductMW() {
     selectMarcaProdMW.innerHTML = '';
@@ -1415,6 +1481,53 @@ function createProduct() {
         }).catch(err => console.log(err));
     }
 }
+//------Leer un producto
+function readProduct(tr){
+    cleanUpProductFormM();
+    let id_prod = tr.children[0].innerText;
+    for(let product in filterProductsMW){
+        if(filterProductsMW[product]['id_prod']==id_prod){
+            for(let valor in filterProductsMW[product]){
+                if(valor == 'imagen_prod'){
+                    document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("../modelos/imagenes/${filterProductsMW[product][valor]}"); background-size: cover;`);
+                }else if(valor == 'id_ctgr'){
+                }else if(valor == 'id_mrc'){
+                }else if(valor == 'marca_prod'){
+                    document.getElementsByName(valor+'M')[0].value = filterProductsMW[product]['id_mrc'];
+                }else if(valor == 'categoria_prod'){
+                    selectCategoriaProdM(); 
+                    document.getElementsByName(valor+'M')[0].value = filterProductsMW[product]['id_ctgr'];
+                }else{
+                    document.getElementsByName(valor+'M')[0].value = filterProductsMW[product][valor];
+                }
+            }
+            break;
+        }
+    }
+    productsMMW.classList.add('modal__show');
+}
+//-------Update un producto
+document.getElementById("formProductsM").addEventListener("submit", updateProduct);
+function updateProduct(){
+    event.preventDefault();
+    if(marca_prodM.value == "todasLasMarcas"){
+        alert("Debe seleccionar una marca");
+    }else if(categoria_prodM.value == "todasLasCategorias"){
+        alert("Debe seleccionar una categoria");
+    }else{
+        productsMMW.classList.remove('modal__show');
+        let form = document.getElementById("formProductsM");
+        let formData = new FormData(form);
+        formData.append('updateProduct', '');
+        fetch('../controladores/productos.php', {
+                method: "POST",
+                body: formData
+        }).then(response => response.text()).then(data => {
+            readProducts();
+            alert(data);
+        }).catch(err => console.log(err));
+    }
+}
 //---------------------------------VENTANA MODAL PARA REGISTRAR PRODUCTOS------------------------------>>
 const productsRMW = document.getElementById('productsRMW');
 const closeProductsRMW = document.getElementById('closeProductsRMW');
@@ -1423,6 +1536,11 @@ function openProductsRMW() {
 }
 closeProductsRMW.addEventListener('click', (e) => {
     productsRMW.classList.remove('modal__show');
+});
+const productsMMW = document.getElementById('productsMMW');
+const closeProductsMMW = document.getElementById('closeProductsMMW');
+closeProductsMMW.addEventListener('click',(e)=>{
+    productsMMW.classList.remove('modal__show');
 });
 //<<-----------------------------------------------------MUESTRA LA IMAGEN CARGADA------------------------------>>
 const inputsFormProduct = document.querySelectorAll('.modalP__form .modalP__group input');
@@ -1437,6 +1555,16 @@ function mostrarimagenR() {
     //URL.createObjectURL() crea un DOMString que contiene una URL que representa al objeto pasado como parámetro.
     let urlDeImagen = URL.createObjectURL(imagen);
     document.querySelector('.drop__areaR').setAttribute('style', `background-image: url("${urlDeImagen}"); background-size: cover;`);
+}
+//------Muestra en un campo la imagen que se esta seleccionado para modificar
+function mostrarimagenM () {
+    let form = document.getElementById('formProductsM');
+    //Seleccionar los elementos del form registrar antes de enviar el formulario
+    let formData = new FormData(form);
+    let imagen = formData.get('imagen_prodM');
+    //URL.createObjectURL() crea un DOMString que contiene una URL que representa al objeto pasado como parámetro.
+    let urlDeImagen = URL.createObjectURL(imagen);
+    document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("${urlDeImagen}"); background-size: cover; background-position: center; background-repeat: no-repeat;`);
 }
 //<<--------------------------------------------------------CAMPOS DE LOS FORMULARIOS------------------------------->>
 //------Vuelve oblogatorios los campos del formulario
@@ -1457,33 +1585,41 @@ function cleanUpProductFormR() {
     document.getElementsByName("imagen_prodR")[0].value = "";
     document.querySelector('.drop__areaR').removeAttribute('style');
 }
-//--------DRANG AND DROP
+//------Limpia los campos del fomulario Modificar
+function cleanUpProductFormM(){
+    inputsFormProduct.forEach(input => input.value = "");
+    document.getElementsByName("descripcion_prodM")[0].value = "";
+    document.getElementsByName("imagen_prodM")[0].value = "";
+    document.querySelector('.drop__areaM').removeAttribute('style');
+}
+//----------------------------------DRANG AND DROP-----------------------------------------------------
 const dropAreaR = document.querySelector('.drop__areaR');
 const dragTextR = dropAreaR.querySelector('h2');
 const buttonR = dropAreaR.querySelector('button');
 const inputR = dropAreaR.querySelector('#imagen_prodR');
 let filesR;
-buttonR.addEventListener('click', () => {
+buttonR.addEventListener('click', ()=>{
     //llamamos al evento click del inputR
     event.preventDefault();
     inputR.click();
 })
-//Cuando tenemos elementos q se estan arraztrando se activa
-dropAreaR.addEventListener('dragover', (e) => {
+/*Cuando tenemos elementos q se estan arraztrando se activa*/
+dropAreaR.addEventListener('dragover', (e)=>{
     //Se necesita poner el preventDefault
     e.preventDefault();
     dropAreaR.classList.add('active');
     dragTextR.textContent = 'Suelta para subir el archivo';
+
 });
-//Cunado estemos arrastrando pero no estamos dentro de la zona
-dropAreaR.addEventListener('dragleave', (e) => {
+/*Cunado estemos arrastrando pero no estamos dentro de la zona*/
+dropAreaR.addEventListener('dragleave', (e)=>{
     //Se necesita poner el preventDefault
     e.preventDefault();
     dropAreaR.classList.remove('active');
     dragTextR.textContent = 'Arrastra y suelta la imágen';
 });
-//Cuando soltamos el archivo q estamos arrastrando dentro de la zona
-dropAreaR.addEventListener('drop', (e) => {
+/*Cuando soltamos el archivo q estamos arrastrando dentro de la zona*/
+dropAreaR.addEventListener('drop', (e)=>{
     //Se necesita poner el preventDefault para que al momento de soltar no abra la imagen en el navegador
     e.preventDefault();
     filesR = e.dataTransfer.files;
@@ -1491,18 +1627,70 @@ dropAreaR.addEventListener('drop', (e) => {
     dropAreaR.classList.remove('active');
     dragTextR.textContent = 'Arrastra y suelta la imagen';
 });
-function showFiles() {
-    for (let file of filesR) {
-        processFile(file);
-    }
+function showFiles(){
+        for(let file of filesR){
+            processFile(file);
+        }
 }
-function processFile(file) {
+function processFile(file){
     let docType = file.type;
-    let validExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-    if (validExtensions.includes(docType)) {
+    let validExtensions = ['image/jpeg', 'image/jpg'];
+    if(validExtensions.includes(docType)){
+        //archivo valido
         inputR.files = filesR;
         mostrarimagenR();
-    } else {
+    }else{
+        //archivo no valido
+        alert('No es una archivo valido');
+    }
+}
+const dropAreaM = document.querySelector('.drop__areaM');
+const dragTextM = dropAreaM.querySelector('h2');
+const buttonM = dropAreaM.querySelector('button');
+const inputM = dropAreaM.querySelector('#imagen_prodM');
+let filesM;
+buttonM.addEventListener('click', ()=>{
+    //llamamos al evento click del inputR
+    event.preventDefault();
+    inputM.click();
+})
+/*Cuando tenemos elementos q se estan arraztrando se activa*/
+dropAreaM.addEventListener('dragover', (e)=>{
+    //Se necesita poner el preventDefault
+    e.preventDefault();
+    dropAreaM.classList.add('active');
+    dragTextM.textContent = 'Suelta para subir el archivo';
+
+});
+/*Cunado estemos arrastrando pero no estamos dentro de la zona*/
+dropAreaM.addEventListener('dragleave', (e)=>{
+    //Se necesita poner el preventDefault
+    e.preventDefault();
+    dropAreaM.classList.remove('active');
+    dragTextM.textContent = 'Arrastra y suelta la imágen';
+});
+/*Cuando soltamos el archivo q estamos arrastrando dentro de la zona*/
+dropAreaM.addEventListener('drop', (e)=>{
+    //Se necesita poner el preventDefault para que al momento de soltar no abra la imagen en el navegador
+    e.preventDefault();
+    filesM = e.dataTransfer.files;
+    showFilesM();
+    dropAreaM.classList.remove('active');
+    dragTextM.textContent = 'Arrastra y suelta la imagen';
+});
+function showFilesM(){
+        for(let file of filesM){
+            processFileM(file);
+        }
+}
+function processFileM(file){
+    let docType = file.type;
+    let validExtensions = ['image/jpeg', 'image/jpg'];
+    if(validExtensions.includes(docType)){
+        //archivo valido
+        inputM.files = filesM;
+        mostrarimagenM();
+    }else{
         //archivo no valido
         alert('No es una archivo valido');
     }

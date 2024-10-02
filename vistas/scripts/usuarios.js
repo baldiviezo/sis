@@ -1,17 +1,35 @@
 //--------------------------------------------Restricciones de usuario----------------------------------------------
-if(localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario'){
+if(localStorage.getItem('rol_usua') == 'Ingeniero'){
     document.querySelector('.table__header').classList.add('hide');
-    document.querySelectorAll('.form__radio')[1].classList.add('hide');
     document.getElementsByName('email_usuaM')[0].setAttribute('readonly', 'readonly');
     document.getElementsByName('nombre_usuaM')[0].setAttribute('readonly', 'readonly');
     document.getElementsByName('apellido_usuaM')[0].setAttribute('readonly', 'readonly');
+    //Options
+    document.querySelectorAll('.form__radio')[1].children[2].classList.add('hide');
+    document.querySelectorAll('.form__radio')[1].children[3].classList.add('hide');
+    document.querySelectorAll('.form__radio')[1].children[4].classList.add('hide');
+    document.querySelectorAll('.form__radio')[1].children[5].classList.add('hide');
+}else if (localStorage.getItem('rol_usua') == 'Gerente De Inventario'){
+    document.querySelector('.table__header').classList.add('hide');
+    document.getElementsByName('email_usuaM')[0].setAttribute('readonly', 'readonly');
+    document.getElementsByName('nombre_usuaM')[0].setAttribute('readonly', 'readonly');
+    document.getElementsByName('apellido_usuaM')[0].setAttribute('readonly', 'readonly');
+    //Options
+    document.querySelectorAll('.form__radio')[1].children[0].classList.add('hide');
+    document.querySelectorAll('.form__radio')[1].children[1].classList.add('hide');
+    document.querySelectorAll('.form__radio')[1].children[4].classList.add('hide');
+    document.querySelectorAll('.form__radio')[1].children[5].classList.add('hide');
 }else if (localStorage.getItem('rol_usua') == 'Administrador'){
+    document.getElementsByName('email_usuaM')[0].setAttribute('readonly', 'readonly');
+    document.getElementsByName('nombre_usuaM')[0].setAttribute('readonly', 'readonly');
+    document.getElementsByName('apellido_usuaM')[0].setAttribute('readonly', 'readonly');
+    //Options
     document.querySelectorAll('.form__radio')[0].children[4].classList.add('hide');
     document.querySelectorAll('.form__radio')[0].children[5].classList.add('hide');
-    document.querySelectorAll('.form__radio')[1].classList.add('hide');
-    document.getElementsByName('email_usuaM')[0].setAttribute('readonly', 'readonly');
-    document.getElementsByName('nombre_usuaM')[0].setAttribute('readonly', 'readonly');
-    document.getElementsByName('apellido_usuaM')[0].setAttribute('readonly', 'readonly');
+    document.querySelectorAll('.form__radio')[1].children[0].classList.add('hide');
+    document.querySelectorAll('.form__radio')[1].children[1].classList.add('hide');
+    document.querySelectorAll('.form__radio')[1].children[2].classList.add('hide');
+    document.querySelectorAll('.form__radio')[1].children[3].classList.add('hide');
 }
 //<<-------------------------------------------CARGAR LA TABLA----------------------------------------------------->>
 //------Leer tabla de usuarios
@@ -77,6 +95,9 @@ function filterTableUsers(data){
                 td.innerHTML = `
                 <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)' title='Editar usuario'>
                 <img src='../imagenes/trash.svg' onclick='deleteUser(this.parentNode.parentNode)' title='Eliminar usuario'>`;
+            }else {
+                td.innerHTML = `
+                <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)' title='Editar usuario'>`;
             }
         }else{
             if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario'){
@@ -115,7 +136,6 @@ function createUser(){
     let pass1 = document.getElementsByName("contraseña_usua_R")[0];
     let pass2 = document.getElementsByName("contraseña2_usua_R")[0];
     if(pass1.value == pass2.value){
-        usersRMW.classList.remove('modal__show');
         event.preventDefault();
         let form = document.getElementById("formUsersR");
         let formData = new FormData(form);
@@ -127,6 +147,7 @@ function createUser(){
             if (data!="registrado"){           
                 alert(data);
             }else{
+                usersRMW.classList.remove('modal__show');
                 readUsers();
                 cleanUpFormRegister();
             }
@@ -143,10 +164,16 @@ function readUser (usuario){
             for(let columna in usuarios[usuario]){
                 if(columna == 'rol_usua'){
                     if (usuarios[usuario][columna]=='Administrador'){
+                        document.querySelectorAll('.form__radio')[1].classList.remove('hide');
                         document.getElementById('admi').checked = true;
-                    }
-                    if (usuarios[usuario][columna]=='Ingeniero'){
+                    }else if (usuarios[usuario][columna]=='Ingeniero'){
+                        document.querySelectorAll('.form__radio')[1].classList.remove('hide');
                         document.getElementById('ing').checked = true;
+                    }else if (usuarios[usuario][columna]=='Gerente De Inventario'){
+                        document.querySelectorAll('.form__radio')[1].classList.remove('hide');
+                        document.getElementById('gteInv').checked = true;
+                    }else if (usuarios[usuario][columna]=='Gerente general'){
+                        document.querySelectorAll('.form__radio')[1].classList.add('hide');
                     }
                 }else if(columna == 'contraseña_usuaM'){
                     document.getElementsByName(columna)[0].value = '';
@@ -169,7 +196,6 @@ function updateUser(){
     let pass2 = document.getElementsByName("contraseña2_usuaM")[0];
     if(pass1.value == pass2.value){
         usersMMW.classList.remove('modal__show');
-        
         let form = document.getElementById("formUsersM");
         let formData = new FormData(form);
         formData.append('updateUser', 'guardar');
@@ -229,7 +255,8 @@ function spaceRequiret(){
     document.getElementsByName("id_usuaM")[0].setAttribute("hidden","");
     document.getElementsByName("rol_usuaM")[0].setAttribute("required","");
     //para el formulario de registrar
-    document.getElementsByName("rol_usua_R")[0].setAttribute("required","");
+     document.getElementsByName("rol_usua_R")[0].setAttribute("required","");
+    
 }
 //------Limpia los formualrios registrar y modificar
 function cleanUpFormModify(){

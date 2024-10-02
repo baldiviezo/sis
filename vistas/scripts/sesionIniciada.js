@@ -2,7 +2,7 @@ fetch('../controladores/comprobarSesion.php', {
 	method: "POST",
 	body: JSON.stringify(localStorage.getItem('id_usua')),
 	headers: {
-		'Content-Type': 'application/x-www-form-urlencoded'
+		'Content-Type': 'application/x-www-form-urlencoded',
 	}
 }).then(response => {
 	if (!response.ok) {

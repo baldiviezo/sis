@@ -9,7 +9,6 @@ if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getIte
     document.querySelector('main section.table__body tr').children[10].removeAttribute('hidden');
     //inventoryMMW
     document.getElementsByName('cantidad_invM')[0].setAttribute('readonly', 'readonly');
-
     //inventoryRMW
     //document.querySelector('#openInventoryRMW').removeAttribute('hidden');
     //document.getElementsByName('cantidad_invR')[0].setAttribute('readonly', 'readonly');
@@ -63,7 +62,7 @@ function searchInventories() {
     for (let inventory in inventories) {
         for (let valor in inventories[inventory]) {
             if (selectSearchInv.value == 'todas') {
-                if (valor == 'codigo_prod' || valor == 'nombre_prod' || valor == 'descripcion_prod' || valor == 'cost_uni_inv') {
+                if (valor == 'codigo_prod' || valor == 'nombre_prod' || valor == 'descripcion_prod' || valor == 'cost_uni_inv' || valor == 'descripcion_inv') {
                     if (inventories[inventory][valor].toLowerCase().indexOf(inputSearchInv.value.toLowerCase()) >= 0) {
                         filterInventories[inventory] = inventories[inventory];
                         break;

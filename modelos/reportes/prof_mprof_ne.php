@@ -115,7 +115,7 @@ if ($_POST['pdf'] == 'prof') {
     $_orden = $prof_mprof_ne['orden_ne'];
     $_observacion = $prof_mprof_ne['observacion_ne'];
 } else if ($_POST['pdf'] == 'oc'){
-    $_prof_mprof_ne = strtoupper('OC-SMS'.substr($prof_mprof_ne['fecha_cmp'],2,2).'-'.$prof_mprof_ne['numero_cmp']);
+    $_prof_mprof_ne = strtoupper($prof_mprof_ne['numero_cmp']);
     $_encargado = "Benjamín A. Aparicio García";
     $_fecha = substr($prof_mprof_ne['fecha_cmp'],0,10);
     $_empresa = $prof_mprof_ne['nombre_empp'];

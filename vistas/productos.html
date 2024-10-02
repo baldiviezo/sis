@@ -82,7 +82,7 @@
 						<th><div class="tbody__head--Product">Marca <img src="../imagenes/sortA_Z.svg" name="marca_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="marca_prod" class="icon__CRUD"></div></th>
 						<th><div class="tbody__head--Product">Categoria <img src="../imagenes/sortA_Z.svg" name="categoria_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="categoria_prod" class="icon__CRUD"></div></th>
 						<th><div class="tbody__head--Product">Codigo <img src="../imagenes/sortA_Z.svg" name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="codigo_prod" class="icon__CRUD"></div></th>
-						<th><div class="tbody__head--Product">Nombre <img src="../imagenes/sortA_Z.svg" name="nombre_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_prod" class="icon__CRUD"></div></th>
+						<th><div class="tbody__head--Product">Descripcion corta <img src="../imagenes/sortA_Z.svg" name="nombre_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_prod" class="icon__CRUD"></div></th>
 						<th>Descripcion</th>
 						<th>imagen</th>
 						<th>Acciones</th>
@@ -107,10 +107,6 @@
 							<label for="codigo_prodR" class="modalP__label">Codigo:</label>	
 							<input type="text" name="codigo_prodR"  placeholder=" " class="modalP__input">
 						</div>
-						<div class="modalP__group">
-							<label for="nombre_prodR" class="modalP__label">Nombre:</label>
-							<input type="text" name="nombre_prodR" placeholder=" " class="modalP__input" autocomplete="off">
-						</div>
 					</div>
 					<div class="modalP__group--select">
 						<label class="modalP__label">Marca:</label>
@@ -122,8 +118,13 @@
 							<option value="todasLasCategorias">Todas las categorias</option>
 						</select>
 					</div>
+					<label class="modalP__label">Descripcion corta:</label>
 					<div class="modalP__textarea">
-						<textarea name="descripcion_prodR" placeholder="Type description here..."></textarea>	
+						<textarea name="nombre_prodR" placeholder="Escriba la descripción corta aquí..."></textarea>	
+					</div>
+					<label class="modalP__label">Descripción:</label>
+					<div class="modalP__textarea">
+						<textarea name="descripcion_prodR" placeholder="Escriba la descripción aquí..."></textarea>	
 					</div>
 				</div>
 				<div class="drop__areaR" >
@@ -151,10 +152,6 @@
 							<label for="codigo_prodM" class="modalP__label">Codigo:</label>
 							<input type="text" name="codigo_prodM" placeholder=" " class="modalP__input">
 						</div>
-						<div class="modalP__group">
-							<label for="nombre_prodM" class="modalP__label">Nombre:</label>
-							<input type="text" name="nombre_prodM"  placeholder=" " class="modalP__input">
-						</div>
 					</div>
 					<div class="modalP__group--select">
 						<label class="modalP__label">Marca:</label>
@@ -166,9 +163,14 @@
 							<option value="todasLasCategorias">Todas las categorias</option>
 						</select>
 					</div>
+					<label class="modalP__label">Descripcion corta:</label>
 					<div class="modalP__textarea">
-						<textarea name="descripcion_prodM" placeholder="Type description here..."></textarea>
-					</div>	
+						<textarea name="nombre_prodM" placeholder="Escriba la descripción corta aquí..."></textarea>	
+					</div>
+					<label class="modalP__label">Descripción:</label>
+					<div class="modalP__textarea">
+						<textarea name="descripcion_prodM" placeholder="Escriba la descripción aquí..."></textarea>	
+					</div>
 				</div>
 				<div class="drop__areaM" >
 					<h2>Arrastra y suelta la imagen</h2>

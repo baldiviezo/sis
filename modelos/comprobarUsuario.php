@@ -22,8 +22,8 @@ function comprobarUsuario(){
 				$_SESSION[$usuario['id_usua'].'_nombre_usua']=$usuario['nombre_usua'];
 				$_SESSION[$usuario['id_usua'].'_apellido_usua']=$usuario['apellido_usua'];
 				$_SESSION[$usuario['id_usua'].'_rol_usua']=$usuario['rol_usua'];
-
-				setcookie('eliminar_variables_sesion', true, time() + (3600*24*7), '/'); // Tiempo de expiración de 7 días
+				$nameCookie = $usuario['id_usua'].'_delete_var_session';
+				setcookie($nameCookie, true, time() + (3600*24*6), '/'); // Tiempo de expiración de 7 días
 				//Array asociativo (calve, valor)
 				$array = array(
 					'id_usua' => $usuario['id_usua'],

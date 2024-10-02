@@ -32,7 +32,7 @@ const dateFormat = new Intl.DateTimeFormat('es-ES', {
     minute: '2-digit',
     second: '2-digit',
     hour12: false,
-  });
+});
 const formattedDate = dateFormat.format(date);
 const datePart = formattedDate.split(', ');
 const dateActual = datePart[0].split('/');
@@ -528,27 +528,25 @@ function searchProforma() {
     for (let proforma in proformas) {
         for (let valor in proformas[proforma]) {
             if (selectSearchProf.value == 'todas') {
-                if (valor == 'id_prof' || valor == 'numero_prof' || valor == 'fecha_prof' || valor == 'nombre_usua' || valor == 'nombre_emp' || valor == 'nombre_clte') {
-                    if (valor == 'numero_prof'){
-                        if (proformas[proforma][valor].toString().toLowerCase().indexOf(inputSearchProf.value.toLowerCase()) >= 0) {
-                            filterProformas[proforma] = proformas[proforma];
-                            break;
-                        }
-                    }else if (valor == 'nombre_usua') {
-                        if ((proformas[proforma][valor] + ' ' + proformas[proforma]['apellido_usua']).toLowerCase().indexOf(inputSearchProf.value.toLowerCase()) >= 0) {
-                            filterProformas[proforma] = proformas[proforma];
-                            break;
-                        }
-                    } else if (valor == 'nombre_clte') {
-                        if ((proformas[proforma][valor] + ' ' + proformas[proforma]['apellido_clte']).toLowerCase().indexOf(inputSearchProf.value.toLowerCase()) >= 0) {
-                            filterProformas[proforma] = proformas[proforma];
-                            break;
-                        }
-                    } else {
-                        if (proformas[proforma][valor].toLowerCase().indexOf(inputSearchProf.value.toLowerCase()) >= 0) {
-                            filterProformas[proforma] = proformas[proforma];
-                            break;
-                        }
+                if (valor == 'numero_prof') {
+                    if (proformas[proforma][valor].toString().toLowerCase().indexOf(inputSearchProf.value.toLowerCase()) >= 0) {
+                        filterProformas[proforma] = proformas[proforma];
+                        break;
+                    }
+                } else if (valor == 'nombre_usua') {
+                    if ((proformas[proforma][valor] + ' ' + proformas[proforma]['apellido_usua']).toLowerCase().indexOf(inputSearchProf.value.toLowerCase()) >= 0) {
+                        filterProformas[proforma] = proformas[proforma];
+                        break;
+                    }
+                } else if (valor == 'nombre_clte') {
+                    if ((proformas[proforma][valor] + ' ' + proformas[proforma]['apellido_clte']).toLowerCase().indexOf(inputSearchProf.value.toLowerCase()) >= 0) {
+                        filterProformas[proforma] = proformas[proforma];
+                        break;
+                    }
+                } else if (valor == 'fecha_prof' || valor == 'nombre_emp') {
+                    if (proformas[proforma][valor].toLowerCase().indexOf(inputSearchProf.value.toLowerCase()) >= 0) {
+                        filterProformas[proforma] = proformas[proforma];
+                        break;
                     }
                 }
             } else if (selectSearchProf.value == 'encargado') {
@@ -598,32 +596,32 @@ function selectStateProformas() {
 //------Ordenar tabla descendente ascendente
 let orderProforma = document.querySelectorAll('.tbody__head--proforma');
 orderProforma.forEach(div => {
-  div.children[0].addEventListener('click', function () {
-    let array = Object.entries(filterProformas).sort((a, b) => {
-      let first = a[1][div.children[0].name];
-      let second = b[1][div.children[0].name];
-      if (typeof first === 'number' && typeof second === 'number') {
-        return first - second;
-      } else {
-        return String(first).localeCompare(String(second));
-      }
+    div.children[0].addEventListener('click', function () {
+        let array = Object.entries(filterProformas).sort((a, b) => {
+            let first = a[1][div.children[0].name];
+            let second = b[1][div.children[0].name];
+            if (typeof first === 'number' && typeof second === 'number') {
+                return first - second;
+            } else {
+                return String(first).localeCompare(String(second));
+            }
+        });
+        filterProformas = Object.fromEntries(array);
+        paginacionProforma(Object.values(filterProformas).length, 1);
     });
-    filterProformas = Object.fromEntries(array);
-    paginacionProforma(Object.values(filterProformas).length, 1);
-  });
-  div.children[1].addEventListener('click', function () {
-    let array = Object.entries(filterProformas).sort((a, b) => {
-      let first = a[1][div.children[0].name];
-      let second = b[1][div.children[0].name];
-      if (typeof first === 'number' && typeof second === 'number') {
-        return second - first;
-      } else {
-        return String(second).localeCompare(String(first));
-      }
+    div.children[1].addEventListener('click', function () {
+        let array = Object.entries(filterProformas).sort((a, b) => {
+            let first = a[1][div.children[0].name];
+            let second = b[1][div.children[0].name];
+            if (typeof first === 'number' && typeof second === 'number') {
+                return second - first;
+            } else {
+                return String(second).localeCompare(String(first));
+            }
+        });
+        filterProformas = Object.fromEntries(array);
+        paginacionProforma(Object.values(filterProformas).length, 1);
     });
-    filterProformas = Object.fromEntries(array);
-    paginacionProforma(Object.values(filterProformas).length, 1);
-  });
 });
 //------PaginacionProforma
 function paginacionProforma(allProducts, page) {
@@ -882,7 +880,7 @@ const closeProformaMMW = document.getElementById('closeProformaMMW');
 const proformaRMW = document.getElementById('proformaRMW');
 const proformaMMW = document.getElementById('proformaMMW');
 openProformaRMW.addEventListener('click', () => {
-    document.getElementsByName('fecha_profR')[0].value =  `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
+    document.getElementsByName('fecha_profR')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
     formProformas = 'R';
     if (findOutCartItem() == '') {
         proformaRMW.classList.add('modal__show');
@@ -1324,7 +1322,7 @@ function openPreviwProductsSold() {
                         'imagen_prod': products[product]['imagen_prod'],
                         'codigo_prod': products[product]['codigo_prod'],
                         'cantidad_pfpd': prof_prods[prof_prod]['cantidad_pfpd'],
-                        'cost_uni_pfpd': prof_prods[prof_prod]['cost_uni_pfpd']                        
+                        'cost_uni_pfpd': prof_prods[prof_prod]['cost_uni_pfpd']
                     };
                     nuevo_array.push(nuevo_objeto);
                 }
@@ -1346,7 +1344,7 @@ function readProductsSold(products) {
         let cart = document.createElement('div');
         cart.classList.add('cart-item');
         let html =
-        `<p class="cart-item__cantInv">${product['cantidad_inv']}</p>
+            `<p class="cart-item__cantInv">${product['cantidad_inv']}</p>
         <div class="row-img">
             <img src="../modelos/imagenes/`+ product['imagen_prod'] + `" class="rowimg">
         </div>
@@ -1372,7 +1370,7 @@ function createNotaEntrega() {
             alert('No hay la cantidad suficiente en inventario del prducto: ' + carts[i].children[2].innerText);
             count = false;
             break; // Detiene la ejecución del bucle
-        }else{
+        } else {
             let objeto = {
                 'id_inv': parseInt(carts[i].children[6].innerText),
                 'cantidad': parseInt(carts[i].children[3].value)
@@ -1384,9 +1382,9 @@ function createNotaEntrega() {
         let formNotaEntregaR = document.querySelectorAll('#formNotaEntregaR input.form__input');
         let object = {};
         formNotaEntregaR.forEach(input => {
-            if (input.name == 'fecha_ne'){
+            if (input.name == 'fecha_ne') {
                 object[input.name] = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`;
-            }else{
+            } else {
                 object[input.name] = input.value;
             }
         });
@@ -1401,14 +1399,14 @@ function createNotaEntrega() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                formNotaEntregaR.forEach(input => {input.value = ''});
+                formNotaEntregaR.forEach(input => { input.value = '' });
                 alert(data);
                 readProformas();
                 readInventories();
             }).catch(err => console.log(err));
         }
     }
-        
+
 }
 //-----------------------------------------------MODAL DE NOTA DE ENTREGA--------------------------------------------
 const closeNotaEntregaRMW = document.getElementById('closeNotaEntregaRMW');

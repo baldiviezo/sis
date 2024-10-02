@@ -123,11 +123,19 @@ class consultas {
 	//------Borrar un cliente
 	public function deleteCustomer($id){
 		include 'conexion.php';
+		//Comprobar si el cliente tiene alguna proforma
 		$consulta = "SELECT * FROM proforma WHERE fk_id_clte_prof = '$id'";
+		$resultado = $conexion->query($consulta);
+		$numeroProformas = $resultado->num_rows;
+		if ($numeroProformas > 0){
+			echo "No se puede eliminar, El cliente está siendo utilizada por una proforma";
+		}else{
+			//Comprobar si el cliente tiene alguna proforma modificada
+			$consulta = "SELECT * FROM mdf_proforma WHERE fk_id_clte_mprof = '$id'";
 			$resultado = $conexion->query($consulta);
 			$numeroProformas = $resultado->num_rows;
 			if ($numeroProformas > 0){
-				echo "No se puede eliminar, El cliente está siendo utilizada por una proforma";
+				echo "No se puede eliminar, El cliente está siendo utilizada por una proforma modificada";
 			}else{
 				$consulta = "DELETE FROM cliente WHERE id_clte='$id'";
 				$resultado = $conexion->query($consulta);
@@ -135,6 +143,7 @@ class consultas {
 					echo ("Cliente eliminado con éxito");
 				}
 			}
+		}
 	}
 	//<<-----------------------------------ENTERPRISES----------------------------->>
 	//------Leer empresas
@@ -292,6 +301,13 @@ class consultas {
 			echo ("La empresa ya existe");
 		}else{
 			$consulta = "INSERT INTO empresa_prov (sigla_empp, nombre_empp, nit_empp, descuento_empp, direccion_empp, telefono_empp) VALUES ( '$this->sigla_empp', '$this->nombre_empp', '$this->nit_empp', '$this->descuento_empp', '$this->direccion_empp', '$this->telefono_empp')";
+			$resultado = $conexion->query($consulta);
+			//Crear cliente automaticamente
+			$consulta = "SELECT * FROM empresa_prov WHERE nombre_empp ='$this->nombre_empp'";
+			$resultado = $conexion->query($consulta);
+			$fila = $resultado->fetch_assoc();
+			$id_emp = $fila['id_empp'];
+			$consulta = "INSERT INTO proveedor (nombre_prov, apellido_prov, celular_prov, fk_id_empp_prov) VALUES ('', '', '', '$id_emp')";
 			$resultado = $conexion->query($consulta);
 			echo ("Empresa creada exitosamente");
 		}
