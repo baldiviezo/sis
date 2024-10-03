@@ -656,9 +656,9 @@ function createBuy() {
         products.forEach(producto => {
             let object = {
                 'fk_id_prod_cppd': producto.children[0].value,
-                'descripcion_cppd': producto.children[3].value,
-                'cantidad_cppd': producto.children[4].value,
-                'cost_uni_cppd': producto.children[5].value
+                'descripcion_cppd': producto.children[2].value,
+                'cantidad_cppd': producto.children[3].value,
+                'cost_uni_cppd': producto.children[4].value
             };
             array.push(object);
         });
@@ -707,12 +707,13 @@ function readCmp_prod(id_cmp) {
     formBuy = 'M';
     const filterCmp_prods = Object.values(cmp_prods).filter(cmp_prod => cmp_prod['fk_id_cmp_cppd'] == id_cmp);
     cmp_prodMMW.querySelector('div.modal__body').innerHTML = '';
+    let i = 0;
     filterCmp_prods.forEach(cmp_prod => {
+        i++;
         let div = document.createElement('div');
         div.classList.add('cart__item');
         div.innerHTML = `
         <input type="hidden"  value = "${cmp_prod['fk_id_prod_cppd']}" class="cart__item--id">
-        <p class="cart__item--position">1</p>
         <input type="text" value = "${cmp_prod['codigo_prod']}" class="cart__item--code">
         <textarea class="cart__item--name">${cmp_prod['descripcion_cppd']}</textarea>
         <input type="number" value = "${cmp_prod['cantidad_cppd']}" min="1" onChange="changeQuantityCPPDM(this.parentNode)" class="cart__item--quantity">
@@ -735,9 +736,9 @@ function updateBuy() {
         products.forEach(producto => {
             let object = {
                 'fk_id_prod_cppd': producto.children[0].value,
-                'descripcion_cppd': producto.children[3].value,
-                'cantidad_cppd': producto.children[4].value,
-                'cost_uni_cppd': producto.children[5].value
+                'descripcion_cppd': producto.children[2].value,
+                'cantidad_cppd': producto.children[3].value,
+                'cost_uni_cppd': producto.children[4].value
             };
             array.push(object);
         });
@@ -1211,7 +1212,6 @@ function cartProduct_cppdR(product) {
     item.classList.add('cart__item');
     let html =
         `<input type="hidden"  value = "${product['id_prod']}" class="cart__item--id">
-        <p class="cart__item--position">1</p>
         <input type="text" value = "${product['codigo_prod']}" class="cart__item--code">
         <textarea class="cart__item--name" >${product['nombre_prod']}</textarea>
         <input type="number" value = "1" min="1" onChange="changeQuantityCPPDR(this.parentNode)" class="cart__item--quantity">
@@ -1230,10 +1230,10 @@ function removeCartR(product) {
 }
 //-------Cuando cambia la cantidad
 function changeQuantityCPPDR(product) {
-    let cantidad_prod = product.children[4].value;
-    let costo_uni = product.children[5].value;
+    let cantidad_prod = product.children[3].value;
+    let costo_uni = product.children[4].value;
     let cost_uni_total = cantidad_prod * costo_uni;
-    product.children[6].value = cost_uni_total.toFixed(2);
+    product.children[5].value = cost_uni_total.toFixed(2);
     totalPriceCPPDR();
 }
 const quantityCPRMW = document.getElementById('quantityCPRMW');
@@ -1245,7 +1245,7 @@ function totalPriceCPPDR() {
     let total = 0;
     let desc = 0;
     divs.forEach(div => {
-        costo_uni = Number(div.children[6].value);
+        costo_uni = Number(div.children[5].value);
         total = total + costo_uni;
     })
     subTotalCPRMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2)+' Bs';
@@ -1262,7 +1262,6 @@ function cartProduct_cppdM(product) {
     item.classList.add('cart__item');
     let html =
         `<input type="hidden"  value = "${product['id_prod']}" class="cart__item--id">
-        <p class="cart__item--position">1</p>
         <input type="text" value = "${product['codigo_prod']}" class="cart__item--code">
         <textarea class="cart__item--name">${product['nombre_prod']}</textarea>
         <input type="number" value = "1" min="1" onChange="changeQuantityCPPDM(this.parentNode)" class="cart__item--quantity">
@@ -1279,10 +1278,10 @@ function removeCartM(product) {
     totalPriceCPPDM();
 }
 function changeQuantityCPPDM(product) {
-    let cantidad_prod = product.children[4].value;
-    let costo_uni = product.children[5].value;
+    let cantidad_prod = product.children[3].value;
+    let costo_uni = product.children[4].value;
     let cost_uni_total = cantidad_prod * costo_uni;
-    product.children[6].value = cost_uni_total.toFixed(2);
+    product.children[5].value = cost_uni_total.toFixed(2);
     totalPriceCPPDM();
 }
 function totalPriceCPPDM() {
@@ -1294,7 +1293,7 @@ function totalPriceCPPDM() {
     let total = 0;
     let desc = 0;
     divs.forEach(div => {
-        costo_total = Number(div.children[6].value);
+        costo_total = Number(div.children[5].value);
         total = total + costo_total;
     })
     subTotalCPMMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2)+' Bs';

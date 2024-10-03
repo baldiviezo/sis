@@ -8,7 +8,7 @@ class Consultas{
 		$this->tpo_entrega_cmp = $conexion->real_escape_string($_POST['tpo_entrega_cmpR']);
 		$this->fk_id_prov_cmp = $conexion->real_escape_string($_POST['fk_id_prov_cmpR']);
 		$this->encargado = $id_usua;
-		$this->total_cmp = $conexion->real_escape_string($_POST['total_cmpR']);
+		$this->total_cmp = $_POST['total_cmpR'];
 		$this->tipo_cambio_cmp = $conexion->real_escape_string($_POST['tipo_cambio_cmpR']);
 		$this->descuento_cmp = $conexion->real_escape_string($_POST['descuento_cmpR']);
 		$this->observacion_cmp = $conexion->real_escape_string($_POST['observacion_cmpR']);
@@ -22,7 +22,7 @@ class Consultas{
 		$this->tpo_entrega_cmp = $conexion->real_escape_string($_POST['tpo_entrega_cmpM']);
 		$this->fk_id_prov_cmp = $conexion->real_escape_string($_POST['fk_id_prov_cmpM']);
 		$this->encargado = $id_usua;
-		$this->total_cmp = $conexion->real_escape_string($_POST['total_cmpM']);
+		$this->total_cmp = floatval($_POST['total_cmpM']);
 		$this->tipo_cambio_cmp = $conexion->real_escape_string($_POST['tipo_cambio_cmpM']);
 		$this->descuento_cmp = $conexion->real_escape_string($_POST['descuento_cmpM']);
 		$this->observacion_cmp = $conexion->real_escape_string($_POST['observacion_cmpM']);
@@ -128,7 +128,7 @@ class Consultas{
 				$consulta = "INSERT INTO cmp_prod (fk_id_cmp_cppd, fk_id_prod_cppd, descripcion_cppd, cantidad_cppd, cost_uni_cppd) VALUES ('$this->id_cmp' , '$fk_id_prod_cppd', '$descripcion_cppd', '$cantidad_cppd', '$cost_uni_cppd')";
 				$resultado = $conexion->query($consulta);
 			}
-			echo 'Compra actualizada exitosamente';
+			echo $this->total_cmp .''.gettype($this->total_cmp);
 		}
     }
     public function deleteBuy($id_cmp){
