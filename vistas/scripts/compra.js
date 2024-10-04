@@ -756,6 +756,8 @@ function updateBuy() {
             readBuys();
             readCmp_prods();
         }).catch(err => console.log(err));
+    }else{
+        alert('No a seleccionado ningun producto');
     }
 }
 //------Delete buy
