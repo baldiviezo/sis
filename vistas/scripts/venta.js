@@ -26,7 +26,6 @@ function readSales() {
         method: "POST",
         body: formData
     }).then(response => response.json()).then(data => {
-        console.log(data);
         sales = data;
         filterSales = data;
         paginationSales(Object.values(data).length, 1);

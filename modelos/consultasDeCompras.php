@@ -49,7 +49,6 @@ class Consultas{
 		$nuevo_numero_cmp = ($numero_cmp['numero_cmp_max'] == null) ? 1 : $numero_cmp['numero_cmp_max'] + 1;
 		$consulta = "INSERT INTO compra (numero_cmp, fecha_cmp, fk_id_prov_cmp, fk_id_usua_cmp, total_cmp, forma_pago_cmp, tpo_entrega_cmp, estado_cmp, moneda_cmp, tipo_cambio_cmp, descuento_cmp, observacion_cmp) VALUES ('$nuevo_numero_cmp', '$this->fecha_cmp', '$this->fk_id_prov_cmp', '$this->encargado', '$this->total_cmp', '$this->forma_pago_cmp', '$this->tpo_entrega_cmp', '0', 'Bs', '$this->tipo_cambio_cmp', '$this->descuento_cmp', '$this->observacion_cmp')";
 		$resultado = $conexion->query($consulta);
-
 		if ($resultado) {
 			//Obteniendo el id de la compra
 			$consulta = "SELECT MAX(id_cmp) as id_cmp_max FROM compra ";
@@ -66,14 +65,16 @@ class Consultas{
 				if ($numero_productos == 0) {
 					$consulta = "INSERT INTO inventario (fk_id_prod_inv, cantidad_inv, cost_uni_inv, descripcion_inv) VALUES ('$celda[fk_id_prod_cppd]', 0, 0, '')";
 					$resultado = $conexion->query($consulta);
+					if($resultado){
+						//Insertando los productos de la compra
+						$fk_id_prod_cppd = $celda['fk_id_prod_cppd'];
+						$descripcion_cppd = $celda['descripcion_cppd'];
+						$cantidad_cppd = $celda['cantidad_cppd'];
+						$cost_uni_cppd = $celda['cost_uni_cppd'];
+						$consulta = "INSERT INTO cmp_prod (fk_id_cmp_cppd, fk_id_prod_cppd, descripcion_cppd, cantidad_cppd, cost_uni_cppd) VALUES ('$fk_id_cmp_cppd' , '$fk_id_prod_cppd', '$descripcion_cppd', '$cantidad_cppd', '$cost_uni_cppd')";
+						$resultado = $conexion->query($consulta);
+					}
 				}
-				//Insertando los productos de la compra
-				$fk_id_prod_cppd = $celda['fk_id_prod_cppd'];
-				$descripcion_cppd = $celda['descripcion_cppd'];
-				$cantidad_cppd = $celda['cantidad_cppd'];
-				$cost_uni_cppd = $celda['cost_uni_cppd'];
-				$consulta = "INSERT INTO cmp_prod (fk_id_cmp_cppd, fk_id_prod_cppd, descripcion_cppd, cantidad_cppd, cost_uni_cppd) VALUES ('$fk_id_cmp_cppd' , '$fk_id_prod_cppd', '$descripcion_cppd', '$cantidad_cppd', '$cost_uni_cppd')";
-				$resultado = $conexion->query($consulta);
 			}
 			echo 'Compra registrada exitosamente';
 		}
@@ -120,15 +121,25 @@ class Consultas{
 			$consulta = "DELETE FROM cmp_prod WHERE fk_id_cmp_cppd = '$this->id_cmp'";
 			$resultado = $conexion->query($consulta);
 			foreach($productos as $celda){
-				//Insertando los productos de la compra
-				$fk_id_prod_cppd = $celda['fk_id_prod_cppd'];
-				$descripcion_cppd = $celda['descripcion_cppd'];
-				$cantidad_cppd = $celda['cantidad_cppd'];
-				$cost_uni_cppd = $celda['cost_uni_cppd'];
-				$consulta = "INSERT INTO cmp_prod (fk_id_cmp_cppd, fk_id_prod_cppd, descripcion_cppd, cantidad_cppd, cost_uni_cppd) VALUES ('$this->id_cmp' , '$fk_id_prod_cppd', '$descripcion_cppd', '$cantidad_cppd', '$cost_uni_cppd')";
+				//Coprobar que los productos esten creados en inventario
+				$consulta = "SELECT * FROM inventario WHERE fk_id_prod_inv = '$celda[fk_id_prod_cppd]'";
 				$resultado = $conexion->query($consulta);
+				$numero_productos = $resultado->num_rows;
+				if ($numero_productos == 0) {
+					$consulta = "INSERT INTO inventario (fk_id_prod_inv, cantidad_inv, cost_uni_inv, descripcion_inv) VALUES ('$celda[fk_id_prod_cppd]', 0, 0, '')";
+					$resultado = $conexion->query($consulta);
+					if($resultado){
+						//Insertando los productos de la compra
+						$fk_id_prod_cppd = $celda['fk_id_prod_cppd'];
+						$descripcion_cppd = $celda['descripcion_cppd'];
+						$cantidad_cppd = $celda['cantidad_cppd'];
+						$cost_uni_cppd = $celda['cost_uni_cppd'];
+						$consulta = "INSERT INTO cmp_prod (fk_id_cmp_cppd, fk_id_prod_cppd, descripcion_cppd, cantidad_cppd, cost_uni_cppd) VALUES ('$this->id_cmp' , '$fk_id_prod_cppd', '$descripcion_cppd', '$cantidad_cppd', '$cost_uni_cppd')";
+						$resultado = $conexion->query($consulta);
+					}
+				}
 			}
-			echo $this->total_cmp .''.gettype($this->total_cmp);
+			echo 'Compra actualizada exitosamente';
 		}
     }
     public function deleteBuy($id_cmp){

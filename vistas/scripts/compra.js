@@ -576,7 +576,7 @@ function paginacionBuy(allBuys, page) {
     }
     ul.innerHTML = li;
     let h2 = document.querySelector('#showPageBuy h2');
-    h2.innerHTML = `Pagina ${page}/${allPages}, ${allBuys} Clientes`;
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${allBuys} ordenes de  compras`;
     tableBuys(page);
 }
 //------Crear la tabla
@@ -666,6 +666,7 @@ function createBuy() {
         buyRMW.classList.remove('modal__show');
         formData.append('createBuy', JSON.stringify(array));
         formData.append('id_usua', localStorage.getItem('id_usua'));
+        formData.set('fecha_cmpR', `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`);
         fetch('../controladores/compras.php', {
             method: "POST",
             body: formData
@@ -746,6 +747,7 @@ function updateBuy() {
         buyMMW.classList.remove('modal__show');
         formData.append('updateBuy', JSON.stringify(array));
         formData.append('id_usua', localStorage.getItem('id_usua'));
+        formData.set('fecha_cmpM', `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`);
         fetch('../controladores/compras.php', {
             method: "POST",
             body: formData
@@ -803,11 +805,13 @@ closeBuyMMW.addEventListener('click', () => {
 //-----------------------------------------------------add buy to inventory------------------------------- 
 function openProductBuyMW(id_cmp) {
     addBuyMW.classList.add('modal__show');
-    let hoy = new Date();
-    let dia = hoy.getDate();
-    let mes = hoy.getMonth() + 1;
-    let year = hoy.getFullYear();
-    document.getElementsByName('fecha_entrega_cmp')[0].value = `${year}-${mes}-${dia}`;
+    document.getElementsByName('fecha_entrega_cmp')[2].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
+    for (let buy in buys) {
+        if (buys[buy]['id_cmp'] == id_cmp) {
+            document.getElementsByName('numero_cmp')[0].value = buys[buy]['numero_cmp'];
+            break;
+        }
+    }
     document.getElementsByName('id_cmp')[0].value = id_cmp;
 
 }
@@ -817,25 +821,40 @@ function showproductsAddBuyMW() {
     let id_cmp = document.getElementsByName('id_cmp')[0].value;
     let body = document.getElementById('productBuyMW').querySelector('.modal__body');
     body.innerHTML = '';
+    let i = 0;
     for (let cmp_prod in cmp_prods) {
         if (cmp_prods[cmp_prod]['fk_id_cmp_cppd'] == id_cmp) {
             let div = document.createElement('div');
             div.classList.add('cart__item');
             div.innerHTML = `
-            <h3>${cmp_prods[cmp_prod]['codigo_prod']}</h3>
-            <p>${cmp_prods[cmp_prod]['descripcion_prod']}</p>
-            <p>${cmp_prods[cmp_prod]['cantidad_cppd']}</p>
-            <p>${cmp_prods[cmp_prod]['cost_uni_cppd']}</p>`;
+            <p class="numero--addProd">${++i}</p>
+            <img src="../modelos/imagenes/${cmp_prods[cmp_prod]['imagen_prod']}" alt="" class="imagen--addProd"/>
+            <p class="codigo--addProd">${cmp_prods[cmp_prod]['codigo_prod']}</p>
+            <p class="descripcion--addProd">${cmp_prods[cmp_prod]['descripcion_cppd']}</p>
+            <p class="cantidad--addProd">${cmp_prods[cmp_prod]['cantidad_cppd']}</p>
+            <p class="costo--addProd">${cmp_prods[cmp_prod]['cost_uni_cppd']}</p>
+            <p class="total--addProd">${Number(cmp_prods[cmp_prod]['cost_uni_cppd'] * cmp_prods[cmp_prod]['cantidad_cppd']).toFixed(2)}</p>`;
             body.appendChild(div);
         }
     }
-    document.getElementById('quantityCPPDMW').innerText = body.children.length;
-    for (let buy in buys) {
-        if (buys[buy]['id_cmp'] == id_cmp) {
-            document.getElementById('totalCostCPPDMW').innerText = `${Number(buys[buy]['total_cmp']).toFixed(2)} Bs`;
-        }
-
-    }
+    let divs = document.querySelectorAll('#productBuyMW div.modal__body div.cart__item');
+    const quantityaddBuyMW = document.getElementById('quantityaddBuyMW');
+    const subTotaladdBuyMW = document.getElementById('subTotaladdBuyMW');
+    const descaddBuyMW = document.getElementById('descaddBuyMW');
+    const totaladdBuyMW = document.getElementById('totaladdBuyMW');
+    let total = 0;
+    let desc = 0;
+    divs.forEach(div => {
+        costo_uni = Number(div.children[6].innerText);
+        total = total + costo_uni;
+    })
+    subTotaladdBuyMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2)+' Bs';
+    desc = document.getElementsByName('descuento_cmpR')[0].value*total/100;
+    desc = desc.toFixed(2);
+    descaddBuyMW.innerHTML = `Desc. ${document.getElementsByName('descuento_cmpR')[0].value}% (Bs): ${desc} Bs` ;
+    totaladdBuyMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2)-desc).toFixed(2)} Bs`;
+    document.getElementsByName('total_cmpR')[0].value = Number(total.toFixed(2)-desc).toFixed(2);
+    quantityaddBuyMW.innerHTML = divs.length;
 }
 //------Las copras ya llegaron y estan en inventario
 function addBuysToInventory() {
@@ -858,7 +877,7 @@ function addBuysToInventory() {
     formData.append('addBuysToInventory', JSON.stringify(array));
     formData.append('id_cmp', document.getElementsByName('id_cmp')[0].value);
     formData.append('factura_cmp', document.getElementsByName('factura_cmp')[0].value);
-    formData.append('fecha_entrega_cmp', document.getElementsByName('fecha_entrega_cmp')[0].value);
+    formData.append('fecha_entrega_cmp', `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`);
     formData.append('id_usua', localStorage.getItem('id_usua'));
     fetch('../controladores/compras.php', {
         method: "POST",
@@ -1252,7 +1271,7 @@ function totalPriceCPPDR() {
     desc = document.getElementsByName('descuento_cmpR')[0].value*total/100;
     desc = desc.toFixed(2);
     descCPRMW.innerHTML = `Desc. ${document.getElementsByName('descuento_cmpR')[0].value}% (Bs): ${desc} Bs` ;
-    totalCPRMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2)-desc).toFixed(2)}`;
+    totalCPRMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2)-desc).toFixed(2)} Bs`;
     document.getElementsByName('total_cmpR')[0].value = Number(total.toFixed(2)-desc).toFixed(2);
     quantityCPRMW.innerHTML = divs.length;
 }
@@ -1300,7 +1319,7 @@ function totalPriceCPPDM() {
     desc = document.getElementsByName('descuento_cmpM')[0].value*total/100;
     desc = desc.toFixed(2);
     descCPMMW.innerHTML = `Desc. ${document.getElementsByName('descuento_cmpM')[0].value}% (Bs): ${desc} Bs` ;
-    totalCPMMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2)-desc).toFixed(2)}`;
+    totalCPMMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2)-desc).toFixed(2)} Bs`;
     document.getElementsByName('total_cmpM')[0].value = Number(total.toFixed(2)-desc).toFixed(2);
     quantityCPMMW.innerHTML = divs.length;
 }

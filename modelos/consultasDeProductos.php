@@ -3,7 +3,7 @@ class consultas {
 	public function asignarValoresR(){
 		include 'conexion.php';
 		//Ponemos TRIM para el momento de comparar, al no usar trim se puede guardar una variable con espasio en la base de datos y al comparar con la misma variable ya guardada en el fronent el espacio se quita y al comparar no son las mismas
-		$this->codigo = trim($conexion->real_escape_string($_POST['codigo_prodR']));
+		$this->codigo = trim($conexion->real_escape_string(strtoupper($_POST['codigo_prodR'])));
 		$this->marca = trim($conexion->real_escape_string($_POST['marca_prodR']));
 		$this->categoria = trim($conexion->real_escape_string($_POST['categoria_prodR']));
 		$this->nombre = trim($conexion->real_escape_string($_POST['nombre_prodR']));
@@ -13,7 +13,7 @@ class consultas {
 	public function asignarValoresM(){
 		include 'conexion.php';
 		$this->id = trim($conexion->real_escape_string($_POST['id_prodM']));
-		$this->codigo = trim($conexion->real_escape_string($_POST['codigo_prodM']));
+		$this->codigo = trim($conexion->real_escape_string(strtoupper($_POST['codigo_prodM'])));
 		$this->marca = trim($conexion->real_escape_string($_POST['marca_prodM']));
 		$this->categoria = trim($conexion->real_escape_string($_POST['categoria_prodM']));
 		$this->descripcion = trim($conexion->real_escape_string($_POST['descripcion_prodM']));

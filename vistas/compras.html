@@ -299,14 +299,18 @@
 			</div>
 			<form id="formAddBuy" class="form">
 				<div class="form__container">
+					<input type="hidden" name="id_cmp">
 					<div class="form__group">
-						<input type="hidden" name="id_cmp">
-						<input type="text" name="factura_cmp"  placeholder=" " class="form__input">
-						<label for="factura_cmp" class="form__label">Factura:</label>
+						<input type="text" name="fecha_entrega_cmp"  placeholder=" " class="form__input" readonly>
+						<label for="fecha_entrega_cmp" class="form__label">Fecha de entrega:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="fecha_entrega_cmp"  placeholder=" " class="form__input">
-						<label for="fecha_entrega_cmpM" class="form__label">Fecha de entrega:</label>
+						<input type="text" name="numero_cmp" placeholder=" " class="form__input" readonly>
+						<label for="numero_cmp" class="form__label">Numero de orden de compra:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="factura_cmp"  placeholder=" " class="form__input">
+						<label for="factura_cmp" class="form__label">Factura:</label>
 					</div>
 				</div>
 			</form>
@@ -315,17 +319,19 @@
 	</section>
 	<!--Modal of product of a proforma-->
 	<section id="productBuyMW" class="modal">
-		<div class="modal__container--cppd">
-			<div class="modal__header--cppd">
-				<h2 class="modal__title">Productos adicionados al inventario</h2>
+		<div class="modal__container--addProd">
+			<div class="modal__header--addProd">
+				<h2 class="modal__title">Productos</h2>
 				<img src="../imagenes/salir.svg" id="closeProductBuyMW" class="button__close">
 			</div>
-			<div class="modal__body--cppd">
+			<div class="modal__body--addProd">
 				<table>
 					<thead>
 						<tr>
+							<td>N°</td>
+							<td>Img.</td>
 							<td>Codigo</td>
-							<td>Descripcion</td>
+							<td>Descripcion corta</td>
 							<td>Cant.</td>
 							<td>Cost Uni.</td>
 							<td>Cost Total</td>
@@ -336,11 +342,18 @@
 			<div class="modal__body">
 			</div>
 			<div class="foot">
-				<div class="cart"><img src="../imagenes/carrito.svg">
-					<p id="quantityCPPDMW">0</p>
-				</div>
-				<h2 id="totalCostCPPDMW">Bs 0.00</h2>
-				<button onclick="addBuysToInventory()" class="button--sell">AÑADIR</button>
+				<div class="foot__left">
+                    <p id="subTotaladdBuyMW">Sub-Total (Bs):</p>
+                    <p id="descaddBuyMW">Desc. (Bs):</p>
+                    <p id="totaladdBuyMW">Total (Bs):</p>
+                </div>
+				<div class="foot__right">
+                    <div class="cart">
+                        <img src="../imagenes/carrito.svg">
+                        <p id="quantityaddBuyMW">0</p>
+                    </div>
+					<button class="form__submit" onclick="addBuysToInventory()">Registrar</button>
+                </div>
 			</div>
 		</div>
 	</section>
