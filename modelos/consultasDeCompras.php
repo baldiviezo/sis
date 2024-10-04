@@ -65,16 +65,14 @@ class Consultas{
 				if ($numero_productos == 0) {
 					$consulta = "INSERT INTO inventario (fk_id_prod_inv, cantidad_inv, cost_uni_inv, descripcion_inv) VALUES ('$celda[fk_id_prod_cppd]', 0, 0, '')";
 					$resultado = $conexion->query($consulta);
-					if($resultado){
-						//Insertando los productos de la compra
-						$fk_id_prod_cppd = $celda['fk_id_prod_cppd'];
-						$descripcion_cppd = $celda['descripcion_cppd'];
-						$cantidad_cppd = $celda['cantidad_cppd'];
-						$cost_uni_cppd = $celda['cost_uni_cppd'];
-						$consulta = "INSERT INTO cmp_prod (fk_id_cmp_cppd, fk_id_prod_cppd, descripcion_cppd, cantidad_cppd, cost_uni_cppd) VALUES ('$fk_id_cmp_cppd' , '$fk_id_prod_cppd', '$descripcion_cppd', '$cantidad_cppd', '$cost_uni_cppd')";
-						$resultado = $conexion->query($consulta);
-					}
 				}
+				//Insertando los productos de la compra
+				$fk_id_prod_cppd = $celda['fk_id_prod_cppd'];
+				$descripcion_cppd = $celda['descripcion_cppd'];
+				$cantidad_cppd = $celda['cantidad_cppd'];
+				$cost_uni_cppd = $celda['cost_uni_cppd'];
+				$consulta = "INSERT INTO cmp_prod (fk_id_cmp_cppd, fk_id_prod_cppd, descripcion_cppd, cantidad_cppd, cost_uni_cppd) VALUES ('$fk_id_cmp_cppd' , '$fk_id_prod_cppd', '$descripcion_cppd', '$cantidad_cppd', '$cost_uni_cppd')";
+				$resultado = $conexion->query($consulta);
 			}
 			echo 'Compra registrada exitosamente';
 		}
@@ -128,16 +126,14 @@ class Consultas{
 				if ($numero_productos == 0) {
 					$consulta = "INSERT INTO inventario (fk_id_prod_inv, cantidad_inv, cost_uni_inv, descripcion_inv) VALUES ('$celda[fk_id_prod_cppd]', 0, 0, '')";
 					$resultado = $conexion->query($consulta);
-					if($resultado){
-						//Insertando los productos de la compra
-						$fk_id_prod_cppd = $celda['fk_id_prod_cppd'];
-						$descripcion_cppd = $celda['descripcion_cppd'];
-						$cantidad_cppd = $celda['cantidad_cppd'];
-						$cost_uni_cppd = $celda['cost_uni_cppd'];
-						$consulta = "INSERT INTO cmp_prod (fk_id_cmp_cppd, fk_id_prod_cppd, descripcion_cppd, cantidad_cppd, cost_uni_cppd) VALUES ('$this->id_cmp' , '$fk_id_prod_cppd', '$descripcion_cppd', '$cantidad_cppd', '$cost_uni_cppd')";
-						$resultado = $conexion->query($consulta);
-					}
 				}
+				//Insertando los productos de la compra
+				$fk_id_prod_cppd = $celda['fk_id_prod_cppd'];
+				$descripcion_cppd = $celda['descripcion_cppd'];
+				$cantidad_cppd = $celda['cantidad_cppd'];
+				$cost_uni_cppd = $celda['cost_uni_cppd'];
+				$consulta = "INSERT INTO cmp_prod (fk_id_cmp_cppd, fk_id_prod_cppd, descripcion_cppd, cantidad_cppd, cost_uni_cppd) VALUES ('$this->id_cmp' , '$fk_id_prod_cppd', '$descripcion_cppd', '$cantidad_cppd', '$cost_uni_cppd')";
+				$resultado = $conexion->query($consulta);
 			}
 			echo 'Compra actualizada exitosamente';
 		}
