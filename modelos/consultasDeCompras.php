@@ -153,14 +153,17 @@ class Consultas{
 	//------read cpm_prod
 	public function readCmp_prods(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM cmp_prod INNER JOIN producto ON cmp_prod.fk_id_prod_cppd = producto.id_prod";
+		$consulta = "SELECT * FROM cmp_prod INNER JOIN producto ON cmp_prod.fk_id_prod_cppd = producto.id_prod INNER JOIN compra ON cmp_prod.fk_id_cmp_cppd = compra.id_cmp INNER JOIN marca ON producto.fk_id_mrc_prod = marca.id_mrc INNER JOIN categoria ON producto.fk_id_ctgr_prod = categoria.id_ctgr INNER JOIN usuario ON compra.fk_id_usua_cmp = usuario.id_usua INNER JOIN proveedor ON compra.fk_id_prov_cmp = proveedor.id_prov INNER JOIN empresa_prov ON proveedor.fk_id_empp_prov = empresa_prov.id_empp ORDER BY id_cppd DESC";
 		$resultado = $conexion->query($consulta);
 		$filas = array();
 		while ($fila = $resultado->fetch_assoc()){
-			$row = array('id_cppd'=>$fila['id_cppd'], 'fk_id_cmp_cppd'=>$fila['fk_id_cmp_cppd'], 'fk_id_prod_cppd'=>$fila['fk_id_prod_cppd'], 'codigo_prod'=>$fila['codigo_prod'], 'descripcion_prod'=>$fila['descripcion_prod'], 'imagen_prod'=>$fila['imagen_prod'], 'descripcion_cppd'=>$fila['descripcion_cppd'], 'cantidad_cppd'=>$fila['cantidad_cppd'], 'cost_uni_cppd'=>$fila['cost_uni_cppd']);
+			$row = array('id_cppd'=>$fila['id_cppd'], 'fk_id_cmp_cppd'=>$fila['fk_id_cmp_cppd'], 'numero_cmp'=>'OC-SMS'.substr($fila['fecha_cmp'],2,2).'-'.$this->addZerosGo($fila['numero_cmp']), 'nombre_usua'=>$fila['nombre_usua'], 'apellido_usua'=>$fila['apellido_usua'], 'nombre_empp'=>$fila['nombre_empp'], 'nombre_mrc'=>$fila['nombre_mrc'], 'nombre_ctgr'=>$fila['nombre_ctgr'], 'fk_id_prod_cppd'=>$fila['fk_id_prod_cppd'], 'codigo_prod'=>$fila['codigo_prod'], 'imagen_prod'=>$fila['imagen_prod'], 'descripcion_cppd'=>$fila['descripcion_cppd'], 'cantidad_cppd'=>intval($fila['cantidad_cppd']), 'cost_uni_cppd'=>doubleval($fila['cost_uni_cppd']), 'descuento_cmp'=>floatval($fila['descuento_cmp']), 'fecha_cmp'=>$fila['fecha_cmp'], 'fecha_entrega_cmp'=>$fila['fecha_entrega_cmp'], 'estado_cmp'=>$fila['estado_cmp']);
 			$filas[$fila['id_cppd'].'_cppd'] = $row;
 		}
 		echo json_encode($filas, JSON_UNESCAPED_UNICODE);
+	}
+	public function addZerosGo($numero) {
+		return str_pad($numero, 4, "0", STR_PAD_LEFT);
 	}
 }
 ?>

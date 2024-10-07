@@ -25,7 +25,10 @@
 			<h1>Compras</h1>
 		</div>
 		<section class="table__header">
-			<img src="../imagenes/registrar.svg" id="openBuyRMW" title="Nueva orden de compra">
+			<div>
+				<img src="../imagenes/registrar.svg" id="openBuyRMW" title="Nueva orden de compra">
+				<img src="../imagenes/inventario.svg" id="openProdOC" title="Productos comprados">
+			</div>
 			<section class="select__search">
 				<div>
 					<select id="selectStateBuy" class="select__number">
@@ -829,9 +832,89 @@
 		</div>
 	</section>
 	<!--Tabla modal de productos comprados-->>
-	
-
-
+	<section id="tableProdOC" class="modalTable">
+		<div class="modalTable__container">
+			<div class="table">
+				<div class="table__title">
+					<h1><img src="../imagenes/producto.svg">Productos</h1>
+					<img src="../imagenes/salir.svg" id="closeTableProdOC" class="button__close">
+				</div>
+				<section class="table__header">
+					<h1 id="totalProdOC">TOTAL:</h1>
+					<section class="select__search">
+						<div>
+							<select id="selectStateProdOC" class="select__number">
+								<option value="todasLasOC">Todas las OC</option>
+								<option value="0">OC pendientes</option>
+								<option value="1">OC recibidas</option>
+							</select>
+						</div>
+					</section>
+					<div class="combo__search">
+						<div>
+							<select id="selectSearchProdOC" class="select">
+								<option value="todas">Buscar por todo</option>
+								<option value="numero_cmp">Por orden de compra</option>
+								<option value="encargado">Por encargado</option>
+								<option value="nombre_empp">Por empresa</option>
+								<option value="codigo_prod">Por codigo producto</option>
+								<option value="descripcion_cppd">Por descripción</option>
+								<option value="cantidad_cppd">Por cantidad producto</option>
+							</select>
+						</div>
+						<div class="table__search">
+							<input type="search" id="inputSearchProdOC" placeholder="Buscar...">
+							<img src="../imagenes/search.png">
+						</div>
+					</div>
+				</section>
+				<div class="showPage" id="showPageProf">
+					<h2></h2>
+				</div>
+				<div class="container__page">
+					<div class="paginacion">
+						<div class="wrapper" id="wrapperProf">
+							<ul></ul>
+						</div>
+					</div>
+					<div>
+						<select id="selectNumberProdOC" class="select__number">
+							<option value="2">2</option>
+							<option value="4">4</option>
+							<option value="6">6</option>
+							<option value="10">10 </option>
+							<option value="20">20</option>
+						</select>
+					</div>
+				</div>
+				<section class="table__body">
+					<table>
+						<thead>
+							<tr>
+								<th>N°</th>
+								<th>OC SMS</th>
+								<th>Encargado</th>
+								<th>Empresa</th>
+								<th>Marca</th>
+								<th>Categoria</th>
+								<th>Codigo</th>
+								<th>Descripcion</th>
+								<th>cantidad</th>
+								<th>Cost uni.</th>
+								<th>Subtotal</th>
+								<th>Descuento</th>
+								<th>Total</th>
+								<th>Fecha OC</th>
+								<th>Fecha entrega</th>
+							</tr>
+						</thead>
+						<tbody id="tbodyProdOC">
+						</tbody>
+					</table>
+				</section>
+			</div>
+		</div>
+	</section>
 	<script src="scripts/header.js"></script>
 	<script src="scripts/compra.js"></script>
 </body>

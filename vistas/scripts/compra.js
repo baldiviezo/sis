@@ -706,10 +706,10 @@ function readBuy(id_cmp) {
 }
 function readCmp_prod(id_cmp) {
     formBuy = 'M';
-    const filterCmp_prods = Object.values(cmp_prods).filter(cmp_prod => cmp_prod['fk_id_cmp_cppd'] == id_cmp);
+    let filterCmpProds = Object.values(cmp_prods).filter(cmp_prod => cmp_prod['fk_id_cmp_cppd'] == id_cmp);
     cmp_prodMMW.querySelector('div.modal__body').innerHTML = '';
     let i = 0;
-    filterCmp_prods.forEach(cmp_prod => {
+    filterCmpProds.forEach(cmp_prod => {
         i++;
         let div = document.createElement('div');
         div.classList.add('cart__item');
@@ -977,6 +977,7 @@ closeProductBuyMW.addEventListener('click', (e) => {
 //------------------------------------------CRUD COMPRAS--------------------------------------------------
 //--------read Cmp_prods
 let cmp_prods;
+let filterCmp_prods;
 readCmp_prods();
 function readCmp_prods() {
     let formData = new FormData();
@@ -986,6 +987,8 @@ function readCmp_prods() {
         body: formData
     }).then(response => response.json()).then(data => {
         cmp_prods = data;
+        filterCmp_prods = cmp_prods;
+        paginacionProdOC(Object.values(cmp_prods).length, 1);
     }).catch(err => console.log(err));
 }
 //------------------------------MODAL ADD BUY TO INVETORY-----------------------------------------------------
@@ -1472,7 +1475,6 @@ function selectCategoriaProductMW() {
     }
     searchProductsMW();
 }
-
 //---------------------------------------------------CRUD PRODUCTOS----------------------------------------------------------------
 //------Create un producto
 document.getElementById("formProductsR").addEventListener("submit", createProduct);
@@ -1715,3 +1717,208 @@ function processFileM(file){
         alert('No es una archivo valido');
     }
 }
+/***********************************************PRODUCT FILTER******************************************/
+//------------------------------------------------------TABLE PRODUCT FILTER-----------------------------------------------------
+//------Select utilizado para buscar por columnas
+const selectSearchProdOC = document.getElementById('selectSearchProdOC');
+selectSearchProdOC.addEventListener('change', searchProdOC);
+//------buscar por input
+const inputSearchProdOC = document.getElementById("inputSearchProdOC");
+inputSearchProdOC.addEventListener("keyup", searchProdOC);
+//------Proformas por pagina
+const selectNumberProdOC = document.getElementById('selectNumberProdOC');
+selectNumberProdOC.selectedIndex = 3;
+selectNumberProdOC.addEventListener('change', function () {
+    paginacionProdOC(Object.values(filterCmp_prods).length, 1);
+});
+//------buscar por:
+function searchProdOC() {
+    filterCmp_prods = {};
+    for (let proforma in cmp_prods) {
+        for (let valor in cmp_prods[proforma]) {
+            if (selectSearchProdOC.value == 'todas') {
+                if (valor == 'numero_cmp') {
+                    if (cmp_prods[proforma][valor].toString().toLowerCase().indexOf(inputSearchProdOC.value.toLowerCase()) >= 0) {
+                        filterCmp_prods[proforma] = cmp_prods[proforma];
+                        break;
+                    }
+                } else if (valor == 'nombre_usua') {
+                    if ((cmp_prods[proforma][valor] + ' ' + cmp_prods[proforma]['apellido_usua']).toLowerCase().indexOf(inputSearchProdOC.value.toLowerCase()) >= 0) {
+                        filterCmp_prods[proforma] = cmp_prods[proforma];
+                        break;
+                    }
+                } else if (valor == 'nombre_empp' || valor == 'nombre_emp' || valor == 'nombre_mrc' || valor == 'nombre_ctgr' || valor == 'codigo_prod' || valor == 'descripcion_cppd' || valor == 'cantidad_cppd' || valor == 'cost_uni_cppd' || valor == 'descuento_cmp' || valor == 'fecha_cmp' || valor == 'fecha_entrega_cmp') {
+                    if (cmp_prods[proforma][valor].toString().toLowerCase().indexOf(inputSearchProdOC.value.toLowerCase()) >= 0) {
+                        filterCmp_prods[proforma] = cmp_prods[proforma];
+                        break;
+                    }
+                }
+            } else if (selectSearchProdOC.value == 'encargado') {
+                if (valor == 'nombre_usua') {
+                    if ((cmp_prods[proforma][valor] + ' ' + cmp_prods[proforma]['apellido_usua']).toLowerCase().indexOf(inputSearchProdOC.value.toLowerCase()) >= 0) {
+                        filterCmp_prods[proforma] = cmp_prods[proforma];
+                        break;
+                    }
+                }
+            } else {
+                if (valor == selectSearchProdOC.value) {
+                    if (cmp_prods[proforma][valor].toString().toLowerCase().indexOf(inputSearchProdOC.value.toLowerCase()) >= 0) {
+                        filterCmp_prods[proforma] = cmp_prods[proforma];
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    selectStateProductOC();
+}
+//-------Estado de proforma
+const selectStateProdOC = document.getElementById('selectStateProdOC');
+selectStateProdOC.addEventListener('change', searchProdOC);
+function selectStateProductOC() {
+    if (selectStateProdOC.value == 'todasLasOC') {
+        paginacionProdOC(Object.values(filterCmp_prods).length, 1);
+    } else {
+        for (let proforma in filterCmp_prods) {
+            for (let valor in filterCmp_prods[proforma]) {
+                if (valor == 'estado_cmp') {
+                    if (filterCmp_prods[proforma][valor] != selectStateProdOC.value) {
+                        delete filterCmp_prods[proforma];
+                        break;
+                    }
+                }
+            }
+        }
+        paginacionProdOC(Object.values(filterCmp_prods).length, 1);
+    }
+}
+//------Ordenar tabla descendente ascendente
+let orderProforma = document.querySelectorAll('.tbody__head--proforma');
+orderProforma.forEach(div => {
+    div.children[0].addEventListener('click', function () {
+        let array = Object.entries(filterCmp_prods).sort((a, b) => {
+            let first = a[1][div.children[0].name];
+            let second = b[1][div.children[0].name];
+            if (typeof first === 'number' && typeof second === 'number') {
+                return first - second;
+            } else {
+                return String(first).localeCompare(String(second));
+            }
+        });
+        filterCmp_prods = Object.fromEntries(array);
+        paginacionProdOC(Object.values(filterCmp_prods).length, 1);
+    });
+    div.children[1].addEventListener('click', function () {
+        let array = Object.entries(filterCmp_prods).sort((a, b) => {
+            let first = a[1][div.children[0].name];
+            let second = b[1][div.children[0].name];
+            if (typeof first === 'number' && typeof second === 'number') {
+                return second - first;
+            } else {
+                return String(second).localeCompare(String(first));
+            }
+        });
+        filterCmp_prods = Object.fromEntries(array);
+        paginacionProdOC(Object.values(filterCmp_prods).length, 1);
+    });
+});
+//------PaginacionProdOC
+function paginacionProdOC(allProducts, page) {
+    let totalProdOC = document.getElementById('totalProdOC');
+    let total = 0;
+    for (let cmp_prods in filterCmp_prods) {
+        total += filterCmp_prods[cmp_prods]['cantidad_cppd']*filterCmp_prods[cmp_prods]['cost_uni_cppd']*(100-filterCmp_prods[cmp_prods]['descuento_cmp'])/100; 
+    }
+    totalProdOC.innerHTML = total.toFixed(2)+' Bs';
+    let numberProducts = Number(selectNumberProdOC.value);
+    let allPages = Math.ceil(allProducts / numberProducts);
+    let ul = document.querySelector('#wrapperProf ul');
+    let li = '';
+    let beforePages = page - 1;
+    let afterPages = page + 1;
+    let liActive;
+    if (page > 1) {
+        li += `<li class="btn" onclick="paginacionProdOC(${allProducts}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
+    }
+    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
+        if (pageLength > allPages) {
+            continue;
+        }
+        if (pageLength == 0) {
+            pageLength = pageLength + 1;
+        }
+        if (page == pageLength) {
+            liActive = 'active';
+        } else {
+            liActive = '';
+        }
+        li += `<li class="numb ${liActive}" onclick="paginacionProdOC(${allProducts}, ${pageLength})"><span>${pageLength}</span></li>`;
+    }
+    if (page < allPages) {
+        li += `<li class="btn" onclick="paginacionProdOC(${allProducts}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
+    }
+    ul.innerHTML = li;
+    let h2 = document.querySelector('#showPageProf h2');
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${allProducts} Productos`;
+    tableProformas(page);
+}
+//--------Tabla de proforma
+function tableProformas(page) {
+    let tbody = document.getElementById('tbodyProdOC');
+    inicio = (page - 1) * Number(selectNumberProdOC.value);
+    final = inicio + Number(selectNumberProdOC.value);
+    i = 1;
+    tbody.innerHTML = '';
+    for (let proforma in filterCmp_prods) {
+        if (i > inicio && i <= final) {
+            let tr = document.createElement('tr');
+            for (let valor in filterCmp_prods[proforma]) {
+                let td = document.createElement('td');
+                if (valor == 'id_cppd') {
+                    td = document.createElement('td');
+                    td.innerText = i;
+                    tr.appendChild(td);
+                    i++;
+                }else if (valor == 'nombre_usua') {
+                    td.innerText = filterCmp_prods[proforma][valor] + ' ' + filterCmp_prods[proforma]['apellido_usua'];
+                    tr.appendChild(td);
+                } else if (valor == 'cost_uni_cppd') {
+                    td.innerText = filterCmp_prods[proforma][valor].toFixed(2)+' Bs';
+                    tr.appendChild(td);
+                    let td2 = document.createElement('td');
+                    let subTotal = filterCmp_prods[proforma]['cost_uni_cppd']*filterCmp_prods[proforma]['cantidad_cppd'];
+                    td2.innerText = subTotal.toFixed(2)+' Bs';
+                    tr.appendChild(td2);
+
+                } else if (valor == 'descuento_cmp') {
+                    let desc = filterCmp_prods[proforma][valor]*filterCmp_prods[proforma]['cost_uni_cppd']*filterCmp_prods[proforma]['cantidad_cppd']/100;
+                    td.innerText = desc.toFixed(2)+' Bs' + ' ('+filterCmp_prods[proforma][valor]+'%)';
+                    tr.appendChild(td);
+                    let td2 = document.createElement('td');
+                    let total = filterCmp_prods[proforma]['cantidad_cppd']*filterCmp_prods[proforma]['cost_uni_cppd']*(100-filterCmp_prods[proforma]['descuento_cmp'])/100;
+                    td2.innerText = total.toFixed(2)+' Bs';
+                    tr.appendChild(td2);
+                } else if (valor == 'fk_id_cmp_cppd' || valor == 'apellido_usua' || valor == 'fk_id_prod_cppd' || valor == 'imagen_prod' || valor == 'estado_cmp') {
+                } else {
+                    td.innerText = filterCmp_prods[proforma][valor];
+                    tr.appendChild(td);
+                }
+            }
+            tbody.appendChild(tr);
+        } else {
+            i++;
+        }
+    }
+}
+
+
+//---------------------------------VENTANA MODAL PARA REGISTRAR PRODUCTOS FILTER------------------------------>>
+const openProdOC = document.getElementById('openProdOC');
+const closeTableProdOC = document.getElementById('closeTableProdOC');
+const tableProdOC = document.getElementById('tableProdOC');
+openProdOC.addEventListener('click', () => {
+    tableProdOC.classList.add('modal__show');
+})
+closeTableProdOC.addEventListener('click', () => {
+    tableProdOC.classList.remove('modal__show');
+})
