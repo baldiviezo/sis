@@ -238,15 +238,15 @@ function tableNotaEntrega(page) {
             let td = document.createElement('td');
             if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
                 td.innerHTML = `
-                <img src='../imagenes/pdf.svg' onclick='pdfNotaEntrega(this.parentNode.parentNode)'>`;
+                <img src='../imagenes/pdf.svg' onclick='pdfNotaEntrega(this.parentNode.parentNode)' title='Descargar nota de entrega'>`;
             } else {
                 if (filterNotasEntrega[notaEntrega]['estado_ne'] == 'vendido') {
                     td.innerHTML = `
-                    <img src='../imagenes/pdf.svg' onclick='pdfNotaEntrega(this.parentNode.parentNode)'>`;
+                    <img src='../imagenes/pdf.svg' onclick='pdfNotaEntrega(this.parentNode.parentNode)' title='Descargar nota de entrega'>`;
                 } else {
                     td.innerHTML = `
-                    <img src='../imagenes/receipt.svg' onclick='readSale(this.parentNode.parentNode)'>
-                    <img src='../imagenes/pdf.svg' onclick='pdfNotaEntrega(this.parentNode.parentNode)'>`;
+                    <img src='../imagenes/receipt.svg' onclick='readSale(this.parentNode.parentNode)' title='Facturar'>
+                    <img src='../imagenes/pdf.svg' onclick='pdfNotaEntrega(this.parentNode.parentNode)' title='Descargar nota de entrega'>`;
                 }
             }
             tr.appendChild(td);
@@ -428,8 +428,8 @@ function cartProd(products) {
         </div>
         <p class="cart-item__codigo">`+ product['codigo_prod'] + `</p>
         <input type="number" value = "${product['cantidad_pfpd']}" min="1" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__cantidad">
-        <input type="number" value = "${parseInt(product['cost_uni_pfpd']).toFixed(2)}" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__costUnit">
-        <input type="number" value = "`+ product['cantidad_pfpd'] * parseInt(product['cost_uni_pfpd']).toFixed(2) + `" class="cart-item__costTotal" readonly>
+        <input type="number" value = "${parseFloat(product['cost_uni_pfpd']).toFixed(2)}" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__costUnit">
+        <input type="number" value = "`+ product['cantidad_pfpd'] * parseFloat(product['cost_uni_pfpd']).toFixed(2) + `" class="cart-item__costTotal" readonly>
         <p hidden>${product['id_inv']}</p>`;
         cart.innerHTML = html;
         item.appendChild(cart);
@@ -472,7 +472,6 @@ function createSale(){
     }
     vnt_prodRMW.classList.remove('modal__show');
     saleRMW.classList.remove('modal__show');
-    
 
     let formData = new FormData();
     formData.append('createSale', id_ne);

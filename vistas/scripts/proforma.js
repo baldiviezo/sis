@@ -3,10 +3,10 @@ if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol
     document.getElementsByName('nombre_empM')[0].setAttribute('readonly', 'readonly');
     document.getElementsByName('nombre_clteM')[0].setAttribute('readonly', 'readonly');
     document.getElementsByName('apellido_clteM')[0].setAttribute('readonly', 'readonly');
-} else if (localStorage.getItem('rol_usua') == 'Administrador'){
+} else if (localStorage.getItem('rol_usua') == 'Administrador') {
     document.querySelector('#formProformaR .form__group--select').children[4].removeAttribute('hidden');
     document.querySelectorAll('#formProformaR .form__group--select')[1].children[3].removeAttribute('hidden');
-} else if (localStorage.getItem('rol_usua') == 'Gerente general'){
+} else if (localStorage.getItem('rol_usua') == 'Gerente general') {
     document.querySelector('#formProformaR .form__group--select').children[4].removeAttribute('hidden');
     document.querySelectorAll('#formProformaR .form__group--select')[1].children[3].removeAttribute('hidden');
 }
@@ -343,11 +343,11 @@ function cardProduct(page) {
                         <img class='images' src=../modelos/imagenes/${filterProducts[product]['imagen_prod']} '></img>
                     </div>
                     <div class='bottom'>
-                        <h3 style='display:none'>${filterProducts[product]['nombre_prod']}</h3>
+                        <h3 style='display:none'>${filterProducts[product]['id_prod']}</h3>
                         <p class='box__code'>${filterProducts[product]['codigo_prod']}</p>
                         <h3 style='display:none'>${filterProducts[product]['descripcion_prod']}</h3>
                         <h3 style='display:none'>0</h3>
-                        <h2 hidden>0</h2>
+                        <h2 style='display:none'>0</h2>
                         <h2 class='box__name'>${filterProducts[product]['nombre_prod']}</h2>
                         <button onclick='addCard(this.parentNode.parentNode)'>Añadir</button>
                     </div>
@@ -368,19 +368,29 @@ function showDetails() {
     let modal = document.querySelector('.modalCard__body');
     cards.forEach(card => {
         card.querySelector('img').addEventListener('click', () => {
-            modal.children[0].children[0].innerHTML = card.children[1].children[0].innerHTML;
+            modal.children[0].children[0].innerHTML = card.children[1].children[5].innerHTML;
             modal.children[1].src = card.children[0].children[0].src;
             modal.children[2].innerText = card.children[1].children[1].innerText;
             modal.children[4].innerText = card.children[1].children[2].innerText;
-            if (card.children[1].children[3].innerHTML === 'undefined') {
-                modal.children[5].innerHTML = 'En stock: 0 Unidades';
-            } else {
-                modal.children[5].innerHTML = 'En stock: ' + card.children[1].children[3].innerHTML + ' Unidades';
+            let cantidad_inv;
+            let cost_uni = 0;
+            let encontrado = false;
+            for (let inventory in inventories) {
+                for (let valor in inventories[inventory]) {
+                    if (inventories[inventory]['fk_id_prod_inv'] == card.children[1].children[0].innerHTML) {
+                        cantidad_inv = inventories[inventory]['cantidad_inv'];
+                        cost_uni = inventories[inventory]['cost_uni_inv'];
+                        encontrado = true;
+                        break;
+                    }
+                }
+                if (encontrado) {
+                    break;
+                }
             }
-            if (card.children[1].children[4].innerHTML === 'undefined') {
-                modal.children[6].innerHTML = 'Precio: 0 BS';
-            } else {
-                modal.children[6].innerHTML = 'Precio: ' + card.children[1].children[4].innerHTML + ' BS';
+            if (encontrado) {
+                modal.children[5].innerHTML = `En stock: ${cantidad_inv} Unidades`;
+                modal.children[6].innerHTML = `Precio: ${cost_uni} BS`;
             }
             modalCard.classList.add('modal__show');
         })
@@ -405,7 +415,7 @@ function addCard(card) {
     if (i == 0) {
         cartProduct(card);
         totalPrice();
-    }else{
+    } else {
         alert('El producto ya se encuentra en el carrito');
     }
 }
@@ -440,15 +450,15 @@ function cartProduct(card) {
         <h3 hidden>${card.children[1].children[0].innerText}</h3>`;
     product.innerHTML = html;
     //------Drag
-    product.setAttribute('draggable', true)
+    /*product.setAttribute('draggable', true)
     product.addEventListener("dragstart", () => {
         setTimeout(() => product.classList.add("dragging"), 0);
     });
-    product.addEventListener("dragend", () => product.classList.remove("dragging"));
+    product.addEventListener("dragend", () => product.classList.remove("dragging"));*/
     cartItem.appendChild(product);
 }
 //-------DRAG AND DROP
-const initSortableList = (e) => {
+/*const initSortableList = (e) => {
     e.preventDefault();
     const draggingItem = document.querySelector(".dragging");
     let siblings = [...cartItem.querySelectorAll(".cart-item:not(.dragging)")];
@@ -458,7 +468,7 @@ const initSortableList = (e) => {
     cartItem.insertBefore(draggingItem, nextSibling);
 }
 cartItem.addEventListener("dragover", initSortableList);
-cartItem.addEventListener("dragenter", e => e.preventDefault());
+cartItem.addEventListener("dragenter", e => e.preventDefault());*/
 //------Eliminar cart
 function removeCardFromCart(cart) {
     cartItem.removeChild(cart);
@@ -1001,7 +1011,7 @@ function showMdfProforma(id_prof) {
                 td.innerHTML = `
                 <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[1].innerText, "mprof")' title='PDF'>
                 <img src='../imagenes/trash.svg' onclick='deleteMdfProforma(this.parentNode.parentNode, "mprof")' title='Eliminar'>`;
-            }else {
+            } else {
                 td.innerHTML = `
                 <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[1].innerText, "mprof")' title='PDF'>`;
             }
@@ -1021,7 +1031,7 @@ function deleteMdfProforma(tr) {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            readMdfProforma();            
+            readMdfProforma();
             readmProf_prods();
             alert(data);
         }).catch(err => console.log(err));
@@ -1210,16 +1220,16 @@ function cartProduct_pfpd(product) {
         <h3 hidden>`+ product['nombre_prod'] + `</h3>`;
     item.innerHTML = html;
     //-------drag drop
-    item.setAttribute('draggable', true)
+    /*item.setAttribute('draggable', true)
     item.addEventListener("dragstart", () => {
         setTimeout(() => item.classList.add("dragging"), 0);
     });
-    item.addEventListener("dragend", () => item.classList.remove("dragging"));
+    item.addEventListener("dragend", () => item.classList.remove("dragging"));*/
     modalProf_prod.appendChild(item);
     totalPrice_pfpd();
 }
 //-----Drag drop
-const initSortableListM = (e) => {
+/*const initSortableListM = (e) => {
     e.preventDefault();
     const draggingItem = document.querySelector(".dragging");
     let siblings = [...modalProf_prod.querySelectorAll(".cart-item:not(.dragging)")];
@@ -1229,7 +1239,7 @@ const initSortableListM = (e) => {
     modalProf_prod.insertBefore(draggingItem, nextSibling);
 }
 modalProf_prod.addEventListener("dragover", initSortableListM);
-modalProf_prod.addEventListener("dragenter", e => e.preventDefault());
+modalProf_prod.addEventListener("dragenter", e => e.preventDefault());*/
 //-------Eliminar producto 
 function remove_pfpd(product) {
     let listProducts = document.querySelector('#prof_prodMW div.modal__body');
@@ -1283,9 +1293,9 @@ function openPreviwProducts() {
     let descProf = document.getElementById('descProf');
     let totalProf = document.getElementById('totalProf');
     let productos;
-    let moneda; 
+    let moneda;
     let total = 0;
-    let desc = Number(document.getElementsByName('descuento_prof'+formProformas)[0].value);
+    let desc = Number(document.getElementsByName('descuento_prof' + formProformas)[0].value);
     if (formProformas == 'R') {
         productos = document.querySelectorAll('#cartItem .cart-item');
         moneda = document.getElementById('selectMoneyCart').value;
@@ -1311,7 +1321,7 @@ function openPreviwProducts() {
                 </tr>`
         i++;
     });
-    document.getElementsByName('total_prof'+formProformas)[0].value = total.toFixed(2);
+    document.getElementsByName('total_prof' + formProformas)[0].value = total.toFixed(2);
     subTotalProf.innerText = `Sub-Total(${moneda}): ${total} ${moneda}  `;
     descProf.innerText = `Desc. ${desc}% (${moneda}): ${(total * desc / 100).toFixed(2)} ${moneda}   `;
     totalProf.innerText = `Total(${moneda}): ${(total - (total * desc / 100)).toFixed(2)} ${moneda}  `;
@@ -1394,12 +1404,12 @@ function readProductsSold(products) {
         </div>
         <p class="cart-item__codigo">`+ product['codigo_prod'] + `</p>
         <input type="number" value = "${product['cantidad_pfpd']}" min="1" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__cantidad">
-        <input type="number" value = "${parseInt(product['cost_uni_pfpd']).toFixed(2)}" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__costUnit">
-        <input type="number" value = "`+ product['cantidad_pfpd'] * parseInt(product['cost_uni_pfpd']).toFixed(2) + `" class="cart-item__costTotal" readonly>
+        <input type="number" value = "${parseFloat(product['cost_uni_pfpd']).toFixed(2)}" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__costUnit">
+        <input type="number" value = "`+ product['cantidad_pfpd'] * parseFloat(product['cost_uni_pfpd']).toFixed(2) + `" class="cart-item__costTotal" readonly>
         <p hidden>${product['id_inv']}</p>`;
         cart.innerHTML = html;
         item.appendChild(cart);
-        costTotal += parseInt(product['cost_uni_pfpd']).toFixed(2) * product['cantidad_pfpd'];
+        costTotal += parseFloat(product['cost_uni_pfpd']).toFixed(2) * product['cantidad_pfpd'];
     });
     countProductsSold.innerText = products.length;
     totalProductsSold.innerText = `BS ${costTotal.toFixed(2)}`;
@@ -1483,13 +1493,11 @@ function readCustomers() {
         filterCustomers = customers;
         sortCustomers = customers;
         let array = Object.entries(sortCustomers).sort((a, b) => {
-            if (a[1].nombre_clte.toLowerCase() < b[1].nombre_clte.toLowerCase()) {
-                return -1;
+            const apellidoCompare = a[1].apellido_clte.toLowerCase().localeCompare(b[1].apellido_clte.toLowerCase());
+            if (apellidoCompare !== 0) {
+                return apellidoCompare;
             }
-            if (a[1].nombre_clte.toLowerCase() > b[1].nombre_clte.toLowerCase()) {
-                return 1;
-            }
-            return 0;
+            return a[1].nombre_clte.toLowerCase().localeCompare(b[1].nombre_clte.toLowerCase());
         })
         sortCustomers = Object.fromEntries(array);
         fillSelectClte(selectCustomerR, indexCustomer);
@@ -1501,6 +1509,7 @@ const formClienteR = document.getElementById('formClienteR');
 formClienteR.addEventListener('submit', createCustomer);
 function createCustomer() {
     event.preventDefault();
+    customersRMW.classList.remove('modal__show');
     let formData = new FormData(formClienteR);
     formData.append('createCustomer', '');
     fetch('../controladores/clientes.php', {
@@ -1508,7 +1517,6 @@ function createCustomer() {
         body: formData
     }).then(response => response.text()).then(data => {
         alert(data);
-        customersRMW.classList.remove('modal__show');
         indexCustomer = 0;
         readCustomers();
         //Limpiar
@@ -1539,6 +1547,7 @@ const formClienteM = document.getElementById('formClienteM');
 formClienteM.addEventListener('submit', updateCustomer);
 function updateCustomer() {
     event.preventDefault();
+    customersMMW.classList.remove('modal__show');
     let formData = new FormData(formClienteM);
     formData.append('updateCustomer', '');
     fetch('../controladores/clientes.php', {
@@ -1546,7 +1555,6 @@ function updateCustomer() {
         body: formData
     }).then(response => response.text()).then(data => {
         alert(data);
-        customersMMW.classList.remove('modal__show');
         indexCustomer = selectCustomerR.value;
         readCustomers();
     }).catch(err => console.log(err));
@@ -1821,6 +1829,7 @@ const formEmpresaR = document.getElementById('formEmpresaR');
 formEmpresaR.addEventListener('submit', createEnterprise);
 function createEnterprise() {
     event.preventDefault();
+    enterprisesRMW.classList.remove('modal__show');
     let formData = new FormData(formEmpresaR);
     formData.append('createEnterprise', '');
     fetch('../controladores/clientes.php', {
@@ -1828,10 +1837,10 @@ function createEnterprise() {
         body: formData
     }).then(response => response.text()).then(data => {
         indexEnterprise = 0;
+        readCustomers();
         readEnterprises();
-        alert (data);
+        alert(data);
     }).catch(err => console.log(err));
-    enterprisesRMW.classList.remove('modal__show');
     //Limpiar el formulario de registrar empresa
     let inputs = document.querySelectorAll('#formEmpresaR .form__input');
     inputs.forEach(input => input.value = '');
@@ -1854,13 +1863,13 @@ let formEmpresaM = document.getElementById('formEmpresaM');
 formEmpresaM.addEventListener('submit', updateEnterprise);
 function updateEnterprise() {
     event.preventDefault();
+    enterprisesMMW.classList.remove('modal__show');
     let formData = new FormData(formEmpresaM);
     formData.append('updateEnterprise', '');
     fetch('../controladores/clientes.php', {
         method: "POST",
         body: formData
     }).then(response => response.text()).then(data => {
-        enterprisesMMW.classList.remove('modal__show');
         indexEnterprise = document.getElementsByName('fk_id_emp_clteR')[0].value;
         readEnterprises();
         alert(data);

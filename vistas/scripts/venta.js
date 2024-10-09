@@ -146,16 +146,10 @@ function tableSales(page) {
                 td = document.createElement('td');
                 td.innerText = 'VNT-SMS-'+filterSales[sale][valor];
                 tr.appendChild(td);
-            }else if(valor == 'id_prof'){
-                td.innerText = 'SMSIC'+filterSales[sale]['fecha_vnt'].slice(2, 4)+'-'+filterSales[sale][valor];
-                tr.appendChild(td);
             }else if(valor == 'nombre_usua'){
                 td.innerText = filterSales[sale][valor]+' '+filterSales[sale]['apellido_usua'];
                 tr.appendChild(td);
             }else if(valor == 'apellido_usua'){
-            }else if(valor == 'fecha_vnt'){
-                td.innerText = filterSales[sale][valor].slice(0,10);
-                tr.appendChild(td);
             }else{
                 td.innerText = filterSales[sale][valor];
                 tr.appendChild(td);

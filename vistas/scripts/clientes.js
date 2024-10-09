@@ -212,8 +212,8 @@ function tableCustomers(page) {
 const formClienteR = document.getElementById('formClienteR');
 formClienteR.addEventListener('submit', createCustomer);
 function createCustomer() {
-    customersRMW.classList.remove('modal__show');
     event.preventDefault();
+    customersRMW.classList.remove('modal__show');
     let formData = new FormData(formClienteR);
     formData.append('createCustomer', '');
     fetch('../controladores/clientes.php', {
@@ -248,8 +248,8 @@ function readCustomer(tr) {
 const formClienteM = document.getElementById('formClienteM');
 formClienteM.addEventListener('submit', updateCustomer);
 function updateCustomer() {
-    customersMMW.classList.remove('modal__show');
     event.preventDefault();
+    customersMMW.classList.remove('modal__show');
     let formData = new FormData(formClienteM);
     formData.append('updateCustomer', '');
     fetch('../controladores/clientes.php', {
@@ -330,8 +330,8 @@ function fillSelectEmp(select, index) {
 const formEmpresaR = document.getElementById('formEmpresaR');
 formEmpresaR.addEventListener('submit', createEnterprise);
 function createEnterprise() {
-    enterprisesRMW.classList.remove('modal__show');
     event.preventDefault();
+    enterprisesRMW.classList.remove('modal__show');
     let formData = new FormData(formEmpresaR);
     formData.append('createEnterprise', '');
     fetch('../controladores/clientes.php', {
@@ -368,8 +368,8 @@ function readEnterprise(div) {
 let formEmpresaM = document.getElementById('formEmpresaM');
 formEmpresaM.addEventListener('submit', updateEnterprise);
 function updateEnterprise() {
-    enterprisesMMW.classList.remove('modal__show');
     event.preventDefault();
+    enterprisesMMW.classList.remove('modal__show');
     let formData = new FormData(formEmpresaM);
     formData.append('updateEnterprise', '');
     fetch('../controladores/clientes.php', {

@@ -43,7 +43,7 @@ class consultas{
 		while ($fila = $resultado->fetch_assoc()){
 			$_prof_mprof_ne = '';
 			if ($fila['nombre_emp'] == 'Ninguna'){
-				$_prof_mprof_ne = strtoupper('SMS'.substr($fila['fecha_prof'],2,2).'-'.$this->addZerosGo($fila['numero_prof']).'-'.$fila['apellido_clte']);
+				$_prof_mprof_ne = strtoupper('SMS'.substr($fila['fecha_prof'],2,2).'-'.$this->addZerosGo($fila['numero_prof']).'-'.explode(" ",$fila['apellido_clte'])[0]);
 			}else{
 				$_prof_mprof_ne = strtoupper('SMS'.substr($fila['fecha_prof'],2,2).'-'.$this->addZerosGo($fila['numero_prof']).'-'.$sigla_emp = $fila['sigla_emp']);
 			}
@@ -83,9 +83,10 @@ class consultas{
 		$tpo_entrega_prof =$fila['tpo_entrega_prof'];
 		$observacion_prof = $fila['observacion_prof'];
 		$descuento_prof = $fila['descuento_prof'];
+		$total_prof = $fila['total_prof'];
 		$moneda_prof = $fila['moneda_prof'];
 		$tipo_cambio_prof = $fila['tipo_cambio_prof'];
-        $consulta = "INSERT INTO mdf_proforma (id_prof_mprof, numero_mprof, fecha_mprof, fk_id_clte_mprof, fk_id_usua_mprof, tpo_valido_mprof, cond_pago_mprof, tpo_entrega_mprof, observacion_mprof, descuento_mprof, moneda_mprof, tipo_cambio_mprof) VALUES ('$id_prof', '$numero_prof' ,'$fecha_prof', '$id_clte' , '$id_usua', '$tpo_valido_prof', '$cond_pago_prof', '$tpo_entrega_prof', '$observacion_prof', '$descuento_prof', '$moneda_prof', '$tipo_cambio_prof')";
+        $consulta = "INSERT INTO mdf_proforma (id_prof_mprof, numero_mprof, fecha_mprof, fk_id_clte_mprof, fk_id_usua_mprof, tpo_valido_mprof, cond_pago_mprof, tpo_entrega_mprof, observacion_mprof, descuento_mprof, total_mprof, moneda_mprof, tipo_cambio_mprof) VALUES ('$id_prof', '$numero_prof' ,'$fecha_prof', '$id_clte' , '$id_usua', '$tpo_valido_prof', '$cond_pago_prof', '$tpo_entrega_prof', '$observacion_prof', '$descuento_prof', '$total_prof', '$moneda_prof', '$tipo_cambio_prof')";
 		$resultado = $conexion->query($consulta);
 		
 		$consulta = "SELECT MAX(id_mprof) as id_mprof_max FROM mdf_proforma ";
@@ -107,7 +108,7 @@ class consultas{
 				$resultado2 = $conexion->query($consulta2);
 			}
 		}
-		$consulta = "UPDATE proforma set fecha_prof='$this->fecha', fk_id_clte_prof = '$this->cliente', fk_id_usua_prof = '$this->encargado', cond_pago_prof = '$this->condicionesDePago', tpo_entrega_prof = '$this->tiempoDeEntrega',  tpo_valido_prof = '$this->tiempoValido', descuento_prof = '$this->descuento', moneda_prof = '$this->moneda', observacion_prof = '$this->observacion', tipo_cambio_prof = '$this->tipo_cambio_prof' WHERE id_prof = '$this->id_prof'";
+		$consulta = "UPDATE proforma set fecha_prof='$this->fecha', fk_id_clte_prof = '$this->cliente', fk_id_usua_prof = '$this->encargado', cond_pago_prof = '$this->condicionesDePago', tpo_entrega_prof = '$this->tiempoDeEntrega',  tpo_valido_prof = '$this->tiempoValido', descuento_prof = '$this->descuento', total_prof = '$this->total', moneda_prof = '$this->moneda', observacion_prof = '$this->observacion', tipo_cambio_prof = '$this->tipo_cambio_prof' WHERE id_prof = '$this->id_prof'";
 		$resultado = $conexion->query($consulta);
 		//------Eliminar productos de la proforma
 		$consulta = "DELETE FROM prof_prod WHERE fk_id_prof_pfpd = '$this->id_prof'";

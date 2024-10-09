@@ -30,7 +30,7 @@ class Consultas{
 		$clientes =  array();
 		if($numeroClientes > 0){
 			while ($fila = $resultado->fetch_assoc()){
-				$datos = array ('id_vnt'=>$fila['id_vnt'], 'fecha_vnt'=>$fila['fecha_vnt'], 'factura_vnt'=>$fila['factura_vnt'], 'id_prof'=>$fila['id_prof'], 'nombre_emp'=>$fila['nombre_emp'], 'cliente_clte'=>$fila['nombre_clte'].' '.$fila['apellido_clte'], 'nombre_usua'=>$fila['nombre_usua'], 'apellido_usua'=>$fila['apellido_usua'], 'observacion_vnt'=>$fila['observacion_vnt']);
+				$datos = array ('id_vnt'=>$fila['id_vnt'], 'fecha_ne'=>$fila['fecha_ne'], 'fecha_vnt'=>$fila['fecha_vnt'], 'nombre_usua'=>$fila['nombre_usua'], 'apellido_usua'=>$fila['apellido_usua'], 'nombre_emp'=>$fila['nombre_emp'], 'cliente_clte'=>$fila['nombre_clte'].' '.$fila['apellido_clte'], 'orden_ne'=>$fila['orden_ne'], 'factura_vnt'=>$fila['factura_vnt'], 'total_vnt'=>$fila['total_vnt'], 'observacion_vnt'=>$fila['observacion_vnt']);
 				$clientes[$fila['id_vnt'].'_id_vnt'] = $datos;
 			}
 			$json = json_encode($clientes, JSON_UNESCAPED_UNICODE);
