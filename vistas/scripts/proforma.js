@@ -1,15 +1,20 @@
 //--------------------------------------------Restricciones de usuario----------------------------------------------
-if (localStorage.getItem('rol_usua') == 'Ingeniero') {
-    document.querySelectorAll('.form__group--select')[0].children[3].classList.add('hide');
-    document.querySelectorAll('.form__group--select')[0].children[4].classList.add('hide');
-    document.querySelectorAll('.form__group--select')[1].children[2].classList.add('hide');
-    document.querySelectorAll('.form__group--select')[1].children[3].classList.add('hide');
+if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
+    document.getElementsByName('nombre_empM')[0].setAttribute('readonly', 'readonly');
+    document.getElementsByName('nombre_clteM')[0].setAttribute('readonly', 'readonly');
+    document.getElementsByName('apellido_clteM')[0].setAttribute('readonly', 'readonly');
+} else if (localStorage.getItem('rol_usua') == 'Administrador'){
+    document.querySelector('#formProformaR .form__group--select').children[4].removeAttribute('hidden');
+    document.querySelectorAll('#formProformaR .form__group--select')[1].children[3].removeAttribute('hidden');
+} else if (localStorage.getItem('rol_usua') == 'Gerente general'){
+    document.querySelector('#formProformaR .form__group--select').children[4].removeAttribute('hidden');
+    document.querySelectorAll('#formProformaR .form__group--select')[1].children[3].removeAttribute('hidden');
 }
 //----------------------------MOSTRAR CARD DE INVENTARIO Y PRODUCTOS---------------------------------------
 let selectInvProd = document.getElementById('selectInvProd');
 let headerInvetario = document.getElementById('headerInvetario');
 let headerProduct = document.getElementById('headerProduct');
-selectInvProd.addEventListener('change', showMain);
+//selectInvProd.addEventListener('change', showMain);
 function showMain() {
     if (selectInvProd.value == 'inventario') {
         headerProduct.setAttribute('hidden', '');
@@ -52,7 +57,7 @@ function readInventories() {
         filterInventories = inventories;
         filterInventoriesMW = inventories;
         paginacionInventoryMW(Object.values(data).length, 1);
-        paginacionInventory(Object.values(data).length, 1);
+        //paginacionInventory(Object.values(data).length, 1);
     }).catch(err => console.log(err));
 }
 //------Select utilizado para buscar por columnas
@@ -211,7 +216,8 @@ function readProducts() {
         products = JSON.parse(JSON.stringify(data));
         filterProducts = products;
         filterProductsMW = products;
-        if (selectInvProd.value == 'producto') { paginacionProduct(Object.values(data).length, 1) }
+        //if (selectInvProd.value == 'producto') { paginacionProduct(Object.values(data).length, 1) }
+        paginacionProduct(Object.values(data).length, 1)
         paginacionProductMW(Object.values(filterProductsMW).length, 1);
     }).catch(err => console.log(err));
 }
@@ -399,6 +405,8 @@ function addCard(card) {
     if (i == 0) {
         cartProduct(card);
         totalPrice();
+    }else{
+        alert('El producto ya se encuentra en el carrito');
     }
 }
 //------Cart
@@ -538,8 +546,8 @@ function searchProforma() {
                         filterProformas[proforma] = proformas[proforma];
                         break;
                     }
-                } else if (valor == 'nombre_clte') {
-                    if ((proformas[proforma][valor] + ' ' + proformas[proforma]['apellido_clte']).toLowerCase().indexOf(inputSearchProf.value.toLowerCase()) >= 0) {
+                } else if (valor == 'apellido_clte') {
+                    if ((proformas[proforma][valor] + ' ' + proformas[proforma]['nombre_clte']).toLowerCase().indexOf(inputSearchProf.value.toLowerCase()) >= 0) {
                         filterProformas[proforma] = proformas[proforma];
                         break;
                     }
@@ -557,8 +565,8 @@ function searchProforma() {
                     }
                 }
             } else if (selectSearchProf.value == 'cliente') {
-                if (valor == 'nombre_clte') {
-                    if ((proformas[proforma][valor] + ' ' + proformas[proforma]['apellido_clte']).toLowerCase().indexOf(inputSearchProf.value.toLowerCase()) >= 0) {
+                if (valor == 'apellido_clte') {
+                    if ((proformas[proforma][valor] + ' ' + proformas[proforma]['nombre_clte']).toLowerCase().indexOf(inputSearchProf.value.toLowerCase()) >= 0) {
                         filterProformas[proforma] = proformas[proforma];
                         break;
                     }
@@ -678,7 +686,7 @@ function tableProformas(page) {
                     tr.appendChild(td);
                     i++;
                     td = document.createElement('td');
-                    td.innerText = 'SMS' + filterProformas[proforma]['fecha_prof'].slice(2, 4) + '-' + filterProformas[proforma]['numero_prof'];
+                    td.innerText = filterProformas[proforma]['numero_prof'];
                     tr.appendChild(td);
                 } else if (valor == 'fecha_prof') {
                     td.innerText = filterProformas[proforma][valor];
@@ -687,12 +695,15 @@ function tableProformas(page) {
                 else if (valor == 'nombre_usua') {
                     td.innerText = filterProformas[proforma][valor] + ' ' + filterProformas[proforma]['apellido_usua'];
                     tr.appendChild(td);
-                } else if (valor == 'numero_prof' || valor == 'id_emp' || valor == 'sigla_emp' || valor == 'direccion_emp' || valor == 'telefono_emp' || valor == 'fk_id_usua_prof' || valor == 'fk_id_clte_prof' || valor == 'apellido_usua' || valor == 'email_usua' || valor == 'celular_usua' || valor == 'apellido_clte' || valor == 'celular_clte' || valor == 'moneda_prof' || valor == 'tipo_cambio_prof' || valor == 'estado_prof' || valor == 'cond_pago_prof' || valor == 'tpo_entrega_prof') {
+                } else if (valor == 'numero_prof' || valor == 'id_emp' || valor == 'sigla_emp' || valor == 'direccion_emp' || valor == 'telefono_emp' || valor == 'fk_id_usua_prof' || valor == 'fk_id_clte_prof' || valor == 'apellido_usua' || valor == 'email_usua' || valor == 'celular_usua' || valor == 'apellido_clte' || valor == 'celular_clte' || valor == 'moneda_prof' || valor == 'tipo_cambio_prof' || valor == 'estado_prof' || valor == 'cond_pago_prof' || valor == 'tpo_entrega_prof' || valor == 'observacion_prof') {
                 } else if (valor == 'nombre_clte') {
-                    td.innerText = filterProformas[proforma][valor] + ' ' + filterProformas[proforma]['apellido_clte'];
+                    td.innerText = filterProformas[proforma]['apellido_clte'] + ' ' + filterProformas[proforma][valor];
                     tr.appendChild(td)
                 } else if (valor == 'descuento_prof') {
                     td.innerText = filterProformas[proforma][valor] + '%';
+                    tr.appendChild(td);
+                } else if (valor == 'total_prof') {
+                    td.innerText = filterProformas[proforma][valor] + ' ' + filterProformas[proforma]['moneda_prof'];
                     tr.appendChild(td);
                 } else {
                     td.innerText = filterProformas[proforma][valor];
@@ -710,7 +721,8 @@ function tableProformas(page) {
                 <img src='../imagenes/notaEntrega.svg' onclick='openNotaEntregaRMW(this.parentNode.parentNode.children[0].innerText)' title='Generar Nota de Entrega'>
                 <img src='../imagenes/folder.svg' onclick='showMdfProforma(this.parentNode.parentNode.children[0].innerText)' title='Proformas anteriores'>
                 <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")' title='Mostrar PDF'>
-                <img src='../imagenes/edit.svg' onclick='readProforma(this.parentNode.parentNode)' title='Editar Proforma'>`;
+                <img src='../imagenes/edit.svg' onclick='readProforma(this.parentNode.parentNode)' title='Editar Proforma'>
+                <img src='../imagenes/trash.svg' onclick='deleteProforma(this.parentNode.parentNode)' title='Eliminar Proforma'>`;
                 } else {
                     if (localStorage.getItem('id_usua') != filterProformas[proforma]['fk_id_usua_prof']) {
                         td.innerHTML = `
@@ -745,10 +757,10 @@ closeTableProfMW.addEventListener('click', (e) => {
 //------Create una proforma
 document.getElementById('formProformaR').addEventListener('submit', createProforma);
 function createProforma() {
-    event.preventDefault();
     let cart = document.querySelectorAll('#cartItem .cart-item');
     if (cart.length > 0) {
         proformaRMW.classList.remove('modal__show');
+        previewProducts.classList.remove('modal__show');
         let array = [];
         cart.forEach(product => {
             let valor = {};
@@ -764,6 +776,7 @@ function createProforma() {
         let moneda = selectMoneyCart.value;
         let formData = new FormData(form);
         formData.set("fecha_profR", `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`);
+        formData.set("total_profR", Number(document.getElementById('totalProf').innerHTML.split(' ')[1]));
         formData.append('createProforma', productos);
         formData.append('moneda_profR', moneda);
         formData.append('tipo_cambio_profR', tipoDeCambioProf.value);
@@ -803,7 +816,7 @@ function readProforma(tr) {
                     option.value = filterProformas[proforma][valor];
                     option.innerText = filterProformas[proforma]['nombre_clte'] + ' ' + filterProformas[proforma]['apellido_clte'];
                     selectCustomerM.appendChild(option);
-                } else if (valor == 'numero_prof' || valor == 'silga_emp' || valor == 'nombre_emp' || valor == 'nombre_clte' || valor == 'fk_id_usua_prof' || valor == 'apellido_clte' || valor == 'nombre_usua' || valor == 'apellido_usua' || valor == 'email_usua' || valor == 'celular_usua' || valor == 'estado_prof' || valor == 'telefono_emp' || valor == 'direccion_emp') {
+                } else if (valor == 'silga_emp' || valor == 'nombre_emp' || valor == 'nombre_clte' || valor == 'fk_id_usua_prof' || valor == 'apellido_clte' || valor == 'nombre_usua' || valor == 'apellido_usua' || valor == 'email_usua' || valor == 'celular_usua' || valor == 'estado_prof' || valor == 'telefono_emp' || valor == 'direccion_emp') {
                 } else if (valor == 'tipo_cambio_prof') {
                     if (filterProformas[proforma]['moneda_prof'] == '$') {
                         document.getElementsByName(valor + 'M')[0].parentNode.classList.remove('hide');
@@ -824,11 +837,12 @@ function readProforma(tr) {
 let formProformaM = document.getElementById('formProformaM');
 formProformaM.addEventListener('submit', updateProforma)
 function updateProforma() {
-    event.preventDefault();
     let modal = document.querySelector('#cartsProf_prodMW');
     let cartItems = modal.querySelectorAll('div.cart-item');
     if (cartItems.length > 0) {
         proformaMMW.classList.remove('modal__show');
+        prof_prodMW.classList.remove('modal__show');
+        previewProducts.classList.remove('modal__show');
         let array = [];
         cartItems.forEach(product => {
             let valor = {};
@@ -841,6 +855,7 @@ function updateProforma() {
         let form = document.getElementById('formProformaM');
         let formData = new FormData(form);
         formData.set("fecha_profM", `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`);
+        formData.set("total_profM", Number(document.getElementById('totalProf').innerHTML.split(' ')[1]));
         formData.append('updateProforma', productos);
         formData.append('id_usua', localStorage.getItem('id_usua'));
         fetch('../controladores/proforma.php', {
@@ -982,8 +997,14 @@ function showMdfProforma(id_prof) {
                 }
             }
             let td = document.createElement('td');
-            td.innerHTML = `
-            <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[1].innerText, "mprof")'>`;
+            if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
+                td.innerHTML = `
+                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[1].innerText, "mprof")' title='PDF'>
+                <img src='../imagenes/trash.svg' onclick='deleteMdfProforma(this.parentNode.parentNode, "mprof")' title='Eliminar'>`;
+            }else {
+                td.innerHTML = `
+                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[1].innerText, "mprof")' title='PDF'>`;
+            }
             tr.appendChild(td);
             tbody.appendChild(tr);
         }
@@ -992,17 +1013,17 @@ function showMdfProforma(id_prof) {
 //-------Delete una proforma modificada
 function deleteMdfProforma(tr) {
     if (confirm('¿Esta usted seguro?')) {
-        let id_prof = tr.children[2].innerText;
         let id_mprof = tr.children[1].innerText;
         let formData = new FormData();
+        tablemProfMW.classList.remove('modal__show');
         formData.append('deletemProforma', id_mprof);
         fetch('../controladores/proforma.php', {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            alert(data);
-            readMdfProforma(id_prof);
+            readMdfProforma();            
             readmProf_prods();
+            alert(data);
         }).catch(err => console.log(err));
     }
 }
@@ -1132,7 +1153,6 @@ function readmProf_prods() {
         mProf_prods = JSON.parse(JSON.stringify(data));
     }).catch(err => console.log(err));
 }
-
 //------read prof_prod
 let modalProf_prod = document.querySelector('#prof_prodMW div.modal__body');
 function readProf_prod() {
@@ -1259,8 +1279,13 @@ closeProf_prodMW.addEventListener('click', (e) => {
 //-------------------------------------------MOSTRAR LOS PRODUCTOS PREVIAMENTE---------------------------------------------------
 function openPreviwProducts() {
     previewProducts.classList.add('modal__show');
+    let subTotalProf = document.getElementById('subTotalProf');
+    let descProf = document.getElementById('descProf');
+    let totalProf = document.getElementById('totalProf');
     let productos;
-    let moneda;
+    let moneda; 
+    let total = 0;
+    let desc = Number(document.getElementsByName('descuento_prof'+formProformas)[0].value);
     if (formProformas == 'R') {
         productos = document.querySelectorAll('#cartItem .cart-item');
         moneda = document.getElementById('selectMoneyCart').value;
@@ -1273,6 +1298,7 @@ function openPreviwProducts() {
     tbody.innerHTML = '';
     html = '';
     productos.forEach(producto => {
+        total = total + Number(producto.children[5].value);
         html += `<tr>
                     <td>${i}</td>
                     <td>${producto.children[2].innerText}</td>
@@ -1285,7 +1311,25 @@ function openPreviwProducts() {
                 </tr>`
         i++;
     });
+    document.getElementsByName('total_prof'+formProformas)[0].value = total.toFixed(2);
+    subTotalProf.innerText = `Sub-Total(${moneda}): ${total} ${moneda}  `;
+    descProf.innerText = `Desc. ${desc}% (${moneda}): ${(total * desc / 100).toFixed(2)} ${moneda}   `;
+    totalProf.innerText = `Total(${moneda}): ${(total - (total * desc / 100)).toFixed(2)} ${moneda}  `;
+    let tr = document.createElement('tr');
+    let td = document.createElement('td');
+    let button = document.createElement('button');
+    button.classList.add('button__sell--previw');
+    button.innerText = 'Registrar';
+    if (formProformas == 'R') {
+        button.setAttribute('onclick', 'createProforma();');
+    } else if (formProformas == 'M') {
+        button.setAttribute('onclick', 'updateProforma();');
+    }
+    td.setAttribute('colspan', '8');
+    tr.appendChild(td);
+    td.appendChild(button);
     tbody.innerHTML = html;
+    tbody.appendChild(tr);
 }
 //-----------------------------MODAL VISTA PREVIA DE LOS PRODUCTOS DE LA PROFORMA
 const previewProducts = document.getElementById('previewProducts');
@@ -1463,6 +1507,7 @@ function createCustomer() {
         method: "POST",
         body: formData
     }).then(response => response.text()).then(data => {
+        alert(data);
         customersRMW.classList.remove('modal__show');
         indexCustomer = 0;
         readCustomers();
@@ -1500,6 +1545,7 @@ function updateCustomer() {
         method: "POST",
         body: formData
     }).then(response => response.text()).then(data => {
+        alert(data);
         customersMMW.classList.remove('modal__show');
         indexCustomer = selectCustomerR.value;
         readCustomers();
@@ -1515,6 +1561,7 @@ function deleteCustomer(tr) {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
+            alert(data)
             indexCustomer = 0;
             readCustomers();
         }).catch(err => console.log(err));
@@ -1593,7 +1640,6 @@ selectNumberEmpMW.addEventListener('change', function () {
 //------buscar por:
 function searchEnterprisesMW() {
     filterEnterprises = {};
-    console.log(enterprises)
     for (let enterprise in enterprises) {
         for (let valor in enterprises[enterprise]) {
             if (selectSearchEmpMW.value == 'todas') {
@@ -1695,7 +1741,6 @@ function tableEnterprisesMW(page) {
                     td.innerText = i;
                     tr.appendChild(td);
                     i++;
-                } else if (valor == 'sigla_emp') {
                 } else if (valor == 'nit_emp') {
                     if (filterEnterprises[enterprise][valor] == '0') {
                         td.innerText = '';
@@ -1759,7 +1804,7 @@ function fillSelectClte(select, index) {
         if (sortCustomers[customer]['fk_id_emp_clte'] == id_emp) {
             let option = document.createElement('option');
             option.value = sortCustomers[customer]['id_clte'];
-            option.innerText = sortCustomers[customer]['nombre_clte'] + ' ' + sortCustomers[customer]['apellido_clte'];
+            option.innerText = sortCustomers[customer]['apellido_clte'] + ' ' + sortCustomers[customer]['nombre_clte'];
             select.appendChild(option);
         }
     }
@@ -1784,6 +1829,7 @@ function createEnterprise() {
     }).then(response => response.text()).then(data => {
         indexEnterprise = 0;
         readEnterprises();
+        alert (data);
     }).catch(err => console.log(err));
     enterprisesRMW.classList.remove('modal__show');
     //Limpiar el formulario de registrar empresa
@@ -1814,13 +1860,10 @@ function updateEnterprise() {
         method: "POST",
         body: formData
     }).then(response => response.text()).then(data => {
-        if (data == 'modificado') {
-            enterprisesMMW.classList.remove('modal__show');
-            indexEnterprise = document.getElementsByName('fk_id_emp_clteR')[0].value;
-            readEnterprises();
-        } else {
-            alert(data);
-        }
+        enterprisesMMW.classList.remove('modal__show');
+        indexEnterprise = document.getElementsByName('fk_id_emp_clteR')[0].value;
+        readEnterprises();
+        alert(data);
     }).catch(err => console.log(err));
 }
 //------Borrar una empresa

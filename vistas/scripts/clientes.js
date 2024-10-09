@@ -1,8 +1,8 @@
 //--------------------------------------------Restricciones de usuario----------------------------------------------
 if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
     //customersRMW
-    document.querySelector('#formClienteR .form__group--select').children[3].classList.add('hide');
     document.querySelector('#formClienteR .form__group--select').children[4].classList.add('hide');
+    document.getElementsByName('nombre_empM')[0].setAttribute('readonly', 'readonly');
     //customersMMW
     document.querySelector('#formClienteM .form__label--only').classList.add('hide');
     document.querySelector('#formClienteM .form__group--select').children[0].classList.add('hide');
@@ -14,9 +14,9 @@ if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol
     document.getElementsByName('apellido_clteM')[0].setAttribute('readonly', 'readonly');
 }else if (localStorage.getItem('rol_usua') == 'Administrador') {
     //customersMMW
-    document.getElementsByName('nombre_clteM')[0].setAttribute('readonly', 'readonly');
-    document.getElementsByName('apellido_clteM')[0].setAttribute('readonly', 'readonly');
-    document.getElementsByName('nombre_empM')[0].setAttribute('readonly', 'readonly');
+    //document.getElementsByName('nombre_clteM')[0].setAttribute('readonly', 'readonly');
+    //document.getElementsByName('apellido_clteM')[0].setAttribute('readonly', 'readonly');
+    //document.getElementsByName('nombre_empM')[0].setAttribute('readonly', 'readonly');
 }
 /************************************************TABLA DE CLIENTES*********************************************/
 let customers = {};
@@ -60,12 +60,26 @@ function searchCustomers() {
     for (let customer in customers) {
         for (let valor in customers[customer]) {
             if (selectSearchClte.value == 'todas') {
-                if (valor != 'id_clte' || valor == 'fk_id_emp_clte') {
-                    if (customers[customer][valor].toLowerCase().indexOf(inputSerchClte.value.toLowerCase()) >= 0) {
+                if (valor == 'apellido_clte' || valor == 'nombre_emp' || valor == 'sigla_emp' || valor == 'nit_emp' || valor == 'email_clte' || valor == 'descuento_emp') {
+                    if (valor == 'apellido_clte') {
+                        if ((customers[customer][valor] + ' ' + customers[customer]['nombre_clte']).toLowerCase().indexOf(inputSerchClte.value.toLowerCase()) >= 0) {
+                            filterCustomers[customer] = customers[customer];
+                            break;
+                        }
+                    }else {
+                        if (customers[customer][valor].toLowerCase().indexOf(inputSerchClte.value.toLowerCase()) >= 0){
+                            filterCustomers[customer] = customers[customer];
+                            break;
+                        }
+                    }
+                }
+            } else if (selectSearchClte.value == 'cliente'){
+                if (valor == 'apellido_clte'){
+                    if ((customers[customer][valor] + ' ' + customers[customer]['nombre_clte']).toLowerCase().indexOf(inputSerchClte.value.toLowerCase()) >= 0) {
                         filterCustomers[customer] = customers[customer];
                         break;
                     }
-                }
+                } 
             } else {
                 if (valor == selectSearchClte.value) {
                     if (customers[customer][valor].toLowerCase().indexOf(inputSerchClte.value.toLowerCase()) >= 0) {
@@ -158,7 +172,10 @@ function tableCustomers(page) {
                     td.innerText = i;
                     tr.appendChild(td);
                     i++;
-                } else if (valor == 'fk_id_emp_clte') {
+                } else if (valor == 'nombre_clte') {
+                    td.innerText = filterCustomers[customer]['apellido_clte'] + ' ' + filterCustomers[customer]['nombre_clte'];
+                    tr.appendChild(td);
+                } else if (valor == 'fk_id_emp_clte' || valor == 'apellido_clte') {
                 } else if (valor == 'celular_clte') {
                     if (filterCustomers[customer][valor] == '0') {
                         td.innerText = '';
@@ -207,6 +224,7 @@ function createCustomer() {
         //Limpiar al registrar
         let inputsR = document.querySelectorAll('#formClienteR .form__input');
         inputsR.forEach(input => { input.value = '' });
+        alert(data)
     }).catch(err => console.log(err));
 }
 //------Leer cliente
@@ -323,6 +341,7 @@ function createEnterprise() {
         if (data == 'La empresa ya existe') {
             alert(data);
         } else {
+            alert (data);
             indexEnterprise = 0;
             readEnterprises();
             //Limpiar el formulario de registrar empresa

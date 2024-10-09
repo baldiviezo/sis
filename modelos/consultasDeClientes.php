@@ -101,7 +101,7 @@ class consultas {
 		$numeroClientes = $resultado->num_rows;
 		$clientes =  array();
 		while ($fila = $resultado->fetch_assoc()){
-			$datos = array ( 'id_clte'=>$fila['id_clte'], 'nombre_clte'=>$fila['nombre_clte'], 'apellido_clte'=>$fila['apellido_clte'], 'email_clte'=>$fila['email_clte'],'direccion_clte'=>$fila['direccion_clte'],'celular_clte'=>$fila['celular_clte'], 'fk_id_emp_clte'=>$fila['fk_id_emp_clte'], 'nombre_emp'=>$fila['nombre_emp'], 'precio_emp'=>$fila['precio_emp']);
+			$datos = array ( 'id_clte'=>$fila['id_clte'], 'nombre_clte'=>$fila['nombre_clte'], 'apellido_clte'=>$fila['apellido_clte'], 'nombre_emp'=>$fila['nombre_emp'], 'sigla_emp'=>$fila['sigla_emp'], 'nit_emp'=>$fila['nit_emp'], 'email_clte'=>$fila['email_clte'], 'fk_id_emp_clte'=>$fila['fk_id_emp_clte'], 'precio_emp'=>$fila['precio_emp']);
 			$clientes['clte_'.$fila['id_clte']] = $datos;
 			
 		}
@@ -112,6 +112,7 @@ class consultas {
 		include 'conexion.php';
 		$consulta = "INSERT INTO cliente (nombre_clte, apellido_clte, email_clte, direccion_clte, celular_clte, fk_id_emp_clte) VALUES ('$this->nombreCliente', '$this->apellidoCliente', '$this->email_clte', '$this->direccion_clte' , '$this->celularCliente', '$this->empresaCliente')";
 		$resultado = $conexion->query($consulta);
+		echo ("Cliente creado con exito");
 	}
 	//------Actualizar un cliente
 	public function updateCustomer(){
@@ -170,7 +171,6 @@ class consultas {
 		}else{
 			$consulta = "INSERT INTO empresa (nombre_emp, sigla_emp, nit_emp, precio_emp, direccion_emp, telefono_emp) VALUES ('$this->nombreEmpresa', '$this->siglaEmpresa', '$this->nitEmpresa', '$this->precioEmpresa', '$this->direccionEmpresa', '$this->telefonoEmpresa')";
 			$resultado = $conexion->query($consulta);
-			echo ("registrado");
 			//Crear cliente automaticamente
 			$consulta = "SELECT * FROM empresa WHERE nombre_emp ='$this->nombreEmpresa'";
 			$resultado = $conexion->query($consulta);
@@ -178,6 +178,7 @@ class consultas {
 			$id_emp = $fila['id_emp'];
 			$consulta = "INSERT INTO cliente (nombre_clte, apellido_clte, celular_clte, fk_id_emp_clte) VALUES ('', '', '', '$id_emp')";
 			$resultado = $conexion->query($consulta);
+			echo ("Empresa creada con éxito");
 		}
 	}
 	//------Actualizar una empresa
@@ -203,7 +204,7 @@ class consultas {
 		$consulta = "UPDATE empresa set nombre_emp='$this->nombreEmpresa', sigla_emp='$this->siglaEmpresa', nit_emp='$this->nitEmpresa', precio_emp='$this->precioEmpresa', direccion_emp='$this->direccionEmpresa', telefono_emp='$this->telefonoEmpresa' WHERE id_emp='$this->idEmpresa'";
 		$resultado = $conexion->query($consulta);
 		if ($resultado){
-			echo ("Cliente modificado con éxito");
+			echo ("Empresa modificado con éxito");
 		}
 	}
 	//------Eliminar una empresa

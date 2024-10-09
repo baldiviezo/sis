@@ -13,6 +13,7 @@ class consultas{
 		$this->tiempoDeEntrega = trim($conexion->real_escape_string($_POST['tpo_entrega_profR']));
 		$this->observacion = trim($conexion->real_escape_string($_POST['observacion_profR']));
 		$this->descuento = trim($conexion->real_escape_string($_POST['descuento_profR']));
+		$this->total = trim($conexion->real_escape_string($_POST['total_profR']));
 		$this->moneda = trim($conexion->real_escape_string($_POST['moneda_profR']));
 		$this->tipo_cambio_prof = trim($conexion->real_escape_string($_POST['tipo_cambio_profR']));
 	}
@@ -28,6 +29,7 @@ class consultas{
 		$this->tiempoDeEntrega = trim($conexion->real_escape_string($_POST['tpo_entrega_profM']));
 		$this->observacion = trim($conexion->real_escape_string($_POST['observacion_profM']));
 		$this->descuento = trim($conexion->real_escape_string($_POST['descuento_profM']));
+		$this->total = trim($conexion->real_escape_string($_POST['total_profM']));
 		$this->moneda = trim($conexion->real_escape_string($_POST['moneda_profM']));
 		$this->tipo_cambio_prof = trim($conexion->real_escape_string($_POST['tipo_cambio_profM']));
 	}
@@ -39,7 +41,13 @@ class consultas{
 		$resultado = $conexion->query($consulta);
 		$proformas =  array();
 		while ($fila = $resultado->fetch_assoc()){
-			$datos = array ('id_prof'=>$fila['id_prof'], 'numero_prof'=>intval($fila['numero_prof']), 'fecha_prof'=>$fila['fecha_prof'], 'fk_id_usua_prof'=>$fila['fk_id_usua_prof'], 'nombre_usua'=>$fila['nombre_usua'], 'apellido_usua'=>$fila['apellido_usua'], 'email_usua'=>$fila['email_usua'], 'celular_usua'=>$fila['celular_usua'], 'id_emp'=>$fila['id_emp'], 'nombre_emp'=>$fila['nombre_emp'], 'sigla_emp'=>$fila['sigla_emp'], 'direccion_emp'=>$fila['direccion_emp'], 'telefono_emp'=>$fila['telefono_emp'], 'fk_id_clte_prof'=>$fila['fk_id_clte_prof'], 'nombre_clte'=>$fila['nombre_clte'], 'apellido_clte'=>$fila['apellido_clte'], 'celular_clte'=>$fila['celular_clte'],'tpo_valido_prof'=>$fila['tpo_valido_prof'], 'cond_pago_prof'=>$fila['cond_pago_prof'], 'tpo_entrega_prof'=>$fila['tpo_entrega_prof'], 'observacion_prof'=>$fila['observacion_prof'], 'descuento_prof'=>$fila['descuento_prof'], 'moneda_prof'=>$fila['moneda_prof'], 'tipo_cambio_prof'=>$fila['tipo_cambio_prof'], 'estado_prof'=>$fila['estado_prof']);
+			$_prof_mprof_ne = '';
+			if ($fila['nombre_emp'] == 'Ninguna'){
+				$_prof_mprof_ne = strtoupper('SMS'.substr($fila['fecha_prof'],2,2).'-'.$this->addZerosGo($fila['numero_prof']).'-'.$fila['apellido_clte']);
+			}else{
+				$_prof_mprof_ne = strtoupper('SMS'.substr($fila['fecha_prof'],2,2).'-'.$this->addZerosGo($fila['numero_prof']).'-'.$sigla_emp = $fila['sigla_emp']);
+			}
+			$datos = array ('id_prof'=>$fila['id_prof'], 'numero_prof'=>$_prof_mprof_ne, 'fecha_prof'=>$fila['fecha_prof'], 'fk_id_usua_prof'=>$fila['fk_id_usua_prof'], 'nombre_usua'=>$fila['nombre_usua'], 'apellido_usua'=>$fila['apellido_usua'], 'email_usua'=>$fila['email_usua'], 'celular_usua'=>$fila['celular_usua'], 'id_emp'=>$fila['id_emp'], 'nombre_emp'=>$fila['nombre_emp'], 'sigla_emp'=>$fila['sigla_emp'], 'direccion_emp'=>$fila['direccion_emp'], 'telefono_emp'=>$fila['telefono_emp'], 'fk_id_clte_prof'=>$fila['fk_id_clte_prof'], 'nombre_clte'=>$fila['nombre_clte'], 'apellido_clte'=>$fila['apellido_clte'], 'celular_clte'=>$fila['celular_clte'], 'descuento_prof'=>$fila['descuento_prof'], 'total_prof'=>$fila['total_prof'], 'tpo_valido_prof'=>$fila['tpo_valido_prof'], 'cond_pago_prof'=>$fila['cond_pago_prof'], 'tpo_entrega_prof'=>$fila['tpo_entrega_prof'], 'observacion_prof'=>$fila['observacion_prof'],  'moneda_prof'=>$fila['moneda_prof'], 'tipo_cambio_prof'=>$fila['tipo_cambio_prof'], 'estado_prof'=>$fila['estado_prof']);
 			$proformas[$fila['id_prof'].'_id_prof'] = $datos;
 		}
 		echo json_encode($proformas, JSON_UNESCAPED_UNICODE);
@@ -51,7 +59,7 @@ class consultas{
     	$resultado = $conexion->query($consulta);
     	$numero_prof = $resultado->fetch_assoc();
     	$nuevo_numero_prof = ($numero_prof['numero_prof_max'] == null) ? 1 : $numero_prof['numero_prof_max'] + 1;
-		$consulta = "INSERT INTO proforma (numero_prof, fecha_prof, fk_id_clte_prof, fk_id_usua_prof, cond_pago_prof, tpo_entrega_prof, tpo_valido_prof, descuento_prof, moneda_prof, observacion_prof, tipo_cambio_prof, estado_prof) VALUES ('$nuevo_numero_prof' ,'$this->fecha', '$this->cliente' , '$this->encargado', '$this->condicionesDePago', '$this->tiempoDeEntrega', '$this->tiempoValido', '$this->descuento', '$this->moneda', '$this->observacion', '$this->tipo_cambio_prof', 'pendiente')";
+		$consulta = "INSERT INTO proforma (numero_prof, fecha_prof, fk_id_clte_prof, fk_id_usua_prof, cond_pago_prof, tpo_entrega_prof, tpo_valido_prof, descuento_prof, total_prof, moneda_prof, observacion_prof, tipo_cambio_prof, estado_prof) VALUES ('$nuevo_numero_prof' ,'$this->fecha', '$this->cliente' , '$this->encargado', '$this->condicionesDePago', '$this->tiempoDeEntrega', '$this->tiempoValido', '$this->descuento', '$this->total', '$this->moneda', '$this->observacion', '$this->tipo_cambio_prof', 'pendiente')";
 		$resultado = $conexion->query($consulta);
 		$consulta = "SELECT MAX(id_prof) as id_prof_max FROM proforma ";
     	$resultado = $conexion->query($consulta);
@@ -209,6 +217,9 @@ class consultas{
 		$consulta = "DELETE FROM mdf_proforma WHERE id_mprof = '$id_mprof'";
 		$resultado = $conexion->query($consulta);
 		echo "Proforma eliminada con exito";
+	}
+	public function addZerosGo($numero) {
+		return str_pad($numero, 4, "0", STR_PAD_LEFT);
 	}
 }
 ?>

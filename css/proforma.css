@@ -6,7 +6,7 @@
 	height: 90%;
 	border-radius: .5rem;
 	display: grid;
-	grid-template-rows: 3rem 3rem 1fr 4rem;
+	grid-template-rows: 3rem 3rem 1fr 6rem;
 	overflow: hidden;
 }
 .modalPdpf__header{
@@ -69,6 +69,22 @@
 	display: flex;
 	justify-content: center;
 	margin: .5rem auto;
+	width: 10rem;
+}
+.button__sell--previw{
+	background: var(--color-egeo-blue);
+	color: #fff;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 300;
+	font-size: 1rem;
+	padding: .5rem 0;
+	border: none;
+	cursor: pointer;
+	border-radius: .5rem;
+	display: flex;
+	justify-content: center;
+	margin-left: auto;
+	margin-bottom: 1rem;
 	width: 10rem;
 }
 /*****************************************************************************************************/
@@ -490,6 +506,9 @@ button:hover{
 	border: none;
 	font-size: .8rem;
 }
+.cart-item .cart-item__cantidad:focus{
+	outline: none;
+}
 .cart-item .cart-item__cantidad::-webkit-outer-spin-button, .cart-item .cart-item__cantidad::-webkit-inner-spin-button{
 	-webkit-appearance: none;
 	margin: 0;
@@ -498,6 +517,9 @@ button:hover{
 	width: 3.5rem;
 	border: none;
 	font-size: .8rem;
+}
+.cart-item .cart-item__costUnit:focus{
+	outline: none;
 }
 #productsSold .cart-item .cart-item__cantidad{
 	width: 3.5rem;
@@ -518,6 +540,9 @@ button:hover{
 	border: none;
 	font-weight: bold;
 	font-size: .8rem;
+}
+.cart-item .cart-item__costTotal:focus{
+	outline: none;
 }
 .cart-item .cart-item__costTotal::-webkit-outer-spin-button, .cart-item .cart-item__costTotal::-webkit-inner-spin-button{
 	-webkit-appearance: none;

@@ -23,12 +23,12 @@
 	<main class="main">
 		<div class="main__title">
 			<h1><img src="../imagenes/proforma.svg">Proforma</h1>
-			<div>
+			<!--<div>
 				<select id="selectInvProd" class="select">
 					<option value="producto">Productos</option>
 					<option value="inventario">Inventario</option>
 				</select>
-			</div>
+			</div>-->
 		</div>
 		<!--Producto-->
 		<div id="headerProduct">
@@ -223,9 +223,9 @@
 							<select id="selectSearchProf" class="select">
 								<option value="todas">Buscar por todo</option>
 								<option value="numero_prof">Por proforma</option>
-								<option value="fecha_Prof">Por fecha</option>
+								<option value="fecha_prof">Por fecha</option>
 								<option value="encargado">Por encargado</option>
-								<option value="sigla_emp">Por empresa</option>
+								<option value="nombre_emp">Por empresa</option>
 								<option value="cliente">Por cliente</option>
 							</select>
 						</div>
@@ -277,11 +277,11 @@
 									</div>
 								</th>
 								<th>Cliente</th>
-								<th>Valido</th>
+								<th>Desc. (%)</th>
+								<th>Total</th>
 								<!--<th>Condicion de pago</th>
 								<th>Tiempo de entrega</th>-->
-								<th>Observacion</th>
-								<th>Desc.</th>
+								<th>Valido</th>
 								<th>Acciones</th>
 							</tr>
 						</thead>
@@ -391,121 +391,123 @@
 	<section id="proformaRMW" class="modalProf">
 		<div class="modalProf__container">
 			<div class="modal__header">
-				<img src='../imagenes/carrito.svg' onclick='openPreviwProducts()' class="icon__CRUD">
-				<h2 class="modal__title">Proforma</h2>
-				<img src="../imagenes/salir.svg" id="closeProformaRMW" class="button__close">
+				<h2 class="modal__title">Registrar proforma</h2>
+				<img src="../imagenes/salir.svg" id="closeProformaRMW" class="button__close" title="Minimizar">
 			</div>
-			<form id="formProformaR" class="form">
-				<div class="form__container">
-					<div class="form__group">
-						<input type="text" name="fecha_profR" placeholder=" " class="form__input" readonly>
-						<label for="fecha_profR" class="form__label">Fecha:</label>
+			<div class="form">
+				<form id="formProformaR" >
+					<div class="form__container">
+						<div class="form__group">
+							<input type="text" name="fecha_profR" placeholder=" " class="form__input" readonly>
+							<label for="fecha_profR" class="form__label">Fecha:</label>
+						</div>
+						<label class="form__label--only">Empresa:</label>
+						<div class="form__group--select">
+							<select name="fk_id_emp_clteR"></select>
+							<img src="../imagenes/search.svg" onclick="openEnterpriseSMW('R')" class="icon__CRUD">
+							<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()" class="icon__CRUD">
+							<img src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)" class="icon__CRUD">
+							<img src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)" class="icon__CRUD"
+								hidden>
+						</div>
+						<label class="form__label--only">Cliente:</label>
+						<div class="form__group--select">
+							<select name="fk_id_clte_profR"></select>
+							<img src="../imagenes/registrar.svg" onclick="openCustomersRMW()" class="icon__CRUD">
+							<img src="../imagenes/edit.svg" onclick="readCustomer(this.parentNode)" class="icon__CRUD">
+							<img src="../imagenes/trash.svg" onclick="deleteCustomer(this.parentNode)" class="icon__CRUD"
+								hidden>
+						</div>
+						<div class="form__group">
+							<input type="text" name="tpo_valido_profR" placeholder=" " class="form__input">
+							<label for="tpo_valido_profR" class="form__label">Proforma válida por:</label>
+						</div>
+						<input type="hidden" name="total_profR">
+						<div class="modal__textarea">
+							<label class="form__label--only">Condicion de pago:</label>
+							<textarea name="cond_pago_profR" placeholder="Condiciones de pago..."></textarea>
+							<label class="form__label--only">Tiempo de entrega:</label>
+							<textarea name="tpo_entrega_profR" placeholder="Tiempo de entrega..."></textarea>
+							<label class="form__label--only">Observacion:</label>
+							<textarea name="observacion_profR" placeholder="Observacion..."></textarea>
+						</div>
+						<div class="form__group">
+							<input type="number" name="descuento_profR" placeholder="" min="0" max="100"
+								class="form__input">
+							<label for="descuento_profR" class="form__label">Descuento:</label>
+						</div>
 					</div>
-					<label class="form__label--only">Empresa:</label>
-					<div class="form__group--select">
-						<select name="fk_id_emp_clteR"></select>
-						<img src="../imagenes/search.svg" onclick="openEnterpriseSMW('R')" class="icon__CRUD">
-						<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()" class="icon__CRUD" hidden>
-						<img src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)" class="icon__CRUD"
-							hidden>
-						<img src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)" class="icon__CRUD"
-							hidden>
-					</div>
-					<label class="form__label--only">Cliente:</label>
-					<div class="form__group--select">
-						<select name="fk_id_clte_profR"></select>
-						<img src="../imagenes/registrar.svg" onclick="openCustomersRMW()" class="icon__CRUD" hidden>
-						<img src="../imagenes/edit.svg" onclick="readCustomer(this.parentNode)" class="icon__CRUD"
-							hidden>
-						<img src="../imagenes/trash.svg" onclick="deleteCustomer(this.parentNode)" class="icon__CRUD"
-							hidden>
-					</div>
-					<div class="form__group">
-						<input type="text" name="tpo_valido_profR" placeholder=" " class="form__input">
-						<label for="tpo_valido_profR" class="form__label">Proforma válida por:</label>
-					</div>
-					<div class="modal__textarea">
-						<label class="form__label--only">Condicion de pago:</label>
-						<textarea name="cond_pago_profR" placeholder="Condiciones de pago..."></textarea>
-						<label class="form__label--only">Tiempo de entrega:</label>
-						<textarea name="tpo_entrega_profR" placeholder="Tiempo de entrega..."></textarea>
-						<label class="form__label--only">Observacion:</label>
-						<textarea name="observacion_profR" placeholder="Observacion..."></textarea>
-					</div>
-					<div class="form__group">
-						<input type="number" name="descuento_profR" placeholder="" min="0" max="100"
-							class="form__input">
-						<label for="descuento_profR" class="form__label">Descuento:</label>
-					</div>
-					<div class="form__container--button">
-						<input type="submit" value="Registrar" class="form__submit">
-					</div>
-				</div>
-			</form>
+				</form>
+				<button class="form__submit" onclick="openPreviwProducts()">Registrar</button>
+			</div>
 		</div>
 	</section>
 	<section id="proformaMMW" class="modalProf">
 		<div class="modalProf__container">
 			<div class="modal__header">
-				<img src='../imagenes/carrito.svg' onclick='openProf_prodMW()' class="icon__CRUD">
-				<h2 class="modal__title">Proforma</h2>
-				<img src="../imagenes/salir.svg" id="closeProformaMMW" class="button__close">
+				<h2 class="modal__title">Modificar proforma</h2>
+				<img src="../imagenes/salir.svg" id="closeProformaMMW" class="button__close" title="Minimizar">
 			</div>
-			<form id="formProformaM" class="form">
-				<div class="form__container">
-					<input type="text" name="id_profM" placeholder=" " class="form__input" hidden>
-					<div class="form__group">
-						<input type="text" name="fecha_profM" placeholder=" " class="form__input" readonly>
-						<label for="fecha_profM" class="form__label">Fecha:</label>
+			<div class="form">
+				<form id="formProformaM">
+					<div class="form__container">
+						<input type="text" name="id_profM" placeholder=" " class="form__input" hidden>
+						<div class="form__group">
+							<input type="text" name="fecha_profM" placeholder=" " class="form__input" readonly>
+							<label for="fecha_profM" class="form__label">Fecha:</label>
+						</div>
+						<div class="form__group">
+							<input type="text" name="numero_profM" placeholder=" " class="form__input" readonly>
+							<label for="numero_profM" class="form__label">Proforma:</label>
+						</div>
+						<label class="form__label--only">Empresa:</label>
+						<div class="form__group--select">
+							<select name="fk_id_emp_clteM"></select>
+							<!--<img src="../imagenes/search.svg" onclick="openEnterpriseSMW('M')">
+							<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()">
+							<img src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)">
+							<img src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)">-->
+						</div>
+						<label class="form__label--only">Cliente:</label>
+						<div class="form__group--select">
+							<select name="fk_id_clte_profM"></select>
+							<!--<img src="../imagenes/registrar.svg" onclick="openCustomersRMW()">
+							<img src="../imagenes/edit.svg" onclick="readCustomers('M')">
+							<img src="../imagenes/trash.svg" onclick="deleteCustomers('M')">-->
+						</div>
+						<div class="form__group">
+							<input type="text" name="tpo_valido_profM" placeholder=" " class="form__input">
+							<label for="tpo_valido_profM" class="form__label">Proforma válida por:</label>
+						</div>
+						<input type="hidden" name="total_profM">
+						<div class="modal__textarea">
+							<label class="form__label--only">Condicion de pago:</label>
+							<textarea name="cond_pago_profM" placeholder="Condiciones de pago..."></textarea>
+							<label class="form__label--only">Tiempo de entrega:</label>
+							<textarea name="tpo_entrega_profM" placeholder="Tiempo de entrega..."></textarea>
+							<label class="form__label--only">Observacion:</label>
+							<textarea name="observacion_profM" placeholder="Observacion..."></textarea>
+						</div>
+						<div class="form__group">
+							<input type="number" name="descuento_profM" placeholder="" min="0" max="100"
+								class="form__input">
+							<label for="descuento_profM" class="form__label">Descuento:</label>
+						</div>
+						<label class="form__label--only">Moneda:</label>
+						<div class="form__group--select">
+							<select name="moneda_profM">
+								<option value="Bs">Bs</option>
+								<option value="$">$</option>
+							</select>
+						</div>
+						<div class="form__group" id="tipoDeCambioProfM" class="hide">
+							<input type="text" name="tipo_cambio_profM" placeholder="" class="form__input">
+							<label for="tipo_cambio_profM" class="form__label">Descuento:</label>
+						</div>
 					</div>
-					<label class="form__label--only">Empresa:</label>
-					<div class="form__group--select">
-						<select name="fk_id_emp_clteM"></select>
-						<!--<img src="../imagenes/search.svg" onclick="openEnterpriseSMW('M')">
-						<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()">
-						<img src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)">
-						<img src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)">-->
-					</div>
-					<label class="form__label--only">Cliente:</label>
-					<div class="form__group--select">
-						<select name="fk_id_clte_profM"></select>
-						<!--<img src="../imagenes/registrar.svg" onclick="openCustomersRMW()">
-						<img src="../imagenes/edit.svg" onclick="readCustomers('M')">
-						<img src="../imagenes/trash.svg" onclick="deleteCustomers('M')">-->
-					</div>
-					<div class="form__group">
-						<input type="text" name="tpo_valido_profM" placeholder=" " class="form__input">
-						<label for="tpo_valido_profM" class="form__label">Proforma válida por:</label>
-					</div>
-					<div class="modal__textarea">
-						<label class="form__label--only">Condicion de pago:</label>
-						<textarea name="cond_pago_profM" placeholder="Condiciones de pago..."></textarea>
-						<label class="form__label--only">Tiempo de entrega:</label>
-						<textarea name="tpo_entrega_profM" placeholder="Tiempo de entrega..."></textarea>
-						<label class="form__label--only">Observacion:</label>
-						<textarea name="observacion_profM" placeholder="Observacion..."></textarea>
-					</div>
-					<div class="form__group">
-						<input type="number" name="descuento_profM" placeholder="" min="0" max="100"
-							class="form__input">
-						<label for="descuento_profM" class="form__label">Descuento:</label>
-					</div>
-					<label class="form__label--only">Moneda:</label>
-					<div class="form__group--select">
-						<select name="moneda_profM">
-							<option value="Bs">Bs</option>
-							<option value="$">$</option>
-						</select>
-					</div>
-					<div class="form__group" id="tipoDeCambioProfM" class="hide">
-						<input type="text" name="tipo_cambio_profM" placeholder="" class="form__input">
-						<label for="tipo_cambio_profM" class="form__label">Descuento:</label>
-					</div>
-					<div class="form__container--submit">
-						<input type="submit" value="Modificar" class="form__submit">
-					</div>
-				</div>
-			</form>
+				</form>
+				<button class="form__submit" onclick="openProf_prodMW()">Productos</button>
+			</div>
 		</div>
 	</section>
 	<!--Modal of product of a proforma-->
@@ -515,7 +517,6 @@
 				<div>
 					<img src="../imagenes/p.svg" onclick="openProductSMW()" class="icon__CRUD">
 					<img src="../imagenes/i.svg" onclick="openInventorySMW()" class="icon__CRUD">
-					<img src="../imagenes/carrito.svg" onclick="openPreviwProducts()" class="icon__CRUD">
 				</div>
 				<h2 class="modal__title">Productos</h2>
 				<img src="../imagenes/salir.svg" id="closeProf_prodMW" class="button__close">
@@ -541,7 +542,10 @@
 				<div class="cart"><img src="../imagenes/carrito.svg">
 					<p id="count_pfpd">0</p>
 				</div>
-				<h2 id="total_pfpd">Bs 0.00</h2>
+				<div>
+					<h2 id="total_pfpd">Bs 0.00</h2>
+					<button class="button--sell" onclick="openPreviwProducts()">Modificar</button>
+				</div>
 			</div>
 		</div>
 	</section>
@@ -550,8 +554,12 @@
 		<div class="modalTable__container">
 			<div class="table">
 				<div class="table__title">
-					<h1 class="modal__title"><img src="../imagenes/producto.svg">Productos seleccionados</h1>
-					<img src="../imagenes/salir.svg" id="closePreviewProducts" class="button__close">
+					<img src="../imagenes/salir.svg" id="closePreviewProducts" class="button__close" title="Minimizar">
+					<div class="table__subTitle">
+						<p id="subTotalProf">sub total</p>
+						<p id="descProf">Descuento</p>
+						<p id="totalProf">Total</p>
+					</div>
 				</div>
 				<section class="table__body">
 					<table>
@@ -649,7 +657,7 @@
 					</div>
 				</div>
 				<div class="form__container--button">
-					<input type="submit" value="Guardar" class="form__submit">
+					<input type="submit" value="Modificar" class="form__submit">
 				</div>
 			</form>
 		</div>
@@ -734,7 +742,7 @@
 					</div>
 				</div>
 				<div class="form__container--button">
-					<input type="submit" value="Guardar" class="form__submit">
+					<input type="submit" value="Modificar" class="form__submit">
 				</div>
 			</form>
 		</div>
@@ -792,6 +800,7 @@
 											name="nombre_emp"><img src="../imagenes/sortZ_A.svg" name="nombre_emp">
 									</div>
 								</th>
+								<th>Sigla</S></th>
 								<th>Nit</th>
 								<th>Precio</th>
 								<th>Direccion</th>

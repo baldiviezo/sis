@@ -40,11 +40,13 @@
 	padding-top: 5px;
 	border-radius: .3rem;
 	overflow: auto;
-	border: 3px solid #225c74;
+	border: 0.1rem solid #225c74;
 	font-family: 'Roboto', sans-serif;
 	background-color: #fffb;
+	padding: .2rem;
 	font-size: .8rem;
 	margin: 1rem 0;
+	resize: none;
 }
 /*--------------------VENTANA MODAL MODIFICAR Y REGISTRAR----------------------------*/
 .modal{

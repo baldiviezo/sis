@@ -55,6 +55,14 @@
 .table__title h1{
 	font-size: 1.5rem;
 }
+.table__subTitle p{
+	font-size: 1.3rem;
+	color: #042658;
+	font-weight: bold;
+}
+.table__subTitle p:nth-of-type(3) {
+	color : #f00;
+}
 /*----------------------------------------------------------*/
 .table__header{
 	width: 100%;
