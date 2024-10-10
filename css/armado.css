@@ -1,0 +1,210 @@
+/*--------------------VENTANA MODAL MODIFICAR Y REGISTRAR----------------------------*/
+.modal{
+	/*para que salga del flujo y se quede fijo a la pantalla (desaparece)*/
+	position: fixed;
+	/*Esto ara que ocupe el 100% de alto y de ancho (Se vuelve a mostrar en la pantalla)*/
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	/*color oscuro transparente para ocultar lo del fondo*/
+	background-color: #111111bd;
+	/*Esto para su hijo*/
+	display: flex;
+	/*creando custom popertis par ocultar el modal*/
+	--opacity: 0;
+	--pointer: none;
+	/*volviendo imvisible el modal*/
+	opacity: var(--opacity);
+	/*modal esta invisible pero no deja hacer click, por eso desactivamos sus eventos de click*/
+	pointer-events: var(--pointer);
+	font-family: 'Roboto', sans-serif;
+}
+/*Esta clase hace visible al modal, solo hay que añadirlo*/
+.modal__show{
+	--opacity: 1;
+	--pointer: unset;
+}
+.container__armedRMW{
+	/*como su padre tiene flexbox se puede usar el margin auto*/
+	margin: auto;
+	background-color: #fff;
+	width: 100%;
+	max-width: 50rem;
+	height: 80%;
+	overflow: auto;
+	text-align: center;
+	border-radius: 1rem;
+    display: grid;
+    grid-template-rows: 3rem 1fr 4rem;
+}
+.double__list--header{
+    background-color: #225c74;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+}
+.double__list--header h1{
+	color: #fff;
+	font-size: 1.5rem;
+}
+.double__list--body{
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem;
+}
+.double__list--column{
+    height: 100%;
+    width: 50%;
+    border-radius: 1rem;
+    border: 1px solid #225c74;
+}
+.double__list--column h1{
+    border-bottom: 1px solid #225c74;
+}
+.double__list--box{
+    height: 100%;
+    width: 100%;
+  
+}
+.double__list--bottom{
+
+    display: flex;
+    justify-content: space-between;
+    padding: 0 1rem;
+}.double__list--bottom img{
+    width: 2.5rem;
+    height: 2.5rem;
+    cursor: pointer;
+}
+/*-------------------------CARDS------------------------------*/
+.cart-item{
+	font-size: 1rem;
+	display: flex;
+	align-items: center;
+	background-color: #fff;
+	border-radius: .5rem;
+	width: 100%;
+	margin: .5rem 0;
+	padding: .5rem .5rem;
+    cursor: grab;	
+}
+.cart-item .cart-item__cantInv{
+	width: 2rem;
+	color: #225c74;
+	text-align: left;
+}
+/*Para compra*/
+.cart-item .cart-item__cantInv2{
+	width: 3.5rem;
+	color: #225c74;
+	text-align: left;
+}
+/*----------*/
+.cart-item .row-img{
+	width: 4rem;
+	height: 4rem;
+	border-radius: 50%;
+	border: 1px solid #225c74;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.cart-item .rowimg{
+	width: 3rem;
+	height: 3rem;
+	border-radius: 50%;
+    user-select: none;
+}
+.cart-item img:hover{
+	color: 	#333; /*nO FUNCIONA POR Q ES IMAGEN*/
+}
+
+.cart-item  .cart-item__codigo{
+	width: 10rem;
+	padding: 0 .5rem;
+	color: #225c74;
+}
+
+/*Para compra*/
+.cart-item  .cart-item__codigo2{
+	width: 16rem;
+	padding: 0 .5rem;
+	color: #225c74;
+}
+/*------------*/
+.cart-item .cart-item__cantidad{
+	width:2.5rem;
+	border: none;
+	font-size: .8rem;
+}
+.cart-item .cart-item__cantidad:focus{
+	outline: none;
+}
+.cart-item .cart-item__cantidad::-webkit-outer-spin-button, .cart-item .cart-item__cantidad::-webkit-inner-spin-button{
+	-webkit-appearance: none;
+	margin: 0;
+}
+.cart-item .cart-item__costUnit{
+	width: 3.5rem;
+	border: none;
+	font-size: .8rem;
+}
+.cart-item .cart-item__costUnit:focus{
+	outline: none;
+}
+#productsSold .cart-item .cart-item__cantidad{
+	width: 3.5rem;
+	border: none;
+	font-size: .8rem;
+}
+#productsSold .cart-item .cart-item__costUnit{
+	width: 4.5rem;
+	border: none;
+	font-size: .8rem;
+}
+.cart-item .cart-item__costUnit::-webkit-outer-spin-button, .cart-item .cart-item__costUnit::-webkit-inner-spin-button{
+	-webkit-appearance: none;
+	margin: 0;
+}
+.cart-item .cart-item__costTotal{
+	width: 4rem;
+	border: none;
+	font-weight: bold;
+	font-size: .8rem;
+}
+.cart-item .cart-item__costTotal:focus{
+	outline: none;
+}
+.cart-item .cart-item__costTotal::-webkit-outer-spin-button, .cart-item .cart-item__costTotal::-webkit-inner-spin-button{
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+
+
+
+
+/*-------------------------ESTILOS DE TODA LA VISTA------------------------------*/
+.button{
+    cursor: pointer;
+}
+.button__submit{
+    background: var(--color-egeo-blue);
+	color: #fff;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 300;
+	font-size: 1rem;
+	padding: .5rem 0;
+	border: none;
+	cursor: pointer;
+	border-radius: .5rem;
+	display: flex;
+	justify-content: center;
+    align-items: center;
+	width: 10rem;
+    height: 3rem;
+}

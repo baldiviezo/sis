@@ -124,7 +124,7 @@ function paginationSales(allVentas, page){
     }
     ul.innerHTML = li;
     let h2= document.querySelector('#showPageVenta h2');
-    h2.innerHTML =`Pagina ${page}/${allPages}, ${allVentas} Clientes`;
+    h2.innerHTML =`Pagina ${page}/${allPages}, ${allVentas} Ventas`;
     tableSales(page);
 }
 //------Crear la tabla
@@ -150,6 +150,9 @@ function tableSales(page) {
                 td.innerText = filterSales[sale][valor]+' '+filterSales[sale]['apellido_usua'];
                 tr.appendChild(td);
             }else if(valor == 'apellido_usua'){
+            }else if(valor == 'total_vnt'){
+                td.innerText = Number(filterSales[sale][valor]).toFixed(2) + ' Bs';
+                tr.appendChild(td);
             }else{
                 td.innerText = filterSales[sale][valor];
                 tr.appendChild(td);
