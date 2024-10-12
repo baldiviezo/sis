@@ -1,3 +1,5 @@
+//----------------------------------------------BLOCK REQUEST WITH A FLAG----------------------------------------------
+let rqstCreateRmd = false;
 //-----------------------------------------------FECHA ACTUAL-------------------------------------
 const date = new Date();
 const dateFormat = new Intl.DateTimeFormat('es-ES', {
@@ -29,7 +31,7 @@ function readArmeds() {
         filterArmeds = armeds;
         paginacionArmed(Object.values(filterArmeds).length, 1);
     }).catch(err => console.log(err));
-        
+
 }
 //------Select utilizado para buscar por columnas
 const selectSearchRmd = document.getElementById('selectSearchRmd');
@@ -55,20 +57,20 @@ function searchArmeds() {
                             filterArmeds[customer] = armeds[customer];
                             break;
                         }
-                    }else {
-                        if (armeds[customer][valor].toLowerCase().indexOf(inputSerchRmd.value.toLowerCase()) >= 0){
+                    } else {
+                        if (armeds[customer][valor].toLowerCase().indexOf(inputSerchRmd.value.toLowerCase()) >= 0) {
                             filterArmeds[customer] = armeds[customer];
                             break;
                         }
                     }
                 }
-            } else if (selectSearchRmd.value == 'cliente'){
-                if (valor == 'apellido_clte'){
-                    if ((armeds[customer][valor] + ' ' + armeds[customer]['nombre_clte']).toLowerCase().indexOf(inputSerchRmd.value.toLowerCase()) >= 0) {
+            } else if (selectSearchRmd.value == 'encargado') {
+                if (valor == 'nombre_usua') {
+                    if ((armeds[customer][valor] + ' ' + armeds[customer]['apellido_usua']).toLowerCase().indexOf(inputSerchRmd.value.toLowerCase()) >= 0) {
                         filterArmeds[customer] = armeds[customer];
                         break;
                     }
-                } 
+                }
             } else {
                 if (valor == selectSearchRmd.value) {
                     if (armeds[customer][valor].toLowerCase().indexOf(inputSerchRmd.value.toLowerCase()) >= 0) {
@@ -164,7 +166,7 @@ function tableArmed(page) {
                 } else if (valor == 'nombre_usua') {
                     td.innerText = filterArmeds[customer][valor] + ' ' + filterArmeds[customer]['apellido_usua'];
                     tr.appendChild(td);
-                } else if (valor == 'apellido_usua'){
+                } else if (valor == 'apellido_usua') {
                 } else {
                     td.innerText = filterArmeds[customer][valor];
                     tr.appendChild(td);
@@ -211,23 +213,33 @@ function createArmed() {
                 valor['estado_rdpd'] = 'agregado';
                 array.push(valor);
             })
-            let form = document.getElementById("formArmedR");
-            let formData = new FormData(form);
-            formData.set("fecha_rmdR", `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`);
-            formData.append('id_usua', localStorage.getItem('id_usua'));
-            formData.append('createArmed', JSON.stringify(array));
-            fetch('../controladores/armado.php', {
-                method: 'POST',
-                body: formData
-            }).then(response => response.text()).then(data => {
-                alert(data);
-                readArmeds();
-                cleanUpArmedFormR();
-            }).catch(err => console.log(err));
-
+            if (confirm('¿Esta usted seguro?')) {
+                if (rqstCreateArmed == false) {
+                    rqstCreateArmed = true;
+                    let form = document.getElementById("formArmedR");
+                    let formData = new FormData(form);
+                    formData.set("fecha_rmdR", `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`);
+                    formData.append('id_usua', localStorage.getItem('id_usua'));
+                    formData.append('createArmed', JSON.stringify(array));
+                    fetch('../controladores/armado.php', {
+                        method: 'POST',
+                        body: formData
+                    }).then(response => response.text()).then(data => {
+                        rqstCreateRmd = false;
+                        alert(data);
+                        readArmeds();
+                        cleanUpArmedFormR();
+                    }).catch(err => {
+                        rqstCreateRmd = false;
+                        alert(err);
+                    });
+                }
+            }
         }
-
-
+    } else {
+        alert('No es un armado correcto');
+    }
+}
 function cleanUpArmedFormR() {
     document.getElementById('formArmedR').reset();
     columnOne.querySelectorAll('.cart-item').forEach(item => {
@@ -236,19 +248,6 @@ function cleanUpArmedFormR() {
     columnTwo.querySelectorAll('.cart-item').forEach(item => {
         item.remove();
     })
-}
-
-
-
-
-
-
-
-
-
-    } else {
-        alert('No es un armado correcto');
-    }
 }
 //---------------------------MODAL FORM ARMADO
 const formArmedRMW = document.getElementById('formArmedRMW');
@@ -507,7 +506,7 @@ function addProduct(product) {
     }
     let id_prod = (product['id_prod'] == undefined) ? product['fk_id_prod_inv'] : product['id_prod'];
     cantidad_inv = (cantidad_inv == undefined) ? 0 : cantidad_inv;
-    let cantidad_prod =  1;
+    let cantidad_prod = 1;
     cost_uni = (product['cost_uni_pfpd'] == undefined) ? (product['cost_uni_inv'] == undefined) ? (cost_uni == 0) ? 0 : cost_uni : product['cost_uni_inv'] : product['cost_uni_pfpd'];
     let item = document.createElement('div');
     item.classList.add('cart-item');

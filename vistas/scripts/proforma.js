@@ -10,6 +10,11 @@ if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol
     document.querySelector('#formProformaR .form__group--select').children[4].removeAttribute('hidden');
     document.querySelectorAll('#formProformaR .form__group--select')[1].children[3].removeAttribute('hidden');
 }
+//-----------------------------------------Block request with a flag---------------------------------------------
+let rqstCreateProf = false;
+let rqstUpdateProf = false;
+let rqstDeleteProf = false;
+let rqstCreateNE = false;
 //----------------------------MOSTRAR CARD DE INVENTARIO Y PRODUCTOS---------------------------------------
 let selectInvProd = document.getElementById('selectInvProd');
 let headerInvetario = document.getElementById('headerInvetario');
@@ -60,6 +65,7 @@ function readInventories() {
         //paginacionInventory(Object.values(data).length, 1);
     }).catch(err => console.log(err));
 }
+/*
 //------Select utilizado para buscar por columnas
 const selectSearchInv = document.getElementById('selectSearchInv');
 selectSearchInv.addEventListener('change', searchInventories);
@@ -200,7 +206,7 @@ function cardInventory(page) {
         root.innerHTML = html;
         showDetails();
     }
-}
+}*/
 //---------------------------------------------------- CARDS PRODUCTS---------------------------------------------------------
 let products = {};
 let filterProducts = {};
@@ -769,38 +775,45 @@ document.getElementById('formProformaR').addEventListener('submit', createProfor
 function createProforma() {
     let cart = document.querySelectorAll('#cartItem .cart-item');
     if (cart.length > 0) {
-        proformaRMW.classList.remove('modal__show');
-        previewProducts.classList.remove('modal__show');
-        let array = [];
-        cart.forEach(product => {
-            let valor = {};
-            valor['codigo'] = product.children[2].innerHTML;
-            valor['descripcion'] = product.children[7].innerText;
-            valor['cantidad'] = product.children[3].value;
-            valor['costoUnitario'] = product.children[4].value;
-            valor['imagen'] = product.children[1].children[0].src;
-            array.push(valor);
-        });
-        let productos = JSON.stringify(array); //String Json
-        let form = document.getElementById("formProformaR");
-        let moneda = selectMoneyCart.value;
-        let formData = new FormData(form);
-        formData.set("fecha_profR", `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`);
-        formData.set("total_profR", Number(document.getElementById('totalProf').innerHTML.split(' ')[1]));
-        formData.append('createProforma', productos);
-        formData.append('moneda_profR', moneda);
-        formData.append('tipo_cambio_profR', tipoDeCambioProf.value);
-        formData.append('id_usua', localStorage.getItem('id_usua'));
-        fetch('../controladores/proforma.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            alert(data);
+        if (rqstCreateProf == false) {
+            rqstCreateProf = true;
+            proformaRMW.classList.remove('modal__show');
+            previewProducts.classList.remove('modal__show');
             cartItem.innerHTML = '';
-            totalPrice();
-            readProformas();
-            readProf_prods();
-        }).catch(err => console.log(err));
+            let array = [];
+            cart.forEach(product => {
+                let valor = {};
+                valor['codigo'] = product.children[2].innerHTML;
+                valor['descripcion'] = product.children[7].innerText;
+                valor['cantidad'] = product.children[3].value;
+                valor['costoUnitario'] = product.children[4].value;
+                valor['imagen'] = product.children[1].children[0].src;
+                array.push(valor);
+            });
+            let productos = JSON.stringify(array); //String Json
+            let form = document.getElementById("formProformaR");
+            let moneda = selectMoneyCart.value;
+            let formData = new FormData(form);
+            formData.set("fecha_profR", `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`);
+            formData.set("total_profR", Number(document.getElementById('totalProf').innerHTML.split(' ')[1]));
+            formData.append('createProforma', productos);
+            formData.append('moneda_profR', moneda);
+            formData.append('tipo_cambio_profR', tipoDeCambioProf.value);
+            formData.append('id_usua', localStorage.getItem('id_usua'));
+            fetch('../controladores/proforma.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                rqstCreateProf = false;
+                alert(data);
+                totalPrice();
+                readProformas();
+                readProf_prods();
+            }).catch(err => {
+                rqstCreateProf = false;
+                alert(err);
+            });
+        }
     } else {
         alert('No a seleccionado ningun producto');
     }
@@ -850,34 +863,41 @@ function updateProforma() {
     let modal = document.querySelector('#cartsProf_prodMW');
     let cartItems = modal.querySelectorAll('div.cart-item');
     if (cartItems.length > 0) {
-        proformaMMW.classList.remove('modal__show');
-        prof_prodMW.classList.remove('modal__show');
-        previewProducts.classList.remove('modal__show');
-        let array = [];
-        cartItems.forEach(product => {
-            let valor = {};
-            valor['codigo'] = product.children[2].innerText;
-            valor['cantidad'] = product.children[3].value;
-            valor['costoUnitario'] = product.children[4].value;
-            array.push(valor);
-        });
-        let productos = JSON.stringify(array); //string json
-        let form = document.getElementById('formProformaM');
-        let formData = new FormData(form);
-        formData.set("fecha_profM", `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`);
-        formData.set("total_profM", Number(document.getElementById('totalProf').innerHTML.split(' ')[1]));
-        formData.append('updateProforma', productos);
-        formData.append('id_usua', localStorage.getItem('id_usua'));
-        fetch('../controladores/proforma.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            alert(data);
-            readProformas();
-            readProf_prods();
-            readMdfProforma();
-            readmProf_prods();
-        }).catch(err => console.log(err));
+        if (rqstUpdateProf == false) {
+            rqstUpdateProf = true;
+            proformaMMW.classList.remove('modal__show');
+            prof_prodMW.classList.remove('modal__show');
+            previewProducts.classList.remove('modal__show');
+            let array = [];
+            cartItems.forEach(product => {
+                let valor = {};
+                valor['codigo'] = product.children[2].innerText;
+                valor['cantidad'] = product.children[3].value;
+                valor['costoUnitario'] = product.children[4].value;
+                array.push(valor);
+            });
+            let productos = JSON.stringify(array); //string json
+            let form = document.getElementById('formProformaM');
+            let formData = new FormData(form);
+            formData.set("fecha_profM", `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`);
+            formData.set("total_profM", Number(document.getElementById('totalProf').innerHTML.split(' ')[1]));
+            formData.append('updateProforma', productos);
+            formData.append('id_usua', localStorage.getItem('id_usua'));
+            fetch('../controladores/proforma.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                rqstUpdateProf = false;
+                alert(data);
+                readProformas();
+                readProf_prods();
+                readMdfProforma();
+                readmProf_prods();
+            }).catch(err => {
+                rqstUpdateProf = false;
+                alert(err);
+            });
+        }
     } else {
         alert('No a seleccionado ningun producto');
     }
@@ -885,16 +905,24 @@ function updateProforma() {
 //-------Delete una proforma
 function deleteProforma(tr) {
     if (confirm('¿Esta usted seguro?')) {
-        let id_prof = tr.children[0].innerText;
-        let formData = new FormData();
-        formData.append('deleteProforma', id_prof);
-        fetch('../controladores/proforma.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            alert(data)
-            readProformas();
-        }).catch(err => console.log(err));
+        if (rqstDeleteProf == false) {
+            rqstDeleteProf = true;
+            let id_prof = tr.children[0].innerText;
+            let formData = new FormData();
+            formData.append('deleteProforma', id_prof);
+            fetch('../controladores/proforma.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                rqstDeleteProf = false;
+                alert(data);
+                readProformas();
+            }).catch(err => {
+                rqstDeleteProf = false;
+                alert(data);
+            });
+        }
+
     }
 }
 //<------------------------------------------MODAL PROFORMA--------------------------------------------
@@ -1443,21 +1471,28 @@ function createNotaEntrega() {
             }
         });
         if (confirm('¿Esta usted seguro?')) {
-            notaEntregaRMW.classList.remove('modal__show');
-            productsSold.classList.remove('modal__show');
-            let formData = new FormData();
-            formData.append('createNotaEntrega', JSON.stringify(object));
-            formData.append('arrayObjetos', JSON.stringify(arrayObjetos));
-            formData.append('id_usua', localStorage.getItem('id_usua'));
-            fetch('../controladores/notaEntrega.php', {
-                method: "POST",
-                body: formData
-            }).then(response => response.text()).then(data => {
-                formNotaEntregaR.forEach(input => { input.value = '' });
-                alert(data);
-                readProformas();
-                readInventories();
-            }).catch(err => console.log(err));
+            if (rqstCreateNE == false) {
+                rqstCreateNE = true;
+                notaEntregaRMW.classList.remove('modal__show');
+                productsSold.classList.remove('modal__show');
+                let formData = new FormData();
+                formData.append('createNotaEntrega', JSON.stringify(object));
+                formData.append('arrayObjetos', JSON.stringify(arrayObjetos));
+                formData.append('id_usua', localStorage.getItem('id_usua'));
+                fetch('../controladores/notaEntrega.php', {
+                    method: "POST",
+                    body: formData
+                }).then(response => response.text()).then(data => {
+                    rqstCreateNE = false;
+                    alert(data);
+                    formNotaEntregaR.forEach(input => { input.value = '' });
+                    readProformas();
+                    readInventories();
+                }).catch(err => {
+                    rqstCreateNE = false;
+                    alert(err);
+                });
+            }
         }
     }
 
@@ -2452,7 +2487,7 @@ function readAllMarcas() {
         marcas = JSON.parse(JSON.stringify(data));
         selectMarcaProd();
         selectMarcaProdR();
-        selectMarcaInv();
+        //selectMarcaInv();
         selectMarcaProductMW();
         selectMarcaInventoryMW();
     }).catch(err => console.log(err));

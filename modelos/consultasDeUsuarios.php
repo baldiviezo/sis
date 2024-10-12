@@ -59,7 +59,7 @@ class consultas {
 			$passCifrado = password_hash($this->contraseña, PASSWORD_DEFAULT);
 			$consulta2 = "INSERT INTO usuario (nombre_usua, apellido_usua, contraseña_usua, email_usua, ci_usua, direccion_usua, celular_usua, rol_usua) VALUES ('$this->nombres', '$this->apellidos', '$passCifrado', '$this->email', '$this->ci', '$this->direccion', '$this->celular', '$this->rol')";
 			$resultado2 = $conexion->query($consulta2);
-			echo ("registrado");
+			echo ("Usuario creado correctamente");
 		}
 	}
 	//-------Update user

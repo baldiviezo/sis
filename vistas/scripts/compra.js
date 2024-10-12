@@ -1,9 +1,14 @@
 //--------------------------------------------Restricciones de usuario----------------------------------------------
-if(localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador'){
-}else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
+if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
+} else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
     //marca y categoria create
     document.getElementsByName('codigo_prodM')[0].setAttribute('readonly', 'readonly');
 }
+//--------------------------------------------BLOCK REQUEST WITH A FLAG----------------------------------------------
+let rqstCreateBuy = false;
+let rqstUpdateBuy = false;
+let rqstDeleteBuy = false;
+let rqstAddBuy = false;
 //-----------------------------------------------FECHA ACTUAL-------------------------------------
 const date = new Date();
 const dateFormat = new Intl.DateTimeFormat('es-ES', {
@@ -15,7 +20,7 @@ const dateFormat = new Intl.DateTimeFormat('es-ES', {
     minute: '2-digit',
     second: '2-digit',
     hour12: false,
-  });
+});
 const formattedDate = dateFormat.format(date);
 const datePart = formattedDate.split(', ');
 const dateActual = datePart[0].split('/');
@@ -353,7 +358,7 @@ function readEnterprise(rm) {
     let id_empp = selectEnterpriseRM.value;
     for (let enterprise in enterprises) {
         if (enterprises[enterprise]['id_empp'] == id_empp) {
-            
+
             for (let valor in enterprises[enterprise]) {
                 document.getElementsByName(valor + 'M')[0].value = enterprises[enterprise][valor];
             }
@@ -534,11 +539,11 @@ orderBuys.forEach(div => {
 });
 //------Filtar por rol
 function filterByUserBuys(length, page) {
-    if(localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador'){
+    if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
         paginacionBuy(length, page);
-    }else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario'){
-        for(let buy in filterBuys){
-            if (filterBuys[buy]['fk_id_usua_cmp'] != localStorage.getItem('id_usua')){
+    } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
+        for (let buy in filterBuys) {
+            if (filterBuys[buy]['fk_id_usua_cmp'] != localStorage.getItem('id_usua')) {
                 delete filterBuys[buy];
             }
         }
@@ -633,7 +638,7 @@ function tableBuys(page) {
                 <img src='../imagenes/edit.svg' onclick='readBuy(parseInt(this.parentNode.parentNode.children[0].innerText))' title='Editar compra'>`;
                 }
             } else {
-                    td.innerHTML = `
+                td.innerHTML = `
                     <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir orden de compra'>`;
             }
             tr.appendChild(td);
@@ -662,20 +667,29 @@ function createBuy() {
             };
             array.push(object);
         });
-        let formData = new FormData(formBuyR);
         buyRMW.classList.remove('modal__show');
-        formData.append('createBuy', JSON.stringify(array));
-        formData.append('id_usua', localStorage.getItem('id_usua'));
-        formData.set('fecha_cmpR', `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`);
-        fetch('../controladores/compras.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            alert(data);
-            readBuys();
-            readCmp_prods();
-            cleanFormBuyR();
-        }).catch(err => console.log(err));
+        if (confirm('¿Esta usted seguro?')) {
+            if (rqstCreateBuy == false) {
+                rqstCreateBuy = true;
+                let formData = new FormData(formBuyR);
+                formData.append('createBuy', JSON.stringify(array));
+                formData.append('id_usua', localStorage.getItem('id_usua'));
+                formData.set('fecha_cmpR', `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`);
+                fetch('../controladores/compras.php', {
+                    method: "POST",
+                    body: formData
+                }).then(response => response.text()).then(data => {
+                    rqstCreateBuy = false;
+                    alert(data);
+                    readBuys();
+                    readCmp_prods();
+                    cleanFormBuyR();
+                }).catch(err => {
+                    rqstCreateBuy = false;
+                    alert(err);
+                });
+            }
+        }
     } else {
         alert('No a seleccionado ningun producto');
     }
@@ -687,8 +701,8 @@ function readBuy(id_cmp) {
     if (filterBuy) {
         const properties = ['id_cmp', 'fecha_cmp', 'numero_cmp', 'forma_pago_cmp', 'tpo_entrega_cmp', 'tipo_cambio_cmp', 'descuento_cmp', 'observacion_cmp'];
         properties.forEach(property => {
-            document.getElementsByName(property+'M')[0].value = filterBuy[property];
-        }); 
+            document.getElementsByName(property + 'M')[0].value = filterBuy[property];
+        });
 
         selectEnterpriseM.innerHTML = '';
         const option = document.createElement('option');
@@ -743,39 +757,53 @@ function updateBuy() {
             };
             array.push(object);
         });
-        let formData = new FormData(formBuyM);
         buyMMW.classList.remove('modal__show');
-        formData.append('updateBuy', JSON.stringify(array));
-        formData.append('id_usua', localStorage.getItem('id_usua'));
-        formData.set('fecha_cmpM', `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`);
-        fetch('../controladores/compras.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            alert(data);
-            readBuys();
-            readCmp_prods();
-        }).catch(err => console.log(err));
-    }else{
+        if (rqstUpdateBuy == false) {
+            rqstUpdateBuy = true;
+            let formData = new FormData(formBuyM);
+            formData.append('updateBuy', JSON.stringify(array));
+            formData.append('id_usua', localStorage.getItem('id_usua'));
+            formData.set('fecha_cmpM', `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`);
+            fetch('../controladores/compras.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                rqstCreateBuy = false;
+                alert(data);
+                readBuys();
+                readCmp_prods();
+            }).catch(err => {
+                rqstCreateBuy = false;
+                alert(err);
+            });
+        }
+    } else {
         alert('No a seleccionado ningun producto');
     }
 }
 //------Delete buy
-function deleteBuy(id_cmp){
-    if (confirm('¿Esta usted seguro?')){
-        let formData = new FormData();
-        formData.append('deleteBuy', id_cmp);
-        fetch('../controladores/compras.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            alert(data);
-            readBuys();
-            readCmp_prods();
-        }).catch(err => console.log(err));
+function deleteBuy(id_cmp) {
+    if (confirm('¿Esta usted seguro?')) {
+        if (rqstDeleteBuy == false) {
+            rqstDeleteBuy = true;
+            let formData = new FormData();
+            formData.append('deleteBuy', id_cmp);
+            fetch('../controladores/compras.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                rqstDeleteBuy = false;
+                alert(data);
+                readBuys();
+                readCmp_prods();
+            }).catch(err => {
+                rqstDeleteBuy = false;
+                alert(err);
+            });
+        }
     }
 }
-function cleanFormBuyR(){
+function cleanFormBuyR() {
     document.querySelector('#cmp_prodRMW .modal__body').innerHTML = '';
     document.getElementsByName('forma_pago_cmpR')[0].value = '';
     document.getElementsByName('tpo_entrega_cmpR')[0].value = '';
@@ -850,12 +878,12 @@ function showproductsAddBuyMW() {
         costo_uni = Number(div.children[6].innerText);
         total = total + costo_uni;
     })
-    subTotaladdBuyMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2)+' Bs';
-    desc = document.getElementsByName('descuento_cmpR')[0].value*total/100;
+    subTotaladdBuyMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2) + ' Bs';
+    desc = document.getElementsByName('descuento_cmpR')[0].value * total / 100;
     desc = desc.toFixed(2);
-    descaddBuyMW.innerHTML = `Desc. ${document.getElementsByName('descuento_cmpR')[0].value}% (Bs): ${desc} Bs` ;
-    totaladdBuyMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2)-desc).toFixed(2)} Bs`;
-    document.getElementsByName('total_cmpR')[0].value = Number(total.toFixed(2)-desc).toFixed(2);
+    descaddBuyMW.innerHTML = `Desc. ${document.getElementsByName('descuento_cmpR')[0].value}% (Bs): ${desc} Bs`;
+    totaladdBuyMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2) - desc).toFixed(2)} Bs`;
+    document.getElementsByName('total_cmpR')[0].value = Number(total.toFixed(2) - desc).toFixed(2);
     quantityaddBuyMW.innerHTML = divs.length;
 }
 //------Las copras ya llegaron y estan en inventario
@@ -875,20 +903,28 @@ function addBuysToInventory() {
             array.push(object);
         }
     }
-    let formData = new FormData();
-    formData.append('addBuysToInventory', JSON.stringify(array));
-    formData.append('id_cmp', document.getElementsByName('id_cmp')[0].value);
-    formData.append('factura_cmp', document.getElementsByName('factura_cmp')[0].value);
-    formData.append('fecha_entrega_cmp', `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`);
-    formData.append('id_usua', localStorage.getItem('id_usua'));
-    fetch('../controladores/compras.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.text()).then(data => {
-        alert(data);
-        readBuys();
-    }).catch(err => console.log(err));
-
+    if (confirm('¿Esta usted seguro?')) {
+        if (rqstAddBuy == false) {
+            rqstAddBuy = true;
+            let formData = new FormData();
+            formData.append('addBuysToInventory', JSON.stringify(array));
+            formData.append('id_cmp', document.getElementsByName('id_cmp')[0].value);
+            formData.append('factura_cmp', document.getElementsByName('factura_cmp')[0].value);
+            formData.append('fecha_entrega_cmp', `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`);
+            formData.append('id_usua', localStorage.getItem('id_usua'));
+            fetch('../controladores/compras.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                rqstAddBuy = false;
+                alert(data);
+                readBuys();
+            }).catch(err => {
+                rqstAddBuy = false;
+                alert(err);
+            });
+        }
+    }
 }
 /*---------------------------------------------------------------------------------------------*/
 //------------PDF of buys
@@ -1272,12 +1308,12 @@ function totalPriceCPPDR() {
         costo_uni = Number(div.children[5].value);
         total = total + costo_uni;
     })
-    subTotalCPRMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2)+' Bs';
-    desc = document.getElementsByName('descuento_cmpR')[0].value*total/100;
+    subTotalCPRMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2) + ' Bs';
+    desc = document.getElementsByName('descuento_cmpR')[0].value * total / 100;
     desc = desc.toFixed(2);
-    descCPRMW.innerHTML = `Desc. ${document.getElementsByName('descuento_cmpR')[0].value}% (Bs): ${desc} Bs` ;
-    totalCPRMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2)-desc).toFixed(2)} Bs`;
-    document.getElementsByName('total_cmpR')[0].value = Number(total.toFixed(2)-desc).toFixed(2);
+    descCPRMW.innerHTML = `Desc. ${document.getElementsByName('descuento_cmpR')[0].value}% (Bs): ${desc} Bs`;
+    totalCPRMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2) - desc).toFixed(2)} Bs`;
+    document.getElementsByName('total_cmpR')[0].value = Number(total.toFixed(2) - desc).toFixed(2);
     quantityCPRMW.innerHTML = divs.length;
 }
 const cmpProdMMW = document.querySelector('#cmp_prodMMW div.modal__body');
@@ -1320,12 +1356,12 @@ function totalPriceCPPDM() {
         costo_total = Number(div.children[5].value);
         total = total + costo_total;
     })
-    subTotalCPMMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2)+' Bs';
-    desc = document.getElementsByName('descuento_cmpM')[0].value*total/100;
+    subTotalCPMMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2) + ' Bs';
+    desc = document.getElementsByName('descuento_cmpM')[0].value * total / 100;
     desc = desc.toFixed(2);
-    descCPMMW.innerHTML = `Desc. ${document.getElementsByName('descuento_cmpM')[0].value}% (Bs): ${desc} Bs` ;
-    totalCPMMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2)-desc).toFixed(2)} Bs`;
-    document.getElementsByName('total_cmpM')[0].value = Number(total.toFixed(2)-desc).toFixed(2);
+    descCPMMW.innerHTML = `Desc. ${document.getElementsByName('descuento_cmpM')[0].value}% (Bs): ${desc} Bs`;
+    totalCPMMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2) - desc).toFixed(2)} Bs`;
+    document.getElementsByName('total_cmpM')[0].value = Number(total.toFixed(2) - desc).toFixed(2);
     quantityCPMMW.innerHTML = divs.length;
 }
 //---------------------------VENTANA MODAL PARA BUSCAR PRODUCTOS
@@ -1409,30 +1445,30 @@ const marca_prodM = document.getElementById('marca_prodM');
 marca_prodM.addEventListener('change', selectCategoriaProdM);
 const categoria_prodM = document.getElementById('categoria_prodM');
 //-------Select de marcas registrar
-function selectMarcaProdM(){
+function selectMarcaProdM() {
     marca_prodM.innerHTML = '';
     let option = document.createElement('option');
     option.value = 'todasLasMarcas';
     option.innerText = 'Todas las marcas';
-    marca_prodM.appendChild(option); 
-    for ( let clave in marcas){
+    marca_prodM.appendChild(option);
+    for (let clave in marcas) {
         let option = document.createElement('option');
         option.value = marcas[clave]['id_mrc'];
         option.innerText = marcas[clave]['nombre_mrc'];
         marca_prodM.appendChild(option);
     }
-    selectCategoriaProdM();        
+    selectCategoriaProdM();
 }
-function selectCategoriaProdM(){
-    categoria_prodM.innerHTML = ''; 
+function selectCategoriaProdM() {
+    categoria_prodM.innerHTML = '';
     let option = document.createElement('option');
     option.value = 'todasLasCategorias';
     option.innerText = 'Todas las categorias';
     categoria_prodM.appendChild(option);
-    if(marca_prodM.value != 'todasLasMarcas'){
+    if (marca_prodM.value != 'todasLasMarcas') {
         let id_mrc = marca_prodM.value;
-        for ( let clave in categorias){
-            if (categorias[clave]['id_mrc'] == id_mrc){
+        for (let clave in categorias) {
+            if (categorias[clave]['id_mrc'] == id_mrc) {
                 let option = document.createElement('option');
                 option.value = categorias[clave]['id_ctgr'];
                 option.innerText = categorias[clave]['nombre_ctgr'];
@@ -1504,23 +1540,23 @@ function createProduct() {
     }
 }
 //------Leer un producto
-function readProduct(tr){
+function readProduct(tr) {
     cleanUpProductFormM();
     let id_prod = tr.children[0].innerText;
-    for(let product in filterProductsMW){
-        if(filterProductsMW[product]['id_prod']==id_prod){
-            for(let valor in filterProductsMW[product]){
-                if(valor == 'imagen_prod'){
+    for (let product in filterProductsMW) {
+        if (filterProductsMW[product]['id_prod'] == id_prod) {
+            for (let valor in filterProductsMW[product]) {
+                if (valor == 'imagen_prod') {
                     document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("../modelos/imagenes/${filterProductsMW[product][valor]}"); background-size: cover;`);
-                }else if(valor == 'id_ctgr'){
-                }else if(valor == 'id_mrc'){
-                }else if(valor == 'marca_prod'){
-                    document.getElementsByName(valor+'M')[0].value = filterProductsMW[product]['id_mrc'];
-                }else if(valor == 'categoria_prod'){
-                    selectCategoriaProdM(); 
-                    document.getElementsByName(valor+'M')[0].value = filterProductsMW[product]['id_ctgr'];
-                }else{
-                    document.getElementsByName(valor+'M')[0].value = filterProductsMW[product][valor];
+                } else if (valor == 'id_ctgr') {
+                } else if (valor == 'id_mrc') {
+                } else if (valor == 'marca_prod') {
+                    document.getElementsByName(valor + 'M')[0].value = filterProductsMW[product]['id_mrc'];
+                } else if (valor == 'categoria_prod') {
+                    selectCategoriaProdM();
+                    document.getElementsByName(valor + 'M')[0].value = filterProductsMW[product]['id_ctgr'];
+                } else {
+                    document.getElementsByName(valor + 'M')[0].value = filterProductsMW[product][valor];
                 }
             }
             break;
@@ -1530,20 +1566,20 @@ function readProduct(tr){
 }
 //-------Update un producto
 document.getElementById("formProductsM").addEventListener("submit", updateProduct);
-function updateProduct(){
+function updateProduct() {
     event.preventDefault();
-    if(marca_prodM.value == "todasLasMarcas"){
+    if (marca_prodM.value == "todasLasMarcas") {
         alert("Debe seleccionar una marca");
-    }else if(categoria_prodM.value == "todasLasCategorias"){
+    } else if (categoria_prodM.value == "todasLasCategorias") {
         alert("Debe seleccionar una categoria");
-    }else{
+    } else {
         productsMMW.classList.remove('modal__show');
         let form = document.getElementById("formProductsM");
         let formData = new FormData(form);
         formData.append('updateProduct', '');
         fetch('../controladores/productos.php', {
-                method: "POST",
-                body: formData
+            method: "POST",
+            body: formData
         }).then(response => response.text()).then(data => {
             readProducts();
             alert(data);
@@ -1561,7 +1597,7 @@ closeProductsRMW.addEventListener('click', (e) => {
 });
 const productsMMW = document.getElementById('productsMMW');
 const closeProductsMMW = document.getElementById('closeProductsMMW');
-closeProductsMMW.addEventListener('click',(e)=>{
+closeProductsMMW.addEventListener('click', (e) => {
     productsMMW.classList.remove('modal__show');
 });
 //<<-----------------------------------------------------MUESTRA LA IMAGEN CARGADA------------------------------>>
@@ -1579,7 +1615,7 @@ function mostrarimagenR() {
     document.querySelector('.drop__areaR').setAttribute('style', `background-image: url("${urlDeImagen}"); background-size: cover;`);
 }
 //------Muestra en un campo la imagen que se esta seleccionado para modificar
-function mostrarimagenM () {
+function mostrarimagenM() {
     let form = document.getElementById('formProductsM');
     //Seleccionar los elementos del form registrar antes de enviar el formulario
     let formData = new FormData(form);
@@ -1608,7 +1644,7 @@ function cleanUpProductFormR() {
     document.querySelector('.drop__areaR').removeAttribute('style');
 }
 //------Limpia los campos del fomulario Modificar
-function cleanUpProductFormM(){
+function cleanUpProductFormM() {
     inputsFormProduct.forEach(input => input.value = "");
     document.getElementsByName("descripcion_prodM")[0].value = "";
     document.getElementsByName("imagen_prodM")[0].value = "";
@@ -1620,13 +1656,13 @@ const dragTextR = dropAreaR.querySelector('h2');
 const buttonR = dropAreaR.querySelector('button');
 const inputR = dropAreaR.querySelector('#imagen_prodR');
 let filesR;
-buttonR.addEventListener('click', ()=>{
+buttonR.addEventListener('click', () => {
     //llamamos al evento click del inputR
     event.preventDefault();
     inputR.click();
 })
 /*Cuando tenemos elementos q se estan arraztrando se activa*/
-dropAreaR.addEventListener('dragover', (e)=>{
+dropAreaR.addEventListener('dragover', (e) => {
     //Se necesita poner el preventDefault
     e.preventDefault();
     dropAreaR.classList.add('active');
@@ -1634,14 +1670,14 @@ dropAreaR.addEventListener('dragover', (e)=>{
 
 });
 /*Cunado estemos arrastrando pero no estamos dentro de la zona*/
-dropAreaR.addEventListener('dragleave', (e)=>{
+dropAreaR.addEventListener('dragleave', (e) => {
     //Se necesita poner el preventDefault
     e.preventDefault();
     dropAreaR.classList.remove('active');
     dragTextR.textContent = 'Arrastra y suelta la imágen';
 });
 /*Cuando soltamos el archivo q estamos arrastrando dentro de la zona*/
-dropAreaR.addEventListener('drop', (e)=>{
+dropAreaR.addEventListener('drop', (e) => {
     //Se necesita poner el preventDefault para que al momento de soltar no abra la imagen en el navegador
     e.preventDefault();
     filesR = e.dataTransfer.files;
@@ -1649,19 +1685,19 @@ dropAreaR.addEventListener('drop', (e)=>{
     dropAreaR.classList.remove('active');
     dragTextR.textContent = 'Arrastra y suelta la imagen';
 });
-function showFiles(){
-        for(let file of filesR){
-            processFile(file);
-        }
+function showFiles() {
+    for (let file of filesR) {
+        processFile(file);
+    }
 }
-function processFile(file){
+function processFile(file) {
     let docType = file.type;
     let validExtensions = ['image/jpeg', 'image/jpg'];
-    if(validExtensions.includes(docType)){
+    if (validExtensions.includes(docType)) {
         //archivo valido
         inputR.files = filesR;
         mostrarimagenR();
-    }else{
+    } else {
         //archivo no valido
         alert('No es una archivo valido');
     }
@@ -1671,13 +1707,13 @@ const dragTextM = dropAreaM.querySelector('h2');
 const buttonM = dropAreaM.querySelector('button');
 const inputM = dropAreaM.querySelector('#imagen_prodM');
 let filesM;
-buttonM.addEventListener('click', ()=>{
+buttonM.addEventListener('click', () => {
     //llamamos al evento click del inputR
     event.preventDefault();
     inputM.click();
 })
 /*Cuando tenemos elementos q se estan arraztrando se activa*/
-dropAreaM.addEventListener('dragover', (e)=>{
+dropAreaM.addEventListener('dragover', (e) => {
     //Se necesita poner el preventDefault
     e.preventDefault();
     dropAreaM.classList.add('active');
@@ -1685,14 +1721,14 @@ dropAreaM.addEventListener('dragover', (e)=>{
 
 });
 /*Cunado estemos arrastrando pero no estamos dentro de la zona*/
-dropAreaM.addEventListener('dragleave', (e)=>{
+dropAreaM.addEventListener('dragleave', (e) => {
     //Se necesita poner el preventDefault
     e.preventDefault();
     dropAreaM.classList.remove('active');
     dragTextM.textContent = 'Arrastra y suelta la imágen';
 });
 /*Cuando soltamos el archivo q estamos arrastrando dentro de la zona*/
-dropAreaM.addEventListener('drop', (e)=>{
+dropAreaM.addEventListener('drop', (e) => {
     //Se necesita poner el preventDefault para que al momento de soltar no abra la imagen en el navegador
     e.preventDefault();
     filesM = e.dataTransfer.files;
@@ -1700,19 +1736,19 @@ dropAreaM.addEventListener('drop', (e)=>{
     dropAreaM.classList.remove('active');
     dragTextM.textContent = 'Arrastra y suelta la imagen';
 });
-function showFilesM(){
-        for(let file of filesM){
-            processFileM(file);
-        }
+function showFilesM() {
+    for (let file of filesM) {
+        processFileM(file);
+    }
 }
-function processFileM(file){
+function processFileM(file) {
     let docType = file.type;
     let validExtensions = ['image/jpeg', 'image/jpg'];
-    if(validExtensions.includes(docType)){
+    if (validExtensions.includes(docType)) {
         //archivo valido
         inputM.files = filesM;
         mostrarimagenM();
-    }else{
+    } else {
         //archivo no valido
         alert('No es una archivo valido');
     }
@@ -1827,9 +1863,9 @@ function paginacionProdOC(allProducts, page) {
     let totalProdOC = document.getElementById('totalProdOC');
     let total = 0;
     for (let cmp_prods in filterCmp_prods) {
-        total += filterCmp_prods[cmp_prods]['cantidad_cppd']*filterCmp_prods[cmp_prods]['cost_uni_cppd']*(100-filterCmp_prods[cmp_prods]['descuento_cmp'])/100; 
+        total += filterCmp_prods[cmp_prods]['cantidad_cppd'] * filterCmp_prods[cmp_prods]['cost_uni_cppd'] * (100 - filterCmp_prods[cmp_prods]['descuento_cmp']) / 100;
     }
-    totalProdOC.innerHTML = total.toFixed(2)+' Bs';
+    totalProdOC.innerHTML = total.toFixed(2) + ' Bs';
     let numberProducts = Number(selectNumberProdOC.value);
     let allPages = Math.ceil(allProducts / numberProducts);
     let ul = document.querySelector('#wrapperProf ul');
@@ -1879,24 +1915,24 @@ function tableProformas(page) {
                     td.innerText = i;
                     tr.appendChild(td);
                     i++;
-                }else if (valor == 'nombre_usua') {
+                } else if (valor == 'nombre_usua') {
                     td.innerText = filterCmp_prods[proforma][valor] + ' ' + filterCmp_prods[proforma]['apellido_usua'];
                     tr.appendChild(td);
                 } else if (valor == 'cost_uni_cppd') {
-                    td.innerText = filterCmp_prods[proforma][valor].toFixed(2)+' Bs';
+                    td.innerText = filterCmp_prods[proforma][valor].toFixed(2) + ' Bs';
                     tr.appendChild(td);
                     let td2 = document.createElement('td');
-                    let subTotal = filterCmp_prods[proforma]['cost_uni_cppd']*filterCmp_prods[proforma]['cantidad_cppd'];
-                    td2.innerText = subTotal.toFixed(2)+' Bs';
+                    let subTotal = filterCmp_prods[proforma]['cost_uni_cppd'] * filterCmp_prods[proforma]['cantidad_cppd'];
+                    td2.innerText = subTotal.toFixed(2) + ' Bs';
                     tr.appendChild(td2);
 
                 } else if (valor == 'descuento_cmp') {
-                    let desc = filterCmp_prods[proforma][valor]*filterCmp_prods[proforma]['cost_uni_cppd']*filterCmp_prods[proforma]['cantidad_cppd']/100;
-                    td.innerText = desc.toFixed(2)+' Bs' + ' ('+filterCmp_prods[proforma][valor]+'%)';
+                    let desc = filterCmp_prods[proforma][valor] * filterCmp_prods[proforma]['cost_uni_cppd'] * filterCmp_prods[proforma]['cantidad_cppd'] / 100;
+                    td.innerText = desc.toFixed(2) + ' Bs' + ' (' + filterCmp_prods[proforma][valor] + '%)';
                     tr.appendChild(td);
                     let td2 = document.createElement('td');
-                    let total = filterCmp_prods[proforma]['cantidad_cppd']*filterCmp_prods[proforma]['cost_uni_cppd']*(100-filterCmp_prods[proforma]['descuento_cmp'])/100;
-                    td2.innerText = total.toFixed(2)+' Bs';
+                    let total = filterCmp_prods[proforma]['cantidad_cppd'] * filterCmp_prods[proforma]['cost_uni_cppd'] * (100 - filterCmp_prods[proforma]['descuento_cmp']) / 100;
+                    td2.innerText = total.toFixed(2) + ' Bs';
                     tr.appendChild(td2);
                 } else if (valor == 'fk_id_cmp_cppd' || valor == 'apellido_usua' || valor == 'fk_id_prod_cppd' || valor == 'imagen_prod' || valor == 'estado_cmp') {
                 } else {
@@ -1910,8 +1946,6 @@ function tableProformas(page) {
         }
     }
 }
-
-
 //---------------------------------VENTANA MODAL PARA REGISTRAR PRODUCTOS FILTER------------------------------>>
 const openProdOC = document.getElementById('openProdOC');
 const closeTableProdOC = document.getElementById('closeTableProdOC');

@@ -13,6 +13,9 @@ const dateFormat = new Intl.DateTimeFormat('es-ES', {
 const formattedDate = dateFormat.format(date);
 const datePart = formattedDate.split(', ');
 const dateActual = datePart[0].split('/');
+//-------------------------------------------------------BLOCK REQUEST WITH A FLAG--------------------------------------------
+let rqstDeleteNE = false;
+let rqstCreateSale = false;
 //-------------------------------------------------------TABLA NOTA DE ENTREGA-----------------------------------------------------
 let notasEntrega = {};
 let filterNotasEntrega = {};
@@ -51,12 +54,12 @@ function searchNotasEntrega() {
         for (let valor in notasEntrega[notaEntrega]) {
             if (selectSearchNe.value == 'todas') {
                 if (valor == 'numero_prof' || valor == 'fecha_prof' || valor == 'fecha_ne' || valor == 'nombre_emp' || valor == 'nombre_usua' || valor == 'nombre_clte' || valor == 'orden_ne' || valor == 'observacion_ne') {
-                    if (valor == 'id_prof'){
+                    if (valor == 'id_prof') {
                         if (notasEntrega[notaEntrega][valor].toString().toLowerCase().indexOf(inputSearchNe.value.toLowerCase()) >= 0) {
                             filterNotasEntrega[notaEntrega] = notasEntrega[notaEntrega];
                             break;
                         }
-                    }else if (valor == 'nombre_usua') {
+                    } else if (valor == 'nombre_usua') {
                         if ((notasEntrega[notaEntrega][valor] + ' ' + notasEntrega[notaEntrega]['apellido_usua']).toLowerCase().indexOf(inputSearchNe.value.toLowerCase()) >= 0) {
                             filterNotasEntrega[notaEntrega] = notasEntrega[notaEntrega];
                             break;
@@ -121,39 +124,39 @@ function selectStateNotasEntrega() {
 let orderNotaEntrega = document.querySelectorAll('.tbody__head--ne');
 orderNotaEntrega.forEach(div => {
     div.children[0].addEventListener('click', function () {
-      let array = Object.entries(filterNotasEntrega).sort((a, b) => {
-        let first = a[1][div.children[0].name];
-        let second = b[1][div.children[0].name];
-        if (typeof first === 'number' && typeof second === 'number') {
-          return first - second;
-        } else {
-          return String(first).localeCompare(String(second));
-        }
-      });
-      filterNotasEntrega = Object.fromEntries(array);
-      filterByUserNe(Object.values(filterNotasEntrega).length, 1);
+        let array = Object.entries(filterNotasEntrega).sort((a, b) => {
+            let first = a[1][div.children[0].name];
+            let second = b[1][div.children[0].name];
+            if (typeof first === 'number' && typeof second === 'number') {
+                return first - second;
+            } else {
+                return String(first).localeCompare(String(second));
+            }
+        });
+        filterNotasEntrega = Object.fromEntries(array);
+        filterByUserNe(Object.values(filterNotasEntrega).length, 1);
     });
     div.children[1].addEventListener('click', function () {
-      let array = Object.entries(filterNotasEntrega).sort((a, b) => {
-        let first = a[1][div.children[0].name];
-        let second = b[1][div.children[0].name];
-        if (typeof first === 'number' && typeof second === 'number') {
-          return second - first;
-        } else {
-          return String(second).localeCompare(String(first));
-        }
-      });
-      filterNotasEntrega = Object.fromEntries(array);
-      filterByUserNe(Object.values(filterNotasEntrega).length, 1);
+        let array = Object.entries(filterNotasEntrega).sort((a, b) => {
+            let first = a[1][div.children[0].name];
+            let second = b[1][div.children[0].name];
+            if (typeof first === 'number' && typeof second === 'number') {
+                return second - first;
+            } else {
+                return String(second).localeCompare(String(first));
+            }
+        });
+        filterNotasEntrega = Object.fromEntries(array);
+        filterByUserNe(Object.values(filterNotasEntrega).length, 1);
     });
-  });
+});
 //------Filtras las notas de entrega dependiendo el usuario logueado
 function filterByUserNe(length, page) {
-    if(localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador'){
+    if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
         paginacionNotaEntrega(length, page);
-    }else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario'){
-        for(let notaEntrega in filterNotasEntrega){
-            if (filterNotasEntrega[notaEntrega]['fk_id_usua_ne'] != localStorage.getItem('id_usua')){
+    } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
+        for (let notaEntrega in filterNotasEntrega) {
+            if (filterNotasEntrega[notaEntrega]['fk_id_usua_ne'] != localStorage.getItem('id_usua')) {
                 delete filterNotasEntrega[notaEntrega];
             }
         }
@@ -218,7 +221,7 @@ function tableNotaEntrega(page) {
                     td.innerText = i;
                     tr.appendChild(td);
                     i++;
-                }else if (valor == 'fecha_prof') {
+                } else if (valor == 'fecha_prof') {
                     td.innerText = filterNotasEntrega[notaEntrega][valor];
                     tr.appendChild(td);
                 }
@@ -246,7 +249,8 @@ function tableNotaEntrega(page) {
                 } else {
                     td.innerHTML = `
                     <img src='../imagenes/receipt.svg' onclick='readSale(this.parentNode.parentNode)' title='Facturar'>
-                    <img src='../imagenes/pdf.svg' onclick='pdfNotaEntrega(this.parentNode.parentNode)' title='Descargar nota de entrega'>`;
+                    <img src='../imagenes/pdf.svg' onclick='pdfNotaEntrega(this.parentNode.parentNode)' title='Descargar nota de entrega'>
+                    <img src='../imagenes/trash.svg' onclick='deleteNotaEntrega(this.parentNode.parentNode)' title='Eliminar nota de entrega'>`;
                 }
             }
             tr.appendChild(td);
@@ -256,7 +260,6 @@ function tableNotaEntrega(page) {
         }
     }
 }
-
 //-------------------------------------------------------PDF NOTA DE ENTREGA------------------------------------------------->>
 function pdfNotaEntrega(tr) {
     let id_ne = tr.children[0].innerText;
@@ -370,16 +373,24 @@ function readProducts() {
 //------Delete a nota de entrega
 function deleteNotaEntrega(tr) {
     if (confirm('¿Esta usted seguro?')) {
-        let id_ne = tr.children[0].innerText;
-        let formData = new FormData();
-        formData.append('deleteNotaEntrega', id_ne);
-        fetch('../controladores/notaEntrega.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            alert(data);
-            readNotasEntrega();
-        }).catch(err => console.log(err));
+        if (rqstDeleteNE == false) {
+            rqstDeleteNE = true;
+            let id_ne = tr.children[0].innerText;
+            let formData = new FormData();
+            formData.append('deleteNotaEntrega', id_ne);
+            fetch('../controladores/notaEntrega.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                rqstDeleteNE = false;
+                alert(data);
+                readNotasEntrega();
+            }).catch(err => {
+                rqstDeleteNE = false;
+                alert(err);
+            });
+        }
+
     }
 }
 //------------------------------------------------------CRUD SALES--------------------------------------------------------
@@ -392,7 +403,7 @@ function readSale(tr) {
     document.getElementsByName('fecha_vnt')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
     document.getElementsByName('id_ne')[0].value = id_ne;
     document.getElementsByName('id_prof')[0].value = id_prof;
-   
+
 }
 function openPreviwProductsSold() {
     let id_prof = document.getElementsByName('id_prof')[0].value;
@@ -422,7 +433,7 @@ function cartProd(products) {
         let cart = document.createElement('div');
         cart.classList.add('cart-item');
         let html =
-        `<p class="cart-item__cantInv">${product['cantidad_inv']}</p>
+            `<p class="cart-item__cantInv">${product['cantidad_inv']}</p>
         <div class="row-img">
             <img src="../modelos/imagenes/`+ product['imagen_prod'] + `" class="rowimg">
         </div>
@@ -437,7 +448,7 @@ function cartProd(products) {
     });
     for (let proforma in proformas) {
         if (proformas[proforma]['id_prof'] == id_prof) {
-            document.getElementsByName('descuento_prof')[0].value = proformas[proforma]['descuento_prof'];         
+            document.getElementsByName('descuento_prof')[0].value = proformas[proforma]['descuento_prof'];
             break;
         }
     }
@@ -448,16 +459,15 @@ function cartProd(products) {
     document.getElementById('quantity').innerHTML = products.length;
 }
 //create a sale
-function createSale(){
+function createSale() {
     let id_prof = document.getElementsByName('id_prof')[0].value;
     let factura_vnt = document.getElementsByName('factura_vnt')[0].value;
     let observacion_vnt = document.getElementsByName('observacion_vnt')[0].value;
-    let prof = {};
     let id_ne = document.getElementsByName('id_ne')[0].value;
     let prodCart = [];
     for (let proforma in proformas) {
         if (proformas[proforma]['id_prof'] == id_prof) {
-            prof = proformas[proforma];           
+            prof = proformas[proforma];
             break;
         }
     }
@@ -470,24 +480,32 @@ function createSale(){
             }
         }
     }
-    vnt_prodRMW.classList.remove('modal__show');
-    saleRMW.classList.remove('modal__show');
-
-    let formData = new FormData();
-    formData.append('createSale', id_ne);
-    formData.append('prodCart', JSON.stringify(prodCart));
-    formData.append('id_usua', localStorage.getItem('id_usua'));
-    formData.append('total_vnt', document.getElementsByName('total_vnt')[0].value);
-    formData.append('fecha_vnt', `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`);
-    formData.append('factura_vnt', factura_vnt);
-    formData.append('observacion_vnt', observacion_vnt);
-    fetch('../controladores/ventas.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.text()).then(data => {
-        alert(data);
-        readNotasEntrega();
-    }).catch(err => console.log(err));
+    if (confirm('¿Esta usted seguro?')) {
+        if (rqstCreateSale == false) {
+            rqstCreateSale = true;
+            vnt_prodRMW.classList.remove('modal__show');
+            saleRMW.classList.remove('modal__show');
+            let formData = new FormData();
+            formData.append('createSale', id_ne);
+            formData.append('prodCart', JSON.stringify(prodCart));
+            formData.append('id_usua', localStorage.getItem('id_usua'));
+            formData.append('total_vnt', document.getElementsByName('total_vnt')[0].value);
+            formData.append('fecha_vnt', `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`);
+            formData.append('factura_vnt', factura_vnt);
+            formData.append('observacion_vnt', observacion_vnt);
+            fetch('../controladores/ventas.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                rqstCreateSale = false;
+                alert(data);
+                readNotasEntrega();
+            }).catch(err => {
+                rqstCreateSale = false;
+                alert(err);
+            });
+        }
+    }
 }
 //-----------------------------------MODAL CREATE SALE-------------------------------------------------//
 const saleRMW = document.getElementById('saleRMW');
