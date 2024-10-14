@@ -1,5 +1,5 @@
 //----------------------------------------------BLOCK REQUEST WITH A FLAG----------------------------------------------
-let rqstCreateRmd = false;
+let rqstCreateArmed = false;
 //-----------------------------------------------FECHA ACTUAL-------------------------------------
 const date = new Date();
 const dateFormat = new Intl.DateTimeFormat('es-ES', {
@@ -225,12 +225,12 @@ function createArmed() {
                         method: 'POST',
                         body: formData
                     }).then(response => response.text()).then(data => {
-                        rqstCreateRmd = false;
+                        rqstCreateArmed = false;
                         alert(data);
                         readArmeds();
                         cleanUpArmedFormR();
                     }).catch(err => {
-                        rqstCreateRmd = false;
+                        rqstCreateArmed = false;
                         alert(err);
                     });
                 }

@@ -30,22 +30,25 @@ class consultas{
 		$observacion = trim($conexion->real_escape_string($object['observacion_ne']));
 		$consulta = "INSERT INTO nota_entrega (fk_id_prof_ne, fk_id_usua_ne, fecha_ne, orden_ne, observacion_ne, estado_ne) VALUES ('$id_prof', '$id_usua', '$fecha_ne', '$orden' , '$observacion', 'pendiente')";
 		$resultado = $conexion->query($consulta);
-		//Restar cantidades
-		foreach ($arrayObjetos as $valor) {
-			$id_inv = $valor['id_inv'];
-			$cantidad =	$valor['cantidad'];
-			$consulta2 = "SELECT * FROM inventario WHERE id_inv = '$id_inv'";
-			$resultado2 = $conexion->query($consulta2);
-			$numeroNotaEntrega = $resultado2->num_rows;
-			if($numeroNotaEntrega > 0){
-				$inventario = $resultado2->fetch_assoc();
-				$cantidad_inv = $inventario['cantidad_inv'];
-				$cantidad_inv = $cantidad_inv - $cantidad;
-				$consulta3 = "UPDATE inventario set cantidad_inv='$cantidad_inv' WHERE id_inv='$id_inv'";
-				$resultado3 = $conexion->query($consulta3);
+		if ($resultado) {
+			//Restar cantidades
+			foreach ($arrayObjetos as $valor) {
+				$id_inv = $valor['id_inv'];
+				$cantidad =	$valor['cantidad'];
+				$consulta2 = "SELECT * FROM inventario WHERE id_inv = '$id_inv'";
+				$resultado2 = $conexion->query($consulta2);
+				$numeroNotaEntrega = $resultado2->num_rows;
+				if($numeroNotaEntrega > 0){
+					$inventario = $resultado2->fetch_assoc();
+					$cantidad_inv = $inventario['cantidad_inv'];
+					$cantidad_inv = $cantidad_inv - $cantidad;
+					$consulta3 = "UPDATE inventario set cantidad_inv='$cantidad_inv' WHERE id_inv='$id_inv'";
+					$resultado3 = $conexion->query($consulta3);
+				}
 			}
+			echo 'Nota de entrega creada con exito';
 		}
-		echo 'Nota de entrega creada con exito';
+		
 	}
 	//-----Delete nota de entrega
 	public function deleteNotaEntrega($id_ne){
