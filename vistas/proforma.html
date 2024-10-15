@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,6 +16,7 @@
 	<link rel="stylesheet" type="text/css" href="../css/productModal.css">
 	<link rel="stylesheet" type="text/css" href="../css/userModal.css">
 </head>
+
 <body class="body__proforma">
 	<header class="header">
 		<nav class="header__nav header__container">
@@ -35,7 +37,8 @@
 			<section class="main__header">
 				<div>
 					<img src="../imagenes/folder.svg" onclick="openTableProfMW()" class="img__folder" title="Proformas">
-					<img src="../imagenes/registrar.svg" onclick="openProductsRMW()" class="img__folder" title="Registrar producto">
+					<img src="../imagenes/registrar.svg" onclick="openProductsRMW()" class="img__folder"
+						title="Registrar producto">
 				</div>
 				<section class="select__search">
 					<div>
@@ -196,6 +199,7 @@
 				<p></p>
 				<h6></h6>
 				<h3></h3>
+				<img src="../imagenes/edit.svg" onclick="readProduct(this.parentNode)" class="icon__CRUD">
 			</div>
 		</div>
 	</section>
@@ -261,18 +265,21 @@
 								<th>N°</th>
 								<th>
 									<div class="tbody__head--proforma">Proforma <img src="../imagenes/sortA_Z.svg"
-										name="numero_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="numero_prof" class="icon__CRUD">
+											name="numero_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="numero_prof" class="icon__CRUD">
 									</div>
 								</th>
 								<th>
 									<div class="tbody__head--proforma">Fecha <img src="../imagenes/sortA_Z.svg"
-											name="fecha_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_prof" class="icon__CRUD">
+											name="fecha_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="fecha_prof" class="icon__CRUD">
 									</div>
 								</th>
 								<th>Encargado</th>
 								<th>
 									<div class="tbody__head--proforma">Empresa <img src="../imagenes/sortA_Z.svg"
-											name="nombre_emp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_emp" class="icon__CRUD">
+											name="nombre_emp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="nombre_emp" class="icon__CRUD">
 									</div>
 								</th>
 								<th>Cliente</th>
@@ -355,7 +362,7 @@
 		</div>
 	</section>
 	<!--Productos para descontar del inventario-->
-	<section  id="productsSold" class="modal">
+	<section id="productsSold" class="modal">
 		<div class="modalPdpf__container">
 			<div class="modalPdpf__header">
 				<h2 class="modal__title">Productos</h2>
@@ -396,7 +403,7 @@
 				<img src="../imagenes/salir.svg" id="closeProformaRMW" class="button__close" title="Minimizar">
 			</div>
 			<div class="form">
-				<form id="formProformaR" >
+				<form id="formProformaR">
 					<div class="form__container">
 						<div class="form__group">
 							<input type="text" name="fecha_profR" placeholder=" " class="form__input" readonly>
@@ -407,17 +414,18 @@
 							<select name="fk_id_emp_clteR"></select>
 							<img src="../imagenes/search.svg" onclick="openEnterpriseSMW('R')" class="icon__CRUD">
 							<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()" class="icon__CRUD">
-							<img src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)" class="icon__CRUD">
-							<img src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)" class="icon__CRUD"
-								hidden>
+							<img src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)"
+								class="icon__CRUD">
+							<img src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)"
+								class="icon__CRUD" hidden>
 						</div>
 						<label class="form__label--only">Cliente:</label>
 						<div class="form__group--select">
 							<select name="fk_id_clte_profR"></select>
 							<img src="../imagenes/registrar.svg" onclick="openCustomersRMW()" class="icon__CRUD">
 							<img src="../imagenes/edit.svg" onclick="readCustomer(this.parentNode)" class="icon__CRUD">
-							<img src="../imagenes/trash.svg" onclick="deleteCustomer(this.parentNode)" class="icon__CRUD"
-								hidden>
+							<img src="../imagenes/trash.svg" onclick="deleteCustomer(this.parentNode)"
+								class="icon__CRUD" hidden>
 						</div>
 						<div class="form__group">
 							<input type="text" name="tpo_valido_profR" placeholder=" " class="form__input">
@@ -568,7 +576,6 @@
 							<tr>
 								<th>N°</th>
 								<th>Codigo</th>
-								<th>Nombre</th>
 								<th>Descripcion</th>
 								<th>Imagen</th>
 								<th>Cantidad</th>
@@ -881,7 +888,8 @@
 								<th>N°</th>
 								<th>
 									<div class="tbody__head--invMW">Marca <img src="../imagenes/sortA_Z.svg"
-											name="marca_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="marca_prod" class="icon__CRUD">
+											name="marca_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="marca_prod" class="icon__CRUD">
 									</div>
 								</th>
 								<th>
@@ -891,12 +899,14 @@
 								</th>
 								<th>
 									<div class="tbody__head--invMW">Codigo <img src="../imagenes/sortA_Z.svg"
-											name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="codigo_prod" class="icon__CRUD">
+											name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="codigo_prod" class="icon__CRUD">
 									</div>
 								</th>
 								<th>
 									<div class="tbody__head--invMW">Nombre <img src="../imagenes/sortA_Z.svg"
-											name="nombre_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_prod" class="icon__CRUD">
+											name="nombre_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="nombre_prod" class="icon__CRUD">
 									</div>
 								</th>
 								<th>Descripcion</th>
@@ -979,7 +989,8 @@
 								<th>N°</th>
 								<th>
 									<div class="tbody__head--ProdMW">Marca <img src="../imagenes/sortA_Z.svg"
-											name="marca_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="marca_prod" class="icon__CRUD">
+											name="marca_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="marca_prod" class="icon__CRUD">
 									</div>
 								</th>
 								<th>
@@ -989,12 +1000,14 @@
 								</th>
 								<th>
 									<div class="tbody__head--ProdMW">Codigo <img src="../imagenes/sortA_Z.svg"
-											name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="codigo_prod" class="icon__CRUD">
+											name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="codigo_prod" class="icon__CRUD">
 									</div>
 								</th>
 								<th>
 									<div class="tbody__head--ProdMW">Nombre <img src="../imagenes/sortA_Z.svg"
-											name="nombre_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_prod" class="icon__CRUD">
+											name="nombre_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="nombre_prod" class="icon__CRUD">
 									</div>
 								</th>
 								<th>Descripcion</th>
@@ -1020,13 +1033,13 @@
 				<div class="modalP__inputs--container">
 					<div class="modalP__inputs">
 						<div class="modalP__group">
-							<label for="codigo_prodR" class="modalP__label">Codigo:</label>	
-							<input type="text" name="codigo_prodR"  placeholder=" " class="modalP__input">
+							<label for="codigo_prodR" class="modalP__label">Codigo:</label>
+							<input type="text" name="codigo_prodR" placeholder=" " class="modalP__input">
 						</div>
 					</div>
 					<div class="modalP__group--select">
 						<label class="modalP__label">Marca:</label>
-						<select name="marca_prodR" id="marca_prodR"  class="select__marca"></select>
+						<select name="marca_prodR" id="marca_prodR" class="select__marca"></select>
 					</div>
 					<div class="modalP__group--select">
 						<label class="modalP__label">Categoria:</label>
@@ -1036,19 +1049,19 @@
 					</div>
 					<label class="modalP__label">Descripcion corta:</label>
 					<div class="modalP__textarea">
-						<textarea name="nombre_prodR" placeholder="Escriba la descripción corta aquí..."></textarea>	
+						<textarea name="nombre_prodR" placeholder="Escriba la descripción corta aquí..."></textarea>
 					</div>
 					<label class="modalP__label">Descripción:</label>
 					<div class="modalP__textarea">
-						<textarea name="descripcion_prodR" placeholder="Escriba la descripción aquí..."></textarea>	
+						<textarea name="descripcion_prodR" placeholder="Escriba la descripción aquí..."></textarea>
 					</div>
 				</div>
-				<div class="drop__areaR" >
+				<div class="drop__areaR">
 					<h2>Arrastra y suelta la imagen</h2>
 					<span>O</span>
 					<button>Selecciona una imagen</button>
 					<!--multiplece para que acepte multiples archivos-->
-					<input type="file"  name="imagen_prodR" id="imagen_prodR" hidden>
+					<input type="file" name="imagen_prodR" id="imagen_prodR" hidden>
 				</div>
 				<input type="submit" value="Registrar" class="modalP__submit">
 			</form>
@@ -1081,25 +1094,45 @@
 					</div>
 					<label class="modalP__label">Descripcion corta:</label>
 					<div class="modalP__textarea">
-						<textarea name="nombre_prodM" placeholder="Escriba la descripción corta aquí..."></textarea>	
+						<textarea name="nombre_prodM" placeholder="Escriba la descripción corta aquí..."></textarea>
 					</div>
 					<label class="modalP__label">Descripción:</label>
 					<div class="modalP__textarea">
-						<textarea name="descripcion_prodM" placeholder="Escriba la descripción aquí..."></textarea>	
+						<textarea name="descripcion_prodM" placeholder="Escriba la descripción aquí..."></textarea>
 					</div>
 				</div>
-				<div class="drop__areaM" >
+				<div class="drop__areaM">
 					<h2>Arrastra y suelta la imagen</h2>
 					<span>O</span>
 					<button>Selecciona una imagen</button>
 					<!--multiplece para que acepte multiples archivos-->
-					<input type="file"  name="imagen_prodM" id="imagen_prodM" hidden>
+					<input type="file" name="imagen_prodM" id="imagen_prodM" hidden>
 				</div>
 				<input type="submit" value="Guardar" class="modalP__submit">
-			</form>	
+			</form>
+		</div>
+	</section>
+	<!--Modal preloader-->
+	<section id="preloader" class="modal">
+		<div class="modal__loader">
+			<div class="lds-spinner">
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+			</div>
 		</div>
 	</section>
 	<script src="scripts/header.js"></script>
 	<script src="scripts/proforma.js"></script>
 </body>
+
 </html>

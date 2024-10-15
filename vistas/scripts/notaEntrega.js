@@ -493,10 +493,12 @@ function createSale() {
             formData.append('fecha_vnt', `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`);
             formData.append('factura_vnt', factura_vnt);
             formData.append('observacion_vnt', observacion_vnt);
+            preloader.classList.add('modal__show');
             fetch('../controladores/ventas.php', {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
+                preloader.classList.remove('modal__show');
                 rqstCreateSale = false;
                 alert(data);
                 readNotasEntrega();
@@ -533,3 +535,5 @@ function readInventories() {
         inventories = data;
     }).catch(err => console.log(err));
 }
+//-----------------------------------------PRE LOADER---------------------------------------------
+const preloader = document.getElementById('preloader');

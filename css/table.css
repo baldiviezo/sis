@@ -319,7 +319,6 @@ tbody tr:hover{
 #tbodyInvMW td:nth-of-type(8){
 	min-width: 30rem;
 }
-
 /*-----------------------tabla preview-----------------------------*/
 #previewProducts td:nth-of-type(1){
 	min-width: 2rem;
@@ -331,10 +330,38 @@ tbody tr:hover{
 	min-width: 12rem;
 }
 #previewProducts td:nth-of-type(4){
-	min-width: 30rem;
+	min-width: 8rem;
 }
 #previewProducts td:nth-of-type(7), #previewProducts td:nth-of-type(8){
 	min-width: 8rem;
+}
+.textarea__preview{
+	min-width: 100%;
+	height: 10rem;
+	border: none;
+	resize: none;
+	outline: none;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 1rem;
+}
+.textarea__preview::-webkit-scrollbar{
+	/*Vuelve el scrrol invisible*/
+	/*No se nota el cambio del ancho*/
+	width: 0.5rem;
+	/*Alto del scroll*/
+	height: 0.5rem;
+}
+.textarea__preview::-webkit-scrollbar-thumb{
+	/*Borde del scroll*/
+	border-radius: .5rem;
+	/*color de lscroll*/
+	background-color: #0004;
+	/*volvemos invisible el scroll*/
+	visibility: hidden;
+}
+.textarea__preview:hover::-webkit-scrollbar-thumb{
+	/*Cuando el mause esta encima de la tabla se muestra el scroll*/
+	visibility: visible;
 }
 /*-----------------------------tabla de proformas--------------------------------*/
 #tbodyProforma td:nth-of-type(11){

@@ -133,35 +133,40 @@ class consultas {
 					if($numeroFilas4 > 0){
 						echo ("No se puede eliminar, el proyecto está siendo utilizado por una o más compras");
 					}else{
-						//verificar que no exista en inventario
-						$consulta = "SELECT * FROM inventario WHERE fk_id_prod_inv ='$id'";
-						$resultado = $conexion->query($consulta);
-						$numeroFilas = $resultado->num_rows;
-						if($numeroFilas > 0){
-							echo ("No se puede eliminar, el producto está en el inventario");
+						//------Verificar que el proyecto no este en una o mas Armados
+						$consulta5 = "SELECT * FROM rmd_prod WHERE fk_id_prod_rdpd = '$id'";
+						$resultado5 = $conexion->query($consulta5);
+						$numeroFilas5 = $resultado5->num_rows;
+						if($numeroFilas5 > 0){
+							echo ("No se puede eliminar, el proyecto está siendo utilizado por una o más armados");
 						}else{
-							//Eliminar imagen de la carpeta imagenes
-							$consulta = "SELECT * FROM producto WHERE id_prod='$id'";
+							//------verificar que no exista en inventario
+							$consulta = "SELECT * FROM inventario WHERE fk_id_prod_inv ='$id'";
 							$resultado = $conexion->query($consulta);
-							$producto = $resultado->fetch_assoc();
-							//Eliminar en la base de datos
-							$consulta = "DELETE FROM producto WHERE id_prod='$id'";
-							$resultado = $conexion->query($consulta);
-							if ($resultado){
-								if($producto['imagen_prod'] != 'imagen.jpg'){
-									if(file_exists("../modelos/imagenes/".$producto['imagen_prod'])){
-										unlink("../modelos/imagenes/".$producto['imagen_prod']);
+							$numeroFilas = $resultado->num_rows;
+							if($numeroFilas > 0){
+								echo ("No se puede eliminar, el producto está en el inventario");
+							}else{
+								//Eliminar imagen de la carpeta imagenes
+								$consulta = "SELECT * FROM producto WHERE id_prod='$id'";
+								$resultado = $conexion->query($consulta);
+								$producto = $resultado->fetch_assoc();
+								//Eliminar en la base de datos
+								$consulta = "DELETE FROM producto WHERE id_prod='$id'";
+								$resultado = $conexion->query($consulta);
+								if ($resultado){
+									if($producto['imagen_prod'] != 'imagen.jpg'){
+										if(file_exists("../modelos/imagenes/".$producto['imagen_prod'])){
+											unlink("../modelos/imagenes/".$producto['imagen_prod']);
+										}
 									}
 								}
+								echo ("Producto eliminado exitosamente");
 							}
-							echo ("Producto eliminado exitosamente");
 						}
 					}
 				}
 			}
-
-
-			
 		}
 	}
 	//-----------------------------------CRUD MARCAS----------------------------------

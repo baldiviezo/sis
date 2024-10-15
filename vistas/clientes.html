@@ -81,14 +81,6 @@
 			</div>
 			<form id="formClienteR" class="form">
 				<div class="form__container">
-					<label class="form__label--only">Empresa:</label>
-					<div class="form__group--select">
-						<select name="fk_id_emp_clteR"></select>
-						<img class="icon__CRUD" src="../imagenes/search.svg" onclick="openEnterpriseSMW('R')" title="Buscar empresa">
-						<img class="icon__CRUD" src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()" title="Registrar empresa">
-						<img class="icon__CRUD" src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)" title="Editar empresa">
-						<img class="icon__CRUD" src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)" title="Eliminar empresa">
-					</div>
 					<div class="form__group">
 						<input type="text" name="nombre_clteR"  placeholder=" " class="form__input">
 						<label for="nombre_clteR" class="form__label">Nombres:</label>
@@ -96,6 +88,14 @@
 					<div class="form__group">
 						<input type="text" name="apellido_clteR"  placeholder=" " class="form__input">
 						<label for="apellido_clteR" class="form__label">Apellidos:</label>
+					</div>
+					<label class="form__label--only">Empresa:</label>
+					<div class="form__group--select">
+						<select name="fk_id_emp_clteR"></select>
+						<img class="icon__CRUD" src="../imagenes/search.svg" onclick="openEnterpriseSMW('R')" title="Buscar empresa">
+						<img class="icon__CRUD" src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()" title="Registrar empresa">
+						<img class="icon__CRUD" src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)" title="Editar empresa">
+						<img class="icon__CRUD" src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)" title="Eliminar empresa">
 					</div>
 					<div class="form__group">
 						<input type="text" name="email_clteR"  placeholder=" " class="form__input">
@@ -126,14 +126,6 @@
 				<div class="form__container">
 					<!--Para guadar el id del cliente a modificar-->
 					<input type="text" name="id_clteM"  placeholder=" " class="form__input" hidden>
-					<label class="form__label--only">Empresa:</label>
-					<div class="form__group--select">
-						<select name="fk_id_emp_clteM"></select>
-						<img class="icon__CRUD" src="../imagenes/search.svg" onclick="openEnterpriseSMW('M')" title="Buscar empresa">
-						<img class="icon__CRUD" src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()" title="Registrar empresa">
-						<img class="icon__CRUD" src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)" title="Editar empresa">
-						<img class="icon__CRUD" src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)" title="Eliminar empresa">
-					</div>
 					<div class="form__group">
 						<input type="text" name="nombre_clteM"  placeholder=" " class="form__input">
 						<label for="nombre_clteM" class="form__label">Nombres:</label>
@@ -141,6 +133,14 @@
 					<div class="form__group">
 						<input type="text" name="apellido_clteM"  placeholder=" " class="form__input">
 						<label for="apellido_clteM" class="form__label">Apellidos:</label>
+					</div>
+					<label class="form__label--only">Empresa:</label>
+					<div class="form__group--select">
+						<select name="fk_id_emp_clteM"></select>
+						<img class="icon__CRUD" src="../imagenes/search.svg" onclick="openEnterpriseSMW('M')" title="Buscar empresa">
+						<img class="icon__CRUD" src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()" title="Registrar empresa">
+						<img class="icon__CRUD" src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)" title="Editar empresa">
+						<img class="icon__CRUD" src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)" title="Eliminar empresa">
 					</div>
 					<div class="form__group">
 						<input type="text" name="email_clteM"  placeholder=" " class="form__input">
@@ -303,6 +303,25 @@
 					</table>
 				</section>
 			</div>		
+		</div>
+	</section>
+	<!--Modal preloader-->
+	<section id="preloader" class="modal">
+		<div class="modal__loader">
+			<div class="lds-spinner">
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+			</div>
 		</div>
 	</section>
 	<script src="scripts/header.js"></script>

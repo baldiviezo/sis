@@ -199,7 +199,13 @@ class consultas{
 		$mProforma =  array();
 		if($numeroFilas > 0){
 			while ($fila = $resultado->fetch_assoc()){
-				$datos = array ('id_mprof'=>$fila['id_mprof'], 'id_prof_mprof'=>$fila['id_prof_mprof'], 'numero_mprof'=>$fila['numero_mprof'], 'fecha_mprof'=>$fila['fecha_mprof'], 'nombre_usua'=>$fila['nombre_usua'], 'apellido_usua'=>$fila['apellido_usua'], 'email_usua'=>$fila['email_usua'], 'celular_usua'=>$fila['celular_usua'], 'sigla_emp'=>$fila['sigla_emp'], 'nombre_emp'=>$fila['nombre_emp'], 'direccion_emp'=>$fila['direccion_emp'], 'telefono_emp'=>$fila['telefono_emp'], 'nombre_clte'=>$fila['nombre_clte'], 'apellido_clte'=>$fila['apellido_clte'], 'celular_clte'=>$fila['celular_clte'], 'tpo_valido_mprof'=>$fila['tpo_valido_mprof'], 'cond_pago_mprof'=>$fila['cond_pago_mprof'], 'tpo_entrega_mprof'=>$fila['tpo_entrega_mprof'], 'observacion_mprof'=>$fila['observacion_mprof'], 'descuento_mprof'=>$fila['descuento_mprof'], 'moneda_mprof'=>$fila['moneda_mprof'], 'tipo_cambio_mprof'=>$fila['tipo_cambio_mprof']);
+				$_prof_mprof_ne = '';
+				if ($fila['nombre_emp'] == 'Ninguna'){
+					$_prof_mprof_ne = strtoupper('SMS'.substr($fila['fecha_mprof'],2,2).'-'.$this->addZerosGo($fila	['numero_mprof']).'-'.explode(" ",$fila['apellido_clte'])[0]);
+				}else{
+					$_prof_mprof_ne = strtoupper('SMS'.substr($fila['fecha_mprof'],2,2).'-'.$this->addZerosGo($fila	['numero_mprof']).'-'.$sigla_emp = $fila['sigla_emp']);
+				}
+				$datos = array ('id_mprof'=>$fila['id_mprof'], 'id_prof_mprof'=>$fila['id_prof_mprof'], 'numero_mprof'=>$_prof_mprof_ne, 'fecha_mprof'=>$fila['fecha_mprof'], 'nombre_usua'=>$fila['nombre_usua'], 'apellido_usua'=>$fila['apellido_usua'], 'email_usua'=>$fila['email_usua'], 'celular_usua'=>$fila['celular_usua'], 'sigla_emp'=>$fila['sigla_emp'], 'nombre_emp'=>$fila['nombre_emp'], 'direccion_emp'=>$fila['direccion_emp'], 'telefono_emp'=>$fila['telefono_emp'], 'nombre_clte'=>$fila['nombre_clte'], 'apellido_clte'=>$fila['apellido_clte'], 'celular_clte'=>$fila['celular_clte'], 'tpo_valido_mprof'=>$fila['tpo_valido_mprof'], 'cond_pago_mprof'=>$fila['cond_pago_mprof'], 'tpo_entrega_mprof'=>$fila['tpo_entrega_mprof'], 'observacion_mprof'=>$fila['observacion_mprof'], 'descuento_mprof'=>$fila['descuento_mprof'], 'moneda_mprof'=>$fila['moneda_mprof'], 'tipo_cambio_mprof'=>$fila['tipo_cambio_mprof']);
 				$mProforma[$fila['id_mprof'].'_id_mprof'] = $datos;
 			}
 			$json = json_encode($mProforma, JSON_UNESCAPED_UNICODE);

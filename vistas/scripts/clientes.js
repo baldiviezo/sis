@@ -12,12 +12,15 @@ if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol
     document.querySelector('#formClienteM .form__group--select').children[4].classList.add('hide');
     document.getElementsByName('nombre_clteM')[0].setAttribute('readonly', 'readonly');
     document.getElementsByName('apellido_clteM')[0].setAttribute('readonly', 'readonly');
-}else if (localStorage.getItem('rol_usua') == 'Administrador') {
+} else if (localStorage.getItem('rol_usua') == 'Administrador') {
     //customersMMW
     //document.getElementsByName('nombre_clteM')[0].setAttribute('readonly', 'readonly');
     //document.getElementsByName('apellido_clteM')[0].setAttribute('readonly', 'readonly');
     //document.getElementsByName('nombre_empM')[0].setAttribute('readonly', 'readonly');
 }
+//----------------------------------------------BLOCK REQUEST WITH A FLAG----------------------------------------------
+let requestUsua = false;
+let requestEmp = false;
 /************************************************TABLA DE CLIENTES*********************************************/
 let customers = {};
 let filterCustomers = {};
@@ -66,20 +69,20 @@ function searchCustomers() {
                             filterCustomers[customer] = customers[customer];
                             break;
                         }
-                    }else {
-                        if (customers[customer][valor].toLowerCase().indexOf(inputSerchClte.value.toLowerCase()) >= 0){
+                    } else {
+                        if (customers[customer][valor].toLowerCase().indexOf(inputSerchClte.value.toLowerCase()) >= 0) {
                             filterCustomers[customer] = customers[customer];
                             break;
                         }
                     }
                 }
-            } else if (selectSearchClte.value == 'cliente'){
-                if (valor == 'apellido_clte'){
+            } else if (selectSearchClte.value == 'cliente') {
+                if (valor == 'apellido_clte') {
                     if ((customers[customer][valor] + ' ' + customers[customer]['nombre_clte']).toLowerCase().indexOf(inputSerchClte.value.toLowerCase()) >= 0) {
                         filterCustomers[customer] = customers[customer];
                         break;
                     }
-                } 
+                }
             } else {
                 if (valor == selectSearchClte.value) {
                     if (customers[customer][valor].toLowerCase().indexOf(inputSerchClte.value.toLowerCase()) >= 0) {
@@ -175,7 +178,7 @@ function tableCustomers(page) {
                 } else if (valor == 'nombre_clte') {
                     td.innerText = filterCustomers[customer]['apellido_clte'] + ' ' + filterCustomers[customer]['nombre_clte'];
                     tr.appendChild(td);
-                } else if (valor == 'fk_id_emp_clte' || valor == 'apellido_clte') {
+                } else if (valor == 'fk_id_emp_clte' || valor == 'apellido_clte' || valor == 'direccion_clte' || valor == 'celular_clte') {
                 } else if (valor == 'celular_clte') {
                     if (filterCustomers[customer][valor] == '0') {
                         td.innerText = '';
@@ -213,19 +216,28 @@ const formClienteR = document.getElementById('formClienteR');
 formClienteR.addEventListener('submit', createCustomer);
 function createCustomer() {
     event.preventDefault();
-    customersRMW.classList.remove('modal__show');
-    let formData = new FormData(formClienteR);
-    formData.append('createCustomer', '');
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.text()).then(data => {
-        readCustomers();
-        //Limpiar al registrar
-        let inputsR = document.querySelectorAll('#formClienteR .form__input');
-        inputsR.forEach(input => { input.value = '' });
-        alert(data)
-    }).catch(err => console.log(err));
+    if (requestUsua == false) {
+        requestUsua = true;
+        customersRMW.classList.remove('modal__show');
+        let formData = new FormData(formClienteR);
+        formData.append('createCustomer', '');
+        preloader.classList.add('modal__show');
+        fetch('../controladores/clientes.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            preloader.classList.remove('modal__show');
+            requestUsua = false;
+            readCustomers();
+            //Limpiar al registrar
+            let inputsR = document.querySelectorAll('#formClienteR .form__input');
+            inputsR.forEach(input => { input.value = '' });
+            alert(data)
+        }).catch(err => {
+            requestUsua = false;
+            alert(err)
+        });
+    }
 }
 //------Leer cliente
 function readCustomer(tr) {
@@ -249,30 +261,48 @@ const formClienteM = document.getElementById('formClienteM');
 formClienteM.addEventListener('submit', updateCustomer);
 function updateCustomer() {
     event.preventDefault();
-    customersMMW.classList.remove('modal__show');
-    let formData = new FormData(formClienteM);
-    formData.append('updateCustomer', '');
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.text()).then(data => {
-        readCustomers();
-        alert(data)
-    }).catch(err => console.log(err));
-}
-//------Eliminar cliente
-function deleteCustomer(tr) {
-    if (confirm('¿Esta usted seguro?')) {
-        let id_clte = tr.children[0].innerText;
-        let formData = new FormData();
-        formData.append('deleteCustomer', id_clte);
+    if (requestUsua == false) {
+        requestUsua = true;
+        customersMMW.classList.remove('modal__show');
+        let formData = new FormData(formClienteM);
+        formData.append('updateCustomer', '');
+        preloader.classList.add('modal__show');
         fetch('../controladores/clientes.php', {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
+            preloader.classList.remove('modal__show');
+            requestUsua = false;
             readCustomers();
-            alert(data);
-        }).catch(err => console.log(err));
+            alert(data)
+        }).catch(err => {
+            requestUsua = false;
+            alert(err)
+        });
+    }
+}
+//------Eliminar cliente
+function deleteCustomer(tr) {
+    if (confirm(`¿Esta usted seguro? se eliminara el cliente "${tr.children[2].innerText}"`)) {
+        if (requestUsua == false) {
+            requestUsua = true;
+            let id_clte = tr.children[0].innerText;
+            let formData = new FormData();
+            formData.append('deleteCustomer', id_clte);
+            preloader.classList.add('modal__show');
+            fetch('../controladores/clientes.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                preloader.classList.remove('modal__show');
+                requestUsua = false;
+                readCustomers();
+                alert(data);
+            }).catch(err => {
+                requestUsua = false;
+                alert(err)
+            });
+        }
     }
 }
 //-----------------------------------Ventana modal para cliente---------------------------------//
@@ -331,25 +361,31 @@ const formEmpresaR = document.getElementById('formEmpresaR');
 formEmpresaR.addEventListener('submit', createEnterprise);
 function createEnterprise() {
     event.preventDefault();
-    enterprisesRMW.classList.remove('modal__show');
-    let formData = new FormData(formEmpresaR);
-    formData.append('createEnterprise', '');
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.text()).then(data => {
-        if (data == 'La empresa ya existe') {
+    if (requestEmp == false) {
+        requestEmp = true;
+        enterprisesRMW.classList.remove('modal__show');
+        let formData = new FormData(formEmpresaR);
+        formData.append('createEnterprise', '');
+        preloader.classList.add('modal__show');
+        fetch('../controladores/clientes.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            preloader.classList.remove('modal__show');
+            requestEmp = false;
             alert(data);
-        } else {
-            alert (data);
-            indexEnterprise = 0;
-            readEnterprises();
-            //Limpiar el formulario de registrar empresa
-            let inputs = document.querySelectorAll('#formEmpresaR .form__input');
-            inputs.forEach(input => input.value = '');
-        }
-    }).catch(err => console.log(err));
-    //initialPageSelectEmp();  
+            if (data != 'La empresa ya existe') {
+                indexEnterprise = 0;
+                readEnterprises();
+                //Limpiar el formulario de registrar empresa
+                let inputs = document.querySelectorAll('#formEmpresaR .form__input');
+                inputs.forEach(input => input.value = '');
+            }
+        }).catch(err => {
+            requestEmp = false;
+            alert(err)
+        });
+    }
 }
 //------Leer una empresa
 function readEnterprise(div) {
@@ -369,32 +405,50 @@ let formEmpresaM = document.getElementById('formEmpresaM');
 formEmpresaM.addEventListener('submit', updateEnterprise);
 function updateEnterprise() {
     event.preventDefault();
-    enterprisesMMW.classList.remove('modal__show');
-    let formData = new FormData(formEmpresaM);
-    formData.append('updateEnterprise', '');
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.text()).then(data => {
-        indexEnterprise = document.getElementsByName('fk_id_emp_clte' + formEnterprise)[0].value;
-        readEnterprises();
-        readCustomers();
-        alert(data);
-    }).catch(err => console.log(err));
-}
-//------Borrar una empresa
-function deleteEnterprise(div) {
-    let id_emp = div.children[0].value;
-    if (confirm('¿Esta usted seguro?')) {
-        let formData = new FormData();
-        formData.append('deleteEnterprise', id_emp);
+    if (requestEmp == false) {
+        requestEmp = true;
+        enterprisesMMW.classList.remove('modal__show');
+        let formData = new FormData(formEmpresaM);
+        formData.append('updateEnterprise', '');
+        preloader.classList.add('modal__show');
         fetch('../controladores/clientes.php', {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
+            preloader.classList.remove('modal__show');
+            requestEmp = false;
+            indexEnterprise = document.getElementsByName('fk_id_emp_clte' + formEnterprise)[0].value;
             readEnterprises();
+            readCustomers();
             alert(data);
-        }).catch(err => console.log(err));
+        }).catch(err => {
+            requestEmp = false;
+            alert(err)
+        });
+    }
+}
+//------Borrar una empresa
+function deleteEnterprise(div) {
+    let id_emp = div.children[0].value;
+    if (confirm(`¿Esta usted seguro?`)) {
+        if (requestEmp == false) {
+            requestEmp = true;
+            let formData = new FormData();
+            formData.append('deleteEnterprise', id_emp);
+            preloader.classList.add('modal__show');
+            fetch('../controladores/clientes.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                preloader.classList.remove('modal__show');
+                requestEmp = false;
+                readEnterprises();
+                alert(data);
+            }).catch(err => {
+                requestEmp = false;
+                alert(err)
+            });
+        }
     }
 }
 //<<------------------------ABRIR Y CERRAR VENTANAS MODALES--------------------------------->>
@@ -576,4 +630,7 @@ function openEnterpriseSMW() {
 closeEnterpriseSMW.addEventListener('click', () => {
     enterpriseSMW.classList.remove('modal__show');
 });
+//-----------------------------------------PRE LOADER---------------------------------------------
+const preloader = document.getElementById('preloader');
+
 

@@ -33,6 +33,8 @@ if (localStorage.getItem('rol_usua') == 'Ingeniero') {
 }
 //----------------------------------------------BLOCK REQUEST WITH A FLAG----------------------------------------------
 let rqstCreateUsua = false;
+let rqstUpdateUsua = false;
+let rqstDeleteUsua = false;
 //<<-------------------------------------------CARGAR LA TABLA----------------------------------------------------->>
 //------Leer tabla de usuarios
 let usuarios = {};
@@ -143,13 +145,15 @@ function createUser() {
             let form = document.getElementById("formUsersR");
             let formData = new FormData(form);
             formData.append('createUser', '');
+            preloader.classList.add('modal__show');
             fetch('../controladores/usuarios.php', {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
+                preloader.classList.remove('modal__show');
                 rqstCreateUsua = false;
                 alert(data);
-                if (data != 'El email ya existe'){
+                if (data != 'El email ya existe') {
                     usersRMW.classList.remove('modal__show');
                     readUsers();
                     cleanUpFormRegister();
@@ -162,7 +166,6 @@ function createUser() {
     } else {
         alert("Las contraseñas no son iguales");
     }
-
 }
 //------Leer usuario
 function readUser(usuario) {
@@ -203,18 +206,27 @@ function updateUser() {
     let pass1 = document.getElementsByName("contraseña_usuaM")[0];
     let pass2 = document.getElementsByName("contraseña2_usuaM")[0];
     if (pass1.value == pass2.value) {
-        usersMMW.classList.remove('modal__show');
-        let form = document.getElementById("formUsersM");
-        let formData = new FormData(form);
-        formData.append('updateUser', 'guardar');
-        fetch('../controladores/usuarios.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            cleanUpFormModify();
-            readUsers();
-            alert(data)
-        }).catch(err => console.log(err));
+        if (rqstUpdateUsua == false) {
+            rqstUpdateUsua = true;
+            usersMMW.classList.remove('modal__show');
+            let form = document.getElementById("formUsersM");
+            let formData = new FormData(form);
+            formData.append('updateUser', 'guardar');
+            preloader.classList.add('modal__show');
+            fetch('../controladores/usuarios.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                preloader.classList.remove('modal__show');
+                rqstUpdateUsua = false;
+                cleanUpFormModify();
+                readUsers();
+                alert(data)
+            }).catch(err => {
+                rqstUpdateUsua = false;
+                alert(err);
+            });
+        }
     } else {
         alert("Las contraseñas no son iguales");
     }
@@ -223,15 +235,24 @@ function updateUser() {
 function deleteUser(usuario) {
     let id_usua = usuario.children[0].innerText;
     if (confirm(`¿Esta usted seguro? Se borrara el usuario "${usuario.children[2].innerText} ${usuario.children[3].innerText}"`)) {
-        const formData = new FormData()
-        formData.append('deleteUser', id_usua);
-        fetch('../controladores/usuarios.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            readUsers();
-            alert(data);
-        }).catch(error => console.log("Ocurrio un error. Intente nuevamente mas tarde"));
+        if (rqstDeleteUsua == false) {
+            rqstDeleteUsua = true;
+            const formData = new FormData()
+            formData.append('deleteUser', id_usua);
+            preloader.classList.add('modal__show');
+            fetch('../controladores/usuarios.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                preloader.classList.remove('modal__show');
+                rqstDeleteUsua = false;
+                readUsers();
+                alert(data);
+            }).catch(err => {
+                rqstDeleteUsua = false;
+                alert(err);
+            });
+        }
     }
 }
 //<<------------------------ABRIR Y CERRAR VENTANAS MODALES--------------------------------->>
@@ -288,3 +309,5 @@ function cleanUpFormRegister() {
         document.getElementById('admiR').checked = false;
     }
 }
+//-----------------------------------------PRE LOADER---------------------------------------------
+const preloader = document.getElementById('preloader');

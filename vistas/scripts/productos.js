@@ -1,16 +1,19 @@
 //--------------------------------------------Restricciones de usuario----------------------------------------------
-if(localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador'){
+if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
     //marca y categoria create delete
     document.querySelector('.select__search').children[0].children[2].removeAttribute('hidden');
     document.querySelector('.select__search').children[0].children[3].removeAttribute('hidden');
     document.querySelector('.select__search').children[1].children[2].removeAttribute('hidden');
     document.querySelector('.select__search').children[1].children[3].removeAttribute('hidden');
-}else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
+} else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
     //marca y categoria create
     document.querySelector('.select__search').children[0].children[2].removeAttribute('hidden');
     document.querySelector('.select__search').children[1].children[2].removeAttribute('hidden');
     document.getElementsByName('codigo_prodM')[0].setAttribute('readonly', 'readonly');
 }
+//-------------------------------------------BLOCK REQUEST WITH A FLAG--------------------------------------------
+let requestProducts = false;
+//--------------------------------------------TABLE PRODUCT-----------------------------------------------------
 //-------Marca y categoria
 const selectMarcaProduct = document.getElementById('selectMarcaProduct');
 selectMarcaProduct.addEventListener('change', selectCategoriaProd);
@@ -22,12 +25,12 @@ let filterProducts = {};
 readProducts();
 function readProducts() {
     let formData = new FormData();
-    formData.append('readProducts','');
+    formData.append('readProducts', '');
     fetch('../controladores/productos.php', {
         method: "POST",
         body: formData
     }).then(response => response.json()).then(data => {
-        products = JSON.parse(JSON.stringify(data)); 
+        products = JSON.parse(JSON.stringify(data));
         filterProducts = products;
         (selectMarcaProduct.value == 'todasLasMarcas' && selectCategoriaProduct.value == 'todasLasCategorias') ? paginacionProduct(Object.values(data).length, 1) : selectProducts();
     }).catch(err => console.log(err));
@@ -41,24 +44,24 @@ inputSerchProduct.addEventListener("keyup", searchProducts);
 //------Clientes por pagina
 const selectNumberProduct = document.getElementById('selectNumberProduct');
 selectNumberProduct.selectedIndex = 3;
-selectNumberProduct.addEventListener('change', function(){
+selectNumberProduct.addEventListener('change', function () {
     paginacionProduct(Object.values(filterProducts).length, 1);
 });
 //------buscar por:
-function searchProducts(){
-    filterProducts = {};    
-    for(let product in products){
-        for(let valor in products[product]){
-            if(selectSearchProduct.value == 'todas'){
-                if(valor == 'codigo_prod' ||  valor == 'nombre_prod' || valor == 'descripcion_prod'){
-                    if(products[product][valor].toLowerCase().indexOf(inputSerchProduct.value.toLowerCase())>=0){
+function searchProducts() {
+    filterProducts = {};
+    for (let product in products) {
+        for (let valor in products[product]) {
+            if (selectSearchProduct.value == 'todas') {
+                if (valor == 'codigo_prod' || valor == 'nombre_prod' || valor == 'descripcion_prod') {
+                    if (products[product][valor].toLowerCase().indexOf(inputSerchProduct.value.toLowerCase()) >= 0) {
                         filterProducts[product] = products[product];
                         break;
                     }
                 }
-            }else{
-                if(valor == selectSearchProduct.value){
-                    if(products[product][valor].toLowerCase().indexOf(inputSerchProduct.value.toLowerCase())>=0){
+            } else {
+                if (valor == selectSearchProduct.value) {
+                    if (products[product][valor].toLowerCase().indexOf(inputSerchProduct.value.toLowerCase()) >= 0) {
                         filterProducts[product] = products[product];
                         filterProducts = filterProducts;
                         break;
@@ -70,54 +73,54 @@ function searchProducts(){
     selectProducts();
 }
 //------buscar por marca y categoria:
-function selectProducts(){
-    if(selectMarcaProduct.value == 'todasLasMarcas' && selectCategoriaProduct.value == 'todasLasCategorias'){
+function selectProducts() {
+    if (selectMarcaProduct.value == 'todasLasMarcas' && selectCategoriaProduct.value == 'todasLasCategorias') {
         paginacionProduct(Object.values(filterProducts).length, 1);
-    }else{
-        for(let product in filterProducts){
-            for(let valor in filterProducts[product]){
-                if(selectMarcaProduct.value == 'todasLasMarcas'){
-                    if(filterProducts[product]['id_ctgr'] != selectCategoriaProduct.value){
+    } else {
+        for (let product in filterProducts) {
+            for (let valor in filterProducts[product]) {
+                if (selectMarcaProduct.value == 'todasLasMarcas') {
+                    if (filterProducts[product]['id_ctgr'] != selectCategoriaProduct.value) {
                         delete filterProducts[product];
                         break;
-                    }    
-                }else if(selectCategoriaProduct.value == 'todasLasCategorias'){
-                    if(filterProducts[product]['id_mrc'] != selectMarcaProduct.value){
+                    }
+                } else if (selectCategoriaProduct.value == 'todasLasCategorias') {
+                    if (filterProducts[product]['id_mrc'] != selectMarcaProduct.value) {
                         delete filterProducts[product];
                         break;
-                    }  
-                }else{
-                    if(filterProducts[product]['id_ctgr'] != selectCategoriaProduct.value || filterProducts[product]['id_mrc'] != selectMarcaProduct.value){
+                    }
+                } else {
+                    if (filterProducts[product]['id_ctgr'] != selectCategoriaProduct.value || filterProducts[product]['id_mrc'] != selectMarcaProduct.value) {
                         delete filterProducts[product];
                         break;
-                    }  
+                    }
                 }
             }
         }
         filterProducts = filterProducts;
-        paginacionProduct(Object.values(filterProducts).length, 1); 
+        paginacionProduct(Object.values(filterProducts).length, 1);
     }
 }
 //------Ordenar tabla descendente ascendente
 let orderProducts = document.querySelectorAll('.tbody__head--Product');
-orderProducts.forEach(div=>{
-    div.children[0].addEventListener('click', function() {
-        let array = Object.entries(filterProducts).sort((a,b)=>{
+orderProducts.forEach(div => {
+    div.children[0].addEventListener('click', function () {
+        let array = Object.entries(filterProducts).sort((a, b) => {
             let first = a[1][div.children[0].name].toLowerCase();
             let second = b[1][div.children[0].name].toLowerCase();
-            if( first < second){return -1}
-            if(first > second){return 1}
+            if (first < second) { return -1 }
+            if (first > second) { return 1 }
             return 0;
         })
         filterProducts = Object.fromEntries(array);
         paginacionProduct(Object.values(filterProducts).length, 1);
     });
-    div.children[1].addEventListener('click', function() {
-        let array = Object.entries(filterProducts).sort((a,b)=>{
+    div.children[1].addEventListener('click', function () {
+        let array = Object.entries(filterProducts).sort((a, b) => {
             let first = a[1][div.children[0].name].toLowerCase();
             let second = b[1][div.children[0].name].toLowerCase();
-            if( first > second){return -1}
-            if(first < second){return 1}
+            if (first > second) { return -1 }
+            if (first < second) { return 1 }
             return 0;
         })
         filterProducts = Object.fromEntries(array);
@@ -125,134 +128,143 @@ orderProducts.forEach(div=>{
     });
 })
 //------PaginacionProduct
-function paginacionProduct(allProducts, page){
+function paginacionProduct(allProducts, page) {
     let numberProducts = Number(selectNumberProduct.value);
-    let allPages = Math.ceil(allProducts/numberProducts);
+    let allPages = Math.ceil(allProducts / numberProducts);
     let ul = document.querySelector('#wrapperProduct ul');
     let li = '';
-    let beforePages = page-1;
-    let afterPages = page +1;
+    let beforePages = page - 1;
+    let afterPages = page + 1;
     let liActive;
-    if(page > 1){
-        li+= `<li class="btn" onclick="paginacionProduct(${allProducts}, ${page-1})"><img src="../imagenes/arowLeft.svg"></li>`;
+    if (page > 1) {
+        li += `<li class="btn" onclick="paginacionProduct(${allProducts}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
     }
-    for(let pageLength = beforePages; pageLength <= afterPages; pageLength++){
-        if(pageLength > allPages){
+    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
+        if (pageLength > allPages) {
             continue;
         }
-        if(pageLength == 0){
-            pageLength = pageLength +1;
+        if (pageLength == 0) {
+            pageLength = pageLength + 1;
         }
-        if(page == pageLength){
+        if (page == pageLength) {
             liActive = 'active';
-        }else{
+        } else {
             liActive = '';
         }
-        li+= `<li class="numb ${liActive}" onclick="paginacionProduct(${allProducts}, ${pageLength})"><span>${pageLength}</span></li>`;
+        li += `<li class="numb ${liActive}" onclick="paginacionProduct(${allProducts}, ${pageLength})"><span>${pageLength}</span></li>`;
     }
-    if(page < allPages){
-        li += `<li class="btn" onclick="paginacionProduct(${allProducts}, ${page+1})"><img src="../imagenes/arowRight.svg"></li>`;
+    if (page < allPages) {
+        li += `<li class="btn" onclick="paginacionProduct(${allProducts}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
     }
     ul.innerHTML = li;
-    let h2= document.querySelector('#showPageProduct h2');
-    h2.innerHTML =`Pagina ${page}/${allPages}, ${allProducts} Productos`;
+    let h2 = document.querySelector('#showPageProduct h2');
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${allProducts} Productos`;
     tableProducts(page);
 }
 //------Crear la tabla
 function tableProducts(page) {
     let tbody = document.getElementById('tbodyProduct');
-    inicio = (page-1)*Number(selectNumberProduct.value); 
+    inicio = (page - 1) * Number(selectNumberProduct.value);
     final = inicio + Number(selectNumberProduct.value);
-    i=1;
+    i = 1;
     tbody.innerHTML = '';
-    for(let product in filterProducts){
-       if( i > inicio && i <= final){
-        let tr = document.createElement('tr');
-        for(let valor in filterProducts[product]){
-            let td = document.createElement('td');
-            if(valor == 'id_prod'){
-                td.innerText = filterProducts[product][valor];
-                td.setAttribute('hidden', '');
-                tr.appendChild(td);
-                td = document.createElement('td');
-                td.innerText = i;
-                tr.appendChild(td);
-                i++;
-            }else if(valor == 'id_mrc'){
-            }else if(valor == 'id_ctgr'){
-            }else if(valor == 'imagen_prod'){
-                let img = document.createElement('img');
-                img.classList.add('tbody__img');
-                img.setAttribute('src', '../modelos/imagenes/'+filterProducts[product][valor]);
-                td.appendChild(img);
-                tr.appendChild(td);
-            }else{
-                td.innerText = filterProducts[product][valor];
-                tr.appendChild(td);
+    for (let product in filterProducts) {
+        if (i > inicio && i <= final) {
+            let tr = document.createElement('tr');
+            for (let valor in filterProducts[product]) {
+                let td = document.createElement('td');
+                if (valor == 'id_prod') {
+                    td.innerText = filterProducts[product][valor];
+                    td.setAttribute('hidden', '');
+                    tr.appendChild(td);
+                    td = document.createElement('td');
+                    td.innerText = i;
+                    tr.appendChild(td);
+                    i++;
+                } else if (valor == 'id_mrc') {
+                } else if (valor == 'id_ctgr') {
+                } else if (valor == 'imagen_prod') {
+                    let img = document.createElement('img');
+                    img.classList.add('tbody__img');
+                    img.setAttribute('src', '../modelos/imagenes/' + filterProducts[product][valor]);
+                    td.appendChild(img);
+                    tr.appendChild(td);
+                } else {
+                    td.innerText = filterProducts[product][valor];
+                    tr.appendChild(td);
+                }
             }
-        }
-        let td = document.createElement('td');
-        if(localStorage.getItem('rol_usua')=='Gerente general' || localStorage.getItem('rol_usua')=='Administrador'){
-            td.innerHTML = `
+            let td = document.createElement('td');
+            if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
+                td.innerHTML = `
             <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)' title='Editar producto'>
             <img src='../imagenes/trash.svg' onclick='deleteProduct(this.parentNode.parentNode)' title='Eliminar Producto'>`;
-        }else{
-            td.innerHTML = `
+            } else {
+                td.innerHTML = `
             <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)' title='Editar Producto'>`;
+            }
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+        } else {
+            i++;
         }
-        tr.appendChild(td);
-        tbody.appendChild(tr);
-        }else{
-            i++;    
-        }
-    }   
+    }
 }
 //<<------------------------------------------CRUD DE PRODUCTS------------------------------------->>
 //------Create un producto
 document.getElementById("formProductsR").addEventListener("submit", createProduct);
-function createProduct(){
+function createProduct() {
     event.preventDefault();
-    if(marca_prodR.value == "todasLasMarcas"){
-        alert("Debe seleccionar una marca");
-    }else if(categoria_prodR.value == "todasLasCategorias"){
-        alert("Debe seleccionar una categoria");
-    }else{
-        productsRMW.classList.remove('modal__show');
-        let form = document.getElementById("formProductsR");
-        let formData = new FormData(form);
-        formData.append('createProduct', '');
-        fetch('../controladores/productos.php', {
+    if (requestProducts == false) {
+        requestProducts = true;
+        if (marca_prodR.value == "todasLasMarcas") {
+            alert("Debe seleccionar una marca");
+        } else if (categoria_prodR.value == "todasLasCategorias") {
+            alert("Debe seleccionar una categoria");
+        } else {
+            productsRMW.classList.remove('modal__show');
+            let form = document.getElementById("formProductsR");
+            let formData = new FormData(form);
+            formData.append('createProduct', '');
+            preloader.classList.add('modal__show');
+            fetch('../controladores/productos.php', {
                 method: "POST",
                 body: formData
-        }).then(response => response.text()).then(data => {
-            if (data=="El codigo ya existe"){
-                alert(data);
-            }else{
-                alert("El producto fue creado con éxito");
-                readProducts();
-                cleanUpProductFormR();
-            }
-        }).catch(err => console.log(err));
+            }).then(response => response.text()).then(data => {
+                preloader.classList.remove('modal__show');
+                requestProducts = false;
+                if (data == "El codigo ya existe") {
+                    alert(data);
+                } else {
+                    alert("El producto fue creado con éxito");
+                    readProducts();
+                    cleanUpProductFormR();
+                }
+            }).catch(err => {
+                requestProducts = false;
+                alert(err);
+            });
+        }
     }
 }
 //------Leer un producto
-function readProduct(tr){
+function readProduct(tr) {
     cleanUpProductFormM();
     let id_prod = tr.children[0].innerText;
-    for(let product in filterProducts){
-        if(filterProducts[product]['id_prod']==id_prod){
-            for(let valor in filterProducts[product]){
-                if(valor == 'imagen_prod'){
+    for (let product in filterProducts) {
+        if (filterProducts[product]['id_prod'] == id_prod) {
+            for (let valor in filterProducts[product]) {
+                if (valor == 'imagen_prod') {
                     document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("../modelos/imagenes/${filterProducts[product][valor]}"); background-size: cover;`);
-                }else if(valor == 'id_ctgr'){
-                }else if(valor == 'id_mrc'){
-                }else if(valor == 'marca_prod'){
-                    document.getElementsByName(valor+'M')[0].value = filterProducts[product]['id_mrc'];
-                }else if(valor == 'categoria_prod'){
-                    selectCategoriaProdM(); 
-                    document.getElementsByName(valor+'M')[0].value = filterProducts[product]['id_ctgr'];
-                }else{
-                    document.getElementsByName(valor+'M')[0].value = filterProducts[product][valor];
+                } else if (valor == 'id_ctgr') {
+                } else if (valor == 'id_mrc') {
+                } else if (valor == 'marca_prod') {
+                    document.getElementsByName(valor + 'M')[0].value = filterProducts[product]['id_mrc'];
+                } else if (valor == 'categoria_prod') {
+                    selectCategoriaProdM();
+                    document.getElementsByName(valor + 'M')[0].value = filterProducts[product]['id_ctgr'];
+                } else {
+                    document.getElementsByName(valor + 'M')[0].value = filterProducts[product][valor];
                 }
             }
             break;
@@ -262,39 +274,58 @@ function readProduct(tr){
 }
 //-------Update un producto
 document.getElementById("formProductsM").addEventListener("submit", updateProduct);
-function updateProduct(){
+function updateProduct() {
     event.preventDefault();
-    if(marca_prodM.value == "todasLasMarcas"){
-        alert("Debe seleccionar una marca");
-    }else if(categoria_prodM.value == "todasLasCategorias"){
-        alert("Debe seleccionar una categoria");
-    }else{
-        productsMMW.classList.remove('modal__show');
-        let form = document.getElementById("formProductsM");
-        let formData = new FormData(form);
-        formData.append('updateProduct', '');
-        fetch('../controladores/productos.php', {
+    if (requestProducts == false) {
+        requestProducts = true;
+        if (marca_prodM.value == "todasLasMarcas") {
+            alert("Debe seleccionar una marca");
+        } else if (categoria_prodM.value == "todasLasCategorias") {
+            alert("Debe seleccionar una categoria");
+        } else {
+            productsMMW.classList.remove('modal__show');
+            let form = document.getElementById("formProductsM");
+            let formData = new FormData(form);
+            formData.append('updateProduct', '');
+            preloader.classList.add('modal__show');
+            fetch('../controladores/productos.php', {
                 method: "POST",
                 body: formData
-        }).then(response => response.text()).then(data => {
-            readProducts();
-            alert(data);
-        }).catch(err => console.log(err));
+            }).then(response => response.text()).then(data => {
+                preloader.classList.remove('modal__show');
+                requestProducts = false;
+                readProducts();
+                alert(data);
+            }).catch(err => {
+                requestProducts = false;
+                alert(err);
+            });
+        }
     }
 }
 //------Delete un producto
-function deleteProduct (tr){
+function deleteProduct(tr) {
     if (confirm(`¿Esta usted seguro? Se eliminará el producto "${tr.children[4].innerText}"`)) {
-        let id_prod = tr.children[0].innerText;
-        let formData = new FormData()
-        formData.append('deleteProduct', id_prod);
-        fetch('../controladores/productos.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            alert (data);
-            readProducts();
-        }).catch(error => console.log("Ocurrio un error. Intente nuevamente mas tarde"));
+        if (requestProducts == false) {
+            requestProducts = true;
+            let id_prod = tr.children[0].innerText;
+            let formData = new FormData()
+            formData.append('deleteProduct', id_prod);
+            preloader.classList.add('modal__show');
+            fetch('../controladores/productos.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                preloader.classList.remove('modal__show');
+                requestProducts = false;
+                alert(data);
+                readProducts();
+            }).catch(err => {
+                requestProducts = false;
+                alert(err);
+            });
+        }
+
     }
 }
 //<<--------------------------------------------ABRIR Y CERRAR VENTANAS MODALES--------------------------------->>
@@ -303,21 +334,21 @@ const productsMMW = document.getElementById('productsMMW');
 const openProductsRMW = document.getElementById('openProductsRMW');
 const closeProductsRMW = document.getElementById('closeProductsRMW');
 const closeProductsMMW = document.getElementById('closeProductsMMW');
-openProductsRMW.addEventListener('click',(e)=>{
+openProductsRMW.addEventListener('click', (e) => {
     productsRMW.classList.add('modal__show');
 });
-closeProductsRMW.addEventListener('click',(e)=>{
+closeProductsRMW.addEventListener('click', (e) => {
     productsRMW.classList.remove('modal__show');
 });
 
-closeProductsMMW.addEventListener('click',(e)=>{
+closeProductsMMW.addEventListener('click', (e) => {
     productsMMW.classList.remove('modal__show');
 });
 //<<-----------------------------------------------------MUESTRA LA IMAGEN CARGADA------------------------------>>
 document.getElementById("imagen_prodR").addEventListener("change", mostrarimagenR);
 document.getElementById("imagen_prodM").addEventListener("change", mostrarimagenM);
 //-------Muestra en un campo la imagen que se esta seleccionando para registrar
-function mostrarimagenR () {
+function mostrarimagenR() {
     let form = document.getElementById('formProductsR');
     //Seleccionar los elementos del form registrar antes de enviar el formulario
     let formData = new FormData(form);
@@ -327,7 +358,7 @@ function mostrarimagenR () {
     document.querySelector('.drop__areaR').setAttribute('style', `background-image: url("${urlDeImagen}"); background-size: cover; background-position: center; background-repeat: no-repeat;`);
 }
 //------Muestra en un campo la imagen que se esta seleccionado para modificar
-function mostrarimagenM () {
+function mostrarimagenM() {
     let form = document.getElementById('formProductsM');
     //Seleccionar los elementos del form registrar antes de enviar el formulario
     let formData = new FormData(form);
@@ -339,30 +370,30 @@ function mostrarimagenM () {
 //<<------------------------------------------------------CAMPOS DE LOS FORMULARIOS------------------------------->>
 const inputsFormProduct = document.querySelectorAll('.modalP__form .modalP__group input');
 //------Vuelve oblogatorios los campos del formulario
-function requiredInputProd(){
-    inputsFormProduct.forEach(input => input.setAttribute("required",""));
+function requiredInputProd() {
+    inputsFormProduct.forEach(input => input.setAttribute("required", ""));
     //formulario registrar
-    document.getElementsByName("imagen_prodR")[0].setAttribute('accept',"image/jpeg, image/jpg");
-    document.getElementsByName("descripcion_prodR")[0].setAttribute("required","");
+    document.getElementsByName("imagen_prodR")[0].setAttribute('accept', "image/jpeg, image/jpg");
+    document.getElementsByName("descripcion_prodR")[0].setAttribute("required", "");
     //formulario modificar
-    document.getElementsByName("id_prodM")[0].setAttribute("hidden","");
-    document.getElementsByName("imagen_prodM")[0].setAttribute("accept","image/jpeg, image/jpg");
-    document.getElementsByName("descripcion_prodM")[0].setAttribute("required","");
+    document.getElementsByName("id_prodM")[0].setAttribute("hidden", "");
+    document.getElementsByName("imagen_prodM")[0].setAttribute("accept", "image/jpeg, image/jpg");
+    document.getElementsByName("descripcion_prodM")[0].setAttribute("required", "");
 }
 //<<-------------------------------------------------------ESPACIOS OBLIGATORIOS de formProductsR y formProductsM ------------------------------------------>>
 inputsFormProduct.forEach(input => {
-    input.setAttribute('required','');
+    input.setAttribute('required', '');
 })
 //<<---------------------------------------------------LIMPIAR CAMPOS DEL FORMULARIO----------------------------------->>
 //------Limpia los campos del fomulario registrar
-function cleanUpProductFormR(){
+function cleanUpProductFormR() {
     inputsFormProduct.forEach(input => input.value = "");
     document.getElementsByName("descripcion_prodR")[0].value = "";
     document.getElementsByName("imagen_prodR")[0].value = "";
     document.querySelector('.drop__areaR').removeAttribute('style');
 }
 //------Limpia los campos del fomulario Modificar
-function cleanUpProductFormM(){
+function cleanUpProductFormM() {
     inputsFormProduct.forEach(input => input.value = "");
     document.getElementsByName("descripcion_prodM")[0].value = "";
     document.getElementsByName("imagen_prodM")[0].value = "";
@@ -374,13 +405,13 @@ const dragTextR = dropAreaR.querySelector('h2');
 const buttonR = dropAreaR.querySelector('button');
 const inputR = dropAreaR.querySelector('#imagen_prodR');
 let filesR;
-buttonR.addEventListener('click', ()=>{
+buttonR.addEventListener('click', () => {
     //llamamos al evento click del inputR
     event.preventDefault();
     inputR.click();
 })
 /*Cuando tenemos elementos q se estan arraztrando se activa*/
-dropAreaR.addEventListener('dragover', (e)=>{
+dropAreaR.addEventListener('dragover', (e) => {
     //Se necesita poner el preventDefault
     e.preventDefault();
     dropAreaR.classList.add('active');
@@ -388,14 +419,14 @@ dropAreaR.addEventListener('dragover', (e)=>{
 
 });
 /*Cunado estemos arrastrando pero no estamos dentro de la zona*/
-dropAreaR.addEventListener('dragleave', (e)=>{
+dropAreaR.addEventListener('dragleave', (e) => {
     //Se necesita poner el preventDefault
     e.preventDefault();
     dropAreaR.classList.remove('active');
     dragTextR.textContent = 'Arrastra y suelta la imágen';
 });
 /*Cuando soltamos el archivo q estamos arrastrando dentro de la zona*/
-dropAreaR.addEventListener('drop', (e)=>{
+dropAreaR.addEventListener('drop', (e) => {
     //Se necesita poner el preventDefault para que al momento de soltar no abra la imagen en el navegador
     e.preventDefault();
     filesR = e.dataTransfer.files;
@@ -403,19 +434,19 @@ dropAreaR.addEventListener('drop', (e)=>{
     dropAreaR.classList.remove('active');
     dragTextR.textContent = 'Arrastra y suelta la imagen';
 });
-function showFiles(){
-        for(let file of filesR){
-            processFile(file);
-        }
+function showFiles() {
+    for (let file of filesR) {
+        processFile(file);
+    }
 }
-function processFile(file){
+function processFile(file) {
     let docType = file.type;
     let validExtensions = ['image/jpeg', 'image/jpg'];
-    if(validExtensions.includes(docType)){
+    if (validExtensions.includes(docType)) {
         //archivo valido
         inputR.files = filesR;
         mostrarimagenR();
-    }else{
+    } else {
         //archivo no valido
         alert('No es una archivo valido');
     }
@@ -425,13 +456,13 @@ const dragTextM = dropAreaM.querySelector('h2');
 const buttonM = dropAreaM.querySelector('button');
 const inputM = dropAreaM.querySelector('#imagen_prodM');
 let filesM;
-buttonM.addEventListener('click', ()=>{
+buttonM.addEventListener('click', () => {
     //llamamos al evento click del inputR
     event.preventDefault();
     inputM.click();
 })
 /*Cuando tenemos elementos q se estan arraztrando se activa*/
-dropAreaM.addEventListener('dragover', (e)=>{
+dropAreaM.addEventListener('dragover', (e) => {
     //Se necesita poner el preventDefault
     e.preventDefault();
     dropAreaM.classList.add('active');
@@ -439,14 +470,14 @@ dropAreaM.addEventListener('dragover', (e)=>{
 
 });
 /*Cunado estemos arrastrando pero no estamos dentro de la zona*/
-dropAreaM.addEventListener('dragleave', (e)=>{
+dropAreaM.addEventListener('dragleave', (e) => {
     //Se necesita poner el preventDefault
     e.preventDefault();
     dropAreaM.classList.remove('active');
     dragTextM.textContent = 'Arrastra y suelta la imágen';
 });
 /*Cuando soltamos el archivo q estamos arrastrando dentro de la zona*/
-dropAreaM.addEventListener('drop', (e)=>{
+dropAreaM.addEventListener('drop', (e) => {
     //Se necesita poner el preventDefault para que al momento de soltar no abra la imagen en el navegador
     e.preventDefault();
     filesM = e.dataTransfer.files;
@@ -454,19 +485,19 @@ dropAreaM.addEventListener('drop', (e)=>{
     dropAreaM.classList.remove('active');
     dragTextM.textContent = 'Arrastra y suelta la imagen';
 });
-function showFilesM(){
-        for(let file of filesM){
-            processFileM(file);
-        }
+function showFilesM() {
+    for (let file of filesM) {
+        processFileM(file);
+    }
 }
-function processFileM(file){
+function processFileM(file) {
     let docType = file.type;
     let validExtensions = ['image/jpeg', 'image/jpg'];
-    if(validExtensions.includes(docType)){
+    if (validExtensions.includes(docType)) {
         //archivo valido
         inputM.files = filesM;
         mostrarimagenM();
-    }else{
+    } else {
         //archivo no valido
         alert('No es una archivo valido');
     }
@@ -479,10 +510,10 @@ function readAllMarcas() {
     let formData = new FormData();
     formData.append('readMarcas', '');
     fetch('../controladores/productos.php', {
-            method: "POST",
-            body: formData
+        method: "POST",
+        body: formData
     }).then(response => response.json()).then(data => {
-        marcas = data;  
+        marcas = data;
         selectMarcaProd();
         selectMarcaProdR();
         selectMarcaProdM();
@@ -495,8 +526,8 @@ function readAllCategorias() {
     let formData = new FormData();
     formData.append('readCategorias', '');
     fetch('../controladores/productos.php', {
-            method: "POST",
-            body: formData
+        method: "POST",
+        body: formData
     }).then(response => response.json()).then(data => {
         categorias = data;
         selectCategoriaProd();
@@ -508,31 +539,31 @@ function readAllCategorias() {
 //-------Create Marca
 let formMarcaR = document.getElementById('formMarcaR');
 formMarcaR.addEventListener('submit', createMarcaProd);
-function createMarcaProd(){
+function createMarcaProd() {
     marcaRMW.classList.remove('modal__show');
     event.preventDefault();
     let formData = new FormData(formMarcaR);
     formData.append('createMarca', '');
     fetch('../controladores/productos.php', {
-            method: "POST",
-            body: formData
+        method: "POST",
+        body: formData
     }).then(response => response.text()).then(data => {
-            alert (data);
-            readAllMarcas();   
+        alert(data);
+        readAllMarcas();
     }).catch(err => console.log(err));
 }
 //-------Eliminar Marca
 function deleteMarcaProd() {
     let id_mrc = selectMarcaProduct.value;
-    if (confirm('¿Esta usted seguro?')){
+    if (confirm('¿Esta usted seguro?')) {
         let formData = new FormData();
         formData.append('deleteMarca', id_mrc);
         fetch('../controladores/productos.php', {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-                alert(data);
-                readAllMarcas(); 
+            alert(data);
+            readAllMarcas();
         }).catch(err => console.log(err));
     }
 }
@@ -542,20 +573,20 @@ function selectMarcaProd() {
     let option = document.createElement('option');
     option.value = 'todasLasMarcas';
     option.innerText = 'Todas las marcas';
-    selectMarcaProduct.appendChild(option); 
-    for ( let clave in marcas){
+    selectMarcaProduct.appendChild(option);
+    for (let clave in marcas) {
         let option = document.createElement('option');
         option.value = marcas[clave]['id_mrc'];
         option.innerText = marcas[clave]['nombre_mrc'];
         selectMarcaProduct.appendChild(option);
-    }        
+    }
 }
 //-------registrar categoria
 let formCategoriaR = document.getElementById('formCategoriaR');
 formCategoriaR.addEventListener('submit', createCategoriaProd);
-function createCategoriaProd(){
+function createCategoriaProd() {
     event.preventDefault();
-    if (selectMarcaProduct.value != 'todasLasMarcas'){
+    if (selectMarcaProduct.value != 'todasLasMarcas') {
         categoriaRMW.classList.remove('modal__show');
         let formData = new FormData(formCategoriaR);
         formData.append('id_mrc', selectMarcaProduct.value);
@@ -567,14 +598,14 @@ function createCategoriaProd(){
             alert(data);
             readAllCategorias();
         }).catch(err => console.log(err));
-    }else{
-        alert ('Seleccione una marca');
+    } else {
+        alert('Seleccione una marca');
     }
 }
 //-------Eliminar Categoria
 function deleteCategoriaProd() {
     let id_ctgr = selectCategoriaProduct.value;
-    if (confirm('¿Esta usted seguro?')){
+    if (confirm('¿Esta usted seguro?')) {
         let formData = new FormData();
         formData.append('id_mrc', selectMarcaProduct.value);
         formData.append('deleteCategoria', id_ctgr);
@@ -582,23 +613,23 @@ function deleteCategoriaProd() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-                alert(data);
-                readAllCategorias(); 
+            alert(data);
+            readAllCategorias();
         }).catch(err => console.log(err));
     }
     selectCategoriaProduct.selectedIndex = 0;
 }
 //------Select categorias
 function selectCategoriaProd() {
-    selectCategoriaProduct.innerHTML = ''; 
+    selectCategoriaProduct.innerHTML = '';
     let option = document.createElement('option');
     option.value = 'todasLasCategorias';
     option.innerText = 'Todas las categorias';
     selectCategoriaProduct.appendChild(option);
-    if(selectMarcaProduct.value != 'todasLasMarcas'){
+    if (selectMarcaProduct.value != 'todasLasMarcas') {
         let id_mrc = selectMarcaProduct.value;
-        for ( let clave in categorias){
-            if (categorias[clave]['id_mrc'] == id_mrc){
+        for (let clave in categorias) {
+            if (categorias[clave]['id_mrc'] == id_mrc) {
                 let option = document.createElement('option');
                 option.value = categorias[clave]['id_ctgr'];
                 option.innerText = categorias[clave]['nombre_ctgr'];
@@ -606,37 +637,37 @@ function selectCategoriaProd() {
             }
         }
     }
-    searchProducts();    
+    searchProducts();
 }
 //------MARCA Y CATEGORIA PARA FORMULARIO DE REGSITRO Y MODIFICACION DE PRODUCTOS
 const marca_prodR = document.getElementById('marca_prodR');
 marca_prodR.addEventListener('change', selectCategoriaProdR);
 const categoria_prodR = document.getElementById('categoria_prodR');
 //-------Select de marcas registrar
-function selectMarcaProdR(){
+function selectMarcaProdR() {
     marca_prodR.innerHTML = '';
     let option = document.createElement('option');
     option.value = 'todasLasMarcas';
     option.innerText = 'Todas las marcas';
-    marca_prodR.appendChild(option); 
-    for ( let clave in marcas){
+    marca_prodR.appendChild(option);
+    for (let clave in marcas) {
         let option = document.createElement('option');
         option.value = marcas[clave]['id_mrc'];
         option.innerText = marcas[clave]['nombre_mrc'];
         marca_prodR.appendChild(option);
     }
-    selectCategoriaProdR();        
+    selectCategoriaProdR();
 }
-function selectCategoriaProdR(){
-    categoria_prodR.innerHTML = ''; 
+function selectCategoriaProdR() {
+    categoria_prodR.innerHTML = '';
     let option = document.createElement('option');
     option.value = 'todasLasCategorias';
     option.innerText = 'Todas las categorias';
     categoria_prodR.appendChild(option);
-    if(marca_prodR.value != 'todasLasMarcas'){
+    if (marca_prodR.value != 'todasLasMarcas') {
         let id_mrc = marca_prodR.value;
-        for ( let clave in categorias){
-            if (categorias[clave]['id_mrc'] == id_mrc){
+        for (let clave in categorias) {
+            if (categorias[clave]['id_mrc'] == id_mrc) {
                 let option = document.createElement('option');
                 option.value = categorias[clave]['id_ctgr'];
                 option.innerText = categorias[clave]['nombre_ctgr'];
@@ -649,30 +680,30 @@ const marca_prodM = document.getElementById('marca_prodM');
 marca_prodM.addEventListener('change', selectCategoriaProdM);
 const categoria_prodM = document.getElementById('categoria_prodM');
 //-------Select de marcas registrar
-function selectMarcaProdM(){
+function selectMarcaProdM() {
     marca_prodM.innerHTML = '';
     let option = document.createElement('option');
     option.value = 'todasLasMarcas';
     option.innerText = 'Todas las marcas';
-    marca_prodM.appendChild(option); 
-    for ( let clave in marcas){
+    marca_prodM.appendChild(option);
+    for (let clave in marcas) {
         let option = document.createElement('option');
         option.value = marcas[clave]['id_mrc'];
         option.innerText = marcas[clave]['nombre_mrc'];
         marca_prodM.appendChild(option);
     }
-    selectCategoriaProdM();        
+    selectCategoriaProdM();
 }
-function selectCategoriaProdM(){
-    categoria_prodM.innerHTML = ''; 
+function selectCategoriaProdM() {
+    categoria_prodM.innerHTML = '';
     let option = document.createElement('option');
     option.value = 'todasLasCategorias';
     option.innerText = 'Todas las categorias';
     categoria_prodM.appendChild(option);
-    if(marca_prodM.value != 'todasLasMarcas'){
+    if (marca_prodM.value != 'todasLasMarcas') {
         let id_mrc = marca_prodM.value;
-        for ( let clave in categorias){
-            if (categorias[clave]['id_mrc'] == id_mrc){
+        for (let clave in categorias) {
+            if (categorias[clave]['id_mrc'] == id_mrc) {
                 let option = document.createElement('option');
                 option.value = categorias[clave]['id_ctgr'];
                 option.innerText = categorias[clave]['nombre_ctgr'];
@@ -685,18 +716,20 @@ function selectCategoriaProdM(){
 const marcaRMW = document.getElementById('marcaRMW');
 const openMarcaRMW = document.getElementById('openMarcaRMW');
 const closeMarcaRMW = document.getElementById('closeMarcaRMW');
-openMarcaRMW.addEventListener('click',(e)=>{
+openMarcaRMW.addEventListener('click', (e) => {
     marcaRMW.classList.add('modal__show');
 });
-closeMarcaRMW.addEventListener('click',(e)=>{
+closeMarcaRMW.addEventListener('click', (e) => {
     marcaRMW.classList.remove('modal__show');
 });
 const categoriaRMW = document.getElementById('categoriaRMW');
 const openCategoriaRMW = document.getElementById('openCategoriaRMW');
 const closeCategoriaRMW = document.getElementById('closeCategoriaRMW');
-openCategoriaRMW.addEventListener('click',(e)=>{
+openCategoriaRMW.addEventListener('click', (e) => {
     categoriaRMW.classList.add('modal__show');
 });
-closeCategoriaRMW.addEventListener('click',(e)=>{
+closeCategoriaRMW.addEventListener('click', (e) => {
     categoriaRMW.classList.remove('modal__show');
 });
+//-----------------------------------------PRE LOADER---------------------------------------------
+const preloader = document.getElementById('preloader');

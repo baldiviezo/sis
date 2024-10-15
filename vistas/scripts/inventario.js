@@ -14,7 +14,7 @@ if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getIte
     //document.getElementsByName('cantidad_invR')[0].setAttribute('readonly', 'readonly');
     //document.querySelector('#inventoryRMW .form__group--select').children[4].removeAttribute('hidden');
 
-}else if (localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
+} else if (localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
     //Marca y Categoria
     document.querySelector('.select__search').children[0].children[2].removeAttribute('hidden');
     document.querySelector('.select__search').children[1].children[2].removeAttribute('hidden');
@@ -23,6 +23,9 @@ if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getIte
     //inventoryMMW
     document.getElementsByName('cantidad_invM')[0].setAttribute('readonly', 'readonly');
 }
+//--------------------------------------------BLOCK REQUEST WITH A FLAG--------------------------------------------
+let requestInventory = false;
+//---------------------------------------------TABLA INVENTORY--------------------------------------------
 //-------Marca y categoria
 const selectMarcaInventory = document.getElementById('selectMarcaInventory');
 selectMarcaInventory.addEventListener('change', selectCategoriaInv);
@@ -207,11 +210,11 @@ function tableInventories(page) {
                 }
             }
             let td = document.createElement('td');
-            if(localStorage.getItem('rol_usua')=='Gerente general' || localStorage.getItem('rol_usua')=='Administrador' || localStorage.getItem('rol_usua')=='Gerente De Inventario'){
+            if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
                 td.innerHTML = `
                 <img src='../imagenes/edit.svg' onclick='readInventory(this.parentNode.parentNode)' title='Editar en Inventario'>`;
                 tr.appendChild(td);
-            }else{
+            } else {
                 //td.innerHTML = ``;
             }
             tbody.appendChild(tr);
@@ -225,20 +228,29 @@ function tableInventories(page) {
 document.getElementById("formInventarioR").addEventListener("submit", createInventory);
 function createInventory() {
     event.preventDefault();
-    inventoryRMW.classList.remove('modal__show');
-    let form = document.getElementById("formInventarioR");
-    let formData = new FormData(form);
-    formData.append('createInventory', '');
-    fetch('../controladores/inventario.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.text()).then(data => {
-        alert(data);
-        //Limpiar al registrar
-        let inputsR = document.querySelectorAll('#formInventarioR .form__input');
-        inputsR.forEach(input => { input.value = '' });
-        readInventories();        
-    }).catch(err => console.log(err));
+    if (requestInventory == false) {
+        requestInventory = true;
+        inventoryRMW.classList.remove('modal__show');
+        let form = document.getElementById("formInventarioR");
+        let formData = new FormData(form);
+        formData.append('createInventory', '');
+        preloader.classList.add('modal__show');
+        fetch('../controladores/inventario.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            preloader.classList.remove('modal__show');
+            requestInventory = false;
+            alert(data);
+            //Limpiar al registrar
+            let inputsR = document.querySelectorAll('#formInventarioR .form__input');
+            inputsR.forEach(input => { input.value = '' });
+            readInventories();
+        }).catch(err => {
+            requestInventory = false;
+            alert(err);
+        });
+    }
 }
 //------LEER UN INVENTARIO
 function readInventory(tr) {
@@ -263,31 +275,49 @@ function readInventory(tr) {
 document.getElementById("formInventarioM").addEventListener("submit", updateInventory);
 function updateInventory() {
     event.preventDefault();
-    let form = document.getElementById("formInventarioM");
-    let formData = new FormData(form);
-    formData.append('updateInventory', '');
-    fetch('../controladores/inventario.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.text()).then(data => {
-        alert(data);
-        inventoryMMW.classList.remove('modal__show');
-        readInventories();    
-    }).catch(err => console.log(err));
-}
-//------DELETE UN INVENTARIO
-function deleteInventory(tr) {
-    if (confirm('¿Esta usted seguro?')) {
-        let id = tr.children[0].innerText;
-        let formData = new FormData();
-        formData.append('deleteInventory', id);
+    if (requestInventory == false) {
+        requestInventory = true;
+        let form = document.getElementById("formInventarioM");
+        let formData = new FormData(form);
+        formData.append('updateInventory', '');
+        preloader.classList.add('modal__show');
         fetch('../controladores/inventario.php', {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
+            preloader.classList.remove('modal__show');
+            requestInventory = false;
             alert(data);
+            inventoryMMW.classList.remove('modal__show');
             readInventories();
-        }).catch(error => console.log("Ocurrio un error. Intente nuevamente mas tarde"));
+        }).catch(err => {
+            requestInventory = false;
+            alert(err);
+        });
+    }
+}
+//------DELETE UN INVENTARIO
+function deleteInventory(tr) {
+    if (confirm('¿Esta usted seguro?')) {
+        if (requestInventory == false) {
+            requestInventory = true;
+            let id = tr.children[0].innerText;
+            let formData = new FormData();
+            formData.append('deleteInventory', id);
+            preloader.classList.add('modal__show');
+            fetch('../controladores/inventario.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                preloader.classList.remove('modal__show');
+                requestInventory = false;
+                alert(data);
+                readInventories();
+            }).catch(err => {
+                requestInventory = false;
+                alert(err);
+            });
+        }
     }
 }
 //-----------------------------------Ventana modal para inventario---------------------------------//
@@ -329,12 +359,12 @@ function readProductsMW() {
         method: "POST",
         body: formData
     }).then(response => response.json()).then(data => {
-        products = JSON.parse(JSON.stringify(data)); 
+        products = JSON.parse(JSON.stringify(data));
         filterProducts = products;
         sortProducts = products;
         let array = Object.entries(sortProducts).sort((a, b) => {
             return a[1].codigo_prod.toLowerCase().localeCompare(b[1].codigo_prod.toLowerCase());
-          });
+        });
         sortProducts = Object.fromEntries(array);
         fillSelectProd(selectProductR, indexProduct);
         fillSelectProd(selectProductM, indexProduct);
@@ -432,7 +462,7 @@ function updateProduct() {
 }
 //------Delete un producto
 function deleteProduct(div) {
-    if (confirm(`¿Esta usted seguro? Se eliminará el producto "${div.children[0].options[div.children[0].selectedIndex].text}"`)){
+    if (confirm(`¿Esta usted seguro? Se eliminará el producto "${div.children[0].options[div.children[0].selectedIndex].text}"`)) {
         let id_prod = div.children[0].value;
         const formData = new FormData()
         formData.append('deleteProduct', id_prod);
@@ -500,7 +530,7 @@ function requiredInputProd() {
 }
 //<<-------------------------------------------------------ESPACIOS OBLIGATORIOS de formProductsR y formProductsM ------------------------------------------>>
 inputsFormProduct.forEach(input => {
-    input.setAttribute('required','');
+    input.setAttribute('required', '');
 })
 //------Limpia los campos del fomulario registrar
 function cleanUpProductFormR() {
@@ -510,7 +540,7 @@ function cleanUpProductFormR() {
     document.querySelector('.drop__areaR').removeAttribute('style');
 }
 //------Limpia los campos del fomulario Modificar
-function cleanUpProductFormM(){
+function cleanUpProductFormM() {
     inputsFormProduct.forEach(input => input.value = "");
     document.getElementsByName("descripcion_prodM")[0].value = "";
     document.getElementsByName("imagen_prodM")[0].value = "";
@@ -851,8 +881,8 @@ function createMarcaInv() {
         method: "POST",
         body: formData
     }).then(response => response.text()).then(data => {
-            alert(data);
-            readAllMarcas();
+        alert(data);
+        readAllMarcas();
     }).catch(err => console.log(err));
 }
 //-------Eliminar Marca
@@ -899,8 +929,8 @@ function createCategoriaInv() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-                alert(data);
-                readAllCategorias();
+            alert(data);
+            readAllCategorias();
         }).catch(err => console.log(err));
     } else {
         alert('Seleccione una marca');
@@ -1070,3 +1100,5 @@ openCategoriaRMW.addEventListener('click', (e) => {
 closeCategoriaRMW.addEventListener('click', (e) => {
     categoriaRMW.classList.remove('modal__show');
 });
+//-----------------------------------------PRE LOADER---------------------------------------------
+const preloader = document.getElementById('preloader');

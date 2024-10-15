@@ -101,7 +101,7 @@ class consultas {
 		$numeroClientes = $resultado->num_rows;
 		$clientes =  array();
 		while ($fila = $resultado->fetch_assoc()){
-			$datos = array ( 'id_clte'=>$fila['id_clte'], 'nombre_clte'=>$fila['nombre_clte'], 'apellido_clte'=>$fila['apellido_clte'], 'nombre_emp'=>$fila['nombre_emp'], 'sigla_emp'=>$fila['sigla_emp'], 'nit_emp'=>$fila['nit_emp'], 'email_clte'=>$fila['email_clte'], 'fk_id_emp_clte'=>$fila['fk_id_emp_clte'], 'precio_emp'=>$fila['precio_emp']);
+			$datos = array ( 'id_clte'=>$fila['id_clte'], 'nombre_clte'=>$fila['nombre_clte'], 'apellido_clte'=>$fila['apellido_clte'], 'nombre_emp'=>$fila['nombre_emp'], 'sigla_emp'=>$fila['sigla_emp'], 'nit_emp'=>$fila['nit_emp'], 'email_clte'=>$fila['email_clte'], 'direccion_clte'=>$fila['direccion_clte'], 'celular_clte'=>$fila['celular_clte'], 'fk_id_emp_clte'=>$fila['fk_id_emp_clte'], 'precio_emp'=>$fila['precio_emp']);
 			$clientes['clte_'.$fila['id_clte']] = $datos;
 			
 		}
@@ -210,13 +210,14 @@ class consultas {
 	//------Eliminar una empresa
 	public function deleteEnterprise($id_emp){
 		include 'conexion.php';
+		$id_clte = $resultado->fetch_assoc()['id_clte'];
 		$consulta = "SELECT * FROM cliente WHERE fk_id_emp_clte = '$id_emp'";
 		$resultado = $conexion->query($consulta);
 		$numeroClientes = $resultado->num_rows;
 		if ($numeroClientes > 1){
 			echo "No se puede eliminar, la empresa pertenece a un cliente";
 		}else{
-			$id_clte = $resultado->fetch_assoc()['id_clte'];
+			//------Comprobar si la empresa esta siendo utilizada por una proforma
 			$consulta = "SELECT * FROM proforma WHERE fk_id_clte_prof = '$id_clte'";
 			$resultado = $conexion->query($consulta);
 			$numeroProformas = $resultado->num_rows;

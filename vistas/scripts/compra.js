@@ -675,10 +675,12 @@ function createBuy() {
                 formData.append('createBuy', JSON.stringify(array));
                 formData.append('id_usua', localStorage.getItem('id_usua'));
                 formData.set('fecha_cmpR', `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`);
+                preloader.classList.add('modal__show');
                 fetch('../controladores/compras.php', {
                     method: "POST",
                     body: formData
                 }).then(response => response.text()).then(data => {
+                    preloader.classList.remove('modal__show');
                     rqstCreateBuy = false;
                     alert(data);
                     readBuys();
@@ -912,10 +914,12 @@ function addBuysToInventory() {
             formData.append('factura_cmp', document.getElementsByName('factura_cmp')[0].value);
             formData.append('fecha_entrega_cmp', `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`);
             formData.append('id_usua', localStorage.getItem('id_usua'));
+            preloader.classList.add('modal__show');
             fetch('../controladores/compras.php', {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
+                preloader.classList.remove('modal__show');
                 rqstAddBuy = false;
                 alert(data);
                 readBuys();
@@ -1956,3 +1960,5 @@ openProdOC.addEventListener('click', () => {
 closeTableProdOC.addEventListener('click', () => {
     tableProdOC.classList.remove('modal__show');
 })
+//-----------------------------------------PRE LOADER---------------------------------------------
+const preloader = document.getElementById('preloader');

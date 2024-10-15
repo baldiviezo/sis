@@ -221,14 +221,17 @@ function createArmed() {
                     formData.set("fecha_rmdR", `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`);
                     formData.append('id_usua', localStorage.getItem('id_usua'));
                     formData.append('createArmed', JSON.stringify(array));
+                    preloader.classList.add('modal__show');
                     fetch('../controladores/armado.php', {
                         method: 'POST',
                         body: formData
                     }).then(response => response.text()).then(data => {
+                        preloader.classList.remove('modal__show');
                         rqstCreateArmed = false;
                         alert(data);
                         readArmeds();
                         cleanUpArmedFormR();
+                        readInventories();
                     }).catch(err => {
                         rqstCreateArmed = false;
                         alert(err);
@@ -1036,4 +1039,6 @@ function selectCategoriaProdR() {
         }
     }
 }
+//-----------------------------------------PRE LOADER---------------------------------------------
+const preloader = document.getElementById('preloader');
 

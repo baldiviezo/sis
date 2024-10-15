@@ -33,7 +33,7 @@ class consultas {
 	function readUsers(){
 		include 'conexion.php';
 		$consulta;
-		$consulta = "SELECT * FROM usuario ORDER BY rol_usua ASC";
+		$consulta = "SELECT * FROM usuario ORDER BY nombre_usua ASC";
 		$resultado = $conexion->query($consulta);
 		$numeroFilas = $resultado->num_rows;
 		$usuarios =  array();
@@ -120,11 +120,19 @@ class consultas {
 					if ($numeroCompras > 0){
 						echo "No se puede eliminar, El usuario está siendo utilizado por una compra";
 					}else{
-						$consulta = "DELETE FROM usuario WHERE id_usua='$id'";
-						$resultado = $conexion->query($consulta);
-						if ($resultado){
-							echo ("Usuario eliminado con éxito");
-						}
+						//------Verificar si el usuario tiene una Armado
+						$consulta5 = "SELECT * FROM armado WHERE fk_id_usua_rmd = '$id'";
+						$resultado5 = $conexion->query($consulta5);
+						$numeroArmados = $resultado5->num_rows;
+						if ($numeroArmados > 0){
+							echo "No se puede eliminar, El usuario está sendo utilizado por un armado";
+						}else{
+							$consulta = "DELETE FROM usuario WHERE id_usua='$id'";
+							$resultado = $conexion->query($consulta);
+							if ($resultado){
+								echo ("Usuario eliminado con éxito");
+							}
+						}						
 					}
 				}
 			}
