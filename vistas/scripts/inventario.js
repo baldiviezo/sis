@@ -212,7 +212,8 @@ function tableInventories(page) {
             let td = document.createElement('td');
             if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
                 td.innerHTML = `
-                <img src='../imagenes/edit.svg' onclick='readInventory(this.parentNode.parentNode)' title='Editar en Inventario'>`;
+                <img src='../imagenes/edit.svg' onclick='readInventory(this.parentNode.parentNode)' title='Editar en Inventario'>
+                <img src='../imagenes/trash.svg' onclick='deleteInventory(this.parentNode.parentNode)' title='Eliminar en Inventario'>`;
                 tr.appendChild(td);
             } else {
                 //td.innerHTML = ``;
@@ -299,24 +300,29 @@ function updateInventory() {
 //------DELETE UN INVENTARIO
 function deleteInventory(tr) {
     if (confirm('¿Esta usted seguro?')) {
-        if (requestInventory == false) {
-            requestInventory = true;
-            let id = tr.children[0].innerText;
-            let formData = new FormData();
-            formData.append('deleteInventory', id);
-            preloader.classList.add('modal__show');
-            fetch('../controladores/inventario.php', {
-                method: "POST",
-                body: formData
-            }).then(response => response.text()).then(data => {
-                preloader.classList.remove('modal__show');
-                requestInventory = false;
-                alert(data);
-                readInventories();
-            }).catch(err => {
-                requestInventory = false;
-                alert(err);
-            });
+        let cantidad_inv = parseInt(tr.children[9].innerText);
+        if (cantidad_inv > 0) {
+            alert('No se puede eliminar el producto que existen en almacen');
+        } else {
+            if (requestInventory == false) {
+                requestInventory = true;
+                let id = tr.children[0].innerText;
+                let formData = new FormData();
+                formData.append('deleteInventory', id);
+                preloader.classList.add('modal__show');
+                fetch('../controladores/inventario.php', {
+                    method: "POST",
+                    body: formData
+                }).then(response => response.text()).then(data => {
+                    preloader.classList.remove('modal__show');
+                    requestInventory = false;
+                    alert(data);
+                    readInventories();
+                }).catch(err => {
+                    requestInventory = false;
+                    alert(err);
+                });
+            }
         }
     }
 }

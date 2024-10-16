@@ -210,7 +210,7 @@ class consultas {
 	//------Eliminar una empresa
 	public function deleteEnterprise($id_emp){
 		include 'conexion.php';
-		$id_clte = $resultado->fetch_assoc()['id_clte'];
+		
 		$consulta = "SELECT * FROM cliente WHERE fk_id_emp_clte = '$id_emp'";
 		$resultado = $conexion->query($consulta);
 		$numeroClientes = $resultado->num_rows;
@@ -218,6 +218,7 @@ class consultas {
 			echo "No se puede eliminar, la empresa pertenece a un cliente";
 		}else{
 			//------Comprobar si la empresa esta siendo utilizada por una proforma
+			$id_clte = $resultado->fetch_assoc()['id_clte'];
 			$consulta = "SELECT * FROM proforma WHERE fk_id_clte_prof = '$id_clte'";
 			$resultado = $conexion->query($consulta);
 			$numeroProformas = $resultado->num_rows;

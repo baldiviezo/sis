@@ -4,7 +4,7 @@ require '../modelos/consultasDeNotasEntrega.php';
 //-------Create a nota de entrega
 if (isset($_POST['createNotaEntrega'])&&isset($_POST['arrayObjetos'])) {
 	$createNotaEntrega = new consultas;
-	$createNotaEntrega->proformaStatus();
+	$createNotaEntrega->asignarValores();
 	$createNotaEntrega->createNotaEntrega();
 }
 //-------read notas de entrega

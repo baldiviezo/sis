@@ -651,9 +651,8 @@ function tableBuys(page) {
 //<<-------------------------------------------CRUD DE COMPRAS-------------------------------------------->>
 //-------Create buy
 let formBuyR = document.getElementById('formBuyR');
-formBuyR.addEventListener('submit', createBuy);
 function createBuy() {
-    event.preventDefault();
+    buyRMW.classList.remove('modal__show');
     totalPriceCPPDR();
     let products = document.querySelectorAll('#cmp_prodRMW div.modal__body div.cart__item');
     if (products.length > 0) {
@@ -667,7 +666,6 @@ function createBuy() {
             };
             array.push(object);
         });
-        buyRMW.classList.remove('modal__show');
         if (confirm('¿Esta usted seguro?')) {
             if (rqstCreateBuy == false) {
                 rqstCreateBuy = true;
@@ -743,9 +741,7 @@ function readCmp_prod(id_cmp) {
 }
 //------Update buy
 const formBuyM = document.getElementById('formBuyM');
-formBuyM.addEventListener('submit', updateBuy);
 function updateBuy() {
-    event.preventDefault();
     totalPriceCPPDM();
     let products = document.querySelectorAll('#cmp_prodMMW div.modal__body div.cart__item');
     if (products.length > 0) {
@@ -766,10 +762,12 @@ function updateBuy() {
             formData.append('updateBuy', JSON.stringify(array));
             formData.append('id_usua', localStorage.getItem('id_usua'));
             formData.set('fecha_cmpM', `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`);
+            preloader.classList.add('modal__show');
             fetch('../controladores/compras.php', {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
+                preloader.classList.remove('modal__show');
                 rqstCreateBuy = false;
                 alert(data);
                 readBuys();

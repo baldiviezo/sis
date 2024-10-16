@@ -29,7 +29,6 @@ class consultas {
 		$productos =  array();
 		while ($fila = $resultado->fetch_assoc()){
 			$description = $fila['descripcion_prod'];
-			//$description = str_replace("\r" , '<br>', $description);
 			$datos = array ( 'id_prod'=>$fila['id_prod'], 'id_mrc'=>$fila['id_mrc'], 'marca_prod'=>$fila['nombre_mrc'], 'id_ctgr'=>$fila['id_ctgr'], 'categoria_prod'=>$fila['nombre_ctgr'], 'codigo_prod'=>$fila['codigo_prod'], 'nombre_prod'=>$fila['nombre_prod'], 'descripcion_prod'=>$description,  'imagen_prod'=>$fila['imagen_prod']);
 			$productos['id_prod_'.$fila['id_prod']] = $datos;
 		}

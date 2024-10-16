@@ -99,8 +99,7 @@
 	<section id="buyRMW" class="modal">
 		<div class="modal__container">
 			<div class="modal__header">
-				<img src='../imagenes/carrito.svg' onclick='openCmp_prodRMW()' class="icon__CRUD" title="Añadir productos al carrito">
-				<h2 class="modal__title">Compra</h2>
+				<h2 class="modal__title">Registrar orden de compra</h2>
 				<img src="../imagenes/salir.svg" id="closeBuyRMW" class="button__close">
 			</div>
 			<form id="formBuyR" class="form">
@@ -145,21 +144,16 @@
 						<input type="text" name="observacion_cmpR" placeholder=" " class="form__input">
 						<label for="observacion_cmp" class="form__label">Observacion:</label>
 					</div>
-					<!--Lista de productos-->
-					<!--<div id="listProductsR"></div>-->
-				</div>
-				<div class="form__container--button">
-					<input type="submit" value="Registrar" class="form__submit">
 				</div>
 			</form>
+			<button class="form__submit" onclick='openCmp_prodRMW()'>Productos</button>
 		</div>
 	</section>
 	<!--Ventana modal para modificar compra-->
 	<section id="buyMMW" class="modal">
 		<div class="modal__container">
 			<div class="modal__header">
-				<img src='../imagenes/carrito.svg' onclick='openCmp_prodMMW()' class="icon__CRUD">
-				<h2 class="modal__title">Compra</h2>
+				<h2 class="modal__title">Modificar orden de compra</h2>
 				<img src="../imagenes/salir.svg" id="closeBuyMMW" class="button__close">
 			</div>
 			<form id="formBuyM" class="form">
@@ -203,10 +197,8 @@
 						<label for="observacion_cmp" class="form__label">Observacion:</label>
 					</div>
 				</div>
-				<div class="form__container--button">
-					<input type="submit" value="Guardar" class="form__submit">
-				</div>
 			</form>
+			<button onclick='openCmp_prodMMW()' class="form__submit">Productos</button>
 		</div>
 	</section>
 	<!--Modal of product of a BuyR -->
@@ -247,6 +239,7 @@
                         <img src="../imagenes/carrito.svg">
                         <p id="quantityCPRMW">0</p>
                     </div>
+					<button onclick="createBuy()" class="form__submit">Registrar</button>
                 </div>
 			</div>
 		</div>
@@ -289,6 +282,7 @@
                         <img src="../imagenes/carrito.svg">
                         <p id="quantityCPMMW">0</p>
                     </div>
+					<button onclick="updateBuy()" class="form__submit">Modificar</button>
                 </div>
 			</div>
 		</div>
@@ -831,7 +825,7 @@
 			</form>	
 		</div>
 	</section>
-	<!--Tabla modal de productos comprados-->>
+	<!--Tabla modal de productos comprados-->
 	<section id="tableProdOC" class="modalTable">
 		<div class="modalTable__container">
 			<div class="table">

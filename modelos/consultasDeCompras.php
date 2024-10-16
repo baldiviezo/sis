@@ -1,6 +1,6 @@
 <?php
 class Consultas{
-	 public function asignarValores ($id_usua){
+	public function asignarValores ($id_usua){
 		//protegemos al servidor de los valores que el usuario esta introduciendo
 		include 'conexion.php';
 		$this->fecha_cmp = $conexion->real_escape_string($_POST['fecha_cmpR']);
@@ -34,7 +34,7 @@ class Consultas{
 		$resultado = $conexion->query($consulta);
 		$array = array();
 		while ($row = $resultado->fetch_assoc()) {
-			$buy = array('id_cmp'=>intval($row['id_cmp']), 'numero_cmp'=>'OC-SMS'.substr($row['fecha_cmp'],2,2).'-'.$row['numero_cmp'], 'fecha_cmp'=>$row['fecha_cmp'], 'fk_id_usua_cmp'=>$row['fk_id_usua_cmp'], 'nombre_usua'=>$row['nombre_usua'], 'apellido_usua'=>$row['apellido_usua'], 'id_empp'=>$row['id_empp'], 'nombre_empp'=>$row['nombre_empp'], 'fk_id_prov_cmp'=>$row['fk_id_prov_cmp'], 'nombre_prov'=>$row['nombre_prov'], 'apellido_prov'=>$row['apellido_prov'], 'total_cmp'=>floatval($row['total_cmp']), 'forma_pago_cmp'=>$row['forma_pago_cmp'], 'tpo_entrega_cmp'=>$row['tpo_entrega_cmp'], 'estado_cmp'=>$row['estado_cmp'],
+			$buy = array('id_cmp'=>intval($row['id_cmp']), 'numero_cmp'=>'OC-SMS'.substr($row['fecha_cmp'],2,2).'-'.$this->addZerosGo($row['numero_cmp']), 'fecha_cmp'=>$row['fecha_cmp'], 'fk_id_usua_cmp'=>$row['fk_id_usua_cmp'], 'nombre_usua'=>$row['nombre_usua'], 'apellido_usua'=>$row['apellido_usua'], 'id_empp'=>$row['id_empp'], 'nombre_empp'=>$row['nombre_empp'], 'fk_id_prov_cmp'=>$row['fk_id_prov_cmp'], 'nombre_prov'=>$row['nombre_prov'], 'apellido_prov'=>$row['apellido_prov'], 'total_cmp'=>floatval($row['total_cmp']), 'forma_pago_cmp'=>$row['forma_pago_cmp'], 'tpo_entrega_cmp'=>$row['tpo_entrega_cmp'], 'estado_cmp'=>$row['estado_cmp'],
 			'moneda_cmp'=>$row['moneda_cmp'], 'tipo_cambio_cmp'=>number_format(floatval($row['tipo_cambio_cmp']), 2), 'descuento_cmp'=>$row['descuento_cmp'], 'factura_cmp'=>$row['factura_cmp'], 'fecha_entrega_cmp'=>$row['fecha_entrega_cmp'], 'observacion_cmp'=>$row['observacion_cmp']);
 			$array[$row['id_cmp'].'_id_cmp'] = $buy;
 		}

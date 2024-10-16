@@ -330,7 +330,10 @@ tbody tr:hover{
 	min-width: 12rem;
 }
 #previewProducts td:nth-of-type(4){
-	min-width: 8rem;
+	min-width: 24rem;
+}
+#previewProducts td:nth-of-type(5), #previewProducts td:nth-of-type(6){
+	min-width: 6rem;
 }
 #previewProducts td:nth-of-type(7), #previewProducts td:nth-of-type(8){
 	min-width: 8rem;

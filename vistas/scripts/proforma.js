@@ -11,26 +11,12 @@ if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol
     document.querySelectorAll('#formProformaR .form__group--select')[1].children[3].removeAttribute('hidden');
 }
 //-----------------------------------------Block request with a flag---------------------------------------------
-let rqstCreateProf = false;
-let rqstUpdateProf = false;
-let rqstDeleteProf = false;
-let rqstCreateNE = false;
-//----------------------------MOSTRAR CARD DE INVENTARIO Y PRODUCTOS---------------------------------------
-let selectInvProd = document.getElementById('selectInvProd');
-let headerInvetario = document.getElementById('headerInvetario');
-let headerProduct = document.getElementById('headerProduct');
-//selectInvProd.addEventListener('change', showMain);
-function showMain() {
-    if (selectInvProd.value == 'inventario') {
-        headerProduct.setAttribute('hidden', '');
-        headerInvetario.removeAttribute('hidden');
-        paginacionInventory(Object.values(filterInventories).length, 1);
-    } else {
-        headerProduct.removeAttribute('hidden');
-        headerInvetario.setAttribute('hidden', '');
-        paginacionProduct(Object.values(filterProducts).length, 1);
-    }
-}
+let requestClte = false;
+let requestEmp = false;
+let requestProducts = false;
+let requestProforma = false;
+let requestProfMdf = false;
+let requestNE = false;
 //-----------------------------------------------FECHA ACTUAL-------------------------------------
 const date = new Date();
 const dateFormat = new Intl.DateTimeFormat('es-ES', {
@@ -49,7 +35,7 @@ const dateActual = datePart[0].split('/');
 //---------------------------------------------------- CARDS PRODUCTS---------------------------------------------------------
 let products = {};
 let filterProducts = {};
-filterProductsMW = {};
+let filterProductsMW = {};
 readProducts();
 function readProducts() {
     let formData = new FormData();
@@ -61,9 +47,8 @@ function readProducts() {
         products = JSON.parse(JSON.stringify(data));
         filterProducts = products;
         filterProductsMW = products;
-        //if (selectInvProd.value == 'producto') { paginacionProduct(Object.values(data).length, 1) }
         paginacionProduct(Object.values(data).length, 1)
-        paginacionProductMW(Object.values(filterProductsMW).length, 1);
+        paginacionProductMW(Object.values(data).length, 1);
     }).catch(err => console.log(err));
 }
 //------Select utilizado para buscar por columnas
@@ -170,95 +155,79 @@ function paginacionProduct(allProducts, page) {
     cardProduct(page);
 }
 function cardProduct(page) {
-    let root = document.getElementById('root');
-    root.innerHTML = ''
-    inicio = (page - 1) * Number(selectNumberProduct.value);
-    final = inicio + Number(selectNumberProduct.value);
-    i = 1;
-    if (filterProducts == '') {
-        root.innerHTML = 'NO HAY';
-    } else {
-        root.innerHTML = '';
-        html = '';
-        for (let product in filterProducts) {
-            if (i > inicio && i <= final) {
-                html += `
+    const root = document.getElementById('root');
+    const inicio = (page - 1) * Number(selectNumberProduct.value);
+    const final = inicio + Number(selectNumberProduct.value);
+    let i = 1;
+    let html = '';
+    for (let product in filterProducts) {
+        if (i > inicio && i <= final) {
+            html += `
                 <div class='box'>
                     <div class='img-box' style='max-height: 70%; max-width: 100%;'>
-                        <img class='images' src=../modelos/imagenes/${filterProducts[product]['imagen_prod']} '></img>
+                        <img class='images' src='../modelos/imagenes/${filterProducts[product]['imagen_prod']}' onclick='showDetails(${filterProducts[product]['id_prod']})'></img>
                     </div>
                     <div class='bottom'>
-                        <h3 style='display:none'>${filterProducts[product]['id_prod']}</h3>
+                        <h3 hidden>${filterProducts[product]['id_prod']}</h3>
                         <p class='box__code'>${filterProducts[product]['codigo_prod']}</p>
-                        <h3 style='display:none'>${filterProducts[product]['descripcion_prod']}</h3>
-                        <h3 style='display:none'>0</h3>
-                        <h2 style='display:none'>0</h2>
-                        <h2 class='box__name'>${filterProducts[product]['nombre_prod']}</h2>
                         <button onclick='addCard(this.parentNode.parentNode)'>Añadir</button>
                     </div>
                 </div>`;
-                i++;
-            } else {
-                i++;
-            }
+            i++;
+        } else {
+            i++;
         }
-        root.innerHTML = html;
-        showDetails();
     }
+    root.innerHTML = html;
 }
 //------------------------------------------------------MODAL DE UNA CARD-------------------------------------------------
 //-------Detalles de la card
-function showDetails() {
-    let cards = document.querySelectorAll('#root div.box');
+function showDetails(id_prod) {
     let modal = document.querySelector('.modalCard__body');
-    cards.forEach(card => {
-        card.querySelector('img').addEventListener('click', () => {
-            modal.children[0].children[0].innerHTML = card.children[1].children[5].innerHTML;
-            modal.children[1].src = card.children[0].children[0].src;
-            modal.children[2].innerText = card.children[1].children[1].innerText;
-            modal.children[4].innerText = card.children[1].children[2].innerText;
-            let cantidad_inv;
-            let cost_uni = 0;
-            let encontrado = false;
+    let cantidad_inv = 'Cantidad: Sin existencias';
+    let cost_uni = 'Costo: Sin existencias';
+    for (let product in filterProducts) {
+        if (filterProducts[product]['id_prod'] == id_prod) {
             for (let inventory in inventories) {
-                for (let valor in inventories[inventory]) {
-                    if (inventories[inventory]['fk_id_prod_inv'] == card.children[1].children[0].innerHTML) {
-                        cantidad_inv = inventories[inventory]['cantidad_inv'];
-                        cost_uni = inventories[inventory]['cost_uni_inv'];
-                        encontrado = true;
-                        break;
-                    }
-                }
-                if (encontrado) {
+                if (inventories[inventory]['fk_id_prod_inv'] == id_prod) {
+                    cantidad_inv = `Existencias: ${inventories[inventory]['cantidad_inv']}`;
+                    cost_uni = `Costo: ${inventories[inventory]['cost_uni_inv']} Bs`;
                     break;
                 }
             }
-            if (encontrado) {
-                modal.children[5].innerHTML = `En stock: ${cantidad_inv} Unidades`;
-                modal.children[6].innerHTML = `Precio: ${cost_uni} BS`;
-            }
-            modalCard.classList.add('modal__show');
-        })
-    })
+            modal.innerHTML = `<div class="modalCard__head">
+                                    <h4>${filterProducts[product]['nombre_prod']}</h4><img src="../imagenes/salir.svg" onclick='closeModalCard()' class="button__close">
+				                </div>
+				                <img src="../modelos/imagenes/${filterProducts[product]['imagen_prod']}" class="modalCard__img">
+				                <h5>${filterProducts[product]['codigo_prod']}</h5>
+				                <h4>Descripcion: </h4>
+				                <p>${filterProducts[product]['descripcion_prod']}</p>
+				                <h6>${cantidad_inv}</h6>
+				                <h3>${cost_uni}</h3>
+				                <img src="../imagenes/edit.svg" onclick="readProduct(this.parentNode)" class="icon__CRUD">`;
+            break;
+        }
+    }
+    modalCard.classList.add('modal__show');
 }
 //-------Modal de la card
 const modalCard = document.getElementById('modalCard');
-const closeModalCard = document.getElementById('x');
-closeModalCard.addEventListener('click', (e) => {
+function closeModalCard() {
     modalCard.classList.remove('modal__show');
-});
+}
 //---------------------------------------------------AÑADIR LA CARD A EL CART------------------------------------
 //-------Añadir card al cart
 const cartItem = document.getElementById('cartItem');
 function addCard(card) {
-    let codigo = card.children[1].children[1].innerText;
+    let id_prod = card.children[1].children[0].innerText;
+    let codigo_prod = card.children[1].children[1].innerText;
     let carts = cartItem.querySelectorAll('div.cart-item');
     let i = 0;
     carts.forEach(cart => {
-        if (codigo == cart.children[2].innerText) { i++ }
+        if (codigo_prod == cart.children[2].innerText) { i++ }
     })
     if (i == 0) {
-        cartProduct(card);
+        cartProduct(id_prod);
         totalPrice();
     } else {
         alert('El producto ya se encuentra en el carrito');
@@ -266,7 +235,6 @@ function addCard(card) {
 }
 //------------------------------------------------------CARDS INVENTARIO----------------------------------------------------------
 let inventories = {};
-let filterInventories = {};
 let filterInventoriesMW = {};
 readInventories();
 function readInventories() {
@@ -277,204 +245,44 @@ function readInventories() {
         body: formData
     }).then(response => response.json()).then(data => {
         inventories = JSON.parse(JSON.stringify(data));
-        filterInventories = inventories;
         filterInventoriesMW = inventories;
         paginacionInventoryMW(Object.values(data).length, 1);
-        //paginacionInventory(Object.values(data).length, 1);
     }).catch(err => console.log(err));
 }
-/*
-//------Select utilizado para buscar por columnas
-const selectSearchInv = document.getElementById('selectSearchInv');
-selectSearchInv.addEventListener('change', searchInventories);
-//------buscar por input
-const inputSearchInv = document.getElementById("inputSearchInv");
-inputSearchInv.addEventListener("keyup", searchInventories);
-//------Clientes por pagina
-const selectNumberInv = document.getElementById('selectNumberInv');
-selectNumberInv.selectedIndex = 2;
-selectNumberInv.addEventListener('change', function () {
-    paginacionInventory(Object.values(filterInventories).length, 1);
-});
-//-------Marca y categoria
-const selectMarcaInventory = document.getElementById('selectMarcaInventory');
-selectMarcaInventory.addEventListener('change', selectCategoriaInv);
-const selectCategoriaInventory = document.getElementById('selectCategoriaInventory');
-selectCategoriaInventory.addEventListener('change', searchInventories);
-//------buscar por:
-function searchInventories() {
-    filterInventories = {};
-    for (let inventory in inventories) {
-        for (let valor in inventories[inventory]) {
-            if (selectSearchInv.value == 'todas') {
-                if (valor == 'codigo_prod' || valor == 'nombre_prod' || valor == 'descripcion_prod' || valor == 'cost_uni_inv') {
-                    if (inventories[inventory][valor].toLowerCase().indexOf(inputSearchInv.value.toLowerCase()) >= 0) {
-                        filterInventories[inventory] = inventories[inventory];
-                        break;
-                    }
-                }
-            } else {
-                if (valor == selectSearchInv.value) {
-                    if (inventories[inventory][valor].toLowerCase().indexOf(inputSearchInv.value.toLowerCase()) >= 0) {
-                        filterInventories[inventory] = inventories[inventory];
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    selectInventories();
-}
-//------buscar por marca y categoria:
-function selectInventories() {
-    if (selectMarcaInventory.value == 'todasLasMarcas' && selectCategoriaInventory.value == 'todasLasCategorias') {
-        paginacionInventory(Object.values(filterInventories).length, 1);
-    } else {
-        for (let ìnventory in filterInventories) {
-            for (let valor in filterInventories[ìnventory]) {
-                if (selectMarcaInventory.value == 'todasLasMarcas') {
-                    if (filterInventories[ìnventory]['id_ctgr'] != selectCategoriaInventory.value) {
-                        delete filterInventories[ìnventory];
-                        break;
-                    }
-                } else if (selectCategoriaInventory.value == 'todasLasCategorias') {
-                    if (filterInventories[ìnventory]['id_mrc'] != selectMarcaInventory.value) {
-                        delete filterInventories[ìnventory];
-                        break;
-                    }
-                } else {
-                    if (filterInventories[ìnventory]['id_ctgr'] != selectCategoriaInventory.value || filterInventories[ìnventory]['id_mrc'] != selectMarcaInventory.value) {
-                        delete filterInventories[ìnventory];
-                        break;
-                    }
-                }
-            }
-        }
-        paginacionInventory(Object.values(filterInventories).length, 1);
-    }
-}
-//------PaginacionInventory
-function paginacionInventory(allInventories, page) {
-    let numberInventories = Number(selectNumberInv.value);
-    let allPages = Math.ceil(allInventories / numberInventories);
-    let ul = document.querySelector('#wrapperInventory ul');
-    let li = '';
-    let beforePages = page - 1;
-    let afterPages = page + 1;
-    let liActive;
-    if (page > 1) {
-        li += `<li class="btn" onclick="paginacionInventory(${allInventories}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
-    }
-    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
-        if (pageLength > allPages) {
-            continue;
-        }
-        if (pageLength == 0) {
-            pageLength = pageLength + 1;
-        }
-        if (page == pageLength) {
-            liActive = 'active';
-        } else {
-            liActive = '';
-        }
-        li += `<li class="numb ${liActive}" onclick="paginacionInventory(${allInventories}, ${pageLength})"><span>${pageLength}</span></li>`;
-    }
-    if (page < allPages) {
-        li += `<li class="btn" onclick="paginacionInventory(${allInventories}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
-    }
-    ul.innerHTML = li;
-    let h2 = document.querySelector('#showPageInventory h2');
-    h2.innerHTML = `Pagina ${page}/${allPages}, ${allInventories} Productos`;
-    cardInventory(page);
-}
-//------Card inventario
-function cardInventory(page) {
-    let root = document.getElementById('root');
-    root.innerHTML = ''
-    inicio = (page - 1) * Number(selectNumberInv.value);
-    final = inicio + Number(selectNumberInv.value);
-    i = 1;
-    if (filterInventories == '') {
-        root.innerHTML = 'NO HAY';
-    } else {
-        root.innerHTML = '';
-        html = '';
-        for (let inventory in filterInventories) {
-            if (i > inicio && i <= final) {
-                html += `
-                <div class='box'>
-                    <div class='img-box'>
-                        <img class='images' alt='../modelos/imagenes/${filterInventories[inventory]['imagen_prod']}' src=../modelos/imagenes/${filterInventories[inventory]['imagen_prod']}></img>
-                    </div>
-                    <div class='bottom'>
-                        <h3 style='display:none'>${filterInventories[inventory]['nombre_prod']}</h3>
-                        <p>${filterInventories[inventory]['codigo_prod']}</p>
-                        <h3 style='display:none'>${filterInventories[inventory]['descripcion_prod']}</h3>
-                        <h3 style='display:none'>${filterInventories[inventory]['cantidad_inv']}</h3>
-                        <h2 hidden>${filterInventories[inventory]['cost_uni_inv']}</h2>
-                        <h2>${filterInventories[inventory]['nombre_prod']}</h2>
-                        <button onclick='addCard(this.parentNode.parentNode)'>Añadir</button>
-                    </div>
-                </div>`;
-                i++;
-            } else {
-                i++;
-            }
-        }
-        root.innerHTML = html;
-        showDetails();
-    }
-}*/
 //------Cart
-function cartProduct(card) {
-    let cantidad_inv;
-    let cost_uni = 0;
-    for (let inventory in inventories) {
-        for (let valor in inventories[inventory]) {
-            if (inventories[inventory]['codigo_prod'] == card.children[1].children[1].innerText) {
-                cantidad_inv = inventories[inventory]['cantidad_inv'];
-                cost_uni = inventories[inventory]['cost_uni_inv'];
-                break;
+function cartProduct(id_prod) {
+    let cantidad_inv = undefined;
+    let cost_uni = undefined;
+    for (let product in filterProducts) {
+        if (filterProducts[product]['id_prod'] == id_prod) {
+            for (let inventory in inventories) {
+                if (inventories[inventory]['fk_id_prod_inv'] == id_prod) {
+                    cantidad_inv = inventories[inventory]['cantidad_inv'];
+                    cost_uni = inventories[inventory]['cost_uni_inv'];
+                    break;
+                }
             }
+            cantidad_inv = (cantidad_inv == undefined) ? cantidad_inv = 0 : cantidad_inv;
+            cost_uni = (cost_uni == undefined) ? cost_uni = 0 : cost_uni;
+            let card = document.createElement('div');
+            card.classList.add('cart-item');
+            let html =
+                `<p class="cart-item__cantInv">${cantidad_inv}</p>
+                <div class="row-img">
+                    <img src="../modelos/imagenes/${filterProducts[product]['imagen_prod']}" class="rowimg">
+                </div>
+                <p class="cart-item__codigo">${filterProducts[product]['codigo_prod']}</p>
+                <input type="number" value = "1" min="1" onChange="changeQuantity(this.parentNode)" class="cart-item__cantidad">
+                <input type="number" value = "${cost_uni}" onChange="changeQuantity(this.parentNode)" class="cart-item__costUnit">
+                <input type="number" value = "${cost_uni}" class="cart-item__costTotal" readonly>
+                <img src="../imagenes/trash.svg" onClick="removeCardFromCart(this.parentNode)" class='icon__CRUD'>
+                <h3 hidden>${filterProducts[product]['nombre_prod']}</h3>
+                <h3 hidden>${filterProducts[product]['descripcion_prod']}</h3>`;
+            card.innerHTML = html;
+            cartItem.appendChild(card);
         }
     }
-    cantidad_inv = (cantidad_inv == undefined) ? cantidad_inv = 0 : cantidad_inv;
-    cost_uni = (card.children[1].children[4].innerText == 0) ? cost_uni : card.children[1].children[4].innerText;
-    let product = document.createElement('div');
-    product.classList.add('cart-item');
-    let html =
-        `<p class="cart-item__cantInv">${cantidad_inv}</p>
-        <div class="row-img">
-            <img src="${card.children[0].children[0].src}" class="rowimg">
-        </div>
-        <p class="cart-item__codigo">${card.children[1].children[1].innerText}</p>
-        <input type="number" value = "1" min="1" onChange="changeQuantity(this.parentNode)" class="cart-item__cantidad">
-        <input type="number" value = "${cost_uni}" onChange="changeQuantity(this.parentNode)" class="cart-item__costUnit">
-        <input type="number" value = "${cost_uni}" class="cart-item__costTotal" readonly>
-        <img src="../imagenes/trash.svg" onClick="removeCardFromCart(this.parentNode)" class='icon__CRUD'>
-        <h3 hidden>${card.children[1].children[2].innerText}</h3>
-        <h3 hidden>${card.children[1].children[0].innerText}</h3>`;
-    product.innerHTML = html;
-    //------Drag
-    /*product.setAttribute('draggable', true)
-    product.addEventListener("dragstart", () => {
-        setTimeout(() => product.classList.add("dragging"), 0);
-    });
-    product.addEventListener("dragend", () => product.classList.remove("dragging"));*/
-    cartItem.appendChild(product);
 }
-//-------DRAG AND DROP
-/*const initSortableList = (e) => {
-    e.preventDefault();
-    const draggingItem = document.querySelector(".dragging");
-    let siblings = [...cartItem.querySelectorAll(".cart-item:not(.dragging)")];
-    let nextSibling = siblings.find(sibling => {
-        return e.clientY <= sibling.offsetTop + sibling.offsetHeight / 2;
-    });
-    cartItem.insertBefore(draggingItem, nextSibling);
-}
-cartItem.addEventListener("dragover", initSortableList);
-cartItem.addEventListener("dragenter", e => e.preventDefault());*/
 //------Eliminar cart
 function removeCardFromCart(cart) {
     cartItem.removeChild(cart);
@@ -716,7 +524,7 @@ function tableProformas(page) {
                     td.innerText = filterProformas[proforma]['apellido_clte'] + ' ' + filterProformas[proforma][valor];
                     tr.appendChild(td)
                 } else if (valor == 'descuento_prof') {
-                    td.innerText = filterProformas[proforma][valor] + '%';
+                    td.innerText = filterProformas[proforma][valor];
                     tr.appendChild(td);
                 } else if (valor == 'total_prof') {
                     td.innerText = Number(filterProformas[proforma][valor]).toFixed(2) + ' ' + filterProformas[proforma]['moneda_prof'];
@@ -734,7 +542,7 @@ function tableProformas(page) {
             } else {
                 if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
                     td.innerHTML = `
-                <img src='../imagenes/notaEntrega.svg' onclick='openNotaEntregaRMW(this.parentNode.parentNode.children[0].innerText)' title='Generar Nota de Entrega'>
+                <img src='../imagenes/notaEntrega.svg' onclick='openNotaEntregaRMW(this.parentNode.parentNode)' title='Generar Nota de Entrega'>
                 <img src='../imagenes/folder.svg' onclick='showMdfProforma(this.parentNode.parentNode.children[0].innerText)' title='Proformas anteriores'>
                 <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")' title='Mostrar PDF'>
                 <img src='../imagenes/edit.svg' onclick='readProforma(this.parentNode.parentNode)' title='Editar Proforma'>
@@ -746,7 +554,7 @@ function tableProformas(page) {
                         <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")' title='Mostrar PDF'>`;
                     } else {
                         td.innerHTML = `
-                        <img src='../imagenes/notaEntrega.svg' onclick='openNotaEntregaRMW(this.parentNode.parentNode.children[0].innerText)' title='Generar Nota de Entrega'>
+                        <img src='../imagenes/notaEntrega.svg' onclick='openNotaEntregaRMW(this.parentNode.parentNode)' title='Generar Nota de Entrega'>
                         <img src='../imagenes/folder.svg' onclick='showMdfProforma(this.parentNode.parentNode.children[0].innerText)' title='Proformas anteriores'>
                         <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")' title='Mostrar PDF'>
                         <img src='../imagenes/edit.svg' onclick='readProforma(this.parentNode.parentNode)' title='Editar Proforma'>`;
@@ -775,8 +583,8 @@ document.getElementById('formProformaR').addEventListener('submit', createProfor
 function createProforma() {
     let cart = document.querySelectorAll('#cartItem .cart-item');
     if (cart.length > 0) {
-        if (rqstCreateProf == false) {
-            rqstCreateProf = true;
+        if (requestProducts == false) {
+            requestProducts = true;
             proformaRMW.classList.remove('modal__show');
             previewProducts.classList.remove('modal__show');
             cartItem.innerHTML = '';
@@ -805,14 +613,14 @@ function createProforma() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                preloader.classList.remove('modal__show');
-                rqstCreateProf = false;
+                requestProducts = false;
                 alert(data);
                 totalPrice();
                 readProformas();
                 readProf_prods();
+                preloader.classList.remove('modal__show');
             }).catch(err => {
-                rqstCreateProf = false;
+                requestProducts = false;
                 alert(err);
             });
         }
@@ -865,8 +673,8 @@ function updateProforma() {
     let modal = document.querySelector('#cartsProf_prodMW');
     let cartItems = modal.querySelectorAll('div.cart-item');
     if (cartItems.length > 0) {
-        if (rqstUpdateProf == false) {
-            rqstUpdateProf = true;
+        if (requestProducts == false) {
+            requestProducts = true;
             proformaMMW.classList.remove('modal__show');
             prof_prodMW.classList.remove('modal__show');
             previewProducts.classList.remove('modal__show');
@@ -885,18 +693,20 @@ function updateProforma() {
             formData.set("total_profM", Number(document.getElementById('totalProf').innerHTML.split(' ')[1]));
             formData.append('updateProforma', productos);
             formData.append('id_usua', localStorage.getItem('id_usua'));
+            preloader.classList.add('modal__show');
             fetch('../controladores/proforma.php', {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                rqstUpdateProf = false;
+                requestProducts = false;
                 alert(data);
                 readProformas();
                 readProf_prods();
                 readMdfProforma();
                 readmProf_prods();
+                preloader.classList.remove('modal__show');
             }).catch(err => {
-                rqstUpdateProf = false;
+                requestProducts = false;
                 alert(err);
             });
         }
@@ -907,24 +717,25 @@ function updateProforma() {
 //-------Delete una proforma
 function deleteProforma(tr) {
     if (confirm('¿Esta usted seguro?')) {
-        if (rqstDeleteProf == false) {
-            rqstDeleteProf = true;
+        if (requestProducts == false) {
+            requestProducts = true;
             let id_prof = tr.children[0].innerText;
             let formData = new FormData();
             formData.append('deleteProforma', id_prof);
+            preloader.classList.add('modal__show');
             fetch('../controladores/proforma.php', {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                rqstDeleteProf = false;
+                requestProducts = false;
                 alert(data);
                 readProformas();
+                preloader.classList.remove('modal__show');
             }).catch(err => {
-                rqstDeleteProf = false;
-                alert(data);
+                requestProducts = false;
+                alert(err);
             });
         }
-
     }
 }
 //<------------------------------------------MODAL PROFORMA--------------------------------------------
@@ -977,7 +788,6 @@ function isInteger(input) {
 }
 //-------------------------------------------------------CRUD PROFORMAS MODIFICADAS---------------------------------
 let mdfPproforma = {};
-let filtermdfPproforma = [];
 readMdfProforma()
 function readMdfProforma() {
     let formData = new FormData();
@@ -995,7 +805,7 @@ function showMdfProforma(id_prof) {
     let i = 1;
     tbody.innerHTML = '';
     document.querySelector('#tablemProfMW div.table__title h1').innerHTML = ``;
-    filtermdfPproforma = [];
+    let filtermdfPproforma = [];
     for (let proforma in mdfPproforma) {
         if (mdfPproforma[proforma]['id_prof_mprof'] == id_prof) {
             filtermdfPproforma.push(mdfPproforma[proforma]);
@@ -1053,18 +863,28 @@ function showMdfProforma(id_prof) {
 //-------Delete una proforma modificada
 function deleteMdfProforma(tr) {
     if (confirm('¿Esta usted seguro?')) {
-        let id_mprof = tr.children[1].innerText;
-        let formData = new FormData();
-        tablemProfMW.classList.remove('modal__show');
-        formData.append('deletemProforma', id_mprof);
-        fetch('../controladores/proforma.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            readMdfProforma();
-            readmProf_prods();
-            alert(data);
-        }).catch(err => console.log(err));
+        if (requestProfMdf == false) {
+            requestProfMdf = true;
+            let id_mprof = tr.children[1].innerText;
+            let formData = new FormData();
+            tablemProfMW.classList.remove('modal__show');
+            formData.append('deletemProforma', id_mprof);
+            preloader.classList.add('modal__show');
+            fetch('../controladores/proforma.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                requestProfMdf = false;
+                readMdfProforma();
+                readmProf_prods();
+                alert(data);
+                preloader.classList.remove('modal__show');
+            }).catch(err => {
+                requestProfMdf = false;
+                alert(err);
+            });
+        }
+
     }
 }
 //--------------------------------------------------MODAL DE TABLA DE PROFORMA MODIFICADAS--------------------------------------------
@@ -1232,7 +1052,7 @@ function cartProduct_pfpd(product) {
         }
     }
     cantidad_inv = (cantidad_inv == undefined) ? 0 : cantidad_inv;
-    let cantidad_prod = (product['cantidad_pfpd'] == undefined) ? (product['cantidad_inv'] == undefined) ? 1 : product['cantidad_inv'] : product['cantidad_pfpd'];
+    let cantidad_prod = (product['cantidad_pfpd'] == undefined) ? 1 : product['cantidad_pfpd'];
     cost_uni = (product['cost_uni_pfpd'] == undefined) ? (product['cost_uni_inv'] == undefined) ? (cost_uni == 0) ? 0 : cost_uni : product['cost_uni_inv'] : product['cost_uni_pfpd'];
     let item = document.createElement('div');
     item.classList.add('cart-item');
@@ -1246,30 +1066,12 @@ function cartProduct_pfpd(product) {
         <input type="number" value = "${cost_uni}" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__costUnit">
         <input type="number" value = "`+ cantidad_prod * cost_uni + `" class="cart-item__costTotal" readonly>
         <img src="../imagenes/trash.svg" onClick="remove_pfpd(this.parentNode)" class='icon__CRUD'>
-        <h3 hidden>`+ product['descripcion_prod'] + `</h3>
-        <h3 hidden>`+ product['nombre_prod'] + `</h3>`;
+        <h3 hidden>`+ product['nombre_prod'] + `</h3>
+        <h3 hidden>`+ product['descripcion_prod'] + `</h3>`;
     item.innerHTML = html;
-    //-------drag drop
-    /*item.setAttribute('draggable', true)
-    item.addEventListener("dragstart", () => {
-        setTimeout(() => item.classList.add("dragging"), 0);
-    });
-    item.addEventListener("dragend", () => item.classList.remove("dragging"));*/
     modalProf_prod.appendChild(item);
     totalPrice_pfpd();
 }
-//-----Drag drop
-/*const initSortableListM = (e) => {
-    e.preventDefault();
-    const draggingItem = document.querySelector(".dragging");
-    let siblings = [...modalProf_prod.querySelectorAll(".cart-item:not(.dragging)")];
-    let nextSibling = siblings.find(sibling => {
-        return e.clientY <= sibling.offsetTop + sibling.offsetHeight / 2;
-    });
-    modalProf_prod.insertBefore(draggingItem, nextSibling);
-}
-modalProf_prod.addEventListener("dragover", initSortableListM);
-modalProf_prod.addEventListener("dragenter", e => e.preventDefault());*/
 //-------Eliminar producto 
 function remove_pfpd(product) {
     let listProducts = document.querySelector('#prof_prodMW div.modal__body');
@@ -1318,57 +1120,78 @@ closeProf_prodMW.addEventListener('click', (e) => {
 });
 //-------------------------------------------MOSTRAR LOS PRODUCTOS PREVIAMENTE---------------------------------------------------
 function openPreviwProducts() {
+    const tbody = document.getElementById('tbodyPreviewProd');
+    const productos = getProducts();
+    const moneda = getMoneda();
+    const total = calculateTotal(productos);
+    const desc = getDescuento();
+    createTable(tbody, productos, moneda);
+    updateTotales(total, desc, moneda);
+    createButton(tbody, formProformas);
     previewProducts.classList.add('modal__show');
-    let subTotalProf = document.getElementById('subTotalProf');
-    let descProf = document.getElementById('descProf');
-    let totalProf = document.getElementById('totalProf');
-    let productos;
-    let moneda;
-    let total = 0;
-    let desc = Number(document.getElementsByName('descuento_prof' + formProformas)[0].value);
-    if (formProformas == 'R') {
-        productos = document.querySelectorAll('#cartItem .cart-item');
-        moneda = document.getElementById('selectMoneyCart').value;
-    } else if (formProformas == 'M') {
-        productos = document.querySelectorAll('#prof_prodMW div.modal__body .cart-item');
-        moneda = document.getElementsByName('moneda_profM')[0].value;
+}
+function getProducts() {
+    if (formProformas === 'R') {
+        return document.querySelectorAll('#cartItem .cart-item');
+    } else if (formProformas === 'M') {
+        return document.querySelectorAll('#prof_prodMW div.modal__body .cart-item');
     }
-    let tbody = document.getElementById('tbodyPreviewProd');
-    i = 1;
-    tbody.innerHTML = '';
-    html = '';
+}
+function getMoneda() {
+    if (formProformas === 'R') {
+        return document.getElementById('selectMoneyCart').value;
+    } else if (formProformas === 'M') {
+        return document.getElementsByName('moneda_profM')[0].value;
+    }
+}
+function calculateTotal(productos) {
+    let total = 0;
     productos.forEach(producto => {
-        total = total + Number(producto.children[5].value);
-        html += `<tr>
-                    <td>${i}</td>
-                    <td>${producto.children[2].innerText}</td>
-                    <td><textarea class="textarea__preview" readonly>${producto.children[7].innerText}</textarea></td>
-                    <td><img src='${producto.children[1].children[0].src}' class='tbody__img'></td>
-                    <td>${producto.children[3].value}</td>
-                    <td>${producto.children[4].value} <b>${moneda}</b></td>
-                    <td>${producto.children[5].value} <b>${moneda}</b></td>
-                </tr>`
+        total += Number(producto.children[5].value);
+    });
+    return total;
+}
+function getDescuento() {
+    return Number(document.getElementsByName('descuento_prof' + formProformas)[0].value);
+}
+function createTable(tbody, productos, moneda) {
+    const html = [];
+    productos.forEach(producto => {
+        html.push(`
+        <tr>
+          <td>${i}</td>
+          <td>${producto.children[2].innerText}</td>
+          <td><textarea class="textarea__preview" readonly>${producto.children[7].innerText}</textarea></td>
+          <td><textarea class="textarea__preview" readonly>${producto.children[8].innerText}</textarea></td>
+          <td><img src='${producto.children[1].children[0].src}' class='tbody__img'></td>
+          <td>${producto.children[3].value}</td>
+          <td>${producto.children[4].value} <b>${moneda}</b></td>
+          <td>${producto.children[5].value} <b>${moneda}</b></td>
+        </tr>
+      `);
         i++;
     });
+    tbody.innerHTML = html.join('');
+}
+function updateTotales(total, desc, moneda) {
     document.getElementsByName('total_prof' + formProformas)[0].value = total.toFixed(2);
-    subTotalProf.innerText = `Sub-Total(${moneda}): ${total} ${moneda}  `;
-    descProf.innerText = `Desc. ${desc}% (${moneda}): ${(total * desc / 100).toFixed(2)} ${moneda}   `;
-    totalProf.innerText = `Total(${moneda}): ${(total - (total * desc / 100)).toFixed(2)} ${moneda}  `;
-    let tr = document.createElement('tr');
-    let td = document.createElement('td');
-    let button = document.createElement('button');
+    subTotalProf.innerText = `Sub-Total(${moneda}): ${total} ${moneda}`;
+    descProf.innerText = `Desc. ${desc}% (${moneda}): ${(total * desc / 100).toFixed(2)} ${moneda}`;
+    totalProf.innerText = `Total(${moneda}): ${(total - (total * desc / 100)).toFixed(2)} ${moneda}`;
+}
+function createButton(tbody, formProformas) {
+    const button = document.createElement('button');
     button.classList.add('button__sell--previw');
     button.innerText = 'Registrar';
-    if (formProformas == 'R') {
+    if (formProformas === 'R') {
         button.setAttribute('onclick', 'createProforma();');
-    } else if (formProformas == 'M') {
+    } else if (formProformas === 'M') {
         button.setAttribute('onclick', 'updateProforma();');
     }
+    const td = document.createElement('td');
     td.setAttribute('colspan', '8');
-    tr.appendChild(td);
     td.appendChild(button);
-    tbody.innerHTML = html;
-    tbody.appendChild(tr);
+    tbody.appendChild(td);
 }
 //-----------------------------MODAL VISTA PREVIA DE LOS PRODUCTOS DE LA PROFORMA
 const previewProducts = document.getElementById('previewProducts');
@@ -1381,73 +1204,72 @@ closePreviewProducts.addEventListener('click', () => {
 const productsSold = document.querySelector('#productsSold');
 const closeProductsSold = document.querySelector('#closeProductsSold');
 function openPreviwProductsSold() {
-    let id_prof = document.getElementsByName('fk_id_prof_ne')[0].value;
-    productsSold.classList.add('modal__show');
-    let nuevo_array = [];
-    for (let prof_prod in prof_prods) {
-        if (prof_prods[prof_prod]['fk_id_prof_pfpd'] == id_prof) {
-            for (let product in products) {
-                if (products[product]['id_prod'] == prof_prods[prof_prod]['fk_id_prod_pfpd']) {
-                    let cantidad_inv = 0;
-                    let id_inv = null;
-                    for (let inventory in inventories) {
-                        for (let valor in inventories[inventory]) {
-                            if (inventories[inventory]['fk_id_prod_inv'] == products[product]['id_prod']) {
-                                cantidad_inv = inventories[inventory]['cantidad_inv'];
-                                id_inv = inventories[inventory]['id_inv'];
-                                break;
-                            }
-                        }
-                    }
-                    let nuevo_objeto = {
-                        'id_inv': id_inv,
-                        'cantidad_inv': cantidad_inv,
-                        'imagen_prod': products[product]['imagen_prod'],
-                        'codigo_prod': products[product]['codigo_prod'],
-                        'cantidad_pfpd': prof_prods[prof_prod]['cantidad_pfpd'],
-                        'cost_uni_pfpd': prof_prods[prof_prod]['cost_uni_pfpd']
-                    };
-                    nuevo_array.push(nuevo_objeto);
-                }
-            }
+    const id_prof = document.getElementById('fk_id_prof_ne').value;
+    const prof_prodsFiltered = Object.values(prof_prods).filter(prof_prod => prof_prod['fk_id_prof_pfpd'] === id_prof);
+    const nuevo_array = [];
+    const inventoriesMap = new Map(Object.values(inventories).map(inventory => [inventory['fk_id_prod_inv'], inventory]));
+    const productsMap = new Map(Object.values(products).map(product => [product['id_prod'], product]));
+    prof_prodsFiltered.forEach(prof_prod => {
+        const product = productsMap.get(prof_prod['fk_id_prod_pfpd']);
+        const inventory = inventoriesMap.get(product['id_prod']);
+        if (inventory) {
+            nuevo_array.push({
+                'id_inv': inventory['id_inv'],
+                'cantidad_inv': inventory['cantidad_inv'],
+                'imagen_prod': product['imagen_prod'],
+                'codigo_prod': product['codigo_prod'],
+                'cantidad_pfpd': prof_prod['cantidad_pfpd'],
+                'cost_uni_pfpd': prof_prod['cost_uni_pfpd']
+            });
         }
-    }
+    });
     readProductsSold(nuevo_array);
 }
 closeProductsSold.addEventListener('click', (e) => {
     productsSold.classList.remove('modal__show');
 });
 function readProductsSold(products) {
-    let countProductsSold = document.getElementById('countProductsSold');
-    let totalProductsSold = document.getElementById('totalProductsSold');
-    let item = productsSold.querySelector('.modal__body');
-    item.innerHTML = '';
+    const item = productsSold.querySelector('.modal__body');
+    item.textContent = '';
+    const cartTemplate = document.createElement('template');
+    cartTemplate.innerHTML = `
+        <div class="cart-item">
+            <p class="cart-item__cantInv"></p>
+            <div class="row-img">
+                <img src="" class="rowimg">
+            </div>
+            <p class="cart-item__codigo"></p>
+            <input type="number" value="" min="1" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__cantidad">
+            <input type="number" value="" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__costUnit">
+            <input type="number" value="" class="cart-item__costTotal" readonly>
+            <p hidden></p>
+        </div>
+    `;
     let costTotal = 0;
     products.forEach(product => {
-        let cart = document.createElement('div');
-        cart.classList.add('cart-item');
-        let html =
-            `<p class="cart-item__cantInv">${product['cantidad_inv']}</p>
-        <div class="row-img">
-            <img src="../modelos/imagenes/`+ product['imagen_prod'] + `" class="rowimg">
-        </div>
-        <p class="cart-item__codigo">`+ product['codigo_prod'] + `</p>
-        <input type="number" value = "${product['cantidad_pfpd']}" min="1" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__cantidad">
-        <input type="number" value = "${parseFloat(product['cost_uni_pfpd']).toFixed(2)}" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__costUnit">
-        <input type="number" value = "`+ product['cantidad_pfpd'] * parseFloat(product['cost_uni_pfpd']).toFixed(2) + `" class="cart-item__costTotal" readonly>
-        <p hidden>${product['id_inv']}</p>`;
-        cart.innerHTML = html;
+        const cart = cartTemplate.content.cloneNode(true);
+        cart.querySelector('.cart-item__cantInv').textContent = product['cantidad_inv'];
+        cart.querySelector('.row-img img').src = `../modelos/imagenes/${product['imagen_prod']}`;
+        cart.querySelector('.cart-item__codigo').textContent = product['codigo_prod'];
+        cart.querySelector('.cart-item__cantidad').value = product['cantidad_pfpd'];
+        cart.querySelector('.cart-item__costUnit').value = parseFloat(product['cost_uni_pfpd']).toFixed(2);
+        cart.querySelector('.cart-item__costTotal').value = (product['cantidad_pfpd'] * parseFloat(product['cost_uni_pfpd'])).toFixed(2);
+        cart.querySelector('p[hidden]').textContent = product['id_inv'];
         item.appendChild(cart);
-        costTotal += parseFloat(product['cost_uni_pfpd']).toFixed(2) * product['cantidad_pfpd'];
+        costTotal += parseFloat(product['cost_uni_pfpd']) * product['cantidad_pfpd'];
     });
-    countProductsSold.innerText = products.length;
-    totalProductsSold.innerText = `BS ${costTotal.toFixed(2)}`;
-
+    document.getElementById('subTotalNE').innerText = `Sub-Total(Bs): ${costTotal.toFixed(2)} Bs`;
+    let desc = (costTotal * Number(document.getElementById('descuento_prof').value) / 100).toFixed(2);
+    document.getElementById('descNE').innerText = `Desc. ${Number(document.getElementById('descuento_prof').value)}% (Bs): ${desc} Bs`;
+    document.getElementById('totalNE').innerText = `Total(Bs): ${(costTotal - desc).toFixed(2)} Bs`;
+    document.getElementById('quantityNE').innerText = products.length;
+    document.getElementById('btnBuy').removeAttribute('hidden');
+    productsSold.classList.add('modal__show');
 }
 function createNotaEntrega() {
-    let carts = productsSold.querySelectorAll('#cartsProductsSold div.cart-item');
-    let count = true;
+    const carts = productsSold.querySelectorAll('#cartsProductsSold div.cart-item');
     let arrayObjetos = [];
+    let count = true;
     for (let i = 0; i < carts.length; i++) {
         if (Number(carts[i].children[0].innerText) < Number(carts[i].children[3].value)) {
             alert('No hay la cantidad suficiente en inventario del prducto: ' + carts[i].children[2].innerText);
@@ -1462,22 +1284,14 @@ function createNotaEntrega() {
         }
     }
     if (count == true) {
-        let formNotaEntregaR = document.querySelectorAll('#formNotaEntregaR input.form__input');
-        let object = {};
-        formNotaEntregaR.forEach(input => {
-            if (input.name == 'fecha_ne') {
-                object[input.name] = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`;
-            } else {
-                object[input.name] = input.value;
-            }
-        });
         if (confirm('¿Esta usted seguro?')) {
-            if (rqstCreateNE == false) {
-                rqstCreateNE = true;
+            if (requestNE == false) {
+                requestNE = true;
                 notaEntregaRMW.classList.remove('modal__show');
                 productsSold.classList.remove('modal__show');
-                let formData = new FormData();
-                formData.append('createNotaEntrega', JSON.stringify(object));
+                const form = document.getElementById('formNotaEntregaR');
+                let formData = new FormData(form);
+                formData.append('createNotaEntrega', '');
                 formData.append('arrayObjetos', JSON.stringify(arrayObjetos));
                 formData.append('id_usua', localStorage.getItem('id_usua'));
                 preloader.classList.add('modal__show');
@@ -1485,27 +1299,28 @@ function createNotaEntrega() {
                     method: "POST",
                     body: formData
                 }).then(response => response.text()).then(data => {
-                    preloader.classList.remove('modal__show');
-                    rqstCreateNE = false;
+                    requestNE = false;
                     alert(data);
-                    formNotaEntregaR.forEach(input => { input.value = '' });
+                    form.reset();
                     readProformas();
                     readInventories();
+                    preloader.classList.remove('modal__show');
                 }).catch(err => {
-                    rqstCreateNE = false;
+                    requestNE = false;
                     alert(err);
                 });
             }
         }
     }
-
 }
 //-----------------------------------------------MODAL DE NOTA DE ENTREGA--------------------------------------------
 const closeNotaEntregaRMW = document.getElementById('closeNotaEntregaRMW');
 const notaEntregaRMW = document.getElementById('notaEntregaRMW');
-function openNotaEntregaRMW(id_prof) {
+function openNotaEntregaRMW(tr) {
     document.getElementsByName('fecha_ne')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
-    document.getElementsByName('fk_id_prof_ne')[0].value = id_prof;
+    document.getElementById('fk_id_prof_ne').value = tr.children[0].innerText;
+    document.getElementById('descuento_prof').value = tr.children[7].innerText;
+    document.getElementById('numero_prof').value = tr.children[2].innerText;
     notaEntregaRMW.classList.add('modal__show');
 }
 closeNotaEntregaRMW.addEventListener('click', (e) => {
@@ -1547,20 +1362,29 @@ const formClienteR = document.getElementById('formClienteR');
 formClienteR.addEventListener('submit', createCustomer);
 function createCustomer() {
     event.preventDefault();
-    customersRMW.classList.remove('modal__show');
-    let formData = new FormData(formClienteR);
-    formData.append('createCustomer', '');
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.text()).then(data => {
-        alert(data);
-        indexCustomer = 0;
-        readCustomers();
-        //Limpiar
-        const inputsR = document.querySelectorAll('#formClienteR .form__group input');
-        inputsR.forEach(input => { input.value = '' })
-    }).catch(err => console.log(err));
+    if (requestClte == false) {
+        requestClte = true;
+        customersRMW.classList.remove('modal__show');
+        let formData = new FormData(formClienteR);
+        formData.append('createCustomer', '');
+        preloader.classList.add('modal__show');
+        fetch('../controladores/clientes.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            requestClte = false;
+            alert(data);
+            indexCustomer = 0;
+            readCustomers();
+            const inputsR = document.querySelectorAll('#formClienteR .form__group input');
+            inputsR.forEach(input => { input.value = '' });
+            preloader.classList.remove('modal__show');
+        }).catch(err => {
+            requestClte = false;
+            alert(err);
+        });
+    }
+
 }
 //------Read a Customer
 function readCustomer(tr) {
@@ -1585,32 +1409,50 @@ const formClienteM = document.getElementById('formClienteM');
 formClienteM.addEventListener('submit', updateCustomer);
 function updateCustomer() {
     event.preventDefault();
-    customersMMW.classList.remove('modal__show');
-    let formData = new FormData(formClienteM);
-    formData.append('updateCustomer', '');
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.text()).then(data => {
-        alert(data);
-        indexCustomer = selectCustomerR.value;
-        readCustomers();
-    }).catch(err => console.log(err));
-}
-//------Delete a Customer
-function deleteCustomer(tr) {
-    if (confirm('¿Esta usted seguro?')) {
-        let id_clte = tr.children[0].value;
-        let formData = new FormData();
-        formData.append('deleteCustomer', id_clte);
+    if (requestClte == false) {
+        requestClte = true;
+        customersMMW.classList.remove('modal__show');
+        let formData = new FormData(formClienteM);
+        formData.append('updateCustomer', '');
+        preloader.classList.add('modal__show');
         fetch('../controladores/clientes.php', {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            alert(data)
-            indexCustomer = 0;
+            requestClte = false;
+            alert(data);
+            indexCustomer = selectCustomerR.value;
             readCustomers();
-        }).catch(err => console.log(err));
+            preloader.classList.remove('modal__show');
+        }).catch(err => {
+            requestClte = false;
+            alert(err);
+        });
+    }
+}
+//------Delete a Customer
+function deleteCustomer(tr) {
+    if (confirm('¿Esta usted seguro?')) {
+        if (requestClte == false) {
+            requestClte = true;
+            let id_clte = tr.children[0].value;
+            let formData = new FormData();
+            formData.append('deleteCustomer', id_clte);
+            preloader.classList.add('modal__show');
+            fetch('../controladores/clientes.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                requestClte = false;
+                alert(data)
+                indexCustomer = 0;
+                readCustomers();
+                preloader.classList.remove('modal__show');
+            }).catch(err => {
+                requestClte = false;
+                alert(err)
+            });
+        }
     }
 }
 //------Empresa de cliente
@@ -1865,21 +1707,28 @@ const formEmpresaR = document.getElementById('formEmpresaR');
 formEmpresaR.addEventListener('submit', createEnterprise);
 function createEnterprise() {
     event.preventDefault();
-    enterprisesRMW.classList.remove('modal__show');
-    let formData = new FormData(formEmpresaR);
-    formData.append('createEnterprise', '');
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.text()).then(data => {
-        indexEnterprise = 0;
-        readCustomers();
-        readEnterprises();
-        alert(data);
-    }).catch(err => console.log(err));
-    //Limpiar el formulario de registrar empresa
-    let inputs = document.querySelectorAll('#formEmpresaR .form__input');
-    inputs.forEach(input => input.value = '');
+    if (requestEmp == false) {
+        requestEmp = true;
+        enterprisesRMW.classList.remove('modal__show');
+        let formData = new FormData(formEmpresaR);
+        formData.append('createEnterprise', '');
+        preloader.classList.add('modal__show');
+        fetch('../controladores/clientes.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            requestEmp = false;
+            indexEnterprise = 0;
+            formEmpresaR.reset();
+            readCustomers();
+            readEnterprises();
+            alert(data);
+            preloader.classList.remove('modal__show');
+        }).catch(err => {
+            requestEmp = false;
+            alert(err);
+        });
+    }
 }
 //------Leer una empresa
 function readEnterprise(div) {
@@ -1899,35 +1748,50 @@ let formEmpresaM = document.getElementById('formEmpresaM');
 formEmpresaM.addEventListener('submit', updateEnterprise);
 function updateEnterprise() {
     event.preventDefault();
-    enterprisesMMW.classList.remove('modal__show');
-    let formData = new FormData(formEmpresaM);
-    formData.append('updateEnterprise', '');
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.text()).then(data => {
-        indexEnterprise = document.getElementsByName('fk_id_emp_clteR')[0].value;
-        readEnterprises();
-        alert(data);
-    }).catch(err => console.log(err));
+    if (requestEmp == false) {
+        requestEmp = true;
+        enterprisesMMW.classList.remove('modal__show');
+        let formData = new FormData(formEmpresaM);
+        formData.append('updateEnterprise', '');
+        preloader.classList.add('modal__show');
+        fetch('../controladores/clientes.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            requestEmp = false;
+            indexEnterprise = document.getElementsByName('fk_id_emp_clteR')[0].value;
+            readEnterprises();
+            alert(data);
+            preloader.classList.remove('modal__show');
+        }).catch(err => {
+            requestEmp = false;
+            alert(err);
+        });
+    }
 }
 //------Borrar una empresa
 function deleteEnterprise(div) {
     let id_emp = div.children[0].value;
     if (confirm('¿Esta usted seguro?')) {
-        let formData = new FormData();
-        formData.append('deleteEnterprise', id_emp);
-        fetch('../controladores/clientes.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            if (data != 'Eliminado') {
+        if (requestEmp == false) {
+            requestEmp = true;
+            let formData = new FormData();
+            formData.append('deleteEnterprise', id_emp);
+            preloader.classList.add('modal__show');
+            fetch('../controladores/clientes.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                requestEmp = false;
                 alert(data);
-            } else {
                 indexEnterprise = 0;
                 readEnterprises();
-            }
-        }).catch(err => console.log(err));
+                preloader.classList.remove('modal__show');
+            }).catch(err => {
+                requestEmp = false;
+                alert(err);
+            });
+        }
     }
 }
 //<<----------------------------------------ABRIR Y CERRAR VENTANAS MODALES--------------------------------->>
@@ -2357,49 +2221,58 @@ closeProductSMW.addEventListener('click', () => {
 //<<------------------------------------------CRUD DE PRODUCTS------------------------------------->>
 //------Create un producto
 document.getElementById("formProductsR").addEventListener("submit", createProduct);
-function createProduct(){
+function createProduct() {
     event.preventDefault();
-    if(marca_prodR.value == "todasLasMarcas"){
-        alert("Debe seleccionar una marca");
-    }else if(categoria_prodR.value == "todasLasCategorias"){
-        alert("Debe seleccionar una categoria");
-    }else{
-        productsRMW.classList.remove('modal__show');
-        let form = document.getElementById("formProductsR");
-        let formData = new FormData(form);
-        formData.append('createProduct', '');
-        fetch('../controladores/productos.php', {
+    if (requestProducts == false) {
+        requestProducts = true;
+        if (marca_prodR.value == "todasLasMarcas") {
+            alert("Debe seleccionar una marca");
+        } else if (categoria_prodR.value == "todasLasCategorias") {
+            alert("Debe seleccionar una categoria");
+        } else {
+            productsRMW.classList.remove('modal__show');
+            let form = document.getElementById("formProductsR");
+            let formData = new FormData(form);
+            formData.append('createProduct', '');
+            preloader.classList.add('modal__show');
+            fetch('../controladores/productos.php', {
                 method: "POST",
                 body: formData
-        }).then(response => response.text()).then(data => {
-            if (data=="El codigo ya existe"){
-                alert(data);
-            }else{
-                alert("El producto fue creado con éxito");
-                readProducts();
-                cleanUpProductFormR();
-            }
-        }).catch(err => console.log(err));
+            }).then(response => response.text()).then(data => {
+                preloader.classList.remove('modal__show');
+                requestProducts = false;
+                if (data == "El codigo ya existe") {
+                    alert(data);
+                } else {
+                    alert("El producto fue creado con éxito");
+                    readProducts();
+                    cleanUpProductFormR();
+                }
+            }).catch(err => {
+                requestProducts = false;
+                alert(err);
+            });
+        }
     }
 }
 //------Leer un producto
-function readProduct(tr){
+function readProduct(tr) {
     cleanUpProductFormM();
-    let codigo_prod = tr.children[2].innerText;
-    for(let product in filterProducts){
-        if(filterProducts[product]['codigo_prod']==codigo_prod){
-            for(let valor in filterProducts[product]){
-                if(valor == 'imagen_prod'){
+    let id_prod = tr.children[0].innerText;
+    for (let product in filterProducts) {
+        if (filterProducts[product]['id_prod'] == id_prod) {
+            for (let valor in filterProducts[product]) {
+                if (valor == 'imagen_prod') {
                     document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("../modelos/imagenes/${filterProducts[product][valor]}"); background-size: cover;`);
-                }else if(valor == 'id_ctgr'){
-                }else if(valor == 'id_mrc'){
-                }else if(valor == 'marca_prod'){
-                    document.getElementsByName(valor+'M')[0].value = filterProducts[product]['id_mrc'];
-                }else if(valor == 'categoria_prod'){
-                    selectCategoriaProdM(); 
-                    document.getElementsByName(valor+'M')[0].value = filterProducts[product]['id_ctgr'];
-                }else{
-                    document.getElementsByName(valor+'M')[0].value = filterProducts[product][valor];
+                } else if (valor == 'id_ctgr') {
+                } else if (valor == 'id_mrc') {
+                } else if (valor == 'marca_prod') {
+                    document.getElementsByName(valor + 'M')[0].value = filterProducts[product]['id_mrc'];
+                } else if (valor == 'categoria_prod') {
+                    selectCategoriaProdM();
+                    document.getElementsByName(valor + 'M')[0].value = filterProducts[product]['id_ctgr'];
+                } else {
+                    document.getElementsByName(valor + 'M')[0].value = filterProducts[product][valor];
                 }
             }
             break;
@@ -2409,25 +2282,33 @@ function readProduct(tr){
 }
 //-------Update un producto
 document.getElementById("formProductsM").addEventListener("submit", updateProduct);
-function updateProduct(){
+function updateProduct() {
     event.preventDefault();
-    if(marca_prodM.value == "todasLasMarcas"){
-        alert("Debe seleccionar una marca");
-    }else if(categoria_prodM.value == "todasLasCategorias"){
-        alert("Debe seleccionar una categoria");
-    }else{
-        productsMMW.classList.remove('modal__show');
-        modalCard.classList.remove('modal__show');
-        let form = document.getElementById("formProductsM");
-        let formData = new FormData(form);
-        formData.append('updateProduct', '');
-        fetch('../controladores/productos.php', {
+    if (requestProducts == false) {
+        requestProducts = true;
+        if (marca_prodM.value == "todasLasMarcas") {
+            alert("Debe seleccionar una marca");
+        } else if (categoria_prodM.value == "todasLasCategorias") {
+            alert("Debe seleccionar una categoria");
+        } else {
+            productsMMW.classList.remove('modal__show');
+            let form = document.getElementById("formProductsM");
+            let formData = new FormData(form);
+            formData.append('updateProduct', '');
+            preloader.classList.add('modal__show');
+            fetch('../controladores/productos.php', {
                 method: "POST",
                 body: formData
-        }).then(response => response.text()).then(data => {
-            readProducts();
-            alert(data);
-        }).catch(err => console.log(err));
+            }).then(response => response.text()).then(data => {
+                preloader.classList.remove('modal__show');
+                requestProducts = false;
+                readProducts();
+                alert(data);
+            }).catch(err => {
+                requestProducts = false;
+                alert(err);
+            });
+        }
     }
 }
 //<<--------------------------------------------ABRIR Y CERRAR VENTANAS MODALES--------------------------------->>
@@ -2435,21 +2316,21 @@ const productsRMW = document.getElementById('productsRMW');
 const productsMMW = document.getElementById('productsMMW');
 const closeProductsRMW = document.getElementById('closeProductsRMW');
 const closeProductsMMW = document.getElementById('closeProductsMMW');
-function openProductsRMW(){
+function openProductsRMW() {
     productsRMW.classList.add('modal__show');
 }
-closeProductsRMW.addEventListener('click',(e)=>{
+closeProductsRMW.addEventListener('click', (e) => {
     productsRMW.classList.remove('modal__show');
 });
 
-closeProductsMMW.addEventListener('click',(e)=>{
+closeProductsMMW.addEventListener('click', (e) => {
     productsMMW.classList.remove('modal__show');
 });
 //<<-----------------------------------------------------MUESTRA LA IMAGEN CARGADA------------------------------>>
 document.getElementById("imagen_prodR").addEventListener("change", mostrarimagenR);
 document.getElementById("imagen_prodM").addEventListener("change", mostrarimagenM);
 //-------Muestra en un campo la imagen que se esta seleccionando para registrar
-function mostrarimagenR () {
+function mostrarimagenR() {
     let form = document.getElementById('formProductsR');
     //Seleccionar los elementos del form registrar antes de enviar el formulario
     let formData = new FormData(form);
@@ -2459,7 +2340,7 @@ function mostrarimagenR () {
     document.querySelector('.drop__areaR').setAttribute('style', `background-image: url("${urlDeImagen}"); background-size: cover; background-position: center; background-repeat: no-repeat;`);
 }
 //------Muestra en un campo la imagen que se esta seleccionado para modificar
-function mostrarimagenM () {
+function mostrarimagenM() {
     let form = document.getElementById('formProductsM');
     //Seleccionar los elementos del form registrar antes de enviar el formulario
     let formData = new FormData(form);
@@ -2471,30 +2352,30 @@ function mostrarimagenM () {
 //<<------------------------------------------------------CAMPOS DE LOS FORMULARIOS------------------------------->>
 const inputsFormProduct = document.querySelectorAll('.modalP__form .modalP__group input');
 //------Vuelve oblogatorios los campos del formulario
-function requiredInputProd(){
-    inputsFormProduct.forEach(input => input.setAttribute("required",""));
+function requiredInputProd() {
+    inputsFormProduct.forEach(input => input.setAttribute("required", ""));
     //formulario registrar
-    document.getElementsByName("imagen_prodR")[0].setAttribute('accept',"image/jpeg, image/jpg");
-    document.getElementsByName("descripcion_prodR")[0].setAttribute("required","");
+    document.getElementsByName("imagen_prodR")[0].setAttribute('accept', "image/jpeg, image/jpg");
+    document.getElementsByName("descripcion_prodR")[0].setAttribute("required", "");
     //formulario modificar
-    document.getElementsByName("id_prodM")[0].setAttribute("hidden","");
-    document.getElementsByName("imagen_prodM")[0].setAttribute("accept","image/jpeg, image/jpg");
-    document.getElementsByName("descripcion_prodM")[0].setAttribute("required","");
+    document.getElementsByName("id_prodM")[0].setAttribute("hidden", "");
+    document.getElementsByName("imagen_prodM")[0].setAttribute("accept", "image/jpeg, image/jpg");
+    document.getElementsByName("descripcion_prodM")[0].setAttribute("required", "");
 }
 //<<-------------------------------------------------------ESPACIOS OBLIGATORIOS de formProductsR y formProductsM ------------------------------------------>>
 inputsFormProduct.forEach(input => {
-    input.setAttribute('required','');
+    input.setAttribute('required', '');
 })
 //<<---------------------------------------------------LIMPIAR CAMPOS DEL FORMULARIO----------------------------------->>
 //------Limpia los campos del fomulario registrar
-function cleanUpProductFormR(){
+function cleanUpProductFormR() {
     inputsFormProduct.forEach(input => input.value = "");
     document.getElementsByName("descripcion_prodR")[0].value = "";
     document.getElementsByName("imagen_prodR")[0].value = "";
     document.querySelector('.drop__areaR').removeAttribute('style');
 }
 //------Limpia los campos del fomulario Modificar
-function cleanUpProductFormM(){
+function cleanUpProductFormM() {
     inputsFormProduct.forEach(input => input.value = "");
     document.getElementsByName("descripcion_prodM")[0].value = "";
     document.getElementsByName("imagen_prodM")[0].value = "";
@@ -2506,13 +2387,13 @@ const dragTextR = dropAreaR.querySelector('h2');
 const buttonR = dropAreaR.querySelector('button');
 const inputR = dropAreaR.querySelector('#imagen_prodR');
 let filesR;
-buttonR.addEventListener('click', ()=>{
+buttonR.addEventListener('click', () => {
     //llamamos al evento click del inputR
     event.preventDefault();
     inputR.click();
 })
 /*Cuando tenemos elementos q se estan arraztrando se activa*/
-dropAreaR.addEventListener('dragover', (e)=>{
+dropAreaR.addEventListener('dragover', (e) => {
     //Se necesita poner el preventDefault
     e.preventDefault();
     dropAreaR.classList.add('active');
@@ -2520,14 +2401,14 @@ dropAreaR.addEventListener('dragover', (e)=>{
 
 });
 /*Cunado estemos arrastrando pero no estamos dentro de la zona*/
-dropAreaR.addEventListener('dragleave', (e)=>{
+dropAreaR.addEventListener('dragleave', (e) => {
     //Se necesita poner el preventDefault
     e.preventDefault();
     dropAreaR.classList.remove('active');
     dragTextR.textContent = 'Arrastra y suelta la imágen';
 });
 /*Cuando soltamos el archivo q estamos arrastrando dentro de la zona*/
-dropAreaR.addEventListener('drop', (e)=>{
+dropAreaR.addEventListener('drop', (e) => {
     //Se necesita poner el preventDefault para que al momento de soltar no abra la imagen en el navegador
     e.preventDefault();
     filesR = e.dataTransfer.files;
@@ -2535,19 +2416,19 @@ dropAreaR.addEventListener('drop', (e)=>{
     dropAreaR.classList.remove('active');
     dragTextR.textContent = 'Arrastra y suelta la imagen';
 });
-function showFiles(){
-        for(let file of filesR){
-            processFile(file);
-        }
+function showFiles() {
+    for (let file of filesR) {
+        processFile(file);
+    }
 }
-function processFile(file){
+function processFile(file) {
     let docType = file.type;
     let validExtensions = ['image/jpeg', 'image/jpg'];
-    if(validExtensions.includes(docType)){
+    if (validExtensions.includes(docType)) {
         //archivo valido
         inputR.files = filesR;
         mostrarimagenR();
-    }else{
+    } else {
         //archivo no valido
         alert('No es una archivo valido');
     }
@@ -2557,13 +2438,13 @@ const dragTextM = dropAreaM.querySelector('h2');
 const buttonM = dropAreaM.querySelector('button');
 const inputM = dropAreaM.querySelector('#imagen_prodM');
 let filesM;
-buttonM.addEventListener('click', ()=>{
+buttonM.addEventListener('click', () => {
     //llamamos al evento click del inputR
     event.preventDefault();
     inputM.click();
 })
 /*Cuando tenemos elementos q se estan arraztrando se activa*/
-dropAreaM.addEventListener('dragover', (e)=>{
+dropAreaM.addEventListener('dragover', (e) => {
     //Se necesita poner el preventDefault
     e.preventDefault();
     dropAreaM.classList.add('active');
@@ -2571,14 +2452,14 @@ dropAreaM.addEventListener('dragover', (e)=>{
 
 });
 /*Cunado estemos arrastrando pero no estamos dentro de la zona*/
-dropAreaM.addEventListener('dragleave', (e)=>{
+dropAreaM.addEventListener('dragleave', (e) => {
     //Se necesita poner el preventDefault
     e.preventDefault();
     dropAreaM.classList.remove('active');
     dragTextM.textContent = 'Arrastra y suelta la imágen';
 });
 /*Cuando soltamos el archivo q estamos arrastrando dentro de la zona*/
-dropAreaM.addEventListener('drop', (e)=>{
+dropAreaM.addEventListener('drop', (e) => {
     //Se necesita poner el preventDefault para que al momento de soltar no abra la imagen en el navegador
     e.preventDefault();
     filesM = e.dataTransfer.files;
@@ -2586,19 +2467,19 @@ dropAreaM.addEventListener('drop', (e)=>{
     dropAreaM.classList.remove('active');
     dragTextM.textContent = 'Arrastra y suelta la imagen';
 });
-function showFilesM(){
-        for(let file of filesM){
-            processFileM(file);
-        }
+function showFilesM() {
+    for (let file of filesM) {
+        processFileM(file);
+    }
 }
-function processFileM(file){
+function processFileM(file) {
     let docType = file.type;
     let validExtensions = ['image/jpeg', 'image/jpg'];
-    if(validExtensions.includes(docType)){
+    if (validExtensions.includes(docType)) {
         //archivo valido
         inputM.files = filesM;
         mostrarimagenM();
-    }else{
+    } else {
         //archivo no valido
         alert('No es una archivo valido');
     }
@@ -2817,30 +2698,30 @@ const marca_prodM = document.getElementById('marca_prodM');
 marca_prodM.addEventListener('change', selectCategoriaProdM);
 const categoria_prodM = document.getElementById('categoria_prodM');
 //-------Select de marcas registrar
-function selectMarcaProdM(){
+function selectMarcaProdM() {
     marca_prodM.innerHTML = '';
     let option = document.createElement('option');
     option.value = 'todasLasMarcas';
     option.innerText = 'Todas las marcas';
-    marca_prodM.appendChild(option); 
-    for ( let clave in marcas){
+    marca_prodM.appendChild(option);
+    for (let clave in marcas) {
         let option = document.createElement('option');
         option.value = marcas[clave]['id_mrc'];
         option.innerText = marcas[clave]['nombre_mrc'];
         marca_prodM.appendChild(option);
     }
-    selectCategoriaProdM();        
+    selectCategoriaProdM();
 }
-function selectCategoriaProdM(){
-    categoria_prodM.innerHTML = ''; 
+function selectCategoriaProdM() {
+    categoria_prodM.innerHTML = '';
     let option = document.createElement('option');
     option.value = 'todasLasCategorias';
     option.innerText = 'Todas las categorias';
     categoria_prodM.appendChild(option);
-    if(marca_prodM.value != 'todasLasMarcas'){
+    if (marca_prodM.value != 'todasLasMarcas') {
         let id_mrc = marca_prodM.value;
-        for ( let clave in categorias){
-            if (categorias[clave]['id_mrc'] == id_mrc){
+        for (let clave in categorias) {
+            if (categorias[clave]['id_mrc'] == id_mrc) {
                 let option = document.createElement('option');
                 option.value = categorias[clave]['id_ctgr'];
                 option.innerText = categorias[clave]['nombre_ctgr'];
