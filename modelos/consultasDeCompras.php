@@ -153,7 +153,7 @@ class Consultas{
 	//------read cpm_prod
 	public function readCmp_prods(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM cmp_prod INNER JOIN producto ON cmp_prod.fk_id_prod_cppd = producto.id_prod INNER JOIN compra ON cmp_prod.fk_id_cmp_cppd = compra.id_cmp INNER JOIN marca ON producto.fk_id_mrc_prod = marca.id_mrc INNER JOIN categoria ON producto.fk_id_ctgr_prod = categoria.id_ctgr INNER JOIN usuario ON compra.fk_id_usua_cmp = usuario.id_usua INNER JOIN proveedor ON compra.fk_id_prov_cmp = proveedor.id_prov INNER JOIN empresa_prov ON proveedor.fk_id_empp_prov = empresa_prov.id_empp ORDER BY id_cppd DESC";
+		$consulta = "SELECT * FROM cmp_prod INNER JOIN producto ON cmp_prod.fk_id_prod_cppd = producto.id_prod INNER JOIN compra ON cmp_prod.fk_id_cmp_cppd = compra.id_cmp INNER JOIN marca ON producto.fk_id_mrc_prod = marca.id_mrc INNER JOIN categoria ON producto.fk_id_ctgr_prod = categoria.id_ctgr INNER JOIN usuario ON compra.fk_id_usua_cmp = usuario.id_usua INNER JOIN proveedor ON compra.fk_id_prov_cmp = proveedor.id_prov INNER JOIN empresa_prov ON proveedor.fk_id_empp_prov = empresa_prov.id_empp ORDER BY id_cppd ASC";
 		$resultado = $conexion->query($consulta);
 		$filas = array();
 		while ($fila = $resultado->fetch_assoc()){

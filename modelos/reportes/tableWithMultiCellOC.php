@@ -102,8 +102,8 @@ function CheckPageBreak($h){
         $this->SetTextColor(255,255,255);
         $this->SetFont('arial','b',9);
         $this->Cell(10,12, utf8_decode('Item'),1,0,'C',true);
-        $this->Cell(20,12, utf8_decode('Código'),1,0,'C',true);
-        $this->Cell(96,12, utf8_decode('Descripción'),1,0,'C',true);
+        $this->Cell(30,12, utf8_decode('Código'),1,0,'C',true);
+        $this->Cell(86,12, utf8_decode('Descripción'),1,0,'C',true);
         $this->Cell(15,12, utf8_decode('Cant.'),1,0,'C',true);
         $x = $this->GetX();
         $this->Cell(41,6, utf8_decode('Costo '.$unidad3),1,1,'C',true);

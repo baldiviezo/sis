@@ -33,8 +33,8 @@ $fpdf->Cell(35,6, utf8_decode('Dirección: '),'L',1,'l',true);
 $fpdf->Cell(35,6, utf8_decode('Teléfono: '),'LB',1,'l',true);
 $fpdf->ln(2);
 $fpdf->Cell(10,12, utf8_decode('Item'),1,0,'C',true);
-$fpdf->Cell(20,12, utf8_decode('Código'),1,0,'C',true);
-$fpdf->Cell(96,12, utf8_decode('Descripción'),1,0,'C',true);
+$fpdf->Cell(30,12, utf8_decode('Código'),1,0,'C',true);
+$fpdf->Cell(86,12, utf8_decode('Descripción'),1,0,'C',true);
 $fpdf->Cell(15,12, utf8_decode('Cant.'),1,0,'C',true);
 $fpdf->Cell(41,6, utf8_decode('Costo Bs'),1,1,'C',true);
 $fpdf->SetXY(158,92);
@@ -67,7 +67,7 @@ $fpdf->ln(14);
 $fpdf->SetTextColor(0,0,0);
 $fpdf->SetFont('arial','',9);
 
-$fpdf->SetWidths(array(10,20,96,15,17,24));
+$fpdf->SetWidths(array(10,30,86,15,17,24));
 //------
 //$productos = json_decode($_SESSION['cart'],true);
 include '../../modelos/conexion.php';

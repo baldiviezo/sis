@@ -9,6 +9,7 @@ let rqstCreateBuy = false;
 let rqstUpdateBuy = false;
 let rqstDeleteBuy = false;
 let rqstAddBuy = false;
+let requestProducts = false;
 //-----------------------------------------------FECHA ACTUAL-------------------------------------
 const date = new Date();
 const dateFormat = new Intl.DateTimeFormat('es-ES', {
@@ -653,6 +654,7 @@ function tableBuys(page) {
 let formBuyR = document.getElementById('formBuyR');
 function createBuy() {
     buyRMW.classList.remove('modal__show');
+    cmp_prodRMW.classList.remove('modal__show');
     totalPriceCPPDR();
     let products = document.querySelectorAll('#cmp_prodRMW div.modal__body div.cart__item');
     if (products.length > 0) {
@@ -696,7 +698,6 @@ function createBuy() {
 }
 //------read Buy
 function readBuy(id_cmp) {
-    buyMMW.classList.add('modal__show');
     let filterBuy = Object.values(filterBuys).find(buy => buy['id_cmp'] === id_cmp);
     if (filterBuy) {
         const properties = ['id_cmp', 'fecha_cmp', 'numero_cmp', 'forma_pago_cmp', 'tpo_entrega_cmp', 'tipo_cambio_cmp', 'descuento_cmp', 'observacion_cmp'];
@@ -738,10 +739,13 @@ function readCmp_prod(id_cmp) {
         cmp_prodMMW.querySelector('div.modal__body').appendChild(div);
     });
     totalPriceCPPDM();
+    buyMMW.classList.add('modal__show');
 }
 //------Update buy
 const formBuyM = document.getElementById('formBuyM');
 function updateBuy() {
+    buyMMW.classList.remove('modal__show');
+    cmp_prodMMW.classList.remove('modal__show');
     totalPriceCPPDM();
     let products = document.querySelectorAll('#cmp_prodMMW div.modal__body div.cart__item');
     if (products.length > 0) {
@@ -755,7 +759,6 @@ function updateBuy() {
             };
             array.push(object);
         });
-        buyMMW.classList.remove('modal__show');
         if (rqstUpdateBuy == false) {
             rqstUpdateBuy = true;
             let formData = new FormData(formBuyM);
@@ -860,7 +863,7 @@ function showproductsAddBuyMW() {
             <p class="numero--addProd">${++i}</p>
             <img src="../modelos/imagenes/${cmp_prods[cmp_prod]['imagen_prod']}" alt="" class="imagen--addProd"/>
             <p class="codigo--addProd">${cmp_prods[cmp_prod]['codigo_prod']}</p>
-            <p class="descripcion--addProd">${cmp_prods[cmp_prod]['descripcion_cppd']}</p>
+            <textarea class="cart__item--name">${cmp_prods[cmp_prod]['descripcion_cppd']}</textarea>
             <p class="cantidad--addProd">${cmp_prods[cmp_prod]['cantidad_cppd']}</p>
             <p class="costo--addProd">${cmp_prods[cmp_prod]['cost_uni_cppd']}</p>
             <p class="total--addProd">${Number(cmp_prods[cmp_prod]['cost_uni_cppd'] * cmp_prods[cmp_prod]['cantidad_cppd']).toFixed(2)}</p>`;
@@ -1052,7 +1055,6 @@ function openCmp_prodRMW() {
 closeCmp_prodRMW.addEventListener('click', (e) => {
     cmp_prodRMW.classList.remove('modal__show');
 });
-
 //------------------------------------------------TABLA MODAL PRODUCTS--------------------------------------------------
 let products = {};
 filterProductsMW = {};
@@ -1275,7 +1277,7 @@ function cartProduct_cppdR(product) {
     let html =
         `<input type="hidden"  value = "${product['id_prod']}" class="cart__item--id">
         <input type="text" value = "${product['codigo_prod']}" class="cart__item--code">
-        <textarea class="cart__item--name" >${product['nombre_prod']}</textarea>
+        <textarea class="cart__item--name">${product['nombre_prod']}</textarea>
         <input type="number" value = "1" min="1" onChange="changeQuantityCPPDR(this.parentNode)" class="cart__item--quantity">
         <input type="number" value = "0" onChange="changeQuantityCPPDR(this.parentNode)" class="cart__item--costUnit">
         <input type="number" value = "0" class="cart__item--costTotal" readonly>
@@ -1513,52 +1515,61 @@ function selectCategoriaProductMW() {
     }
     searchProductsMW();
 }
-//---------------------------------------------------CRUD PRODUCTOS----------------------------------------------------------------
+//<<------------------------------------------CRUD DE PRODUCTS------------------------------------->>
 //------Create un producto
 document.getElementById("formProductsR").addEventListener("submit", createProduct);
 function createProduct() {
     event.preventDefault();
-    if (marca_prodR.value == "todasLasMarcas") {
-        alert("Debe seleccionar una marca");
-    } else if (categoria_prodR.value == "todasLasCategorias") {
-        alert("Debe seleccionar una categoria");
-    } else {
-        productsRMW.classList.remove('modal__show');
-        let form = document.getElementById("formProductsR");
-        let formData = new FormData(form);
-        formData.append('createProduct', '');
-        fetch('../controladores/productos.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            if (data == "El codigo ya existe") {
-                alert(data);
-            } else {
-                alert("El producto fue creado con éxito");
-                readProducts();
-                cleanUpProductFormR();
-            }
-        }).catch(err => console.log(err));
+    if (requestProducts == false) {
+        requestProducts = true;
+        if (marca_prodR.value == "todasLasMarcas") {
+            alert("Debe seleccionar una marca");
+        } else if (categoria_prodR.value == "todasLasCategorias") {
+            alert("Debe seleccionar una categoria");
+        } else {
+            productsRMW.classList.remove('modal__show');
+            let form = document.getElementById("formProductsR");
+            let formData = new FormData(form);
+            formData.append('createProduct', '');
+            preloader.classList.add('modal__show');
+            fetch('../controladores/productos.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                preloader.classList.remove('modal__show');
+                requestProducts = false;
+                if (data == "El codigo ya existe") {
+                    alert(data);
+                } else {
+                    alert("El producto fue creado con éxito");
+                    readProducts();
+                    cleanUpProductFormR();
+                }
+            }).catch(err => {
+                requestProducts = false;
+                alert(err);
+            });
+        }
     }
 }
 //------Leer un producto
 function readProduct(tr) {
     cleanUpProductFormM();
     let id_prod = tr.children[0].innerText;
-    for (let product in filterProductsMW) {
-        if (filterProductsMW[product]['id_prod'] == id_prod) {
-            for (let valor in filterProductsMW[product]) {
+    for (let product in filterProducts) {
+        if (filterProducts[product]['id_prod'] == id_prod) {
+            for (let valor in filterProducts[product]) {
                 if (valor == 'imagen_prod') {
-                    document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("../modelos/imagenes/${filterProductsMW[product][valor]}"); background-size: cover;`);
+                    document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("../modelos/imagenes/${filterProducts[product][valor]}"); background-size: cover;`);
                 } else if (valor == 'id_ctgr') {
                 } else if (valor == 'id_mrc') {
                 } else if (valor == 'marca_prod') {
-                    document.getElementsByName(valor + 'M')[0].value = filterProductsMW[product]['id_mrc'];
+                    document.getElementsByName(valor + 'M')[0].value = filterProducts[product]['id_mrc'];
                 } else if (valor == 'categoria_prod') {
                     selectCategoriaProdM();
-                    document.getElementsByName(valor + 'M')[0].value = filterProductsMW[product]['id_ctgr'];
+                    document.getElementsByName(valor + 'M')[0].value = filterProducts[product]['id_ctgr'];
                 } else {
-                    document.getElementsByName(valor + 'M')[0].value = filterProductsMW[product][valor];
+                    document.getElementsByName(valor + 'M')[0].value = filterProducts[product][valor];
                 }
             }
             break;
@@ -1570,22 +1581,31 @@ function readProduct(tr) {
 document.getElementById("formProductsM").addEventListener("submit", updateProduct);
 function updateProduct() {
     event.preventDefault();
-    if (marca_prodM.value == "todasLasMarcas") {
-        alert("Debe seleccionar una marca");
-    } else if (categoria_prodM.value == "todasLasCategorias") {
-        alert("Debe seleccionar una categoria");
-    } else {
-        productsMMW.classList.remove('modal__show');
-        let form = document.getElementById("formProductsM");
-        let formData = new FormData(form);
-        formData.append('updateProduct', '');
-        fetch('../controladores/productos.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            readProducts();
-            alert(data);
-        }).catch(err => console.log(err));
+    if (requestProducts == false) {
+        requestProducts = true;
+        if (marca_prodM.value == "todasLasMarcas") {
+            alert("Debe seleccionar una marca");
+        } else if (categoria_prodM.value == "todasLasCategorias") {
+            alert("Debe seleccionar una categoria");
+        } else {
+            productsMMW.classList.remove('modal__show');
+            let form = document.getElementById("formProductsM");
+            let formData = new FormData(form);
+            formData.append('updateProduct', '');
+            preloader.classList.add('modal__show');
+            fetch('../controladores/productos.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                preloader.classList.remove('modal__show');
+                requestProducts = false;
+                readProducts();
+                alert(data);
+            }).catch(err => {
+                requestProducts = false;
+                alert(err);
+            });
+        }
     }
 }
 //---------------------------------VENTANA MODAL PARA REGISTRAR PRODUCTOS------------------------------>>
@@ -1669,7 +1689,6 @@ dropAreaR.addEventListener('dragover', (e) => {
     e.preventDefault();
     dropAreaR.classList.add('active');
     dragTextR.textContent = 'Suelta para subir el archivo';
-
 });
 /*Cunado estemos arrastrando pero no estamos dentro de la zona*/
 dropAreaR.addEventListener('dragleave', (e) => {
@@ -1810,7 +1829,7 @@ function searchProdOC() {
     }
     selectStateProductOC();
 }
-//-------Estado de proforma
+//-------Estado de cmp_prods
 const selectStateProdOC = document.getElementById('selectStateProdOC');
 selectStateProdOC.addEventListener('change', searchProdOC);
 function selectStateProductOC() {
@@ -1898,10 +1917,10 @@ function paginacionProdOC(allProducts, page) {
     ul.innerHTML = li;
     let h2 = document.querySelector('#showPageProf h2');
     h2.innerHTML = `Pagina ${page}/${allPages}, ${allProducts} Productos`;
-    tableProformas(page);
+    tableCmpProds(page);
 }
-//--------Tabla de proforma
-function tableProformas(page) {
+//--------Tabla de cmp_prods
+function tableCmpProds(page) {
     let tbody = document.getElementById('tbodyProdOC');
     inicio = (page - 1) * Number(selectNumberProdOC.value);
     final = inicio + Number(selectNumberProdOC.value);
@@ -1948,7 +1967,7 @@ function tableProformas(page) {
         }
     }
 }
-//---------------------------------VENTANA MODAL PARA REGISTRAR PRODUCTOS FILTER------------------------------>>
+//---------------------------------VENTANA MODAL PARA FILTRAR PRODUCTOS COMPRADOS ------------------------------>>
 const openProdOC = document.getElementById('openProdOC');
 const closeTableProdOC = document.getElementById('closeTableProdOC');
 const tableProdOC = document.getElementById('tableProdOC');
