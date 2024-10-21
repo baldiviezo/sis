@@ -167,15 +167,6 @@ function tableSales(page) {
         }
     }   
 }
-
-
-
-
-
-
-
-
-
 /***********************************************PRODUCT FILTER VNT_PRODS*********************************************/
 //--------read vnt_prods
 let vnt_prods;
@@ -227,7 +218,7 @@ function searchProdVnt() {
                         filterVnt_prods[proforma] = vnt_prods[proforma];
                         break;
                     }
-                } else if ( valor == 'nombre_emp' || valor == 'nombre_mrc' || valor == 'nombre_ctgr' || valor == 'codigo_vtpd' ||  valor == 'nombre_prod' || valor == 'cantidad_vtpd' || valor == 'cost_uni_vtpd' || valor == 'descuento_prof' || valor == 'fecha_ne' || valor == 'fecha_vnt') {
+                } else if ( valor == 'nombre_emp' || valor == 'nombre_mrc' || valor == 'nombre_ctgr' || valor == 'codigo_vtpd' ||  valor == 'nombre_prod' ||  valor == 'factura_vnt' || valor == 'cantidad_vtpd' || valor == 'cost_uni_vtpd' || valor == 'descuento_prof' || valor == 'fecha_ne' || valor == 'fecha_vnt') {
                     if (vnt_prods[proforma][valor].toString().toLowerCase().indexOf(inputSearchProdVnt.value.toLowerCase()) >= 0) {
                         filterVnt_prods[proforma] = vnt_prods[proforma];
                         break;
@@ -411,7 +402,6 @@ openProdVnt.addEventListener('click', () => {
 closeTableProdVnt.addEventListener('click', () => {
     tableProdVnt.classList.remove('modal__show');
 })
-
 /*********************************************Reporte en Excel****************************************************/
 const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
 const EXCEL_EXTENSION = '.xlsx';
@@ -434,5 +424,40 @@ function saveAsExcel(buffer, filename){
 const excelProdVnt = document.getElementById('excelProdVnt');
 excelProdVnt.addEventListener('click', () => {
     let reversed = Object.values(filterVnt_prods).reverse();
-    downloadAsExcel(reversed)
+    reversed = reversed.map(item => {
+        delete item['id_vtpd'];
+        delete item['fk_id_prod_vtpd'];
+        delete item['imagen_prod'];
+        item.cost_uni_vtpd = parseFloat(item.cost_uni_vtpd).toFixed(2);
+        item.costoTotal = (item.cost_uni_vtpd * item.cantidad_vtpd).toFixed(2);
+        return item
+    })
+    console.log(reversed);
+    //downloadAsExcel(reversed)
 });
+//*******************************************BEST SELLER PRODUCT**************************************************/
+const bestSellingProduct = document.getElementById('bestSellingProduct');
+bestSellingProduct.addEventListener('click', () => {
+    filterMostVnt();
+})
+//------Filtrar el producto mas vendido
+function filterMostVnt() {
+    console.log(filterVnt_prods)
+    const productosVendidos = Object.values(filterVnt_prods).reduce((acc, producto) => {
+        const nombreProducto = producto.codigo_vtpd;
+        if (acc[nombreProducto]) {
+            acc[nombreProducto].cantidad_vtpd += producto.cantidad_vtpd;
+        } else {
+            acc[nombreProducto] = {
+                codigo_vtpd: nombreProducto,
+                cantidad_vtpd: producto.cantidad_vtpd
+            };
+        }
+        return acc;
+    }, []);
+    
+    const productosVendidosOrdenados = Object.values(productosVendidos).sort((a, b) => b.cantidad_vtpd - a.cantidad_vtpd);
+    
+    console.log(productosVendidosOrdenados);
+    paginacionProdVnt(productosVendidosOrdenados.length, 1);
+}

@@ -8,7 +8,7 @@ if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol
     document.querySelectorAll('#formProformaR .form__group--select')[1].children[3].removeAttribute('hidden');
 } else if (localStorage.getItem('rol_usua') == 'Gerente general') {
     document.querySelector('#formProformaR .form__group--select').children[4].removeAttribute('hidden');
-    document.querySelectorAll('#formProformaR .form__group--select')[1].children[3].removeAttribute('hidden');
+    document.querySelectorAll('#formProformaR .form__group--select')[1].children[4].removeAttribute('hidden');
 }
 //-----------------------------------------Block request with a flag---------------------------------------------
 let requestClte = false;
@@ -1330,8 +1330,9 @@ closeNotaEntregaRMW.addEventListener('click', (e) => {
 let selectCustomerR = document.getElementsByName('fk_id_clte_profR')[0];
 let selectCustomerM = document.getElementsByName('fk_id_clte_profM')[0];
 let customers = {};
-let filterCustomers = {};
 let sortCustomers = {};
+let chooseCustomer = [];
+let filterChooseClte = [];
 let indexCustomer = 0;
 let formCustomer;
 readCustomers();
@@ -1343,7 +1344,6 @@ function readCustomers() {
         body: formData
     }).then(response => response.json()).then(data => {
         customers = JSON.parse(JSON.stringify(data));
-        filterCustomers = customers;
         sortCustomers = customers;
         let array = Object.entries(sortCustomers).sort((a, b) => {
             const apellidoCompare = a[1].apellido_clte.toLowerCase().localeCompare(b[1].apellido_clte.toLowerCase());
@@ -1374,29 +1374,27 @@ function createCustomer() {
         }).then(response => response.text()).then(data => {
             requestClte = false;
             alert(data);
-            indexCustomer = 0;
+            indexCustomer = -1;
             readCustomers();
-            const inputsR = document.querySelectorAll('#formClienteR .form__group input');
-            inputsR.forEach(input => { input.value = '' });
+            formClienteR.reset();
             preloader.classList.remove('modal__show');
         }).catch(err => {
             requestClte = false;
             alert(err);
         });
     }
-
 }
 //------Read a Customer
 function readCustomer(tr) {
     formCustomer = 'M';
     selectCreateCustomer();
     let id_clte = tr.children[0].value;
-    for (let customer in filterCustomers) {
-        if (filterCustomers[customer]['id_clte'] == id_clte) {
-            for (let valor in filterCustomers[customer]) {
+    for (let customer in sortCustomers) {
+        if (sortCustomers[customer]['id_clte'] == id_clte) {
+            for (let valor in sortCustomers[customer]) {
                 if (valor == 'nombre_emp' || valor == 'fk_id_emp_clte') {
                 } else {
-                    document.getElementsByName(valor + 'M')[0].value = filterCustomers[customer][valor];
+                    document.getElementsByName(valor + 'M')[0].value = sortCustomers[customer][valor];
                 }
             }
             break;
@@ -1487,6 +1485,181 @@ closeCustomersRMW.addEventListener('click', () => {
 closeCustomersMMW.addEventListener('click', () => {
     customersMMW.classList.remove('modal__show');
 });
+//---------------------------------------------table modal customer---------------------------------
+//------Select utilizado para buscar por columnas
+const selectSearchClteSMW = document.getElementById('selectSearchClteSMW');
+selectSearchClteSMW.addEventListener('change', searchCustomersSMW);
+//------buscar por input
+const inputSearchClteSMW = document.getElementById("inputSearchClteSMW");
+inputSearchClteSMW.addEventListener("keyup", searchCustomersSMW);
+//------Clientes por pagina
+const selectNumberClteSMW = document.getElementById('selectNumberClteSMW');
+selectNumberClteSMW.selectedIndex = 3;
+selectNumberClteSMW.addEventListener('change', function () {
+    paginacionCustomerMW(Object.values(filterEnterprises).length, 1);
+});
+//------buscar por:
+function searchCustomersSMW() {
+    filterChooseClte = {};
+    for (let enterprise in chooseCustomer) {
+        for (let valor in chooseCustomer[enterprise]) {
+            if (selectSearchClteSMW.value == 'todas') {
+                if (valor == 'nit_clte' || valor == 'nombre_emp' || valor == 'email_clte' || valor == 'direccion_clte' || valor == 'celular_clte') {
+                    if (chooseCustomer[enterprise][valor].toLowerCase().indexOf(inputSearchClteSMW.value.toLowerCase()) >= 0) {
+                        filterChooseClte[enterprise] = chooseCustomer[enterprise];
+                        break;
+                    }
+                } else if (valor == 'apellido_clte') {
+                    if ((chooseCustomer[enterprise][valor] + ' ' + chooseCustomer[enterprise]['nombre_clte']).toLowerCase().indexOf(inputSearchClteSMW.value.toLowerCase()) >= 0) {
+                        filterChooseClte[enterprise] = chooseCustomer[enterprise];
+                        break;
+                    }
+                }
+            } else {
+                if (valor == selectSearchClteSMW.value) {
+                    if (chooseCustomer[enterprise][valor].toLowerCase().indexOf(inputSearchClteSMW.value.toLowerCase()) >= 0) {
+                        filterChooseClte[enterprise] = chooseCustomer[enterprise];
+                        break;
+                    }
+                } else if (selectSearchClteSMW.value == 'cliente') {
+                    if ((chooseCustomer[enterprise][valor] + ' ' + chooseCustomer[enterprise]['nombre_clte']).toLowerCase().indexOf(inputSearchClteSMW.value.toLowerCase()) >= 0) {
+                        filterChooseClte[enterprise] = chooseCustomer[enterprise];
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    paginacionCustomerMW(Object.values(filterChooseClte).length, 1);
+}
+//------Ordenar tabla descendente ascendente
+let orderCustomer = document.querySelectorAll('.tbody__head--empMW');
+orderCustomer.forEach(div => {
+    div.children[0].addEventListener('click', function () {
+        let array = Object.entries(filterEnterprises).sort((a, b) => {
+            let first = a[1][div.children[0].name].toLowerCase();
+            let second = b[1][div.children[0].name].toLowerCase();
+            if (first < second) { return -1 }
+            if (first > second) { return 1 }
+            return 0;
+        })
+        filterEnterprises = Object.fromEntries(array);
+        paginacionCustomerMW(Object.values(filterEnterprises).length, 1);
+    });
+    div.children[1].addEventListener('click', function () {
+        let array = Object.entries(filterEnterprises).sort((a, b) => {
+            let first = a[1][div.children[0].name].toLowerCase();
+            let second = b[1][div.children[0].name].toLowerCase();
+            if (first > second) { return -1 }
+            if (first < second) { return 1 }
+            return 0;
+        })
+        filterEnterprises = Object.fromEntries(array);
+        paginacionCustomerMW(Object.values(filterEnterprises).length, 1);
+    });
+})
+//------PaginacionCustomer
+function paginacionCustomerMW(allEnterprises, page) {
+    let numberEnterprises = Number(selectNumberClteSMW.value);
+    let allPages = Math.ceil(allEnterprises / numberEnterprises);
+    let ul = document.querySelector('#wrapperClteSMW ul');
+    let li = '';
+    let beforePages = page - 1;
+    let afterPages = page + 1;
+    let liActive;
+    if (page > 1) {
+        li += `<li class="btn" onclick="paginacionCustomerMW(${allEnterprises}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
+    }
+    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
+        if (pageLength > allPages) {
+            continue;
+        }
+        if (pageLength == 0) {
+            pageLength = pageLength + 1;
+        }
+        if (page == pageLength) {
+            liActive = 'active';
+        } else {
+            liActive = '';
+        }
+        li += `<li class="numb ${liActive}" onclick="paginacionCustomerMW(${allEnterprises}, ${pageLength})"><span>${pageLength}</span></li>`;
+    }
+    if (page < allPages) {
+        li += `<li class="btn" onclick="paginacionCustomerMW(${allEnterprises}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
+    }
+    ul.innerHTML = li;
+    let h2 = document.querySelector('#showPageClteSMW h2');
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${allEnterprises} Empresas`;
+    tableCustomersMW(page);
+}
+//------Crear la tabla
+function tableCustomersMW(page) {
+    const tbody = document.getElementById('tbodyClteSMW');
+    inicio = (page - 1) * Number(selectNumberClteSMW.value);
+    final = inicio + Number(selectNumberClteSMW.value);
+    i = 1;
+    tbody.innerHTML = '';
+    for (let enterprise in  filterChooseClte) {
+        if (i > inicio && i <= final) {
+            let tr = document.createElement('tr');
+            for (let valor in  filterChooseClte[enterprise]) {
+                let td = document.createElement('td');
+                if (valor == 'id_clte') {
+                    td.innerText =  filterChooseClte[enterprise][valor];
+                    td.setAttribute('hidden', '');
+                    tr.appendChild(td);
+                    td = document.createElement('td');
+                    td.innerText = i;
+                    tr.appendChild(td);
+                    i++;
+                } else if (valor == 'nombre_clte'){
+                    td.innerText =  filterChooseClte[enterprise]['apellido_clte'] + ' ' +  filterChooseClte[enterprise][valor];
+                    tr.appendChild(td);
+                } else if (valor == 'apellido_clte' || valor == 'sigla_emp' || valor == 'nit_emp' || valor == 'fk_id_emp_clte' || valor == 'precio_emp' ) {
+                } else if (valor == 'nit_clte') {
+                    if ( filterChooseClte[enterprise][valor] == '0') {
+                        td.innerText = '';
+                    } else {
+                        td.innerText =  filterChooseClte[enterprise][valor];
+                    }
+                    tr.appendChild(td);
+                } else if (valor == 'celular_clte') {
+                    if ( filterChooseClte[enterprise][valor] == '0') {
+                        td.innerText = '';
+                    } else {
+                        td.innerText =  filterChooseClte[enterprise][valor];
+                    }
+                    tr.appendChild(td);
+                } else {
+                    td.innerText =  filterChooseClte[enterprise][valor];
+                    tr.appendChild(td);
+                }
+            }
+            let td = document.createElement('td');
+            td.innerHTML = `
+                <img src='../imagenes/send.svg' onclick='sendCustomers(this.parentNode.parentNode)'>`;
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+        } else {
+            i++;
+        }
+    }
+}
+function sendCustomers(tr) {
+    customerSMW.classList.remove('modal__show');
+    let id_clte = tr.children[0].innerText;
+    selectCustomerR.value = id_clte;
+}
+//----------------------------------ventana modal EnterpriseSMW-------------------------------------------
+const customerSMW = document.getElementById('customerSMW');
+//enterpriseSMW.addEventListener('click', ()=>enterpriseSMW.classList.remove('modal__show'));
+const closeCustomerSMW = document.getElementById('closeCustomerSMW');
+function openCustomersSMW() {
+    customerSMW.classList.add('modal__show');
+}
+closeCustomerSMW.addEventListener('click', () => {
+    customerSMW.classList.remove('modal__show');
+});
 //<<---------------------------------------------EMPRESA---------------------------------------------->>
 const selectEnterpriseR = document.getElementsByName('fk_id_emp_clteR')[0];
 const selectEnterpriseM = document.getElementsByName('fk_id_emp_clteM')[0];
@@ -1495,6 +1668,7 @@ selectEnterpriseR.addEventListener('change', function () {
 });
 let enterprises = {};
 let filterEnterprises = {};
+let sortEnterprises = {};
 let indexEnterprise = 0;
 readEnterprises();
 function readEnterprises() {
@@ -1506,6 +1680,14 @@ function readEnterprises() {
     }).then(response => response.json()).then(data => {
         enterprises = JSON.parse(JSON.stringify(data));
         filterEnterprises = enterprises;
+        sortEnterprises = enterprises;
+        let array = Object.entries(sortEnterprises).sort((a, b) => {
+            const nombreCompare = a[1].nombre_emp.toLowerCase().localeCompare(b[1].nombre_emp.toLowerCase());
+            if (nombreCompare !== 0) {
+                return nombreCompare;
+            }
+        })
+        sortEnterprises = Object.fromEntries(array);
         paginacionEnterpriseMW(Object.values(filterEnterprises).length, 1);
         fillSelectEmp(selectEnterpriseR, indexEnterprise);
     }).catch(err => console.log(err));
@@ -1674,27 +1856,43 @@ closeEnterpriseSMW.addEventListener('click', () => {
 });
 function fillSelectEmp(select, index) {
     select.innerHTML = '';
-    for (let enterprise in enterprises) {
+    for (let enterprise in sortEnterprises) {
         let option = document.createElement('option');
-        option.value = enterprises[enterprise]['id_emp'];
-        option.innerText = enterprises[enterprise]['nombre_emp'];
+        option.value = sortEnterprises[enterprise]['id_emp'];
+        option.innerText = sortEnterprises[enterprise]['nombre_emp'];
         select.appendChild(option);
     }
-    if (index > 0) { select.value = index }
+    if (index > 0) { 
+        select.value = index
+    } else if (index == -1) {
+        const maxIdEmp = Math.max(...Object.values(sortEnterprises).map(enterprise => enterprise.id_emp));
+        select.value = maxIdEmp;
+    }
     fillSelectClte(selectCustomerR, indexCustomer);
 }
 function fillSelectClte(select, index) {
     let id_emp = selectEnterpriseR.value;
     select.innerHTML = '';
+    chooseCustomer = [];
     for (let customer in sortCustomers) {
         if (sortCustomers[customer]['fk_id_emp_clte'] == id_emp) {
             let option = document.createElement('option');
             option.value = sortCustomers[customer]['id_clte'];
             option.innerText = sortCustomers[customer]['apellido_clte'] + ' ' + sortCustomers[customer]['nombre_clte'];
             select.appendChild(option);
+            if (sortCustomers[customer]['nombre_clte'] != '' && sortCustomers[customer]['nombre_clte'] != ''){
+                chooseCustomer.push(sortCustomers[customer]);
+            }
         }
     }
-    if (index > 0) { select.value = index }
+    filterChooseClte = chooseCustomer;
+    paginacionCustomerMW(Object.values(chooseCustomer).length, 1);
+    if (index > 0) { 
+        select.value = index 
+    } else if (index == -1){
+        const maxIdClte = Math.max(...Object.values(sortCustomers).map(customer => customer.id_clte));
+        select.value = maxIdClte;
+    }
     for (let enterprise in enterprises) {
         if (enterprises[enterprise]['id_emp'] == id_emp) {
             document.getElementsByName('descuento_profR')[0].value = enterprises[enterprise]['precio_emp'];
@@ -1718,7 +1916,8 @@ function createEnterprise() {
             body: formData
         }).then(response => response.text()).then(data => {
             requestEmp = false;
-            indexEnterprise = 0;
+            indexEnterprise = -1;
+            console.log(indexEnterprise)
             formEmpresaR.reset();
             readCustomers();
             readEnterprises();

@@ -89,6 +89,10 @@
 				</div>
 				<section class="table__header">
 					<h1 id="totalProdVnt">TOTAL:</h1>
+					<div>
+						<img src="../imagenes/trophy.svg" id="bestSellingProduct" title="Productos mas vendidos">
+						<img src="../imagenes/dollarCircle.svg" id="mostExpensiveProduct" title="Producto mas caro">
+					</div>
 					<img src="../imagenes/excel.svg" id="excelProdVnt" title="Imprimir a excel">
 					<!--<section class="select__search">
 						<div>
@@ -109,6 +113,7 @@
 								<option value="cliente">Por cliente</option>
 								<option value="codigo_vtpd">Por codigo producto</option>
 								<option value="nombre_prod">Por descripción</option>
+								<option value="factura_vnt">Por Factura</option>
 								<option value="cantidad_vtpd">Por cantidad producto</option>
 								<option value="fecha_ne">Por fecha NE</option>
 								<option value="fecha_vnt">Por fecha de facturacion</option>
@@ -145,6 +150,8 @@
 							<tr>
 								<th>N°</th>
 								<th>Proforma</th>
+								<th>Fecha NE</th>
+								<th>Fecha factura</th>
 								<th>Encargado</th>
 								<th>Empresa</th>
 								<th>Cliente</th>
@@ -152,13 +159,12 @@
 								<th>Categoria</th>
 								<th>Codigo</th>
 								<th>Descripcion</th>
+								<th>N° Factura</th>
 								<th>cantidad</th>
 								<th>Cost uni.</th>
 								<th>Subtotal</th>
 								<th>Descuento</th>
 								<th>Total</th>
-								<th>Fecha NE</th>
-								<th>Fecha factura</th>
 							</tr>
 						</thead>
 						<tbody id="tbodyProdVnt">

@@ -375,11 +375,9 @@ function createEnterprise() {
             requestEmp = false;
             alert(data);
             if (data != 'La empresa ya existe') {
+                formEmpresaR.reset();
                 indexEnterprise = 0;
                 readEnterprises();
-                //Limpiar el formulario de registrar empresa
-                let inputs = document.querySelectorAll('#formEmpresaR .form__input');
-                inputs.forEach(input => input.value = '');
             }
         }).catch(err => {
             requestEmp = false;

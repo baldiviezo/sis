@@ -7,6 +7,7 @@ class consultas {
 		//Primero vovlemos toda la palabra en minusculas y despues la primera letra en mayuscula
 		$this->nombreCliente = ucwords(strtolower(trim($conexion->real_escape_string($_POST['nombre_clteR']))));
 		$this->apellidoCliente = ucwords(strtolower(trim($conexion->real_escape_string($_POST['apellido_clteR']))));
+		$this->nit_clte = $conexion->real_escape_string($_POST['nit_clteR']);
 		$this->email_clte = trim($conexion->real_escape_string($_POST['email_clteR']));
 		$this->direccion_clte = trim($conexion->real_escape_string($_POST['direccion_clteR']));
 		$this->celularCliente = $conexion->real_escape_string($_POST['celular_clteR']);
@@ -19,6 +20,7 @@ class consultas {
 		$this->id = $conexion->real_escape_string($_POST['id_clteM']);
 		$this->nombreCliente = ucwords(strtolower(trim($conexion->real_escape_string($_POST['nombre_clteM']))));
 		$this->apellidoCliente = ucwords(strtolower(trim($conexion->real_escape_string($_POST['apellido_clteM']))));
+		$this->nit_clte = $conexion->real_escape_string($_POST['nit_clteM']);
 		$this->email_clte = trim($conexion->real_escape_string($_POST['email_clteM']));
 		$this->direccion_clte = trim($conexion->real_escape_string($_POST['direccion_clteM']));
 		$this->celularCliente = $conexion->real_escape_string($_POST['celular_clteM']);
@@ -101,7 +103,7 @@ class consultas {
 		$numeroClientes = $resultado->num_rows;
 		$clientes =  array();
 		while ($fila = $resultado->fetch_assoc()){
-			$datos = array ( 'id_clte'=>$fila['id_clte'], 'nombre_clte'=>$fila['nombre_clte'], 'apellido_clte'=>$fila['apellido_clte'], 'nombre_emp'=>$fila['nombre_emp'], 'sigla_emp'=>$fila['sigla_emp'], 'nit_emp'=>$fila['nit_emp'], 'email_clte'=>$fila['email_clte'], 'direccion_clte'=>$fila['direccion_clte'], 'celular_clte'=>$fila['celular_clte'], 'fk_id_emp_clte'=>$fila['fk_id_emp_clte'], 'precio_emp'=>$fila['precio_emp']);
+			$datos = array ( 'id_clte'=>$fila['id_clte'], 'nombre_clte'=>$fila['nombre_clte'], 'apellido_clte'=>$fila['apellido_clte'], 'nit_clte'=>$fila['nit_clte'], 'nombre_emp'=>$fila['nombre_emp'], 'sigla_emp'=>$fila['sigla_emp'], 'nit_emp'=>$fila['nit_emp'], 'email_clte'=>$fila['email_clte'], 'direccion_clte'=>$fila['direccion_clte'], 'celular_clte'=>$fila['celular_clte'], 'fk_id_emp_clte'=>$fila['fk_id_emp_clte'], 'precio_emp'=>$fila['precio_emp']);
 			$clientes['clte_'.$fila['id_clte']] = $datos;
 			
 		}
@@ -110,14 +112,14 @@ class consultas {
 	//------Registrar un cliente
 	public function createCustomer(){
 		include 'conexion.php';
-		$consulta = "INSERT INTO cliente (nombre_clte, apellido_clte, email_clte, direccion_clte, celular_clte, fk_id_emp_clte) VALUES ('$this->nombreCliente', '$this->apellidoCliente', '$this->email_clte', '$this->direccion_clte' , '$this->celularCliente', '$this->empresaCliente')";
+		$consulta = "INSERT INTO cliente (nombre_clte, apellido_clte, nit_clte, email_clte, direccion_clte, celular_clte, fk_id_emp_clte) VALUES ('$this->nombreCliente', '$this->apellidoCliente', '$this->nit_clte', '$this->email_clte', '$this->direccion_clte' , '$this->celularCliente', '$this->empresaCliente')";
 		$resultado = $conexion->query($consulta);
 		echo ("Cliente creado con exito");
 	}
 	//------Actualizar un cliente
 	public function updateCustomer(){
 		include 'conexion.php';
-		$consulta = "UPDATE cliente set nombre_clte='$this->nombreCliente', apellido_clte='$this->apellidoCliente', email_clte='$this->email_clte', direccion_clte='$this->direccion_clte', celular_clte='$this->celularCliente', fk_id_emp_clte='$this->empresaCliente' WHERE id_clte='$this->id'";
+		$consulta = "UPDATE cliente set nombre_clte='$this->nombreCliente', apellido_clte='$this->apellidoCliente', nit_clte='$this->nit_clte', email_clte='$this->email_clte', direccion_clte='$this->direccion_clte', celular_clte='$this->celularCliente', fk_id_emp_clte='$this->empresaCliente' WHERE id_clte='$this->id'";
 		$resultado = $conexion->query($consulta);
 		echo ("Cliente modificado con éxito");
 	}

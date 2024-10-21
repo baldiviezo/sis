@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,6 +16,7 @@
 	<link rel="stylesheet" type="text/css" href="../css/productModal.css">
 	<link rel="stylesheet" type="text/css" href="../css/userModal.css">
 </head>
+
 <body class="body__proforma">
 	<header class="header">
 		<nav class="header__nav header__container">
@@ -335,18 +337,18 @@
 			<div id="cartsProductsSold" class="modal__body">
 			</div>
 			<div class="foot">
-				<div class="foot__left table__subTitle" >
-                    <p id="subTotalNE">Sub-Total (Bs):</p>
-                    <p id="descNE">Desc. (Bs):</p>
-                    <p id="totalNE">Total (Bs):</p>
-                </div>
+				<div class="foot__left table__subTitle">
+					<p id="subTotalNE">Sub-Total (Bs):</p>
+					<p id="descNE">Desc. (Bs):</p>
+					<p id="totalNE">Total (Bs):</p>
+				</div>
 				<div class="foot__right">
-                    <div class="cart">
-                        <img src="../imagenes/carrito.svg">
-                        <p id="quantityNE">0</p>
-                    </div>
+					<div class="cart">
+						<img src="../imagenes/carrito.svg">
+						<p id="quantityNE">0</p>
+					</div>
 					<button id="btnBuy" onclick="createNotaEntrega()" class="form__submit" hidden>Registrar</button>
-                </div>
+				</div>
 			</div>
 		</div>
 	</section>
@@ -367,18 +369,24 @@
 						<label class="form__label--only">Empresa:</label>
 						<div class="form__group--select">
 							<select name="fk_id_emp_clteR"></select>
-							<img src="../imagenes/search.svg" onclick="openEnterpriseSMW('R')" class="icon__CRUD" title="Buscar empresa">
-							<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()" class="icon__CRUD" title="Registrar empresa">
-							<img src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)"
-								class="icon__CRUD" title="Editar empresa">
+							<img src="../imagenes/search.svg" onclick="openEnterpriseSMW()" class="icon__CRUD"
+								title="Buscar empresa">
+							<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()" class="icon__CRUD"
+								title="Registrar empresa">
+							<img src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)" class="icon__CRUD"
+								title="Editar empresa">
 							<img src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)"
 								class="icon__CRUD" title="Eliminar empresa" hidden>
 						</div>
 						<label class="form__label--only">Cliente:</label>
 						<div class="form__group--select">
 							<select name="fk_id_clte_profR"></select>
-							<img src="../imagenes/registrar.svg" onclick="openCustomersRMW()" class="icon__CRUD" title="Registrar cliente">
-							<img src="../imagenes/edit.svg" onclick="readCustomer(this.parentNode)" class="icon__CRUD" title="Editar cliente">
+							<img src="../imagenes/search.svg" onclick="openCustomersSMW('R')" class="icon__CRUD"
+								title="Buscar cliente">
+							<img src="../imagenes/registrar.svg" onclick="openCustomersRMW()" class="icon__CRUD"
+								title="Registrar cliente">
+							<img src="../imagenes/edit.svg" onclick="readCustomer(this.parentNode)" class="icon__CRUD"
+								title="Editar cliente">
 							<img src="../imagenes/trash.svg" onclick="deleteCustomer(this.parentNode)"
 								class="icon__CRUD" title="Eliminar cliente" hidden>
 						</div>
@@ -567,6 +575,10 @@
 						<select name="fk_id_emp_clteR" id="fk_id_emp_clteR2"></select>
 					</div>
 					<div class="form__group">
+						<input type="text" name="nit_clteR" placeholder=" " class="form__input">
+						<label for="nit_clteR" class="form__label">NIT/C.I.:</label>
+					</div>
+					<div class="form__group">
 						<input type="text" name="email_clteR" placeholder=" " class="form__input">
 						<label for="email_clteR" class="form__label">Email:</label>
 					</div>
@@ -606,6 +618,10 @@
 					<label class="form__label--only">Empresa:</label>
 					<div class="form__group--select">
 						<select name="fk_id_emp_clteM" id="fk_id_emp_clteM2"></select>
+					</div>
+					<div class="form__group">
+						<input type="text" name="nit_clteM" placeholder=" " class="form__input">
+						<label for="nit_clteM" class="form__label">NIT/C.I.:</label>
 					</div>
 					<div class="form__group">
 						<input type="text" name="email_clteM" placeholder=" " class="form__input">
@@ -773,6 +789,70 @@
 							</tr>
 						</thead>
 						<tbody id="tbodyEmpMW"></tbody>
+					</table>
+				</section>
+			</div>
+		</div>
+	</section>
+	<!--Tabla Modal Customer-->
+	<section id="customerSMW" class="modalTable">
+		<div class="modalTable__container">
+			<div class="table">
+				<div class="table__title">
+					<h1><img src="../imagenes/user.svg">Clientes</h1>
+					<img src="../imagenes/salir.svg" id="closeCustomerSMW" class="button__close">
+				</div>
+				<section class="table__header">
+					<div></div>
+					<div class="combo__search">
+						<div>
+							<select id="selectSearchClteSMW" class="select">
+								<option value="todas">Buscar por</option>
+								<option value="cliente">Por Nombre</option>
+								<option value="nit_clte"> Por Nit/CI</option>
+							</select>
+						</div>
+						<div class="table__search">
+							<input type="search" id="inputSearchClteSMW" placeholder="Buscar...">
+							<img src="../imagenes/search.png">
+						</div>
+					</div>
+				</section>
+				<div class="showPage" id="showPageClteSMW">
+					<h2></h2>
+				</div>
+				<div class="container__page">
+					<div class="paginacion">
+						<!--Envoltura-->
+						<div class="wrapper" id="wrapperClteSMW">
+							<ul></ul>
+						</div>
+					</div>
+					<div>
+						<select id="selectNumberClteSMW" class="select__number">
+							<option value="2">2</option>
+							<option value="4">4</option>
+							<option value="6">6</option>
+							<option value="10">10 </option>
+							<option value="20">20</option>
+						</select>
+					</div>
+				</div>
+				<section class="table__body">
+					<table>
+						<thead>
+							<tr>
+								<th>N°</th>
+								<th>Cliente</th>
+								<th>NIT/CI</th>
+								<th>Empresa</th>
+								<th>Email</th>
+								<th>Direccion</th>
+								<th>Celular</th>
+								<th>Acciones</th>
+							</tr>
+						</thead>
+						<tbody id="tbodyClteSMW"></tbody>
 					</table>
 				</section>
 			</div>
