@@ -33,9 +33,9 @@ const formattedDate = dateFormat.format(date);
 const datePart = formattedDate.split(', ');
 const dateActual = datePart[0].split('/');
 //---------------------------------------------------- CARDS PRODUCTS---------------------------------------------------------
-let products = {};
-let filterProducts = {};
-let filterProductsMW = {};
+let products = [];
+let filterProducts = [];
+let filterProductsMW = [];
 readProducts();
 function readProducts() {
     let formData = new FormData();
@@ -44,11 +44,11 @@ function readProducts() {
         method: "POST",
         body: formData
     }).then(response => response.json()).then(data => {
-        products = JSON.parse(JSON.stringify(data));
+        products = Object.values(data);
         filterProducts = products;
         filterProductsMW = products;
-        paginacionProduct(Object.values(data).length, 1)
-        paginacionProductMW(Object.values(data).length, 1);
+        paginacionProduct(products.length, 1);
+        paginacionProductMW(products.length, 1);
     }).catch(err => console.log(err));
 }
 //------Select utilizado para buscar por columnas
@@ -70,54 +70,36 @@ const selectCategoriaProduct = document.getElementById('selectCategoriaProduct')
 selectCategoriaProduct.addEventListener('change', searchProducts);
 //------buscar por:
 function searchProducts() {
-    filterProducts = {};
-    for (let product in products) {
-        for (let valor in products[product]) {
-            if (selectSearchProduct.value == 'todas') {
-                if (valor == 'codigo_prod' || valor == 'nombre_prod' || valor == 'descripcion_prod') {
-                    if (products[product][valor].toLowerCase().indexOf(inputSerchProduct.value.toLowerCase()) >= 0) {
-                        filterProducts[product] = products[product];
-                        break;
-                    }
-                }
-            } else {
-                if (valor == selectSearchProduct.value) {
-                    if (products[product][valor].toLowerCase().indexOf(inputSerchProduct.value.toLowerCase()) >= 0) {
-                        filterProducts[product] = products[product];
-                        break;
-                    }
-                }
-            }
+    const valor = selectSearchProduct.value;
+    const busqueda = inputSerchProduct.value.toLowerCase().trim();
+    filterProducts = products.filter(product => {
+        if (valor === 'todas') {
+            return (
+                product.codigo_prod.toLowerCase().includes(busqueda) ||
+                product.nombre_prod.toLowerCase().includes(busqueda) ||
+                product.descripcion_prod.toLowerCase().includes(busqueda)
+            );
+        } else {
+            return product[valor].toLowerCase().includes(busqueda);
         }
-    }
+    });
     selectProducts();
 }
 //------buscar por marca y categoria:
 function selectProducts() {
     if (selectMarcaProduct.value == 'todasLasMarcas' && selectCategoriaProduct.value == 'todasLasCategorias') {
-        paginacionProduct(Object.values(filterProducts).length, 1);
+        paginacionProduct(filterProducts.length, 1);
     } else {
-        for (let product in filterProducts) {
-            for (let valor in filterProducts[product]) {
-                if (selectMarcaProduct.value == 'todasLasMarcas') {
-                    if (filterProducts[product]['id_ctgr'] != selectCategoriaProduct.value) {
-                        delete filterProducts[product];
-                        break;
-                    }
-                } else if (selectCategoriaProduct.value == 'todasLasCategorias') {
-                    if (filterProducts[product]['id_mrc'] != selectMarcaProduct.value) {
-                        delete filterProducts[product];
-                        break;
-                    }
-                } else {
-                    if (filterProducts[product]['id_ctgr'] != selectCategoriaProduct.value || filterProducts[product]['id_mrc'] != selectMarcaProduct.value) {
-                        delete filterProducts[product];
-                        break;
-                    }
-                }
+        filterProducts = filterProducts.filter(product => {
+            if (selectMarcaProduct.value == 'todasLasMarcas') {
+                return product['id_ctgr'] == selectCategoriaProduct.value;
+            } else if (selectCategoriaProduct.value == 'todasLasCategorias') {
+                return product['id_mrc'] == selectMarcaProduct.value;
+            } else {
+                return product['id_ctgr'] == selectCategoriaProduct.value && product['id_mrc'] == selectMarcaProduct.value;
             }
-        }
-        paginacionProduct(Object.values(filterProducts).length, 1);
+        });
+        paginacionProduct(filterProducts.length, 1);
     }
 }
 //------PaginacionProduct
@@ -158,27 +140,48 @@ function cardProduct(page) {
     const root = document.getElementById('root');
     const inicio = (page - 1) * Number(selectNumberProduct.value);
     const final = inicio + Number(selectNumberProduct.value);
-    let i = 1;
-    let html = '';
-    for (let product in filterProducts) {
-        if (i > inicio && i <= final) {
-            html += `
-                <div class='box'>
-                    <div class='img-box' style='max-height: 70%; max-width: 100%;'>
-                        <img class='images' src='../modelos/imagenes/${filterProducts[product]['imagen_prod']}' onclick='showDetails(${filterProducts[product]['id_prod']})'></img>
-                    </div>
-                    <div class='bottom'>
-                        <h3 hidden>${filterProducts[product]['id_prod']}</h3>
-                        <p class='box__code'>${filterProducts[product]['codigo_prod']}</p>
-                        <button onclick='addCard(this.parentNode.parentNode)'>Añadir</button>
-                    </div>
-                </div>`;
-            i++;
-        } else {
-            i++;
-        }
+    const fragment = document.createDocumentFragment();
+    root.innerHTML = '';
+    const productsToShow = filterProducts.slice(inicio, final);
+    for (let product of productsToShow) {
+        const box = document.createElement('div');
+        box.classList.add('box');
+
+        const imgBox = document.createElement('div');
+        imgBox.classList.add('img-box');
+        imgBox.style.maxHeight = '70%';
+        imgBox.style.maxWidth = '100%';
+
+        const img = document.createElement('img');
+        img.classList.add('images');
+        img.src = `../modelos/imagenes/${product.imagen_prod}`;
+        img.onclick = () => showDetails(product.id_prod);
+        imgBox.appendChild(img);
+        box.appendChild(imgBox);
+
+        const bottom = document.createElement('div');
+        bottom.classList.add('bottom');
+
+        const h3 = document.createElement('h3');
+        h3.hidden = true;
+        h3.textContent = product.id_prod;
+
+        const p = document.createElement('p');
+        p.classList.add('box__code');
+        p.textContent = product.codigo_prod;
+
+        const button = document.createElement('button');
+        button.textContent = 'Añadir';
+        button.onclick = () => addCard(button.parentNode.parentNode);
+
+        bottom.appendChild(h3);
+        bottom.appendChild(p);
+        bottom.appendChild(button);
+        box.appendChild(bottom);
+
+        fragment.appendChild(box);
     }
-    root.innerHTML = html;
+    root.appendChild(fragment);
 }
 //------------------------------------------------------MODAL DE UNA CARD-------------------------------------------------
 //-------Detalles de la card
@@ -186,27 +189,24 @@ function showDetails(id_prod) {
     let modal = document.querySelector('.modalCard__body');
     let cantidad_inv = 'Cantidad: Sin existencias';
     let cost_uni = 'Costo: Sin existencias';
-    for (let product in filterProducts) {
-        if (filterProducts[product]['id_prod'] == id_prod) {
-            for (let inventory in inventories) {
-                if (inventories[inventory]['fk_id_prod_inv'] == id_prod) {
-                    cantidad_inv = `Existencias: ${inventories[inventory]['cantidad_inv']}`;
-                    cost_uni = `Costo: ${inventories[inventory]['cost_uni_inv']} Bs`;
-                    break;
-                }
-            }
-            modal.innerHTML = `<div class="modalCard__head">
-                                    <h4>${filterProducts[product]['nombre_prod']}</h4><img src="../imagenes/salir.svg" onclick='closeModalCard()' class="button__close">
-				                </div>
-				                <img src="../modelos/imagenes/${filterProducts[product]['imagen_prod']}" class="modalCard__img">
-				                <h5>${filterProducts[product]['codigo_prod']}</h5>
-				                <h4>Descripcion: </h4>
-				                <p>${filterProducts[product]['descripcion_prod']}</p>
-				                <h6>${cantidad_inv}</h6>
-				                <h3>${cost_uni}</h3>
-				                <img src="../imagenes/edit.svg" onclick="readProduct(this.parentNode)" class="icon__CRUD">`;
-            break;
+    const product = filterProducts.find(product => product['id_prod'] == id_prod);
+    if (product) {
+        const inventory = inventories.find(inventory => inventory['fk_id_prod_inv'] == id_prod);
+        if (inventory) {
+            cantidad_inv = `Existencias: ${inventory['cantidad_inv']}`;
+            cost_uni = `Costo: ${inventory['cost_uni_inv']} Bs`;
         }
+        const descripcion = product['descripcion_prod'].replace(/\n/g, '<br>');
+        modal.innerHTML = `<div class="modalCard__head">
+        <h4>${product['nombre_prod']}</h4><img src="../imagenes/salir.svg" onclick='closeModalCard()' class="button__close">
+        </div>
+        <img src="../modelos/imagenes/${product['imagen_prod']}" class="modalCard__img">
+        <h5>${product['codigo_prod']}</h5>
+        <h4>Descripcion: </h4>
+        <p>${descripcion}</p>
+        <h6>${cantidad_inv}</h6>
+        <h3>${cost_uni}</h3>
+        <img src="../imagenes/edit.svg" onclick="readProduct(this.parentNode)" class="icon__CRUD">`;
     }
     modalCard.classList.add('modal__show');
 }
@@ -233,54 +233,36 @@ function addCard(card) {
         alert('El producto ya se encuentra en el carrito');
     }
 }
-//------------------------------------------------------CARDS INVENTARIO----------------------------------------------------------
-let inventories = {};
-let filterInventoriesMW = {};
-readInventories();
-function readInventories() {
-    let formData = new FormData();
-    formData.append('readInventories', '');
-    fetch('../controladores/inventario.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        inventories = JSON.parse(JSON.stringify(data));
-        filterInventoriesMW = inventories;
-        paginacionInventoryMW(Object.values(data).length, 1);
-    }).catch(err => console.log(err));
-}
 //------Cart
 function cartProduct(id_prod) {
     let cantidad_inv = undefined;
     let cost_uni = undefined;
-    for (let product in filterProducts) {
-        if (filterProducts[product]['id_prod'] == id_prod) {
-            for (let inventory in inventories) {
-                if (inventories[inventory]['fk_id_prod_inv'] == id_prod) {
-                    cantidad_inv = inventories[inventory]['cantidad_inv'];
-                    cost_uni = inventories[inventory]['cost_uni_inv'];
-                    break;
-                }
-            }
-            cantidad_inv = (cantidad_inv == undefined) ? cantidad_inv = 0 : cantidad_inv;
-            cost_uni = (cost_uni == undefined) ? cost_uni = 0 : cost_uni;
-            let card = document.createElement('div');
-            card.classList.add('cart-item');
-            let html =
-                `<p class="cart-item__cantInv">${cantidad_inv}</p>
-                <div class="row-img">
-                    <img src="../modelos/imagenes/${filterProducts[product]['imagen_prod']}" class="rowimg">
-                </div>
-                <p class="cart-item__codigo">${filterProducts[product]['codigo_prod']}</p>
-                <input type="number" value = "1" min="1" onChange="changeQuantity(this.parentNode)" class="cart-item__cantidad">
-                <input type="number" value = "${cost_uni}" onChange="changeQuantity(this.parentNode)" class="cart-item__costUnit">
-                <input type="number" value = "${cost_uni}" class="cart-item__costTotal" readonly>
-                <img src="../imagenes/trash.svg" onClick="removeCardFromCart(this.parentNode)" class='icon__CRUD'>
-                <h3 hidden>${filterProducts[product]['nombre_prod']}</h3>
-                <h3 hidden>${filterProducts[product]['descripcion_prod']}</h3>`;
-            card.innerHTML = html;
-            cartItem.appendChild(card);
+    const product = filterProducts.find(product => product['id_prod'] == id_prod);
+    if (product) {
+        const inventory = inventories.find(inventory => inventory['fk_id_prod_inv'] == id_prod);
+        if (inventory) {
+            cantidad_inv = inventory['cantidad_inv'];
+            cost_uni = inventory['cost_uni_inv'];
+        } else {
+            cantidad_inv = 0;
+            cost_uni = 0;
         }
+        const card = document.createElement('div');
+        card.classList.add('cart-item');
+        const html = `
+        <p class="cart-item__cantInv">${cantidad_inv}</p>
+        <div class="row-img">
+          <img src="../modelos/imagenes/${product['imagen_prod']}" class="rowimg">
+        </div>
+        <p class="cart-item__codigo">${product['codigo_prod']}</p>
+        <input type="number" value="1" min="1" onChange="changeQuantity(this.parentNode)" class="cart-item__cantidad">
+        <input type="number" value="${cost_uni}" onChange="changeQuantity(this.parentNode)" class="cart-item__costUnit">
+        <input type="number" value="${cost_uni}" class="cart-item__costTotal" readonly>
+        <img src="../imagenes/trash.svg" onClick="removeCardFromCart(this.parentNode)" class='icon__CRUD'>
+        <h3 hidden>${product['nombre_prod']}</h3>
+        <h3 hidden>${product['descripcion_prod']}</h3>`;
+        card.innerHTML = html;
+        cartItem.appendChild(card);
     }
 }
 //------Eliminar cart
@@ -323,8 +305,8 @@ selectMoneyCart.addEventListener('change', function () {
     }
 })
 //------------------------------------------------------------PROFORMA-----------------------------------------------------
-let proformas = {};  //base de datos de proformas
-let filterProformas = {};
+let proformas = [];
+let filterProformas = [];
 let formProformas;
 readProformas();
 function readProformas() {
@@ -334,9 +316,14 @@ function readProformas() {
         method: "POST",
         body: formData
     }).then(response => response.json()).then(data => {
-        proformas = JSON.parse(JSON.stringify(data));
-        filterProformas = proformas;
-        paginacionProforma(Object.values(proformas).length, 1);
+        if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
+            proformas = Object.values(data);
+            filterProformas = proformas;
+        } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
+            proformas = Object.values(data).filter(proforma => proforma.fk_id_usua_prof === localStorage.getItem('id_usua'));
+            filterProformas = proformas;
+        }
+        paginacionProforma(proformas.length, 1);
     }).catch(err => console.log(err));
 }
 //------Select utilizado para buscar por columnas
@@ -356,103 +343,63 @@ const selectStateProf = document.getElementById('selectStateProf');
 selectStateProf.addEventListener('change', searchProforma);
 //------buscar por:
 function searchProforma() {
-    filterProformas = {};
-    for (let proforma in proformas) {
-        for (let valor in proformas[proforma]) {
-            if (selectSearchProf.value == 'todas') {
-                if (valor == 'numero_prof') {
-                    if (proformas[proforma][valor].toString().toLowerCase().indexOf(inputSearchProf.value.toLowerCase()) >= 0) {
-                        filterProformas[proforma] = proformas[proforma];
-                        break;
-                    }
-                } else if (valor == 'nombre_usua') {
-                    if ((proformas[proforma][valor] + ' ' + proformas[proforma]['apellido_usua']).toLowerCase().indexOf(inputSearchProf.value.toLowerCase()) >= 0) {
-                        filterProformas[proforma] = proformas[proforma];
-                        break;
-                    }
-                } else if (valor == 'apellido_clte') {
-                    if ((proformas[proforma][valor] + ' ' + proformas[proforma]['nombre_clte']).toLowerCase().indexOf(inputSearchProf.value.toLowerCase()) >= 0) {
-                        filterProformas[proforma] = proformas[proforma];
-                        break;
-                    }
-                } else if (valor == 'fecha_prof' || valor == 'nombre_emp') {
-                    if (proformas[proforma][valor].toLowerCase().indexOf(inputSearchProf.value.toLowerCase()) >= 0) {
-                        filterProformas[proforma] = proformas[proforma];
-                        break;
-                    }
-                }
-            } else if (selectSearchProf.value == 'encargado') {
-                if (valor == 'nombre_usua') {
-                    if ((proformas[proforma][valor] + ' ' + proformas[proforma]['apellido_usua']).toLowerCase().indexOf(inputSearchProf.value.toLowerCase()) >= 0) {
-                        filterProformas[proforma] = proformas[proforma];
-                        break;
-                    }
-                }
-            } else if (selectSearchProf.value == 'cliente') {
-                if (valor == 'apellido_clte') {
-                    if ((proformas[proforma][valor] + ' ' + proformas[proforma]['nombre_clte']).toLowerCase().indexOf(inputSearchProf.value.toLowerCase()) >= 0) {
-                        filterProformas[proforma] = proformas[proforma];
-                        break;
-                    }
-                }
-            } else {
-                if (valor == selectSearchProf.value) {
-                    if (proformas[proforma][valor].toString().toLowerCase().indexOf(inputSearchProf.value.toLowerCase()) >= 0) {
-                        filterProformas[proforma] = proformas[proforma];
-                        break;
-                    }
-                }
-            }
+    const valor = selectSearchProf.value;
+    const busqueda = inputSearchProf.value.toLowerCase().trim();
+    filterProformas = proformas.filter(proforma => {
+        if (valor === 'todas') {
+            return (
+                proforma.numero_prof.toLowerCase().includes(busqueda) ||
+                proforma.fecha_prof.toLowerCase().includes(busqueda) ||
+                proforma.nombre_emp.toLowerCase().includes(busqueda) ||
+                (proforma.nombre_usua + ' ' + proforma.apellido_usua).toLowerCase().includes(busqueda) ||
+                (proforma.apellido_clte + ' ' + proforma.nombre_clte).toLowerCase().includes(busqueda) ||
+                proforma.total_prof.toLowerCase().includes(busqueda)
+            );
+        } else if (valor === 'encargado') {
+            return (proforma.nombre_usua + ' ' + proforma.apellido_usua).toLowerCase().includes(busqueda);
+        } else if (valor === 'cliente') {
+            return (proforma.apellido_clte + ' ' + proforma.nombre_clte).toLowerCase().includes(busqueda);
+        } else {
+            return proforma[valor].toString().toLowerCase().includes(busqueda);
         }
-    }
+    });
     selectStateProformas();
 }
 //------buscar por marca y categoria:
 function selectStateProformas() {
     if (selectStateProf.value == 'todasLasProformas') {
-        paginacionProforma(Object.values(filterProformas).length, 1);
+        paginacionProforma(filterProformas.length, 1);
     } else {
-        for (let proforma in filterProformas) {
-            for (let valor in filterProformas[proforma]) {
-                if (valor == 'estado_prof') {
-                    if (filterProformas[proforma][valor] != selectStateProf.value) {
-                        delete filterProformas[proforma];
-                        break;
-                    }
-                }
-            }
-        }
-        paginacionProforma(Object.values(filterProformas).length, 1);
+        filterProformas = filterProformas.filter(proforma => proforma.estado_prof === selectStateProf.value);
+        paginacionProforma(filterProformas.length, 1);
     }
 }
 //------Ordenar tabla descendente ascendente
 let orderProforma = document.querySelectorAll('.tbody__head--proforma');
 orderProforma.forEach(div => {
     div.children[0].addEventListener('click', function () {
-        let array = Object.entries(filterProformas).sort((a, b) => {
-            let first = a[1][div.children[0].name];
-            let second = b[1][div.children[0].name];
+        filterProformas.sort((a, b) => {
+            let first = a[div.children[0].name];
+            let second = b[div.children[0].name];
             if (typeof first === 'number' && typeof second === 'number') {
                 return first - second;
             } else {
                 return String(first).localeCompare(String(second));
             }
         });
-        filterProformas = Object.fromEntries(array);
-        paginacionProforma(Object.values(filterProformas).length, 1);
+        paginacionProforma(filterProformas.length, 1);
     });
     div.children[1].addEventListener('click', function () {
-        let array = Object.entries(filterProformas).sort((a, b) => {
-            let first = a[1][div.children[0].name];
-            let second = b[1][div.children[0].name];
+        filterProformas.sort((a, b) => {
+            let first = a[div.children[0].name];
+            let second = b[div.children[0].name];
             if (typeof first === 'number' && typeof second === 'number') {
                 return second - first;
             } else {
                 return String(second).localeCompare(String(first));
             }
         });
-        filterProformas = Object.fromEntries(array);
-        paginacionProforma(Object.values(filterProformas).length, 1);
+        paginacionProforma(filterProformas.length, 1);
     });
 });
 //------PaginacionProforma
@@ -491,82 +438,96 @@ function paginacionProforma(allProducts, page) {
 }
 //--------Tabla de proforma
 function tableProformas(page) {
-    let tbody = document.getElementById('tbodyProforma');
-    inicio = (page - 1) * Number(selectNumberProf.value);
-    final = inicio + Number(selectNumberProf.value);
-    i = 1;
+    const tbody = document.getElementById('tbodyProforma');
+    const inicio = (page - 1) * Number(selectNumberProf.value);
+    const final = inicio + Number(selectNumberProf.value);
+    const proformas = filterProformas.slice(inicio, final);
     tbody.innerHTML = '';
-    for (let proforma in filterProformas) {
-        if (i > inicio && i <= final) {
-            let tr = document.createElement('tr');
-            for (let valor in filterProformas[proforma]) {
-                let td = document.createElement('td');
-                if (valor == 'id_prof') {
-                    td.innerText = filterProformas[proforma][valor];
-                    td.setAttribute('hidden', '');
-                    tr.appendChild(td);
-                    td = document.createElement('td');
-                    td.innerText = i;
-                    tr.appendChild(td);
-                    i++;
-                    td = document.createElement('td');
-                    td.innerText = filterProformas[proforma]['numero_prof'];
-                    tr.appendChild(td);
-                } else if (valor == 'fecha_prof') {
-                    td.innerText = filterProformas[proforma][valor];
-                    tr.appendChild(td);
-                }
-                else if (valor == 'nombre_usua') {
-                    td.innerText = filterProformas[proforma][valor] + ' ' + filterProformas[proforma]['apellido_usua'];
-                    tr.appendChild(td);
-                } else if (valor == 'numero_prof' || valor == 'id_emp' || valor == 'sigla_emp' || valor == 'direccion_emp' || valor == 'telefono_emp' || valor == 'fk_id_usua_prof' || valor == 'fk_id_clte_prof' || valor == 'apellido_usua' || valor == 'email_usua' || valor == 'celular_usua' || valor == 'apellido_clte' || valor == 'celular_clte' || valor == 'moneda_prof' || valor == 'tipo_cambio_prof' || valor == 'estado_prof' || valor == 'cond_pago_prof' || valor == 'tpo_entrega_prof' || valor == 'observacion_prof') {
-                } else if (valor == 'nombre_clte') {
-                    td.innerText = filterProformas[proforma]['apellido_clte'] + ' ' + filterProformas[proforma][valor];
-                    tr.appendChild(td)
-                } else if (valor == 'descuento_prof') {
-                    td.innerText = filterProformas[proforma][valor];
-                    tr.appendChild(td);
-                } else if (valor == 'total_prof') {
-                    td.innerText = Number(filterProformas[proforma][valor]).toFixed(2) + ' ' + filterProformas[proforma]['moneda_prof'];
-                    tr.appendChild(td);
-                } else {
-                    td.innerText = filterProformas[proforma][valor];
-                    tr.appendChild(td);
-                }
-            }
-            let td = document.createElement('td');
-            if (filterProformas[proforma]['estado_prof'] == 'vendido') {
-                td.innerHTML = `
-            <img src='../imagenes/folder.svg' onclick='showMdfProforma(this.parentNode.parentNode.children[0].innerText)' title='Proformas anteriores'>
-            <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")' title='Mostrar PDF'>`;
-            } else {
-                if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
-                    td.innerHTML = `
-                <img src='../imagenes/notaEntrega.svg' onclick='openNotaEntregaRMW(this.parentNode.parentNode)' title='Generar Nota de Entrega'>
-                <img src='../imagenes/folder.svg' onclick='showMdfProforma(this.parentNode.parentNode.children[0].innerText)' title='Proformas anteriores'>
-                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")' title='Mostrar PDF'>
-                <img src='../imagenes/edit.svg' onclick='readProforma(this.parentNode.parentNode)' title='Editar Proforma'>
-                <img src='../imagenes/trash.svg' onclick='deleteProforma(this.parentNode.parentNode)' title='Eliminar Proforma'>`;
-                } else {
-                    if (localStorage.getItem('id_usua') != filterProformas[proforma]['fk_id_usua_prof']) {
-                        td.innerHTML = `
-                        <img src='../imagenes/folder.svg' onclick='showMdfProforma(this.parentNode.parentNode.children[0].innerText)' title='Proformas anteriores' >
-                        <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")' title='Mostrar PDF'>`;
-                    } else {
-                        td.innerHTML = `
-                        <img src='../imagenes/notaEntrega.svg' onclick='openNotaEntregaRMW(this.parentNode.parentNode)' title='Generar Nota de Entrega'>
-                        <img src='../imagenes/folder.svg' onclick='showMdfProforma(this.parentNode.parentNode.children[0].innerText)' title='Proformas anteriores'>
-                        <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")' title='Mostrar PDF'>
-                        <img src='../imagenes/edit.svg' onclick='readProforma(this.parentNode.parentNode)' title='Editar Proforma'>`;
-                    }
-                }
-            }
-            tr.appendChild(td);
-            tbody.appendChild(tr);
+    proformas.forEach((proforma, index) => {
+        const tr = document.createElement('tr');
+        const tdId = document.createElement('td');
+        tdId.innerText = proforma.id_prof;
+        tdId.setAttribute('hidden', '');
+        tr.appendChild(tdId);
+
+        const tdNumero = document.createElement('td');
+        tdNumero.innerText = index + 1;
+        tr.appendChild(tdNumero);
+
+        const tdNumeroProforma = document.createElement('td');
+        tdNumeroProforma.innerText = proforma.numero_prof;
+        tr.appendChild(tdNumeroProforma);
+
+        const tdFecha = document.createElement('td');
+        tdFecha.innerText = proforma.fecha_prof;
+        tr.appendChild(tdFecha);
+
+        const tdEncargado = document.createElement('td');
+        tdEncargado.innerText = proforma.nombre_usua + ' ' + proforma.apellido_usua;
+        tr.appendChild(tdEncargado);
+
+        const tdEmpresa = document.createElement('td');
+        tdEmpresa.innerText = proforma.nombre_emp;
+        tr.appendChild(tdEmpresa);
+
+        const tdCliente = document.createElement('td');
+        tdCliente.innerText = proforma.apellido_clte + ' ' + proforma.nombre_clte;
+        tr.appendChild(tdCliente);
+
+        const tdDescuento = document.createElement('td');
+        tdDescuento.innerText = proforma.descuento_prof;
+        tr.appendChild(tdDescuento);
+
+        const tdTotal = document.createElement('td');
+        tdTotal.innerText = proforma.total_prof + ' ' + proforma.moneda_prof;
+        tr.appendChild(tdTotal);
+
+        const tdValido = document.createElement('td');
+        tdValido.innerText = proforma.tpo_valido_prof;
+        tr.appendChild(tdValido);
+
+        const tdAcciones = document.createElement('td');
+        const fragment = document.createDocumentFragment();
+
+        let imgs = [];
+
+        if (proforma.estado_prof == 'vendido') {
+            imgs = [
+                { src: '../imagenes/folder.svg', onclick: 'showMdfProforma(this.parentNode.parentNode.children[0].innerText)', title: 'Proformas anteriores' },
+                { src: '../imagenes/pdf.svg', onclick: 'selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")', title: 'Mostrar PDF' }
+            ];
         } else {
-            i++;
+            if (localStorage.getItem('rol_usua') == 'Administrador' || localStorage.getItem('rol_usua') == 'Gerente general') {
+                imgs = [
+                    { src: '../imagenes/notaEntrega.svg', onclick: 'openNotaEntregaRMW(this.parentNode.parentNode)', title: 'Generar Nota de Entrega' },
+                    { src: '../imagenes/folder.svg', onclick: 'showMdfProforma(this.parentNode.parentNode.children[0].innerText)', title: 'Proformas anteriores' },
+                    { src: '../imagenes/pdf.svg', onclick: 'selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")', title: 'Mostrar PDF' },
+                    { src: '../imagenes/edit.svg', onclick: 'readProforma(this.parentNode.parentNode)', title: 'Editar Proforma' },
+                    { src: '../imagenes/trash.svg', onclick: 'deleteProforma(this.parentNode.parentNode)', title: 'Eliminar Proforma' }
+                ];
+            } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
+                imgs = [
+                    { src: '../imagenes/notaEntrega.svg', onclick: 'openNotaEntregaRMW(this.parentNode.parentNode)', title: 'Generar Nota de Entrega' },
+                    { src: '../imagenes/folder.svg', onclick: 'showMdfProforma(this.parentNode.parentNode.children[0].innerText)', title: 'Proformas anteriores' },
+                    { src: '../imagenes/pdf.svg', onclick: 'selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")', title: 'Mostrar PDF' },
+                    { src: '../imagenes/edit.svg', onclick: 'readProforma(this.parentNode.parentNode)', title: 'Editar Proforma' }
+                ];
+            }
         }
-    }
+
+        imgs.forEach((img) => {
+            const imgElement = document.createElement('img');
+            imgElement.src = img.src;
+            imgElement.onclick = new Function(img.onclick);
+            imgElement.title = img.title;
+            fragment.appendChild(imgElement);
+        });
+
+        tdAcciones.appendChild(fragment);
+        tr.appendChild(tdAcciones);
+
+        tbody.appendChild(tr);
+    });
 }
 //-------------------------------------MODAL DE TABLA DE PROFORMA--------------------------------------------
 const closeTableProfMW = document.getElementById('closeTableProfMW');
@@ -598,7 +559,7 @@ function createProforma() {
                 valor['imagen'] = product.children[1].children[0].src;
                 array.push(valor);
             });
-            let productos = JSON.stringify(array); //String Json
+            let productos = JSON.stringify(array);
             let form = document.getElementById("formProformaR");
             let moneda = selectMoneyCart.value;
             let formData = new FormData(form);
@@ -787,7 +748,8 @@ function isInteger(input) {
     return /^[-+]?\d+$/.test(input);
 }
 //-------------------------------------------------------CRUD PROFORMAS MODIFICADAS---------------------------------
-let mdfPproforma = {};
+let mdfPproforma = [];
+let filtermdfPproforma = [];
 readMdfProforma()
 function readMdfProforma() {
     let formData = new FormData();
@@ -796,7 +758,7 @@ function readMdfProforma() {
         method: "POST",
         body: formData
     }).then(response => response.json()).then(data => {
-        mdfPproforma = JSON.parse(JSON.stringify(data));
+        mdfPproforma = Object.values(data);
     }).catch(err => console.log(err));
 }
 function showMdfProforma(id_prof) {
@@ -805,7 +767,6 @@ function showMdfProforma(id_prof) {
     let i = 1;
     tbody.innerHTML = '';
     document.querySelector('#tablemProfMW div.table__title h1').innerHTML = ``;
-    let filtermdfPproforma = [];
     for (let proforma in mdfPproforma) {
         if (mdfPproforma[proforma]['id_prof_mprof'] == id_prof) {
             filtermdfPproforma.push(mdfPproforma[proforma]);
@@ -834,9 +795,12 @@ function showMdfProforma(id_prof) {
                 } else if (dato == 'nombre_usua') {
                     td.innerText = mdfPproforma[proforma][dato] + ' ' + mdfPproforma[proforma]['apellido_usua'];
                     tr.appendChild(td);
-                } else if (dato == 'id_prof_mprof' || dato == 'numero_mprof' || dato == 'cond_pago_mprof' || dato == 'tpo_entrega_mprof' || dato == 'apellido_usua' || dato == 'email_usua' || dato == 'celular_usua' || dato == 'sigla_emp' || dato == 'telefono_emp' || dato == 'direccion_emp' || dato == 'apellido_clte' || dato == 'celular_clte' || dato == 'moneda_mprof' || dato == 'tipo_cambio_mprof') {
+                } else if (dato == 'id_prof_mprof' || dato == 'numero_mprof' || dato == 'cond_pago_mprof' || dato == 'observacion_mprof' || dato == 'tpo_entrega_mprof' || dato == 'apellido_usua' || dato == 'email_usua' || dato == 'celular_usua' || dato == 'sigla_emp' || dato == 'telefono_emp' || dato == 'direccion_emp' || dato == 'apellido_clte' || dato == 'celular_clte' || dato == 'moneda_mprof' || dato == 'tipo_cambio_mprof') {
                 } else if (dato == 'nombre_clte') {
                     td.innerText = mdfPproforma[proforma][dato] + ' ' + mdfPproforma[proforma]['apellido_clte'];
+                    tr.appendChild(td);
+                } else if (dato == 'total_mprof') {
+                    td.innerText = mdfPproforma[proforma][dato] + ' ' + mdfPproforma[proforma]['moneda_mprof'];
                     tr.appendChild(td);
                 } else if (dato == 'descuento_mprof') {
                     td.innerText = mdfPproforma[proforma][dato] + '%';
@@ -897,53 +861,39 @@ closemTableProfMW.addEventListener('click', (e) => {
 //-------Pide la informacion del pdf que se va a mostrar (prof, mprof, ne)
 function selectPDFInformation(id, pdf) {
     if (pdf == 'prof') {
-        for (let proforma in filterProformas) {
-            if (filterProformas[proforma]['id_prof'] == id) {
-                let objects = [];
-                for (let pf_pd in prof_prods) {
-                    if (prof_prods[pf_pd]['fk_id_prof_pfpd'] == id) {
-                        for (let product in products) {
-                            if (products[product]['id_prod'] == prof_prods[pf_pd]['fk_id_prod_pfpd']) {
-                                let object = {
-                                    'codigo_prod': products[product]['codigo_prod'],
-                                    'descripcion_prod': products[product]['descripcion_prod'],
-                                    'cantidad_pfpd': prof_prods[pf_pd]['cantidad_pfpd'],
-                                    'cost_uni_pfpd': prof_prods[pf_pd]['cost_uni_pfpd'],
-                                    'imagen_prod': products[product]['imagen_prod']
-                                };
-                                objects.push(object);
-                            }
-                        }
-                    }
-                }
-                showPDF(filterProformas[proforma], objects, pdf);
-                break; //Salir de bucle for
-            }
+        const proforma = filterProformas.find(proforma => proforma['id_prof'] == id);
+        if (proforma) {
+            const objects = prof_prods.filter(pf_pd => pf_pd['fk_id_prof_pfpd'] == id)
+                .map(pf_pd => {
+                    const product = products.find(product => product['id_prod'] == pf_pd['fk_id_prod_pfpd']);
+                    return {
+                        'codigo_prod': product['codigo_prod'],
+                        'descripcion_prod': product['descripcion_prod'],
+                        'cantidad_pfpd': pf_pd['cantidad_pfpd'],
+                        'cost_uni_pfpd': pf_pd['cost_uni_pfpd'],
+                        'imagen_prod': product['imagen_prod']
+                    };
+                });
+            showPDF(proforma, objects, pdf);
         }
     } else if (pdf == 'mprof') {
         filtermdfPproforma.forEach(proforma => {
             if (proforma['id_mprof'] == id) {
-                let objects = [];
-                for (let pf_pd in mProf_prods) {
-                    if (mProf_prods[pf_pd]['fk_id_mprof_mpfpd'] == id) {
-                        for (let product in products) {
-                            if (products[product]['id_prod'] == mProf_prods[pf_pd]['fk_id_prod_mpfpd']) {
-                                let object = {
-                                    'codigo_prod': products[product]['codigo_prod'],
-                                    'descripcion_prod': products[product]['descripcion_prod'],
-                                    'cantidad_mpfpd': mProf_prods[pf_pd]['cantidad_mpfpd'],
-                                    'cost_uni_mpfpd': mProf_prods[pf_pd]['cost_uni_mpfpd'],
-                                    'imagen_prod': products[product]['imagen_prod']
-                                };
-                                objects.push(object);
-                            }
-                        }
-                    }
-                }
+                const objects = mProf_prods.filter(pf_pd => pf_pd['fk_id_mprof_mpfpd'] == id)
+                    .map(pf_pd => {
+                        const product = products.find(product => product['id_prod'] == pf_pd['fk_id_prod_mpfpd']);
+                        return {
+                            'codigo_prod': product['codigo_prod'],
+                            'descripcion_prod': product['descripcion_prod'],
+                            'cantidad_mpfpd': pf_pd['cantidad_mpfpd'],
+                            'cost_uni_mpfpd': pf_pd['cost_uni_mpfpd'],
+                            'imagen_prod': product['imagen_prod']
+                        };
+                    });
                 showPDF(proforma, objects, pdf);
                 return;
             }
-        })
+        });
     }
 }
 //-------Crear el pdf de la proforma
@@ -998,7 +948,7 @@ function readProf_prods() {
         method: "POST",
         body: formData
     }).then(response => response.json()).then(data => {
-        prof_prods = JSON.parse(JSON.stringify(data));
+        prof_prods = Object.values(data);
     }).catch(err => console.log(err));
 }
 let mProf_prods = {};
@@ -1010,64 +960,59 @@ function readmProf_prods() {
         method: "POST",
         body: formData
     }).then(response => response.json()).then(data => {
-        mProf_prods = JSON.parse(JSON.stringify(data));
+        mProf_prods = Object.values(data);
     }).catch(err => console.log(err));
 }
 //------read prof_prod
 let modalProf_prod = document.querySelector('#prof_prodMW div.modal__body');
 function readProf_prod() {
     modalProf_prod.innerHTML = '';
-    let id_prof = document.getElementsByName('id_profM')[0].value;
-    for (let prof_prod in prof_prods) {
-        if (prof_prods[prof_prod]['fk_id_prof_pfpd'] == id_prof) {
-            for (let product in products) {
-                if (products[product]['id_prod'] == prof_prods[prof_prod]['fk_id_prod_pfpd']) {
-                    nuevo_objeto = {
-                        'fk_id_prof_pfpd': prof_prods[prof_prod]['fk_id_prof_pfpd'],
-                        'codigo_prod': products[product]['codigo_prod'],
-                        'nombre_prod': products[product]['nombre_prod'],
-                        'descripcion_prod': products[product]['descripcion_prod'],
-                        'imagen_prod': products[product]['imagen_prod'],
-                        'cantidad_pfpd': prof_prods[prof_prod]['cantidad_pfpd'],
-                        'cost_uni_pfpd': prof_prods[prof_prod]['cost_uni_pfpd'],
-                    }
-                    cartProduct_pfpd(nuevo_objeto);
-                }
-            }
+    const id_prof = document.getElementsByName('id_profM')[0].value;
+    const prof_prods_filtered = prof_prods.filter(prof_prod => prof_prod['fk_id_prof_pfpd'] == id_prof);
+    prof_prods_filtered.forEach(prof_prod => {
+        const product = products.find(product => product['id_prod'] == prof_prod['fk_id_prod_pfpd']);
+        if (product) {
+            const nuevo_objeto = {
+                'fk_id_prof_pfpd': prof_prod['fk_id_prof_pfpd'],
+                'codigo_prod': product['codigo_prod'],
+                'nombre_prod': product['nombre_prod'],
+                'descripcion_prod': product['descripcion_prod'],
+                'imagen_prod': product['imagen_prod'],
+                'cantidad_pfpd': prof_prod['cantidad_pfpd'],
+                'cost_uni_pfpd': prof_prod['cost_uni_pfpd'],
+            };
+            cartProduct_pfpd(nuevo_objeto, 'read');
         }
-
-    }
+    });
 }
 //--------Muestra la lista de los productos de la proforma
-function cartProduct_pfpd(product) {
-    let cantidad_inv;
-    let cost_uni = 0;
-    for (let inventory in inventories) {
-        for (let valor in inventories[inventory]) {
-            if (inventories[inventory]['codigo_prod'] == product['codigo_prod']) {
-                cantidad_inv = inventories[inventory]['cantidad_inv'];
-                cost_uni = inventories[inventory]['cost_uni_inv'];
-                break;
-            }
-        }
+function cartProduct_pfpd(product, action) {
+    const inventory = inventories.find(inv => inv['codigo_prod'] === product['codigo_prod']);
+    const cantidad_inv = inventory ? inventory['cantidad_inv'] : 0;
+    let cost_uni = undefined;
+    let cantidad_prod = undefined;
+    if (action == 'new') {
+        cost_uni = inventory ? inventory['cost_uni_inv'] : 0;
+        cantidad_prod = 1;
+    } else if (action == 'read') {
+        cost_uni = product['cost_uni_pfpd'];
+        cantidad_prod = product['cantidad_pfpd']
     }
-    cantidad_inv = (cantidad_inv == undefined) ? 0 : cantidad_inv;
-    let cantidad_prod = (product['cantidad_pfpd'] == undefined) ? 1 : product['cantidad_pfpd'];
-    cost_uni = (product['cost_uni_pfpd'] == undefined) ? (product['cost_uni_inv'] == undefined) ? (cost_uni == 0) ? 0 : cost_uni : product['cost_uni_inv'] : product['cost_uni_pfpd'];
-    let item = document.createElement('div');
+    const item = document.createElement('div');
     item.classList.add('cart-item');
-    let html =
-        `<p class="cart-item__cantInv">${cantidad_inv}</p>
-        <div class="row-img">
-            <img src="../modelos/imagenes/`+ product['imagen_prod'] + `" class="rowimg">
-        </div>
-        <p class="cart-item__codigo">`+ product['codigo_prod'] + `</p>
-        <input type="number" value = "${cantidad_prod}" min="1" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__cantidad">
-        <input type="number" value = "${cost_uni}" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__costUnit">
-        <input type="number" value = "`+ cantidad_prod * cost_uni + `" class="cart-item__costTotal" readonly>
-        <img src="../imagenes/trash.svg" onClick="remove_pfpd(this.parentNode)" class='icon__CRUD'>
-        <h3 hidden>`+ product['nombre_prod'] + `</h3>
-        <h3 hidden>`+ product['descripcion_prod'] + `</h3>`;
+    const html = `
+      <p class="cart-item__cantInv">${cantidad_inv}</p>
+      <div class="row-img">
+        <img src="../modelos/imagenes/${product['imagen_prod']}" class="rowimg">
+      </div>
+      <p class="cart-item__codigo">${product['codigo_prod']}</p>
+      <input type="number" value="${cantidad_prod}" min="1" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__cantidad">
+      <input type="number" value="${cost_uni}" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__costUnit">
+      <input type="number" value="${cantidad_prod * cost_uni}" class="cart-item__costTotal" readonly>
+      <img src="../imagenes/trash.svg" onClick="remove_pfpd(this.parentNode)" class='icon__CRUD'>
+      <h3 hidden>${product['nombre_prod']}</h3>
+      <h3 hidden>${product['descripcion_prod']}</h3>
+    `;
     item.innerHTML = html;
     modalProf_prod.appendChild(item);
     totalPrice_pfpd();
@@ -1075,7 +1020,6 @@ function cartProduct_pfpd(product) {
 //-------Eliminar producto 
 function remove_pfpd(product) {
     let listProducts = document.querySelector('#prof_prodMW div.modal__body');
-    let itemProduct = listProducts.querySelectorAll('div.cart-item');
     listProducts.removeChild(product);
     totalPrice_pfpd();
 }
@@ -1205,23 +1149,20 @@ const productsSold = document.querySelector('#productsSold');
 const closeProductsSold = document.querySelector('#closeProductsSold');
 function openPreviwProductsSold() {
     const id_prof = document.getElementById('fk_id_prof_ne').value;
-    const prof_prodsFiltered = Object.values(prof_prods).filter(prof_prod => prof_prod['fk_id_prof_pfpd'] === id_prof);
-    const nuevo_array = [];
-    const inventoriesMap = new Map(Object.values(inventories).map(inventory => [inventory['fk_id_prod_inv'], inventory]));
-    const productsMap = new Map(Object.values(products).map(product => [product['id_prod'], product]));
-    prof_prodsFiltered.forEach(prof_prod => {
+    const prof_prodsFiltered = prof_prods.filter(prof_prod => prof_prod['fk_id_prof_pfpd'] === id_prof);
+    const inventoriesMap = new Map(inventories.map(inventory => [inventory['fk_id_prod_inv'], inventory]));
+    const productsMap = new Map(products.map(product => [product['id_prod'], product]));
+    const nuevo_array = prof_prodsFiltered.map(prof_prod => {
         const product = productsMap.get(prof_prod['fk_id_prod_pfpd']);
-        const inventory = inventoriesMap.get(product['id_prod']);
-        if (inventory) {
-            nuevo_array.push({
-                'id_inv': inventory['id_inv'],
-                'cantidad_inv': inventory['cantidad_inv'],
-                'imagen_prod': product['imagen_prod'],
-                'codigo_prod': product['codigo_prod'],
-                'cantidad_pfpd': prof_prod['cantidad_pfpd'],
-                'cost_uni_pfpd': prof_prod['cost_uni_pfpd']
-            });
-        }
+        const inventory = inventoriesMap.get(product['id_prod']) || { id_inv: 0, cantidad_inv: 0 };
+        return {
+            id_inv: inventory.id_inv,
+            cantidad_inv: inventory.cantidad_inv,
+            imagen_prod: product.imagen_prod,
+            codigo_prod: product.codigo_prod,
+            cantidad_pfpd: prof_prod.cantidad_pfpd,
+            cost_uni_pfpd: prof_prod.cost_uni_pfpd
+        };
     });
     readProductsSold(nuevo_array);
 }
@@ -1243,8 +1184,7 @@ function readProductsSold(products) {
             <input type="number" value="" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__costUnit">
             <input type="number" value="" class="cart-item__costTotal" readonly>
             <p hidden></p>
-        </div>
-    `;
+        </div>`;
     let costTotal = 0;
     products.forEach(product => {
         const cart = cartTemplate.content.cloneNode(true);
@@ -1268,20 +1208,23 @@ function readProductsSold(products) {
 }
 function createNotaEntrega() {
     const carts = productsSold.querySelectorAll('#cartsProductsSold div.cart-item');
-    let arrayObjetos = [];
+    const arrayObjetos = [];
     let count = true;
-    for (let i = 0; i < carts.length; i++) {
-        if (Number(carts[i].children[0].innerText) < Number(carts[i].children[3].value)) {
-            alert('No hay la cantidad suficiente en inventario del prducto: ' + carts[i].children[2].innerText);
+    for (const cart of carts) {
+
+        const cantidadInv = Number(cart.children[0].innerText);
+        const cantidadPedida = Number(cart.children[3].value);
+        if (cantidadInv < cantidadPedida) {
+            alert(`No hay la cantidad suficiente en inventario del producto: ${cart.children[2].innerText}`);
             count = false;
-            break; // Detiene la ejecución del bucle
-        } else {
-            let objeto = {
-                'id_inv': parseInt(carts[i].children[6].innerText),
-                'cantidad': parseInt(carts[i].children[3].value)
-            };
-            arrayObjetos.push(objeto);
+            break;
         }
+        arrayObjetos.push({
+            id_inv: parseInt(cart.children[6].innerText),
+            codigo_neiv: cart.children[2].innerText,
+            cantidad_neiv: parseInt(cart.children[3].value),
+            cost_uni_neiv: parseFloat(cart.children[4].value)
+        });
     }
     if (count == true) {
         if (confirm('¿Esta usted seguro?')) {
@@ -1291,6 +1234,7 @@ function createNotaEntrega() {
                 productsSold.classList.remove('modal__show');
                 const form = document.getElementById('formNotaEntregaR');
                 let formData = new FormData(form);
+                formData.set("fecha_ne", `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`);
                 formData.append('createNotaEntrega', '');
                 formData.append('arrayObjetos', JSON.stringify(arrayObjetos));
                 formData.append('id_usua', localStorage.getItem('id_usua'));
@@ -1329,8 +1273,8 @@ closeNotaEntregaRMW.addEventListener('click', (e) => {
 //---------------------------------------------------------------CLIENTES----------------------------------------------
 let selectCustomerR = document.getElementsByName('fk_id_clte_profR')[0];
 let selectCustomerM = document.getElementsByName('fk_id_clte_profM')[0];
-let customers = {};
-let sortCustomers = {};
+let customers = [];
+let sortCustomers = [];
 let chooseCustomer = [];
 let filterChooseClte = [];
 let indexCustomer = 0;
@@ -1343,20 +1287,151 @@ function readCustomers() {
         method: "POST",
         body: formData
     }).then(response => response.json()).then(data => {
-        customers = JSON.parse(JSON.stringify(data));
-        sortCustomers = customers;
-        let array = Object.entries(sortCustomers).sort((a, b) => {
-            const apellidoCompare = a[1].apellido_clte.toLowerCase().localeCompare(b[1].apellido_clte.toLowerCase());
-            if (apellidoCompare !== 0) {
-                return apellidoCompare;
-            }
-            return a[1].nombre_clte.toLowerCase().localeCompare(b[1].nombre_clte.toLowerCase());
-        })
-        sortCustomers = Object.fromEntries(array);
+        customers = Object.values(data);
+        sortCustomers = [...customers].sort((a, b) => {
+            const apellidoCompare = a.apellido_clte.localeCompare(b.apellido_clte);
+            return apellidoCompare !== 0 ? apellidoCompare : a.nombre_clte.localeCompare(b.nombre_clte);
+        });
         fillSelectClte(selectCustomerR, indexCustomer);
     }).catch(err => console.log(err));
 }
-//<<-----------------------------------------CRUD CLIENTE----------------------------------------->>
+//---------------------------------------------TABLA MODAL CUSTOMER---------------------------------
+//------Select utilizado para buscar por columnas
+const selectSearchClteSMW = document.getElementById('selectSearchClteSMW');
+selectSearchClteSMW.addEventListener('change', searchCustomersSMW);
+//------buscar por input
+const inputSearchClteSMW = document.getElementById("inputSearchClteSMW");
+inputSearchClteSMW.addEventListener("keyup", searchCustomersSMW);
+//------Clientes por pagina
+const selectNumberClteSMW = document.getElementById('selectNumberClteSMW');
+selectNumberClteSMW.selectedIndex = 3;
+selectNumberClteSMW.addEventListener('change', function () {
+    paginacionCustomerMW(Object.values(filterEnterprises).length, 1);
+});
+//------buscar por:
+function searchCustomersSMW() {
+    const busqueda = inputSearchClteSMW.value.toLowerCase();
+    const valor = selectSearchClteSMW.value.toLowerCase().trim();
+    filterChooseClte = chooseCustomer.filter(customer => {
+        if (valor === 'todas') {
+            return (
+                customer.nit_clte.toLowerCase().includes(busqueda) ||
+                customer.nombre_emp.toLowerCase().includes(busqueda) ||
+                customer.email_clte.toLowerCase().includes(busqueda) ||
+                customer.direccion_clte.toLowerCase().includes(busqueda) ||
+                customer.celular_clte.toLowerCase().includes(busqueda) ||
+                (customer.apellido_clte + ' ' + customer.nombre_clte).toLowerCase().includes(busqueda)
+            );
+        } else if (valor === 'cliente') {
+            return (customer.apellido_clte + ' ' + customer.nombre_clte).toLowerCase().includes(busqueda);
+        } else {
+            return customer[valor].toLowerCase().includes(busqueda);
+        }
+    });
+    paginacionCustomerMW(filterChooseClte.length, 1);
+}
+//------PaginacionCustomer
+function paginacionCustomerMW(allEnterprises, page) {
+    let numberEnterprises = Number(selectNumberClteSMW.value);
+    let allPages = Math.ceil(allEnterprises / numberEnterprises);
+    let ul = document.querySelector('#wrapperClteSMW ul');
+    let li = '';
+    let beforePages = page - 1;
+    let afterPages = page + 1;
+    let liActive;
+    if (page > 1) {
+        li += `<li class="btn" onclick="paginacionCustomerMW(${allEnterprises}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
+    }
+    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
+        if (pageLength > allPages) {
+            continue;
+        }
+        if (pageLength == 0) {
+            pageLength = pageLength + 1;
+        }
+        if (page == pageLength) {
+            liActive = 'active';
+        } else {
+            liActive = '';
+        }
+        li += `<li class="numb ${liActive}" onclick="paginacionCustomerMW(${allEnterprises}, ${pageLength})"><span>${pageLength}</span></li>`;
+    }
+    if (page < allPages) {
+        li += `<li class="btn" onclick="paginacionCustomerMW(${allEnterprises}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
+    }
+    ul.innerHTML = li;
+    let h2 = document.querySelector('#showPageClteSMW h2');
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${allEnterprises} Empresas`;
+    tableCustomersMW(page);
+}
+//------Crear la tabla
+function tableCustomersMW(page) {
+    const tbody = document.getElementById('tbodyClteSMW');
+    inicio = (page - 1) * Number(selectNumberClteSMW.value);
+    final = inicio + Number(selectNumberClteSMW.value);
+    i = 1;
+    tbody.innerHTML = '';
+    for (let enterprise in filterChooseClte) {
+        if (i > inicio && i <= final) {
+            let tr = document.createElement('tr');
+            for (let valor in filterChooseClte[enterprise]) {
+                let td = document.createElement('td');
+                if (valor == 'id_clte') {
+                    td.innerText = filterChooseClte[enterprise][valor];
+                    td.setAttribute('hidden', '');
+                    tr.appendChild(td);
+                    td = document.createElement('td');
+                    td.innerText = i;
+                    tr.appendChild(td);
+                    i++;
+                } else if (valor == 'nombre_clte') {
+                    td.innerText = filterChooseClte[enterprise]['apellido_clte'] + ' ' + filterChooseClte[enterprise][valor];
+                    tr.appendChild(td);
+                } else if (valor == 'apellido_clte' || valor == 'sigla_emp' || valor == 'nit_emp' || valor == 'fk_id_emp_clte' || valor == 'precio_emp') {
+                } else if (valor == 'nit_clte') {
+                    if (filterChooseClte[enterprise][valor] == '0') {
+                        td.innerText = '';
+                    } else {
+                        td.innerText = filterChooseClte[enterprise][valor];
+                    }
+                    tr.appendChild(td);
+                } else if (valor == 'celular_clte') {
+                    if (filterChooseClte[enterprise][valor] == '0') {
+                        td.innerText = '';
+                    } else {
+                        td.innerText = filterChooseClte[enterprise][valor];
+                    }
+                    tr.appendChild(td);
+                } else {
+                    td.innerText = filterChooseClte[enterprise][valor];
+                    tr.appendChild(td);
+                }
+            }
+            let td = document.createElement('td');
+            td.innerHTML = `
+                <img src='../imagenes/send.svg' onclick='sendCustomers(this.parentNode.parentNode)'>`;
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+        } else {
+            i++;
+        }
+    }
+}
+function sendCustomers(tr) {
+    customerSMW.classList.remove('modal__show');
+    let id_clte = tr.children[0].innerText;
+    selectCustomerR.value = id_clte;
+}
+//----------------------------------VENTANA MODAL CUSTOMERSMW-------------------------------------------
+const customerSMW = document.getElementById('customerSMW');
+const closeCustomerSMW = document.getElementById('closeCustomerSMW');
+function openCustomersSMW() {
+    customerSMW.classList.add('modal__show');
+}
+closeCustomerSMW.addEventListener('click', () => {
+    customerSMW.classList.remove('modal__show');
+});
+//<<-----------------------------------------CRUD CUSTOMER  ----------------------------------------->>
 //------Create a customer
 const formClienteR = document.getElementById('formClienteR');
 formClienteR.addEventListener('submit', createCustomer);
@@ -1389,15 +1464,12 @@ function readCustomer(tr) {
     formCustomer = 'M';
     selectCreateCustomer();
     let id_clte = tr.children[0].value;
-    for (let customer in sortCustomers) {
-        if (sortCustomers[customer]['id_clte'] == id_clte) {
-            for (let valor in sortCustomers[customer]) {
-                if (valor == 'nombre_emp' || valor == 'fk_id_emp_clte') {
-                } else {
-                    document.getElementsByName(valor + 'M')[0].value = sortCustomers[customer][valor];
-                }
+    const customer = sortCustomers.find(customer => customer.id_clte == id_clte);
+    if (customer) {
+        for (const valor in customer) {
+            if (valor !== 'nombre_emp' && valor !== 'fk_id_emp_clte') {
+                document.getElementsByName(valor + 'M')[0].value = customer[valor];
             }
-            break;
         }
     }
     customersMMW.classList.add('modal__show');
@@ -1485,190 +1557,15 @@ closeCustomersRMW.addEventListener('click', () => {
 closeCustomersMMW.addEventListener('click', () => {
     customersMMW.classList.remove('modal__show');
 });
-//---------------------------------------------table modal customer---------------------------------
-//------Select utilizado para buscar por columnas
-const selectSearchClteSMW = document.getElementById('selectSearchClteSMW');
-selectSearchClteSMW.addEventListener('change', searchCustomersSMW);
-//------buscar por input
-const inputSearchClteSMW = document.getElementById("inputSearchClteSMW");
-inputSearchClteSMW.addEventListener("keyup", searchCustomersSMW);
-//------Clientes por pagina
-const selectNumberClteSMW = document.getElementById('selectNumberClteSMW');
-selectNumberClteSMW.selectedIndex = 3;
-selectNumberClteSMW.addEventListener('change', function () {
-    paginacionCustomerMW(Object.values(filterEnterprises).length, 1);
-});
-//------buscar por:
-function searchCustomersSMW() {
-    filterChooseClte = {};
-    for (let enterprise in chooseCustomer) {
-        for (let valor in chooseCustomer[enterprise]) {
-            if (selectSearchClteSMW.value == 'todas') {
-                if (valor == 'nit_clte' || valor == 'nombre_emp' || valor == 'email_clte' || valor == 'direccion_clte' || valor == 'celular_clte') {
-                    if (chooseCustomer[enterprise][valor].toLowerCase().indexOf(inputSearchClteSMW.value.toLowerCase()) >= 0) {
-                        filterChooseClte[enterprise] = chooseCustomer[enterprise];
-                        break;
-                    }
-                } else if (valor == 'apellido_clte') {
-                    if ((chooseCustomer[enterprise][valor] + ' ' + chooseCustomer[enterprise]['nombre_clte']).toLowerCase().indexOf(inputSearchClteSMW.value.toLowerCase()) >= 0) {
-                        filterChooseClte[enterprise] = chooseCustomer[enterprise];
-                        break;
-                    }
-                }
-            } else {
-                if (valor == selectSearchClteSMW.value) {
-                    if (chooseCustomer[enterprise][valor].toLowerCase().indexOf(inputSearchClteSMW.value.toLowerCase()) >= 0) {
-                        filterChooseClte[enterprise] = chooseCustomer[enterprise];
-                        break;
-                    }
-                } else if (selectSearchClteSMW.value == 'cliente') {
-                    if ((chooseCustomer[enterprise][valor] + ' ' + chooseCustomer[enterprise]['nombre_clte']).toLowerCase().indexOf(inputSearchClteSMW.value.toLowerCase()) >= 0) {
-                        filterChooseClte[enterprise] = chooseCustomer[enterprise];
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    paginacionCustomerMW(Object.values(filterChooseClte).length, 1);
-}
-//------Ordenar tabla descendente ascendente
-let orderCustomer = document.querySelectorAll('.tbody__head--empMW');
-orderCustomer.forEach(div => {
-    div.children[0].addEventListener('click', function () {
-        let array = Object.entries(filterEnterprises).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
-            if (first < second) { return -1 }
-            if (first > second) { return 1 }
-            return 0;
-        })
-        filterEnterprises = Object.fromEntries(array);
-        paginacionCustomerMW(Object.values(filterEnterprises).length, 1);
-    });
-    div.children[1].addEventListener('click', function () {
-        let array = Object.entries(filterEnterprises).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
-            if (first > second) { return -1 }
-            if (first < second) { return 1 }
-            return 0;
-        })
-        filterEnterprises = Object.fromEntries(array);
-        paginacionCustomerMW(Object.values(filterEnterprises).length, 1);
-    });
-})
-//------PaginacionCustomer
-function paginacionCustomerMW(allEnterprises, page) {
-    let numberEnterprises = Number(selectNumberClteSMW.value);
-    let allPages = Math.ceil(allEnterprises / numberEnterprises);
-    let ul = document.querySelector('#wrapperClteSMW ul');
-    let li = '';
-    let beforePages = page - 1;
-    let afterPages = page + 1;
-    let liActive;
-    if (page > 1) {
-        li += `<li class="btn" onclick="paginacionCustomerMW(${allEnterprises}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
-    }
-    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
-        if (pageLength > allPages) {
-            continue;
-        }
-        if (pageLength == 0) {
-            pageLength = pageLength + 1;
-        }
-        if (page == pageLength) {
-            liActive = 'active';
-        } else {
-            liActive = '';
-        }
-        li += `<li class="numb ${liActive}" onclick="paginacionCustomerMW(${allEnterprises}, ${pageLength})"><span>${pageLength}</span></li>`;
-    }
-    if (page < allPages) {
-        li += `<li class="btn" onclick="paginacionCustomerMW(${allEnterprises}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
-    }
-    ul.innerHTML = li;
-    let h2 = document.querySelector('#showPageClteSMW h2');
-    h2.innerHTML = `Pagina ${page}/${allPages}, ${allEnterprises} Empresas`;
-    tableCustomersMW(page);
-}
-//------Crear la tabla
-function tableCustomersMW(page) {
-    const tbody = document.getElementById('tbodyClteSMW');
-    inicio = (page - 1) * Number(selectNumberClteSMW.value);
-    final = inicio + Number(selectNumberClteSMW.value);
-    i = 1;
-    tbody.innerHTML = '';
-    for (let enterprise in  filterChooseClte) {
-        if (i > inicio && i <= final) {
-            let tr = document.createElement('tr');
-            for (let valor in  filterChooseClte[enterprise]) {
-                let td = document.createElement('td');
-                if (valor == 'id_clte') {
-                    td.innerText =  filterChooseClte[enterprise][valor];
-                    td.setAttribute('hidden', '');
-                    tr.appendChild(td);
-                    td = document.createElement('td');
-                    td.innerText = i;
-                    tr.appendChild(td);
-                    i++;
-                } else if (valor == 'nombre_clte'){
-                    td.innerText =  filterChooseClte[enterprise]['apellido_clte'] + ' ' +  filterChooseClte[enterprise][valor];
-                    tr.appendChild(td);
-                } else if (valor == 'apellido_clte' || valor == 'sigla_emp' || valor == 'nit_emp' || valor == 'fk_id_emp_clte' || valor == 'precio_emp' ) {
-                } else if (valor == 'nit_clte') {
-                    if ( filterChooseClte[enterprise][valor] == '0') {
-                        td.innerText = '';
-                    } else {
-                        td.innerText =  filterChooseClte[enterprise][valor];
-                    }
-                    tr.appendChild(td);
-                } else if (valor == 'celular_clte') {
-                    if ( filterChooseClte[enterprise][valor] == '0') {
-                        td.innerText = '';
-                    } else {
-                        td.innerText =  filterChooseClte[enterprise][valor];
-                    }
-                    tr.appendChild(td);
-                } else {
-                    td.innerText =  filterChooseClte[enterprise][valor];
-                    tr.appendChild(td);
-                }
-            }
-            let td = document.createElement('td');
-            td.innerHTML = `
-                <img src='../imagenes/send.svg' onclick='sendCustomers(this.parentNode.parentNode)'>`;
-            tr.appendChild(td);
-            tbody.appendChild(tr);
-        } else {
-            i++;
-        }
-    }
-}
-function sendCustomers(tr) {
-    customerSMW.classList.remove('modal__show');
-    let id_clte = tr.children[0].innerText;
-    selectCustomerR.value = id_clte;
-}
-//----------------------------------ventana modal EnterpriseSMW-------------------------------------------
-const customerSMW = document.getElementById('customerSMW');
-//enterpriseSMW.addEventListener('click', ()=>enterpriseSMW.classList.remove('modal__show'));
-const closeCustomerSMW = document.getElementById('closeCustomerSMW');
-function openCustomersSMW() {
-    customerSMW.classList.add('modal__show');
-}
-closeCustomerSMW.addEventListener('click', () => {
-    customerSMW.classList.remove('modal__show');
-});
 //<<---------------------------------------------EMPRESA---------------------------------------------->>
 const selectEnterpriseR = document.getElementsByName('fk_id_emp_clteR')[0];
 const selectEnterpriseM = document.getElementsByName('fk_id_emp_clteM')[0];
 selectEnterpriseR.addEventListener('change', function () {
     fillSelectClte(selectCustomerR, indexCustomer);
 });
-let enterprises = {};
-let filterEnterprises = {};
-let sortEnterprises = {};
+let enterprises = [];
+let filterEnterprises = [];
+let sortEnterprises = [];
 let indexEnterprise = 0;
 readEnterprises();
 function readEnterprises() {
@@ -1678,17 +1575,10 @@ function readEnterprises() {
         method: "POST",
         body: formData
     }).then(response => response.json()).then(data => {
-        enterprises = JSON.parse(JSON.stringify(data));
+        enterprises = Object.values(data);
         filterEnterprises = enterprises;
-        sortEnterprises = enterprises;
-        let array = Object.entries(sortEnterprises).sort((a, b) => {
-            const nombreCompare = a[1].nombre_emp.toLowerCase().localeCompare(b[1].nombre_emp.toLowerCase());
-            if (nombreCompare !== 0) {
-                return nombreCompare;
-            }
-        })
-        sortEnterprises = Object.fromEntries(array);
-        paginacionEnterpriseMW(Object.values(filterEnterprises).length, 1);
+        sortEnterprises = [...enterprises].sort((a, b) => a.nombre_emp.localeCompare(b.nombre_emp));
+        paginacionEnterpriseMW(enterprises.length, 1);
         fillSelectEmp(selectEnterpriseR, indexEnterprise);
     }).catch(err => console.log(err));
 }
@@ -1707,52 +1597,33 @@ selectNumberEmpMW.addEventListener('change', function () {
 });
 //------buscar por:
 function searchEnterprisesMW() {
-    filterEnterprises = {};
-    for (let enterprise in enterprises) {
-        for (let valor in enterprises[enterprise]) {
-            if (selectSearchEmpMW.value == 'todas') {
-                if (valor != 'id_emp') {
-                    if (enterprises[enterprise][valor].toLowerCase().indexOf(inputSearchEmpMW.value.toLowerCase()) >= 0) {
-                        filterEnterprises[enterprise] = enterprises[enterprise];
-                        break;
-                    }
-                }
-            } else {
-                if (valor == selectSearchEmpMW.value) {
-                    if (enterprises[enterprise][valor].toLowerCase().indexOf(inputSearchEmpMW.value.toLowerCase()) >= 0) {
-                        filterEnterprises[enterprise] = enterprises[enterprise];
-                        break;
-                    }
-                }
-            }
+    const valor = selectSearchEmpMW.value;
+    const busqueda = inputSearchEmpMW.value.toLowerCase().trim();
+    filterEnterprises = enterprises.filter(enterprise => {
+        if (valor === 'todas') {
+            return (
+                enterprise.nombre_emp.toLowerCase().includes(busqueda) ||
+                enterprise.sigla_emp.toLowerCase().includes(busqueda) ||
+                enterprise.nit_emp.toLowerCase().includes(busqueda)
+            );
+        } else {
+            return enterprise[valor].toString().toLowerCase().includes(busqueda);
         }
-    }
-    paginacionEnterpriseMW(Object.values(filterEnterprises).length, 1);
+    });
+    paginacionEnterpriseMW(filterEnterprises.length, 1);
 }
 //------Ordenar tabla descendente ascendente
 let orderEnterprises = document.querySelectorAll('.tbody__head--empMW');
 orderEnterprises.forEach(div => {
     div.children[0].addEventListener('click', function () {
-        let array = Object.entries(filterEnterprises).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
-            if (first < second) { return -1 }
-            if (first > second) { return 1 }
-            return 0;
-        })
-        filterEnterprises = Object.fromEntries(array);
-        paginacionEnterpriseMW(Object.values(filterEnterprises).length, 1);
+        const valor = div.children[0].name;
+        filterEnterprises.sort((a, b) => a[valor].localeCompare(b[valor]));
+        paginacionEnterpriseMW(filterEnterprises.length, 1);
     });
     div.children[1].addEventListener('click', function () {
-        let array = Object.entries(filterEnterprises).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
-            if (first > second) { return -1 }
-            if (first < second) { return 1 }
-            return 0;
-        })
-        filterEnterprises = Object.fromEntries(array);
-        paginacionEnterpriseMW(Object.values(filterEnterprises).length, 1);
+        const valor = div.children[0].name;
+        filterEnterprises.sort((a, b) => b[valor].localeCompare(a[valor]));
+        paginacionEnterpriseMW(filterEnterprises.length, 1);
     });
 })
 //------PaginacionEnterpriseMW
@@ -1844,16 +1715,6 @@ function sendEnterprise(tr) {
     selectEnterpriseR.value = id_emp;
     fillSelectClte(selectCustomerR, indexCustomer);
 }
-//----------------------------------ventana modal EnterpriseSMW-------------------------------------------
-const enterpriseSMW = document.getElementById('enterpriseSMW');
-//enterpriseSMW.addEventListener('click', ()=>enterpriseSMW.classList.remove('modal__show'));
-const closeEnterpriseSMW = document.getElementById('closeEnterpriseSMW');
-function openEnterpriseSMW() {
-    enterpriseSMW.classList.add('modal__show');
-}
-closeEnterpriseSMW.addEventListener('click', () => {
-    enterpriseSMW.classList.remove('modal__show');
-});
 function fillSelectEmp(select, index) {
     select.innerHTML = '';
     for (let enterprise in sortEnterprises) {
@@ -1862,10 +1723,10 @@ function fillSelectEmp(select, index) {
         option.innerText = sortEnterprises[enterprise]['nombre_emp'];
         select.appendChild(option);
     }
-    if (index > 0) { 
+    if (index > 0) {
         select.value = index
     } else if (index == -1) {
-        const maxIdEmp = Math.max(...Object.values(sortEnterprises).map(enterprise => enterprise.id_emp));
+        const maxIdEmp = Math.max(...sortEnterprises.map(enterprise => enterprise.id_emp));
         select.value = maxIdEmp;
     }
     fillSelectClte(selectCustomerR, indexCustomer);
@@ -1880,17 +1741,17 @@ function fillSelectClte(select, index) {
             option.value = sortCustomers[customer]['id_clte'];
             option.innerText = sortCustomers[customer]['apellido_clte'] + ' ' + sortCustomers[customer]['nombre_clte'];
             select.appendChild(option);
-            if (sortCustomers[customer]['nombre_clte'] != '' && sortCustomers[customer]['nombre_clte'] != ''){
+            if (sortCustomers[customer]['nombre_clte'] != '' && sortCustomers[customer]['nombre_clte'] != '') {
                 chooseCustomer.push(sortCustomers[customer]);
             }
         }
     }
     filterChooseClte = chooseCustomer;
-    paginacionCustomerMW(Object.values(chooseCustomer).length, 1);
-    if (index > 0) { 
-        select.value = index 
-    } else if (index == -1){
-        const maxIdClte = Math.max(...Object.values(sortCustomers).map(customer => customer.id_clte));
+    paginacionCustomerMW(chooseCustomer.length, 1);
+    if (index > 0) {
+        select.value = index
+    } else if (index == -1) {
+        const maxIdClte = Math.max(...sortCustomers.map(customer => customer.id_clte));
         select.value = maxIdClte;
     }
     for (let enterprise in enterprises) {
@@ -1899,6 +1760,16 @@ function fillSelectClte(select, index) {
         }
     }
 }
+//----------------------------------ventana modal EnterpriseSMW-------------------------------------------
+const enterpriseSMW = document.getElementById('enterpriseSMW');
+//enterpriseSMW.addEventListener('click', ()=>enterpriseSMW.classList.remove('modal__show'));
+const closeEnterpriseSMW = document.getElementById('closeEnterpriseSMW');
+function openEnterpriseSMW() {
+    enterpriseSMW.classList.add('modal__show');
+}
+closeEnterpriseSMW.addEventListener('click', () => {
+    enterpriseSMW.classList.remove('modal__show');
+});
 //<<---------------------------CRUD EMPRESA------------------------------->>
 //------Craer una empresa
 const formEmpresaR = document.getElementById('formEmpresaR');
@@ -1917,7 +1788,6 @@ function createEnterprise() {
         }).then(response => response.text()).then(data => {
             requestEmp = false;
             indexEnterprise = -1;
-            console.log(indexEnterprise)
             formEmpresaR.reset();
             readCustomers();
             readEnterprises();
@@ -2008,6 +1878,22 @@ closeEnterprisesRMW.addEventListener('click', () => {
 closeEnterprisesMMW.addEventListener('click', () => {
     enterprisesMMW.classList.remove('modal__show');
 });
+//------------------------------------------------------INVENTARIO----------------------------------------------------------
+let inventories = [];
+let filterInventoriesMW = [];
+readInventories();
+function readInventories() {
+    let formData = new FormData();
+    formData.append('readInventories', '');
+    fetch('../controladores/inventario.php', {
+        method: "POST",
+        body: formData
+    }).then(response => response.json()).then(data => {
+        inventories = Object.values(data)
+        filterInventoriesMW = inventories;
+        paginacionInventoryMW(inventories.length, 1);
+    }).catch(err => console.log(err));
+}
 //-------------------------------------------------TABLA MODAL INVENTARIOMW------------------------------------------------------------
 //------Select utilizado para buscar por columnas
 const selectSearchInvMW = document.getElementById('selectSearchInvMW');
@@ -2023,85 +1909,57 @@ selectNumberInvMW.addEventListener('change', function () {
 });
 //-------Marca y categoria
 const selectMarcaInvMW = document.getElementById('selectMarcaInvMW');
+const selectCategoriaInvMW = document.getElementById('selectCategoriaInvMW');
 selectMarcaInvMW.addEventListener('change', selectCategoriaInventoryMW);
 const MWMW = document.getElementById('MWMW');
 selectCategoriaInvMW.addEventListener('change', searchInventoriesMW);
 //------buscar por:
 function searchInventoriesMW() {
-    filterInventoriesMW = {};
-    for (let inventory in inventories) {
-        for (let valor in inventories[inventory]) {
-            if (selectSearchInvMW.value == 'todas') {
-                if (valor == 'codigo_prod' || valor == 'nombre_prod' || valor == 'descripcion_prod' || valor == 'cost_uni_inv') {
-                    if (inventories[inventory][valor].toLowerCase().indexOf(inputSearchInvMW.value.toLowerCase()) >= 0) {
-                        filterInventoriesMW[inventory] = inventories[inventory];
-                        break;
-                    }
-                }
-            } else {
-                if (valor == selectSearchInvMW.value) {
-                    if (inventories[inventory][valor].toLowerCase().indexOf(inputSearchInvMW.value.toLowerCase()) >= 0) {
-                        filterInventoriesMW[inventory] = inventories[inventory];
-                        break;
-                    }
-                }
-            }
+    const valor = selectSearchInvMW.value;
+    const busqueda = inputSearchInvMW.value.toLowerCase().trim();
+    filterInventoriesMW = inventories.filter(inventory => {
+        if (valor === 'todas') {
+            return (
+                inventory.codigo_prod.toLowerCase().includes(busqueda) ||
+                inventory.nombre_prod.toLowerCase().includes(busqueda) ||
+                inventory.descripcion_prod.toLowerCase().includes(busqueda) ||
+                inventory.cost_uni_inv.toString().toLowerCase().includes(busqueda)
+            );
+        } else {
+            return inventory[valor].toString().toLowerCase().includes(busqueda);
         }
-    }
+    });
     selectInventoriesMW();
 }
 //------buscar por marca y categoria:
 function selectInventoriesMW() {
     if (selectMarcaInvMW.value == 'todasLasMarcas' && selectCategoriaInvMW.value == 'todasLasCategorias') {
-        paginacionInventoryMW(Object.values(filterInventoriesMW).length, 1);
+        paginacionInventoryMW(filterInventoriesMW.length, 1);
     } else {
-        for (let ìnventory in filterInventoriesMW) {
-            for (let valor in filterInventoriesMW[ìnventory]) {
-                if (selectMarcaInvMW.value == 'todasLasMarcas') {
-                    if (filterInventoriesMW[ìnventory]['id_ctgr'] != selectCategoriaInvMW.value) {
-                        delete filterInventoriesMW[ìnventory];
-                        break;
-                    }
-                } else if (selectCategoriaInvMW.value == 'todasLasCategorias') {
-                    if (filterInventoriesMW[ìnventory]['id_mrc'] != selectMarcaInvMW.value) {
-                        delete filterInventoriesMW[ìnventory];
-                        break;
-                    }
-                } else {
-                    if (filterInventoriesMW[ìnventory]['id_ctgr'] != selectCategoriaInvMW.value || filterInventoriesMW[ìnventory]['id_mrc'] != selectMarcaInvMW.value) {
-                        delete filterInventoriesMW[ìnventory];
-                        break;
-                    }
-                }
+        filterInventoriesMW = filterInventoriesMW.filter(product => {
+            if (selectMarcaInvMW.value == 'todasLasMarcas') {
+                return product['id_ctgr'] == selectCategoriaInvMW.value;
+            } else if (selectCategoriaInvMW.value == 'todasLasCategorias') {
+                return product['id_mrc'] == selectMarcaInvMW.value;
+            } else {
+                return product['id_ctgr'] == selectCategoriaInvMW.value && product['id_mrc'] == selectMarcaInvMW.value;
             }
-        }
-        paginacionInventoryMW(Object.values(filterInventoriesMW).length, 1);
+        });
+        paginacionInventoryMW(filterInventoriesMW.length, 1);
     }
 }
 //------Ordenar tabla descendente ascendente
 let orderInventoriesMW = document.querySelectorAll('.tbody__head--invMW');
 orderInventoriesMW.forEach(div => {
     div.children[0].addEventListener('click', function () {
-        let array = Object.entries(filterInventoriesMW).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
-            if (first < second) { return -1 }
-            if (first > second) { return 1 }
-            return 0;
-        })
-        filterInventoriesMW = Object.fromEntries(array);
-        paginacionInventoryMW(Object.values(filterInventoriesMW).length, 1);
+        const valor = div.children[0].name;
+        filterInventoriesMW.sort((a, b) => a[valor].localeCompare(b[valor]));
+        paginacionInventoryMW(filterInventoriesMW.length, 1);
     });
     div.children[1].addEventListener('click', function () {
-        let array = Object.entries(filterInventoriesMW).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
-            if (first > second) { return -1 }
-            if (first < second) { return 1 }
-            return 0;
-        })
-        filterInventoriesMW = Object.fromEntries(array);
-        paginacionInventoryMW(Object.values(filterInventoriesMW).length, 1);
+        const valor = div.children[0].name;
+        filterInventoriesMW.sort((a, b) => b[valor].localeCompare(a[valor]));
+        paginacionInventoryMW(filterInventoriesMW.length, 1);
     });
 })
 //------PaginacionInventoryMW
@@ -2187,21 +2045,15 @@ function tableInventoriesMW(page) {
 }
 function sendInventory(tr) {
     let id_inv = tr.children[0].innerText;
-    for (let inventario in filterInventoriesMW) {
-        if (filterInventoriesMW[inventario]['id_inv'] == id_inv) {
-            let prof_prods = modalProf_prod.querySelectorAll('.cart-item');
-            let i = 0;
-            prof_prods.forEach(prod => {
-                let codigo = prod.children[2].innerText;
-                if (codigo == filterInventoriesMW[inventario]['codigo_prod']) {
-                    i++;
-                }
-            })
-            if (i == 0) {
-                cartProduct_pfpd(filterInventoriesMW[inventario]);
-            } else {
-                alert("El producto ya se encuentra en la lista");
-            }
+    const inventory = filterInventoriesMW.find(inv => inv['id_inv'] === id_inv);
+    if (inventory) {
+        let prof_prods = modalProf_prod.querySelectorAll('.cart-item');
+        const codigo = inventory['codigo_prod'];
+        const existe = Array.from(prof_prods).some(prod => prod.children[2].innerText === codigo);
+        if (!existe) {
+            cartProduct_pfpd(inventory, 'new');
+        } else {
+            alert("El producto ya se encuentra en la lista");
         }
     }
 }
@@ -2234,80 +2086,50 @@ const selectCategoriaProdMW = document.getElementById('selectCategoriaProdMW');
 selectCategoriaProdMW.addEventListener('change', searchProductsMW);
 //------buscar por:
 function searchProductsMW() {
-    filterProductsMW = {};
-    for (let product in products) {
-        for (let valor in products[product]) {
-            if (selectSearchProdMW.value == 'todas') {
-                if (valor == 'codigo_prod' || valor == 'nombre_prod' || valor == 'descripcion_prod') {
-                    if (products[product][valor].toLowerCase().indexOf(inputSearchProdMW.value.toLowerCase()) >= 0) {
-                        filterProductsMW[product] = products[product];
-                        break;
-                    }
-                }
-            } else {
-                if (valor == selectSearchProdMW.value) {
-                    if (products[product][valor].toLowerCase().indexOf(inputSearchProdMW.value.toLowerCase()) >= 0) {
-                        filterProductsMW[product] = products[product];
-                        break;
-                    }
-                }
-            }
+    const valor = selectSearchProdMW.value;
+    const busqueda = inputSearchProdMW.value.toLowerCase().trim();
+    filterProductsMW = Object.values(products).filter(product => {
+        if (valor === 'todas') {
+            return (
+                product.codigo_prod.toLowerCase().includes(busqueda) ||
+                product.nombre_prod.toLowerCase().includes(busqueda) ||
+                product.descripcion_prod.toLowerCase().includes(busqueda)
+            );
+        } else {
+            return product[valor].toLowerCase().includes(busqueda);
         }
-    }
+    });
     selectProductsMW();
 }
 //------buscar por marca y categoria:
 function selectProductsMW() {
     if (selectMarcaProdMW.value == 'todasLasMarcas' && selectCategoriaProdMW.value == 'todasLasCategorias') {
-        paginacionProductMW(Object.values(filterProductsMW).length, 1);
+        paginacionProductMW(filterProductsMW.length, 1);
     } else {
-        for (let product in filterProductsMW) {
-            for (let valor in filterProductsMW[product]) {
-                if (selectMarcaProdMW.value == 'todasLasMarcas') {
-                    if (filterProductsMW[product]['id_ctgr'] != selectCategoriaProdMW.value) {
-                        delete filterProductsMW[product];
-                        break;
-                    }
-                } else if (selectCategoriaProdMW.value == 'todasLasCategorias') {
-                    if (filterProductsMW[product]['id_mrc'] != selectMarcaProdMW.value) {
-                        delete filterProductsMW[product];
-                        break;
-                    }
-                } else {
-                    if (filterProductsMW[product]['id_ctgr'] != selectCategoriaProdMW.value || filterProductsMW[product]['id_mrc'] != selectMarcaProdMW.value) {
-                        delete filterProductsMW[product];
-                        break;
-                    }
-                }
+        filterProductsMW = filterProductsMW.filter(product => {
+            if (selectMarcaProdMW.value == 'todasLasMarcas') {
+                return product['id_ctgr'] == selectCategoriaProdMW.value;
+            } else if (selectCategoriaProdMW.value == 'todasLasCategorias') {
+                return product['id_mrc'] == selectMarcaProdMW.value;
+            } else {
+                return product['id_ctgr'] == selectCategoriaProdMW.value && product['id_mrc'] == selectMarcaProdMW.value;
             }
-        }
-        paginacionProductMW(Object.values(filterProductsMW).length, 1);
+        });
+        paginacionProductMW(filterProductsMW.length, 1);
     }
 }
 //------Ordenar tabla descendente ascendente
 let orderProducts = document.querySelectorAll('.tbody__head--ProdMW');
 orderProducts.forEach(div => {
     div.children[0].addEventListener('click', function () {
-        let array = Object.entries(filterProductsMW).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
-            if (first < second) { return -1 }
-            if (first > second) { return 1 }
-            return 0;
-        })
-        filterProductsMW = Object.fromEntries(array);
-        paginacionProductMW(Object.values(filterProductsMW).length, 1);
+        const valor = div.children[0].name;
+        filterProductsMW.sort((a, b) => a[valor].localeCompare(b[valor]));
+        paginacionProductMW(filterProductsMW.length, 1);
     });
     div.children[1].addEventListener('click', function () {
-        let array = Object.entries(filterProductsMW).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
-            if (first > second) { return -1 }
-            if (first < second) { return 1 }
-            return 0;
-        })
-        filterProductsMW = Object.fromEntries(array);
-        paginacionProductMW(Object.values(filterProductsMW).length, 1);
+        const valor = div.children[0].name;
+        filterProductsMW.sort((a, b) => b[valor].localeCompare(a[valor]));
+        paginacionProductMW(filterProductsMW.length, 1);
     });
 })
 //------PaginacionProductMW
@@ -2389,21 +2211,15 @@ function tableProductsMW(page) {
 }
 function sendProduct(tr) {
     let id_prod = tr.children[0].innerText;
-    for (let product in filterProductsMW) {
-        if (filterProductsMW[product]['id_prod'] == id_prod) {
-            let prof_prods = modalProf_prod.querySelectorAll('.cart-item');
-            let i = 0;
-            prof_prods.forEach(prod => {
-                let codigo = prod.children[2].innerText;
-                if (codigo == filterProductsMW[product]['codigo_prod']) {
-                    i++;
-                }
-            })
-            if (i == 0) {
-                cartProduct_pfpd(filterProductsMW[product]);
-            } else {
-                alert("El producto ya se encuentra en la lista");
-            }
+    const product = filterProductsMW.find(prod => prod['id_prod'] === id_prod);
+    if (product) {
+        let prof_prods = modalProf_prod.querySelectorAll('.cart-item');
+        const codigo = product['codigo_prod'];
+        const existe = Array.from(prof_prods).some(prod => prod.children[2].innerText === codigo);
+        if (!existe) {
+            cartProduct_pfpd(product, 'new');
+        } else {
+            alert("El producto ya se encuentra en la lista");
         }
     }
 }
@@ -2422,13 +2238,13 @@ closeProductSMW.addEventListener('click', () => {
 document.getElementById("formProductsR").addEventListener("submit", createProduct);
 function createProduct() {
     event.preventDefault();
-    if (requestProducts == false) {
-        requestProducts = true;
-        if (marca_prodR.value == "todasLasMarcas") {
-            alert("Debe seleccionar una marca");
-        } else if (categoria_prodR.value == "todasLasCategorias") {
-            alert("Debe seleccionar una categoria");
-        } else {
+    if (marca_prodR.value == "todasLasMarcas") {
+        alert("Debe seleccionar una marca");
+    } else if (categoria_prodR.value == "todasLasCategorias") {
+        alert("Debe seleccionar una categoria");
+    } else {
+        if (requestProducts == false) {
+            requestProducts = true;
             productsRMW.classList.remove('modal__show');
             let form = document.getElementById("formProductsR");
             let formData = new FormData(form);
@@ -2445,7 +2261,7 @@ function createProduct() {
                 } else {
                     alert("El producto fue creado con éxito");
                     readProducts();
-                    cleanUpProductFormR();
+                    form.reset();
                 }
             }).catch(err => {
                 requestProducts = false;
@@ -2457,9 +2273,9 @@ function createProduct() {
 //------Leer un producto
 function readProduct(tr) {
     cleanUpProductFormM();
-    let id_prod = tr.children[0].innerText;
+    let codigo_prod = tr.children[2].innerText;
     for (let product in filterProducts) {
-        if (filterProducts[product]['id_prod'] == id_prod) {
+        if (filterProducts[product]['codigo_prod'] == codigo_prod) {
             for (let valor in filterProducts[product]) {
                 if (valor == 'imagen_prod') {
                     document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("../modelos/imagenes/${filterProducts[product][valor]}"); background-size: cover;`);
@@ -2483,13 +2299,13 @@ function readProduct(tr) {
 document.getElementById("formProductsM").addEventListener("submit", updateProduct);
 function updateProduct() {
     event.preventDefault();
-    if (requestProducts == false) {
-        requestProducts = true;
-        if (marca_prodM.value == "todasLasMarcas") {
-            alert("Debe seleccionar una marca");
-        } else if (categoria_prodM.value == "todasLasCategorias") {
-            alert("Debe seleccionar una categoria");
-        } else {
+    if (marca_prodM.value == "todasLasMarcas") {
+        alert("Debe seleccionar una marca");
+    } else if (categoria_prodM.value == "todasLasCategorias") {
+        alert("Debe seleccionar una categoria");
+    } else {
+        if (requestProducts == false) {
+            requestProducts = true;
             productsMMW.classList.remove('modal__show');
             let form = document.getElementById("formProductsM");
             let formData = new FormData(form);
@@ -2521,7 +2337,6 @@ function openProductsRMW() {
 closeProductsRMW.addEventListener('click', (e) => {
     productsRMW.classList.remove('modal__show');
 });
-
 closeProductsMMW.addEventListener('click', (e) => {
     productsMMW.classList.remove('modal__show');
 });
@@ -2931,4 +2746,3 @@ function selectCategoriaProdM() {
 }
 //-----------------------------------------PRE LOADER---------------------------------------------
 const preloader = document.getElementById('preloader');
-

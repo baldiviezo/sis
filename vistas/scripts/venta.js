@@ -9,7 +9,7 @@ const dateFormat = new Intl.DateTimeFormat('es-ES', {
     minute: '2-digit',
     second: '2-digit',
     hour12: false,
-  });
+});
 const formattedDate = dateFormat.format(date);
 const datePart = formattedDate.split(', ');
 const dateActual = datePart[0].split('/');
@@ -19,7 +19,7 @@ let filterSales = {};
 readSales();
 function readSales() {
     let formData = new FormData();
-    formData.append('readSales','');
+    formData.append('readSales', '');
     fetch('../controladores/ventas.php', {
         method: "POST",
         body: formData
@@ -38,24 +38,24 @@ inputSerchVnt.addEventListener("keyup", searchSales);
 //------Clientes por pagina
 const selectNumberVnt = document.getElementById('selectNumberVnt');
 selectNumberVnt.selectedIndex = 3;
-selectNumberVnt.addEventListener('change', function(){
+selectNumberVnt.addEventListener('change', function () {
     paginationSales(Object.values(filterSales).length, 1);
 });
 //------buscar por:
-function searchSales(){
+function searchSales() {
     filterSales = {};
-    for(let sale in sales){
-        for(let valor in sales[sale]){
-            if(selectSearchVnt.value == 'todas'){
-                if(valor != 'id_prof'){
-                    if(sales[sale][valor].toLowerCase().indexOf(inputSerchVnt.value.toLowerCase())>=0){
+    for (let sale in sales) {
+        for (let valor in sales[sale]) {
+            if (selectSearchVnt.value == 'todas') {
+                if (valor != 'id_prof') {
+                    if (sales[sale][valor].toLowerCase().indexOf(inputSerchVnt.value.toLowerCase()) >= 0) {
                         filterSales[sale] = sales[sale];
                         break;
                     }
                 }
-            }else{
-                if(valor == selectSearchVnt.value){
-                    if(sales[sale][valor].toLowerCase().indexOf(inputSerchVnt.value.toLowerCase())>=0){
+            } else {
+                if (valor == selectSearchVnt.value) {
+                    if (sales[sale][valor].toLowerCase().indexOf(inputSerchVnt.value.toLowerCase()) >= 0) {
                         filterSales[sale] = sales[sale];
                         break;
                     }
@@ -67,24 +67,24 @@ function searchSales(){
 }
 //------Ordenar tabla descendente ascendente
 let orderSales = document.querySelectorAll('.tbody__head--venta');
-orderSales.forEach(div=>{
-    div.children[0].addEventListener('click', function() {
-        let array = Object.entries(filterSales).sort((a,b)=>{
+orderSales.forEach(div => {
+    div.children[0].addEventListener('click', function () {
+        let array = Object.entries(filterSales).sort((a, b) => {
             let first = a[1][div.children[0].name].toLowerCase();
             let second = b[1][div.children[0].name].toLowerCase();
-            if( first < second){return -1}
-            if(first > second){return 1}
+            if (first < second) { return -1 }
+            if (first > second) { return 1 }
             return 0;
         })
         filterSales = Object.fromEntries(array);
         paginationSales(Object.values(filterSales).length, 1);
     });
-    div.children[1].addEventListener('click', function() {
-        let array = Object.entries(filterSales).sort((a,b)=>{
+    div.children[1].addEventListener('click', function () {
+        let array = Object.entries(filterSales).sort((a, b) => {
             let first = a[1][div.children[0].name].toLowerCase();
             let second = b[1][div.children[0].name].toLowerCase();
-            if( first > second){return -1}
-            if(first < second){return 1}
+            if (first > second) { return -1 }
+            if (first < second) { return 1 }
             return 0;
         })
         filterSales = Object.fromEntries(array);
@@ -92,80 +92,77 @@ orderSales.forEach(div=>{
     });
 })
 //------PaginationSales
-function paginationSales(allVentas, page){
+function paginationSales(allVentas, page) {
     let numberVentas = Number(selectNumberVnt.value);
-    let allPages = Math.ceil(allVentas/numberVentas);
+    let allPages = Math.ceil(allVentas / numberVentas);
     let ul = document.querySelector('#wrapperVenta ul');
     let li = '';
-    let beforePages = page-1;
-    let afterPages = page +1;
+    let beforePages = page - 1;
+    let afterPages = page + 1;
     let liActive;
-    if(page > 1){
-        li+= `<li class="btn" onclick="paginationSales(${allVentas}, ${page-1})"><img src="../imagenes/arowLeft.svg"></li>`;
+    if (page > 1) {
+        li += `<li class="btn" onclick="paginationSales(${allVentas}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
     }
-    for(let pageLength = beforePages; pageLength <= afterPages; pageLength++){
-        if(pageLength > allPages){
+    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
+        if (pageLength > allPages) {
             continue;
         }
-        if(pageLength == 0){
-            pageLength = pageLength +1;
+        if (pageLength == 0) {
+            pageLength = pageLength + 1;
         }
-        if(page == pageLength){
+        if (page == pageLength) {
             liActive = 'active';
-        }else{
+        } else {
             liActive = '';
         }
-        li+= `<li class="numb ${liActive}" onclick="paginationSales(${allVentas}, ${pageLength})"><span>${pageLength}</span></li>`;
+        li += `<li class="numb ${liActive}" onclick="paginationSales(${allVentas}, ${pageLength})"><span>${pageLength}</span></li>`;
     }
-    if(page < allPages){
-        li += `<li class="btn" onclick="paginationSales(${allVentas}, ${page+1})"><img src="../imagenes/arowRight.svg"></li>`;
+    if (page < allPages) {
+        li += `<li class="btn" onclick="paginationSales(${allVentas}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
     }
     ul.innerHTML = li;
-    let h2= document.querySelector('#showPageVenta h2');
-    h2.innerHTML =`Pagina ${page}/${allPages}, ${allVentas} Ventas`;
+    let h2 = document.querySelector('#showPageVenta h2');
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${allVentas} Ventas`;
     tableSales(page);
 }
 //------Crear la tabla
 function tableSales(page) {
     let tbody = document.getElementById('tbodyVenta');
-    inicio = (page-1)*Number(selectNumberVnt.value); 
+    inicio = (page - 1) * Number(selectNumberVnt.value);
     final = inicio + Number(selectNumberVnt.value);
-    let i=1;
+    let i = 1;
     tbody.innerHTML = '';
-    for(let sale in filterSales){
-       if( i > inicio && i <= final){
-        let tr = document.createElement('tr');
-        for(let valor in filterSales[sale]){
-            let td = document.createElement('td');
-            if(valor == 'id_vnt'){
-                td.innerText = i;
-                tr.appendChild(td);
-                i++;
-                td = document.createElement('td');
-                td.innerText = 'VNT-SMS-'+filterSales[sale][valor];
-                tr.appendChild(td);
-            }else if(valor == 'nombre_usua'){
-                td.innerText = filterSales[sale][valor]+' '+filterSales[sale]['apellido_usua'];
-                tr.appendChild(td);
-            }else if(valor == 'apellido_usua'){
-            }else if(valor == 'total_vnt'){
-                td.innerText = Number(filterSales[sale][valor]).toFixed(2) + ' Bs';
-                tr.appendChild(td);
-            }else{
-                td.innerText = filterSales[sale][valor];
-                tr.appendChild(td);
+    for (let sale in filterSales) {
+        if (i > inicio && i <= final) {
+            let tr = document.createElement('tr');
+            for (let valor in filterSales[sale]) {
+                let td = document.createElement('td');
+                if (valor == 'id_vnt') {
+                    td.innerText = i;
+                    tr.appendChild(td);
+                    i++;
+                } else if (valor == 'nombre_usua') {
+                    td.innerText = filterSales[sale][valor] + ' ' + filterSales[sale]['apellido_usua'];
+                    tr.appendChild(td);
+                } else if (valor == 'apellido_usua') {
+                } else if (valor == 'total_vnt') {
+                    td.innerText = Number(filterSales[sale][valor]).toFixed(2) + ' Bs';
+                    tr.appendChild(td);
+                } else {
+                    td.innerText = filterSales[sale][valor];
+                    tr.appendChild(td);
+                }
             }
+            /*let td = document.createElement('td');
+            td.innerHTML = `
+            <img src='../imagenes/edit.svg' onclick='readVenta(this.parentNode.parentNode)'>
+            <img src='../imagenes/trash.svg' onclick='deleteVenta(this.parentNode.parentNode)'>`;
+            tr.appendChild(td);*/
+            tbody.appendChild(tr);
+        } else {
+            i++;
         }
-        /*let td = document.createElement('td');
-        td.innerHTML = `
-        <img src='../imagenes/edit.svg' onclick='readVenta(this.parentNode.parentNode)'>
-        <img src='../imagenes/trash.svg' onclick='deleteVenta(this.parentNode.parentNode)'>`;
-        tr.appendChild(td);*/
-        tbody.appendChild(tr);
-        }else{
-            i++;    
-        }
-    }   
+    }
 }
 /***********************************************PRODUCT FILTER VNT_PRODS*********************************************/
 //--------read vnt_prods
@@ -218,7 +215,7 @@ function searchProdVnt() {
                         filterVnt_prods[proforma] = vnt_prods[proforma];
                         break;
                     }
-                } else if ( valor == 'nombre_emp' || valor == 'nombre_mrc' || valor == 'nombre_ctgr' || valor == 'codigo_vtpd' ||  valor == 'nombre_prod' ||  valor == 'factura_vnt' || valor == 'cantidad_vtpd' || valor == 'cost_uni_vtpd' || valor == 'descuento_prof' || valor == 'fecha_ne' || valor == 'fecha_vnt') {
+                } else if (valor == 'nombre_emp' || valor == 'nombre_mrc' || valor == 'nombre_ctgr' || valor == 'codigo_vtpd' || valor == 'nombre_prod' || valor == 'factura_vnt' || valor == 'cantidad_vtpd' || valor == 'cost_uni_vtpd' || valor == 'descuento_prof' || valor == 'fecha_ne' || valor == 'fecha_vnt') {
                     if (vnt_prods[proforma][valor].toString().toLowerCase().indexOf(inputSearchProdVnt.value.toLowerCase()) >= 0) {
                         filterVnt_prods[proforma] = vnt_prods[proforma];
                         break;
@@ -251,26 +248,6 @@ function searchProdVnt() {
     //selectStateProductOC();
     paginacionProdVnt(Object.values(filterVnt_prods).length, 1);
 }
-//-------Estado de proforma
-/*const selectStateProdOC = document.getElementById('selectStateProdOC');
-selectStateProdOC.addEventListener('change', searchProdVnt);
-function selectStateProductOC() {
-    if (selectStateProdOC.value == 'todasLasOC') {
-        paginacionProdVnt(Object.values(filterVnt_prods).length, 1);
-    } else {
-        for (let proforma in filterVnt_prods) {
-            for (let valor in filterVnt_prods[proforma]) {
-                if (valor == 'estado_cmp') {
-                    if (filterVnt_prods[proforma][valor] != selectStateProdOC.value) {
-                        delete filterVnt_prods[proforma];
-                        break;
-                    }
-                }
-            }
-        }
-        paginacionProdVnt(Object.values(filterVnt_prods).length, 1);
-    }
-}*/
 //------Ordenar tabla descendente ascendente
 let orderProforma = document.querySelectorAll('.tbody__head--proforma');
 orderProforma.forEach(div => {
@@ -380,7 +357,7 @@ function tableVntProds(page) {
                     let total = filterVnt_prods[proforma]['cantidad_vtpd'] * filterVnt_prods[proforma]['cost_uni_vtpd'] * (100 - filterVnt_prods[proforma]['descuento_prof']) / 100;
                     td2.innerText = total.toFixed(2) + ' Bs';
                     tr.appendChild(td2);
-                } else if ( valor == 'apellido_usua' || valor == 'apellido_clte' || valor == 'fk_id_prod_vtpd' || valor == 'imagen_prod' || valor == 'estado_ne') {
+                } else if (valor == 'apellido_usua' || valor == 'apellido_clte' || valor == 'fk_id_prod_vtpd' || valor == 'imagen_prod' || valor == 'estado_ne') {
                 } else {
                     td.innerText = filterVnt_prods[proforma][valor];
                     tr.appendChild(td);
@@ -405,21 +382,21 @@ closeTableProdVnt.addEventListener('click', () => {
 /*********************************************Reporte en Excel****************************************************/
 const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
 const EXCEL_EXTENSION = '.xlsx';
-function downloadAsExcel(data){
+function downloadAsExcel(data) {
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = {
         Sheets: {
-            'data' : worksheet
+            'data': worksheet
         },
         SheetNames: ['data']
     };
-    const excelBuffer = XLSX.write(workbook, {bookType: 'xlsx', type: 'array'});
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
 
     saveAsExcel(excelBuffer, 'Ventas');
 }
-function saveAsExcel(buffer, filename){
-    const data = new Blob([buffer], {type: EXCEL_TYPE});
-    saveAs(data, filename+EXCEL_EXTENSION);
+function saveAsExcel(buffer, filename) {
+    const data = new Blob([buffer], { type: EXCEL_TYPE });
+    saveAs(data, filename + EXCEL_EXTENSION);
 }
 const excelProdVnt = document.getElementById('excelProdVnt');
 excelProdVnt.addEventListener('click', () => {
@@ -436,28 +413,170 @@ excelProdVnt.addEventListener('click', () => {
     //downloadAsExcel(reversed)
 });
 //*******************************************BEST SELLER PRODUCT**************************************************/
-const bestSellingProduct = document.getElementById('bestSellingProduct');
-bestSellingProduct.addEventListener('click', () => {
+//----------------------------------------------TABLE MODAL MOST VENDIDOS----------------------------------------->
+//-----------------------------------------------OPEN AND CLOSE MODAL---------------------------------------- -
+//--------------------------------------------fechas
+const formDates = document.getElementById('formDates');
+const startingDateInput = document.getElementById('startingDate');
+const endDateInput = document.getElementById('endDate');
+let filteredProducts =  [];
+formDates.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const startingDate = startingDateInput.value;
+    const endDate = endDateInput.value;
+    if (!startingDate || !endDate) {
+        alert('Por favor, ingrese ambas fechas');
+        return;
+    }
+    const startingDateObj = new Date(startingDate);
+    const endDateObj = new Date(endDate);
+    if (isNaN(startingDateObj.getTime()) || isNaN(endDateObj.getTime())) {
+        alert('Por favor, ingrese fechas válidas');
+        return;
+    }
+    if (startingDateObj > endDateObj) {
+        alert('La fecha inicial no puede ser posterior a la fecha final');
+        return;
+    }
+    filteredProducts = Object.values(vnt_prods).filter((product) => {
+        const fecha_vnt = new Date(product.fecha_vnt);
+        const startingDateObj = new Date(startingDate);
+        const endDateObj = new Date(endDate);
+
+        return fecha_vnt >= startingDateObj && fecha_vnt <= endDateObj;
+    });
     filterMostVnt();
+});
+
+const tableMostProd = document.getElementById('tableMostProd');
+const closeTableMostProd = document.getElementById('closeTableMostProd');
+function openTableMostProd() {
+    tableMostProd.classList.add('modal__show');
+}
+closeTableMostProd.addEventListener('click', () => {
+    tableMostProd.classList.remove('modal__show');
 })
-//------Filtrar el producto mas vendido
+let productsSold = [];
 function filterMostVnt() {
-    console.log(filterVnt_prods)
-    const productosVendidos = Object.values(filterVnt_prods).reduce((acc, producto) => {
+    const productosVendidos = Object.values(filteredProducts).reduce((acc, producto) => {
         const nombreProducto = producto.codigo_vtpd;
         if (acc[nombreProducto]) {
             acc[nombreProducto].cantidad_vtpd += producto.cantidad_vtpd;
+            acc[nombreProducto].costoTotal += producto.cantidad_vtpd * producto.cost_uni_vtpd;
         } else {
             acc[nombreProducto] = {
                 codigo_vtpd: nombreProducto,
-                cantidad_vtpd: producto.cantidad_vtpd
+                cantidad_vtpd: producto.cantidad_vtpd,
+                costoTotal: producto.cantidad_vtpd * producto.cost_uni_vtpd
             };
         }
         return acc;
     }, []);
-    
-    const productosVendidosOrdenados = Object.values(productosVendidos).sort((a, b) => b.cantidad_vtpd - a.cantidad_vtpd);
-    
-    console.log(productosVendidosOrdenados);
-    paginacionProdVnt(productosVendidosOrdenados.length, 1);
+
+    productsSold = Object.values(productosVendidos).sort((a, b) => b.cantidad_vtpd - a.cantidad_vtpd);
+    paginacionMostProd(productsSold.length, 1);
+}
+//------Proformas por pagina
+const selectNumberMostProd = document.getElementById('selectNumberMostProd');
+selectNumberMostProd.selectedIndex = 4;
+selectNumberMostProd.addEventListener('change', function () {
+    paginacionMostProd(productsSold.length, 1);
+});
+//------Ordenar tabla descendente ascendente
+let orderMostProd = document.querySelectorAll('.tbody__head--MP');
+orderMostProd.forEach(div => {
+    div.children[0].addEventListener('click', function () {
+        let valor = div.children[0].name;
+        if (valor == 'codigo_vtpd') {
+            productsSold.sort((a, b) => a[valor].localeCompare(b[valor]));
+        } else if (valor == 'cantidad_vtpd' || valor == 'costoTotal') {
+
+            productsSold.sort((a, b) => a[valor] - b[valor]);
+        }
+        paginacionMostProd(productsSold.length, 1);
+    });
+    div.children[1].addEventListener('click', function () {
+        let valor = div.children[0].name;
+        if (valor == 'codigo_vtpd') {
+            productsSold.sort((a, b) => b[valor].localeCompare(a[valor]));
+        } else if (valor == 'cantidad_vtpd' || valor == 'costoTotal') {
+            productsSold.sort((a, b) => b[valor] - a[valor]);
+        }
+        paginacionMostProd(productsSold.length, 1);
+    });
+});
+//------PaginacionProdVnt
+function paginacionMostProd(allProducts, page) {
+    //let totalProdVnt = document.getElementById('tbodyMostProd');
+    //let total = 0;
+    /*for (let vnt_prods in productsSold) {
+        total += productsSold[vnt_prods]['cantidad_vtpd'] * productsSold[vnt_prods]['cost_uni_vtpd'] * (100 - productsSold[vnt_prods]['descuento_prof']) / 100;
+    }*/
+    //totalProdVnt.innerHTML = total.toFixed(2) + ' Bs';
+    let numberProducts = Number(selectNumberMostProd.value);
+    let allPages = Math.ceil(allProducts / numberProducts);
+    let ul = document.querySelector('#wrapperMostProd ul');
+    let li = '';
+    let beforePages = page - 1;
+    let afterPages = page + 1;
+    let liActive;
+    if (page > 1) {
+        li += `<li class="btn" onclick="paginacionMostProd(${allProducts}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
+    }
+    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
+        if (pageLength > allPages) {
+            continue;
+        }
+        if (pageLength == 0) {
+            pageLength = pageLength + 1;
+        }
+        if (page == pageLength) {
+            liActive = 'active';
+        } else {
+            liActive = '';
+        }
+        li += `<li class="numb ${liActive}" onclick="paginacionMostProd(${allProducts}, ${pageLength})"><span>${pageLength}</span></li>`;
+    }
+    if (page < allPages) {
+        li += `<li class="btn" onclick="paginacionMostProd(${allProducts}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
+    }
+    ul.innerHTML = li;
+    let h2 = document.querySelector('#showPageMostProd h2');
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${allProducts} Productos`;
+    tableMostVnt(page);
+}
+//--------Tabla de vnt_prods
+function tableMostVnt(page) {
+    let tbody = document.getElementById('tbodyMostProd');
+    inicio = (page - 1) * Number(selectNumberMostProd.value);
+    final = inicio + Number(selectNumberMostProd.value);
+    i = 1;
+    tbody.innerHTML = '';
+    for (let proforma in productsSold) {
+        if (i > inicio && i <= final) {
+            let tr = document.createElement('tr');
+            for (let valor in productsSold[proforma]) {
+                if (valor == 'codigo_vtpd') {
+                    let td = document.createElement('td');
+                    td.innerText = i;
+                    tr.appendChild(td);
+                    i++;
+                    let td2 = document.createElement('td');
+                    td2.innerText = productsSold[proforma][valor];
+                    tr.appendChild(td2);
+                } else if (valor == 'costoTotal') {
+                    let td = document.createElement('td');
+                    td.innerText = productsSold[proforma][valor].toFixed(2) + ' Bs';
+                    tr.appendChild(td);
+                } else {
+                    let td = document.createElement('td');
+                    td.innerText = productsSold[proforma][valor];
+                    tr.appendChild(td);
+                }
+            }
+            tbody.appendChild(tr);
+        } else {
+            i++;
+        }
+    }
 }

@@ -1,38 +1,22 @@
-.hero{
-	height: 85vh;
-	width: 100%;
-	overflow: hidden;
+.start {
+	background-image: url('../imagenes/Industria.jpg');
+	/* reemplaza con la ruta de tu imagen */
+	background-size: cover;
+	background-position: center;
 	display: flex;
 	flex-direction: column;
-	justify-content: center;
-	color: #fff;
+	align-items: center;
 }
-.hero__picture{
-	display: block;
-	background-image: url('../imagenes/fondo.jpg');
-	width: 100%;
-	height: 500px;
-	background-size: cover;
-	border-radius: 1rem;
-	box-shadow: -5px -5px 5px #000b;
-}
-.hero__texts{
-	width: 40%;
-}
-.hero__title{
-	font-size: 1.7rem;
-	margin-bottom: .5rem;
-}
-.hero__paragraph{
-	color: #000;
-	font-size: 1rem;
-	font-weight: bold;
-	margin-bottom: .5rem;
 
+.start__title {
+	margin-top: 6rem;
+	font-size: 5rem;
+	color: #fff;
+	margin-bottom: 2rem;
 }
-@media screen and (min-width:850px){
-	.hero{
-		flex-direction: row;
-		align-items: center;
-	}
+
+.start__paragraph {
+	font-size: 2rem;
+	color: #fff;
+	text-align: center;
 }

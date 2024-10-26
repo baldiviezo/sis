@@ -30,7 +30,7 @@ class Consultas{
 		$clientes =  array();
 		if($numeroClientes > 0){
 			while ($fila = $resultado->fetch_assoc()){
-				$datos = array ('id_vnt'=>$fila['id_vnt'], 'fecha_ne'=>$fila['fecha_ne'], 'fecha_vnt'=>$fila['fecha_vnt'], 'nombre_usua'=>$fila['nombre_usua'], 'apellido_usua'=>$fila['apellido_usua'], 'nombre_emp'=>$fila['nombre_emp'], 'cliente_clte'=>$fila['nombre_clte'].' '.$fila['apellido_clte'], 'orden_ne'=>$fila['orden_ne'], 'factura_vnt'=>$fila['factura_vnt'], 'total_vnt'=>$fila['total_vnt'], 'observacion_vnt'=>$fila['observacion_vnt']);
+				$datos = array ('id_vnt'=>$fila['id_vnt'], 'numero_prof'=>'NE-SMS'.substr($fila['fecha_ne'],2,2).'-'.$this->addZerosGo($fila['numero_prof']), 'fecha_ne'=>$fila['fecha_ne'], 'fecha_vnt'=>$fila['fecha_vnt'], 'nombre_usua'=>$fila['nombre_usua'], 'apellido_usua'=>$fila['apellido_usua'], 'nombre_emp'=>$fila['nombre_emp'], 'cliente_clte'=>$fila['nombre_clte'].' '.$fila['apellido_clte'], 'orden_ne'=>$fila['orden_ne'], 'factura_vnt'=>$fila['factura_vnt'], 'total_vnt'=>$fila['total_vnt'], 'observacion_vnt'=>$fila['observacion_vnt']);
 				$clientes[$fila['id_vnt'].'_id_vnt'] = $datos;
 			}
 			$json = json_encode($clientes, JSON_UNESCAPED_UNICODE);
@@ -38,42 +38,39 @@ class Consultas{
 		}
 	}
 	//-----Create venta
-public function createSale(){
-	$id_ne = $_POST['createSale'];
-	$products = $_POST['prodCart'];
-	$fecha_vnt = $_POST['fecha_vnt'];
-	$total_vnt = $_POST['total_vnt'];
-	$id_usua = $_POST['id_usua'];
-	$factura_vnt = $_POST['factura_vnt'];
-	$observacion_vnt = $_POST['observacion_vnt'];
-	include 'conexion.php';
-
-
+	public function createSale(){
+		$id_ne = $_POST['createSale'];
+		$products = $_POST['prodCart'];
+		$fecha_vnt = $_POST['fecha_vnt'];
+		$total_vnt = $_POST['total_vnt'];
+		$id_usua = $_POST['id_usua'];
+		$factura_vnt = $_POST['factura_vnt'];
+		$observacion_vnt = $_POST['observacion_vnt'];
+		include 'conexion.php';
 	
-
-	$consulta = "UPDATE nota_entrega set estado_ne='vendido' WHERE id_ne = '$id_ne'";
-	$resultado = $conexion->query($consulta);
-	if($resultado){
-		$consulta = "INSERT INTO venta (fecha_vnt, factura_vnt, total_vnt, fk_id_ne_vnt, fk_id_usua_vnt, observacion_vnt) VALUES ('$fecha_vnt' , '$factura_vnt', '$total_vnt', '$id_ne', '$id_usua', '$observacion_vnt')"; 
+		$consulta = "UPDATE nota_entrega set estado_ne='vendido' WHERE id_ne = '$id_ne'";
 		$resultado = $conexion->query($consulta);
 		if($resultado){
-			$consulta = "SELECT MAX(id_vnt) as id_vnt_max FROM venta";
+			$consulta = "INSERT INTO venta (fecha_vnt, factura_vnt, total_vnt, fk_id_ne_vnt, fk_id_usua_vnt, observacion_vnt) VALUES ('$fecha_vnt' , '$factura_vnt', '$total_vnt', '$id_ne', '$id_usua', '$observacion_vnt')"; 
 			$resultado = $conexion->query($consulta);
-			$id_vnt = $resultado->fetch_assoc();
-			$id_vnt = $id_vnt['id_vnt_max'];
-			$productos = json_decode($products,true);
-			foreach($productos as $celda){
-				$id_prod = $celda['fk_id_prod_inv'];
-				$codigo_vtpd = $celda['codigo_prod'];
-				$cantidad_vtpd = $celda['cantidad_pfpd'];
-				$cost_uni_vtpd = $celda['cost_uni_pfpd'];
-				$consulta = "INSERT INTO vnt_prod (fk_id_vnt_vtpd, fk_id_prod_vtpd, codigo_vtpd, cantidad_vtpd, cost_uni_vtpd) VALUES ('$id_vnt', '$id_prod', '$codigo_vtpd', '$cantidad_vtpd', '$cost_uni_vtpd')";
+			if($resultado){
+				$consulta = "SELECT MAX(id_vnt) as id_vnt_max FROM venta";
 				$resultado = $conexion->query($consulta);
+				$id_vnt = $resultado->fetch_assoc();
+				$id_vnt = $id_vnt['id_vnt_max'];
+				$productos = json_decode($products,true);
+				foreach($productos as $celda){
+					$id_prod = $celda['fk_id_prod_inv'];
+					$codigo_vtpd = $celda['codigo_prod'];
+					$cantidad_vtpd = $celda['cantidad_pfpd'];
+					$cost_uni_vtpd = $celda['cost_uni_pfpd'];
+					$consulta = "INSERT INTO vnt_prod (fk_id_vnt_vtpd, fk_id_prod_vtpd, codigo_vtpd, cantidad_vtpd, cost_uni_vtpd) VALUES ('$id_vnt', '$id_prod', '$codigo_vtpd', '$cantidad_vtpd', '$cost_uni_vtpd')";
+					$resultado = $conexion->query($consulta);
+				}
+				echo "Venta registrada exitosamente";
 			}
-			echo "Venta registrada exitosamente";
 		}
 	}
-}
 	//------------------------------------------------------------------------CRUD VNT-PROD-------------------------------------------------------
 	//------Read vnt-prods
 	public function readVnt_prods(){

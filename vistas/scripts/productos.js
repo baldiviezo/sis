@@ -215,13 +215,13 @@ function tableProducts(page) {
 document.getElementById("formProductsR").addEventListener("submit", createProduct);
 function createProduct() {
     event.preventDefault();
-    if (requestProducts == false) {
-        requestProducts = true;
-        if (marca_prodR.value == "todasLasMarcas") {
-            alert("Debe seleccionar una marca");
-        } else if (categoria_prodR.value == "todasLasCategorias") {
-            alert("Debe seleccionar una categoria");
-        } else {
+    if (marca_prodR.value == "todasLasMarcas") {
+        alert("Debe seleccionar una marca");
+    } else if (categoria_prodR.value == "todasLasCategorias") {
+        alert("Debe seleccionar una categoria");
+    } else {
+        if (requestProducts == false) {
+            requestProducts = true;
             productsRMW.classList.remove('modal__show');
             let form = document.getElementById("formProductsR");
             let formData = new FormData(form);
@@ -276,13 +276,13 @@ function readProduct(tr) {
 document.getElementById("formProductsM").addEventListener("submit", updateProduct);
 function updateProduct() {
     event.preventDefault();
-    if (requestProducts == false) {
-        requestProducts = true;
-        if (marca_prodM.value == "todasLasMarcas") {
-            alert("Debe seleccionar una marca");
-        } else if (categoria_prodM.value == "todasLasCategorias") {
-            alert("Debe seleccionar una categoria");
-        } else {
+    if (marca_prodM.value == "todasLasMarcas") {
+        alert("Debe seleccionar una marca");
+    } else if (categoria_prodM.value == "todasLasCategorias") {
+        alert("Debe seleccionar una categoria");
+    } else {
+        if (requestProducts == false) {
+            requestProducts = true;
             productsMMW.classList.remove('modal__show');
             let form = document.getElementById("formProductsM");
             let formData = new FormData(form);

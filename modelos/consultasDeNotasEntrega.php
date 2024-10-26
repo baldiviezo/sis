@@ -43,37 +43,55 @@ class consultas{
 			$i = 0;
 			foreach ($arrayObjetos as $valor) {
 				$id_inv = $valor['id_inv'];
-				$cantidad =	$valor['cantidad'];
+				$cantidad_neiv =	$valor['cantidad_neiv'];
 				$consulta2 = "SELECT * FROM inventario WHERE id_inv = '$id_inv'";
 				$resultado2 = $conexion->query($consulta2);
 				$numeroNotaEntrega = $resultado2->num_rows;
 				if($numeroNotaEntrega > 0){
 					//------Primero verificar que exista productos suficientes en el inventario
 					$inventario = $resultado2->fetch_assoc();
-					if ($cantidad <= $cantidad_inv = $inventario['cantidad_inv']){
+					if ($cantidad_neiv <= $cantidad_inv = $inventario['cantidad_inv']){
 						$i++;
 					}
 				}
+
 			}
 			//-------Comprobar  que lo productos existan en el inventario
 			if (count($arrayObjetos) == $i) {
-				//-----Descontar del inventario
-				foreach ($arrayObjetos as $valor) {
-					$id_inv = $valor['id_inv'];
-					$cantidad =	$valor['cantidad'];
-					$consulta2 = "SELECT * FROM inventario WHERE id_inv = '$id_inv'";
-					$resultado2 = $conexion->query($consulta2);
-					$inventario = $resultado2->fetch_assoc();
-					$cantidad_inv = $inventario['cantidad_inv'];
-					$cantidad_inv = $cantidad_inv - $cantidad;
-					$consulta3 = "UPDATE inventario set cantidad_inv='$cantidad_inv' WHERE id_inv='$id_inv'";
-					$resultado3 = $conexion->query($consulta3);
-				}
 				//-----Cambiar el estado de la proforma
 				$this->proformaStatus();
 				//-----Registrar la nota de entrega
 				$consulta = "INSERT INTO nota_entrega (fk_id_prof_ne, fk_id_usua_ne, fecha_ne, orden_ne, observacion_ne, estado_ne) VALUES ('$this->id_prof', '$this->id_usua', '$this->fecha_ne', '$this->orden' , '$this->observacion', 'pendiente')";
 				$resultado = $conexion->query($consulta);
+				//-----Obtener el ultimo id_ne de la tabla nota_entrega
+				$consulta = "SELECT * FROM nota_entrega ORDER BY id_ne DESC LIMIT 1";
+				$resultado = $conexion->query($consulta);
+				$notaEntrega = $resultado->fetch_assoc();
+				$this->id_ne = $notaEntrega['id_ne'];
+
+				//-----Descontar del inventario
+				foreach ($arrayObjetos as $valor) {
+					$id_inv = $valor['id_inv'];
+					$cantidad_neiv=	$valor['cantidad_neiv'];
+					$consulta2 = "SELECT * FROM inventario WHERE id_inv = '$id_inv'";
+					$resultado2 = $conexion->query($consulta2);
+					$inventario = $resultado2->fetch_assoc();
+					$cantidad_inv = $inventario['cantidad_inv'];
+					$cantidad_inv = $cantidad_inv - $cantidad_neiv;
+					$consulta3 = "UPDATE inventario set cantidad_inv='$cantidad_inv' WHERE id_inv='$id_inv'";
+					$resultado3 = $conexion->query($consulta3);
+
+
+					//-----Registrar el producto vendido en la tabla nte_inv
+					$id_inv = $valor['id_inv'];
+					$codigo_neiv =	$valor['codigo_neiv'];
+					$cantidad_neiv =	$valor['cantidad_neiv'];
+					$cost_uni_neiv = $valor['cost_uni_neiv'];
+
+					$consulta = "INSERT INTO nte_inv (fk_id_ne_neiv, fk_id_inv_neiv, cantidad_neiv, codigo_neiv, cost_uni_neiv) VALUES ('$this->id_ne', '$id_inv', '$cantidad_neiv', '$codigo_neiv', '$cost_uni_neiv')";
+					$resultado = $conexion->query($consulta);
+				}
+				echo "La nota de entrega se registro correctamente";
 			}else{
 				echo "La nota de entrega no se pudo registrar, los productos no existen o no hay suficientes en el inventario";
 			}
@@ -88,6 +106,9 @@ class consultas{
 		$fila = $resultado->fetch_assoc();
 		$id_prof = $fila['fk_id_prof_ne'];
 		$consulta = "UPDATE proforma set estado_prof = 'pendiente' WHERE id_prof='$id_prof'";
+		$resultado = $conexion->query($consulta);
+		//Eliminar los productos registrado en la tabla nte_inv
+		$consulta = "DELETE FROM nte_inv WHERE fk_id_ne_neiv = '$id_ne'";
 		$resultado = $conexion->query($consulta);
 		//Eliminar nota de entrega
 		$consulta = "DELETE FROM nota_entrega WHERE id_ne = '$id_ne'";
@@ -111,6 +132,7 @@ class consultas{
 				}
 			}
 			echo 'Nota de entrega eliminada correctamente';
+			
 		}
 	}
 	//--------------------------------------------Estado de proforma---------------------------------

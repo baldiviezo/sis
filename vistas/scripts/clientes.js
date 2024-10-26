@@ -63,7 +63,7 @@ function searchCustomers() {
     for (let customer in customers) {
         for (let valor in customers[customer]) {
             if (selectSearchClte.value == 'todas') {
-                if (valor == 'apellido_clte' || valor == 'nombre_emp' || valor == 'sigla_emp' || valor == 'nit_emp' || valor == 'email_clte' || valor == 'descuento_emp') {
+                if (valor == 'apellido_clte' || valor == 'nombre_emp' || valor == 'sigla_emp' || valor == 'nit_emp' || valor == 'email_clte' || valor == 'descuento_emp' || valor == 'nit_clte') {
                     if (valor == 'apellido_clte') {
                         if ((customers[customer][valor] + ' ' + customers[customer]['nombre_clte']).toLowerCase().indexOf(inputSerchClte.value.toLowerCase()) >= 0) {
                             filterCustomers[customer] = customers[customer];

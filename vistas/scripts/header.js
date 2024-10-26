@@ -30,8 +30,6 @@ if(localStorage.getItem('rol_usua')=='Ingeniero' || localStorage.getItem('rol_us
 								<li><a href="inventario.html" class="nav__link">Inventario</a></li>
 								<li><a href="proforma.html" class="nav__link">Proforma</a></li>
 								<li><a href="notaEntrega.html" class="nav__link">Nota de entrega</a></li>
-								<li><a href="armados.html" class="nav__link">Armados y desarmados</a></li>
-								<li><a href="compras.html" class="nav__link">Compras</a></li>
 								<li><a href="cerrar.html" class="nav__link">Cerrar sesión</a></li>
 							</ul>
 						<figure class="nav__menu">

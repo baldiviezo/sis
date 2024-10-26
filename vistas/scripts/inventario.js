@@ -302,7 +302,7 @@ function deleteInventory(tr) {
     if (confirm('¿Esta usted seguro?')) {
         let cantidad_inv = parseInt(tr.children[9].innerText);
         if (cantidad_inv > 0) {
-            alert('No se puede eliminar el producto que existen en almacen');
+            alert('No se puede eliminar los productos que existen en almacen');
         } else {
             if (requestInventory == false) {
                 requestInventory = true;

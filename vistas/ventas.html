@@ -12,6 +12,7 @@
 	<link rel="stylesheet" type="text/css" href="../css/paginacion.css">
 	<link rel="stylesheet" type="text/css" href="../css/table.css">
 	<link rel="stylesheet" type="text/css" href="../css/userModal.css">
+	<link rel="stylesheet" href="../css/venta.css">
 </head>
 <body class="body">
 	<header class="header">
@@ -90,19 +91,9 @@
 				<section class="table__header">
 					<h1 id="totalProdVnt">TOTAL:</h1>
 					<div>
-						<img src="../imagenes/trophy.svg" id="bestSellingProduct" title="Productos mas vendidos">
-						<img src="../imagenes/dollarCircle.svg" id="mostExpensiveProduct" title="Producto mas caro">
+						<img src="../imagenes/trophy.svg" onclick="openTableMostProd()" title="Productos mas vendidos">
 					</div>
 					<img src="../imagenes/excel.svg" id="excelProdVnt" title="Imprimir a excel">
-					<!--<section class="select__search">
-						<div>
-							<select id="selectStateProdOC" class="select__number">
-								<option value="todasLasOC">Todas las ventas</option>
-								<option value="0">Facturaciones pendientes</option>
-								<option value="1">Facturaciones recibidas</option>
-							</select>
-						</div>
-					</section>-->
 					<div class="combo__search">
 						<div>
 							<select id="selectSearchProdVnt" class="select">
@@ -168,6 +159,60 @@
 							</tr>
 						</thead>
 						<tbody id="tbodyProdVnt">
+						</tbody>
+					</table>
+				</section>
+			</div>
+		</div>
+	</section>
+	<!--Modal de filtros de producto mas vendidos y rentable-->
+	<section id="tableMostProd" class="modalTable">
+		<div class="modalTable__container">
+			<div class="table">
+				<div class="table__title">
+					<h1><img src="../imagenes/producto.svg">Productos</h1>
+					<img src="../imagenes/salir.svg" id="closeTableMostProd" class="button__close">
+				</div>
+				<section class="table__header">
+					<form class="fechas" id="formDates">
+						<label class="fecha__label">Fecha inicial:</label>
+						<input type="date" id="startingDate" min="2024-07-01" value="2024-07-01" class="fecha__input">
+					  
+						<label class="fecha__label">Fecha final:</label>
+						<input type="date" id="endDate" class="fecha__input">
+						<button type="submit" class="fecha__button">Filtrar</button>
+					  </form>
+				</section>
+				<div class="showPage" id="showPageMostProd">
+					<h2></h2>
+				</div>
+				<div class="container__page">
+					<div class="paginacion">
+						<div class="wrapper" id="wrapperMostProd">
+							<ul></ul>
+						</div>
+					</div>
+					<div>
+						<select id="selectNumberMostProd" class="select__number">
+							<option value="2">2</option>
+							<option value="4">4</option>
+							<option value="6">6</option>
+							<option value="10">10 </option>
+							<option value="20">20</option>
+						</select>
+					</div>
+				</div>
+				<section class="table__body">
+					<table>
+						<thead>
+							<tr>
+								<th>N°</th>
+								<th><div class="tbody__head--MP">Codigo<img src="../imagenes/sortA_Z.svg" name="codigo_vtpd"  class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="codigo_vtpd" class="icon__CRUD"></div></th>
+								<th><div class="tbody__head--MP">Cantidad<img src="../imagenes/sortA_Z.svg" name="cantidad_vtpd"  class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="cantidad_vtpd" class="icon__CRUD"></div></th>
+								<th><div class="tbody__head--MP">Costo Total<img src="../imagenes/sortA_Z.svg" name="costoTotal"  class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="costoTotal" class="icon__CRUD"></div></th>
+							</tr>
+						</thead>
+						<tbody id="tbodyMostProd">
 						</tbody>
 					</table>
 				</section>
