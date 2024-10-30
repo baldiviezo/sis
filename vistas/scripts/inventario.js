@@ -32,8 +32,8 @@ selectMarcaInventory.addEventListener('change', selectCategoriaInv);
 const selectCategoriaInventory = document.getElementById('selectCategoriaInventory');
 selectCategoriaInventory.addEventListener('change', searchInventories);
 //------Read inventarios
-let inventories = {};
-let filterInventories = {};
+let inventories = [];
+let filterInventories = [];
 readInventories();
 function readInventories() {
     let formData = new FormData();
@@ -42,9 +42,9 @@ function readInventories() {
         method: "POST",
         body: formData
     }).then(response => response.json()).then(data => {
-        inventories = JSON.parse(JSON.stringify(data));
+        inventories = Object.values(data);
         filterInventories = inventories;
-        (selectMarcaInventory.value == 'todasLasMarcas' && selectCategoriaInventory.value == 'todasLasCategorias') ? paginacionInventory(Object.values(data).length, 1) : selectInventories();
+        (selectMarcaInventory.value == 'todasLasMarcas' && selectCategoriaInventory.value == 'todasLasCategorias') ? paginacionInventory(inventories.length, 1) : selectInventories();
     }).catch(err => console.log(err));
 }
 //------Select utilizado para buscar por columnas
@@ -57,11 +57,11 @@ inputSearchInv.addEventListener("keyup", searchInventories);
 const selectNumberInv = document.getElementById('selectNumberInv');
 selectNumberInv.selectedIndex = 3;
 selectNumberInv.addEventListener('change', function () {
-    paginacionInventory(Object.values(filterInventories).length, 1);
+    paginacionInventory(filterInventories.length, 1);
 });
 //------buscar por:
 function searchInventories() {
-    filterInventories = {};
+    filterInventories = [];
     for (let inventory in inventories) {
         for (let valor in inventories[inventory]) {
             if (selectSearchInv.value == 'todas') {
@@ -86,30 +86,18 @@ function searchInventories() {
 //------buscar por marca y categoria:
 function selectInventories() {
     if (selectMarcaInventory.value == 'todasLasMarcas' && selectCategoriaInventory.value == 'todasLasCategorias') {
-        paginacionInventory(Object.values(filterInventories).length, 1);
+        paginacionInventory(filterInventories.length, 1);
     } else {
-        for (let ìnventory in filterInventories) {
-            for (let valor in filterInventories[ìnventory]) {
-                if (selectMarcaInventory.value == 'todasLasMarcas') {
-                    if (filterInventories[ìnventory]['id_ctgr'] != selectCategoriaInventory.value) {
-                        delete filterInventories[ìnventory];
-                        break;
-                    }
-                } else if (selectCategoriaInventory.value == 'todasLasCategorias') {
-                    if (filterInventories[ìnventory]['id_mrc'] != selectMarcaInventory.value) {
-                        delete filterInventories[ìnventory];
-                        break;
-                    }
-                } else {
-                    if (filterInventories[ìnventory]['id_ctgr'] != selectCategoriaInventory.value || filterInventories[ìnventory]['id_mrc'] != selectMarcaInventory.value) {
-                        delete filterInventories[ìnventory];
-                        break;
-                    }
-                }
+        filterInventories = filterInventories.filter(product => {
+            if (selectMarcaInventory.value == 'todasLasMarcas') {
+                return product['id_ctgr'] == selectCategoriaInventory.value;
+            } else if (selectCategoriaInventory.value == 'todasLasCategorias') {
+                return product['id_mrc'] == selectMarcaInventory.value;
+            } else {
+                return product['id_ctgr'] == selectCategoriaInventory.value && product['id_mrc'] == selectMarcaInventory.value;
             }
-        }
-        filterInventories = filterInventories;
-        paginacionInventory(Object.values(filterInventories).length, 1);
+        });
+        paginacionInventory(filterInventories.length, 1);
     }
 }
 //------Ordenar tabla descendente ascendente
@@ -124,7 +112,7 @@ orderInventories.forEach(div => {
             return 0;
         })
         filterInventories = Object.fromEntries(array);
-        paginacionInventory(Object.values(filterInventories).length, 1);
+        paginacionInventory(filterInventories.length, 1);
     });
     div.children[1].addEventListener('click', function () {
         let array = Object.entries(filterInventories).sort((a, b) => {
@@ -135,7 +123,7 @@ orderInventories.forEach(div => {
             return 0;
         })
         filterInventories = Object.fromEntries(array);
-        paginacionInventory(Object.values(filterInventories).length, 1);
+        paginacionInventory(filterInventories.length, 1);
     });
 })
 //------PaginacionInventory
@@ -203,6 +191,9 @@ function tableInventories(page) {
                     img.classList.add('tbody__img');
                     img.setAttribute('src', '../modelos/imagenes/' + filterInventories[inventory][valor]);
                     td.appendChild(img);
+                    tr.appendChild(td);
+                } else if (valor == 'cost_uni_inv') {
+                    td.innerText = parseFloat(filterInventories[inventory][valor]).toFixed(2) + '   Bs';
                     tr.appendChild(td);
                 } else {
                     td.innerText = filterInventories[inventory][valor];
@@ -288,9 +279,9 @@ function updateInventory() {
         }).then(response => response.text()).then(data => {
             preloader.classList.remove('modal__show');
             requestInventory = false;
+            readInventories();
             alert(data);
             inventoryMMW.classList.remove('modal__show');
-            readInventories();
         }).catch(err => {
             requestInventory = false;
             alert(err);
