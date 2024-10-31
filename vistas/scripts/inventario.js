@@ -61,28 +61,23 @@ selectNumberInv.addEventListener('change', function () {
 });
 //------buscar por:
 function searchInventories() {
-    filterInventories = [];
-    for (let inventory in inventories) {
-        for (let valor in inventories[inventory]) {
-            if (selectSearchInv.value == 'todas') {
-                if (valor == 'codigo_prod' || valor == 'nombre_prod' || valor == 'descripcion_prod' || valor == 'cost_uni_inv' || valor == 'descripcion_inv') {
-                    if (inventories[inventory][valor].toLowerCase().indexOf(inputSearchInv.value.toLowerCase()) >= 0) {
-                        filterInventories[inventory] = inventories[inventory];
-                        break;
-                    }
-                }
-            } else {
-                if (valor == selectSearchInv.value) {
-                    if (inventories[inventory][valor].toLowerCase().indexOf(inputSearchInv.value.toLowerCase()) >= 0) {
-                        filterInventories[inventory] = inventories[inventory];
-                        break;
-                    }
-                }
-            }
-        }
-    }
+    const valor = selectSearchInv.value;
+    const busqueda = inputSearchInv.value.toLowerCase().trim();
+    filterInventories = Object.values(inventories).filter(inventory => {
+      if (valor === 'todas') {
+        return (
+          inventory.codigo_prod.toLowerCase().includes(busqueda) ||
+          inventory.nombre_prod.toLowerCase().includes(busqueda) ||
+          inventory.descripcion_prod.toLowerCase().includes(busqueda) ||
+          inventory.descripcion_inv.toLowerCase().includes(busqueda) ||
+          inventory.cost_uni_inv.toString().toLowerCase().includes(busqueda)
+        );
+      } else {
+        return inventory[valor].toString().toLowerCase().includes(busqueda);
+      }
+    });
     selectInventories();
-}
+  }
 //------buscar por marca y categoria:
 function selectInventories() {
     if (selectMarcaInventory.value == 'todasLasMarcas' && selectCategoriaInventory.value == 'todasLasCategorias') {
@@ -103,28 +98,16 @@ function selectInventories() {
 //------Ordenar tabla descendente ascendente
 let orderInventories = document.querySelectorAll('.tbody__head--inventory');
 orderInventories.forEach(div => {
-    div.children[0].addEventListener('click', function () {
-        let array = Object.entries(filterInventories).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
-            if (first < second) { return -1 }
-            if (first > second) { return 1 }
-            return 0;
-        })
-        filterInventories = Object.fromEntries(array);
-        paginacionInventory(filterInventories.length, 1);
-    });
-    div.children[1].addEventListener('click', function () {
-        let array = Object.entries(filterInventories).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
-            if (first > second) { return -1 }
-            if (first < second) { return 1 }
-            return 0;
-        })
-        filterInventories = Object.fromEntries(array);
-        paginacionInventory(filterInventories.length, 1);
-    });
+  div.children[0].addEventListener('click', function () {
+    const valor = div.children[0].name;
+    filterInventories.sort((a, b) => a[valor].localeCompare(b[valor]));
+    paginacionInventory(filterInventories.length, 1);
+  });
+  div.children[1].addEventListener('click', function () {
+    const valor = div.children[0].name;
+    filterInventories.sort((a, b) => b[valor].localeCompare(a[valor]));
+    paginacionInventory(filterInventories.length, 1);
+  });
 })
 //------PaginacionInventory
 function paginacionInventory(allInventories, page) {
@@ -277,11 +260,11 @@ function updateInventory() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            preloader.classList.remove('modal__show');
+            inventoryMMW.classList.remove('modal__show');
             requestInventory = false;
             readInventories();
+            preloader.classList.remove('modal__show');
             alert(data);
-            inventoryMMW.classList.remove('modal__show');
         }).catch(err => {
             requestInventory = false;
             alert(err);
@@ -305,10 +288,10 @@ function deleteInventory(tr) {
                     method: "POST",
                     body: formData
                 }).then(response => response.text()).then(data => {
-                    preloader.classList.remove('modal__show');
                     requestInventory = false;
-                    alert(data);
                     readInventories();
+                    preloader.classList.remove('modal__show');
+                    alert(data);
                 }).catch(err => {
                     requestInventory = false;
                     alert(err);
