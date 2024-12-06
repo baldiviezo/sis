@@ -31,92 +31,111 @@ if (localStorage.getItem('rol_usua') == 'Ingeniero') {
     document.querySelectorAll('.form__radio')[1].children[2].classList.add('hide');
     document.querySelectorAll('.form__radio')[1].children[3].classList.add('hide');
 }
+//-----------------------------------------PRE LOADER---------------------------------------------
+const preloader = document.getElementById('preloader');
 //----------------------------------------------BLOCK REQUEST WITH A FLAG----------------------------------------------
-let rqstCreateUsua = false;
-let rqstUpdateUsua = false;
-let rqstDeleteUsua = false;
+let rqstUsua = false;
 //<<-------------------------------------------CARGAR LA TABLA----------------------------------------------------->>
 //------Leer tabla de usuarios
 let usuarios = {};
 readUsers();
 function readUsers() {
-    let tbody = document.getElementById("tbody");
-    tbody.innerHTML = '';
-    let formData = new FormData();
-    formData.append('readUsers', '');
-    fetch('../controladores/usuarios.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        usuarios = data;
-        tableUsers();
-    }).catch(err => console.log(err));
+    return new Promise((resolve) => {
+        let tbody = document.getElementById("tbody");
+        tbody.innerHTML = '';
+        preloader.classList.add('modal__show');
+        let formData = new FormData();
+        formData.append('readUsers', '');
+        fetch('../controladores/usuarios.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            usuarios = data;
+            tableUsers().then(() => {
+                preloader.classList.remove('modal__show');
+                resolve();
+            });
+        }).catch(err => console.log(err));
+    });
 }
 function tableUsers() {
-    if (localStorage.getItem('rol_usua') == 'Gerente general') {
-        filterTableUsers(usuarios);
-    } else if (localStorage.getItem('rol_usua') == 'Administrador') {
-        let data = {};
-        for (let usuario in usuarios) {
-            if (usuarios[usuario]['rol_usua'] != 'Gerente general') {
-                data[usuarios[usuario]['id_usua']] = usuarios[usuario];
-            }
-        }
-        filterTableUsers(data);
-    } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
-        let data = {};
-        for (let usuario in usuarios) {
-            if (usuarios[usuario]['id_usua'] == localStorage.getItem('id_usua')) {
-                data[usuarios[usuario]['id_usua']] = usuarios[usuario];
-            }
-        }
-        filterTableUsers(data);
-    }
-}
-function filterTableUsers(data) {
-    let i = 1;
-    for (let usuario in data) {
-        let tr = document.createElement('tr');
-        for (let columna in data[usuario]) {
-            if (columna == 'id_usua') {
-                let td = document.createElement('td');
-                td.innerText = data[usuario][columna];
-                td.setAttribute('hidden', '');
-                tr.appendChild(td);
-                td = document.createElement('td');
-                td.innerText = i;
-                tr.appendChild(td);
-                i++;
-            } else {
-                let td = document.createElement('td');
-                td.innerText = data[usuario][columna];
-                tr.appendChild(td);
-            }
-        }
-        let td = document.createElement('td');
+    return new Promise((resolve) => {
         if (localStorage.getItem('rol_usua') == 'Gerente general') {
-            if (data[usuario]['rol_usua'] != 'Gerente general') {
-                td.innerHTML = `
-                <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)' title='Editar usuario'>
-                <img src='../imagenes/trash.svg' onclick='deleteUser(this.parentNode.parentNode)' title='Eliminar usuario'>`;
-            } else {
-                td.innerHTML = `
-                <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)' title='Editar usuario'>`;
-            }
-        } else {
-            if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
-                td.innerHTML = `
-                <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)' title='Editar usuario'>`;
-            } else if (localStorage.getItem('rol_usua') == 'Administrador') {
-                if (data[usuario]['id_usua'] == localStorage.getItem('id_usua')) {
-                    td.innerHTML = `
-                    <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)' title='Editar usuario'>`;
+            filterTableUsers(usuarios).then(() => {
+                resolve();
+            });
+        } else if (localStorage.getItem('rol_usua') == 'Administrador') {
+            let data = {};
+            for (let usuario in usuarios) {
+                if (usuarios[usuario]['rol_usua'] != 'Gerente general') {
+                    data[usuarios[usuario]['id_usua']] = usuarios[usuario];
                 }
             }
+            filterTableUsers(data).then(() => {
+                resolve();
+            });
+        } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
+            let data = {};
+            for (let usuario in usuarios) {
+                if (usuarios[usuario]['id_usua'] == localStorage.getItem('id_usua')) {
+                    data[usuarios[usuario]['id_usua']] = usuarios[usuario];
+                }
+            }
+            filterTableUsers(data).then(() => {
+                resolve();
+            });
         }
-        tr.appendChild(td);
-        tbody.appendChild(tr);
-    }
+    });
+}
+function filterTableUsers(data) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            let i = 1;
+            for (let usuario in data) {
+                let tr = document.createElement('tr');
+                for (let columna in data[usuario]) {
+                    if (columna == 'id_usua') {
+                        let td = document.createElement('td');
+                        td.innerText = data[usuario][columna];
+                        td.setAttribute('hidden', '');
+                        tr.appendChild(td);
+                        td = document.createElement('td');
+                        td.innerText = i;
+                        tr.appendChild(td);
+                        i++;
+                    } else {
+                        let td = document.createElement('td');
+                        td.innerText = data[usuario][columna];
+                        tr.appendChild(td);
+                    }
+                }
+                let td = document.createElement('td');
+                if (localStorage.getItem('rol_usua') == 'Gerente general') {
+                    if (data[usuario]['rol_usua'] != 'Gerente general') {
+                        td.innerHTML = `
+                <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)' title='Editar usuario'>
+                <img src='../imagenes/trash.svg' onclick='deleteUser(this.parentNode.parentNode)' title='Eliminar usuario'>`;
+                    } else {
+                        td.innerHTML = `
+                <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)' title='Editar usuario'>`;
+                    }
+                } else {
+                    if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
+                        td.innerHTML = `
+                <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)' title='Editar usuario'>`;
+                    } else if (localStorage.getItem('rol_usua') == 'Administrador') {
+                        if (data[usuario]['id_usua'] == localStorage.getItem('id_usua')) {
+                            td.innerHTML = `
+                    <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)' title='Editar usuario'>`;
+                        }
+                    }
+                }
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+            }
+            resolve();
+        }, 2000);
+    });
 }
 //------Buscar 
 const search = document.getElementById("buscar");
@@ -140,27 +159,31 @@ function createUser() {
     let pass1 = document.getElementsByName("contraseña_usua_R")[0];
     let pass2 = document.getElementsByName("contraseña2_usua_R")[0];
     if (pass1.value == pass2.value) {
-        if (rqstCreateUsua == false) {
-            rqstCreateUsua = true;
+        if (rqstUsua == false) {
+            rqstUsua = true;
             let form = document.getElementById("formUsersR");
             let formData = new FormData(form);
             formData.append('createUser', '');
-            preloader.classList.add('modal__show');
             fetch('../controladores/usuarios.php', {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                preloader.classList.remove('modal__show');
-                rqstCreateUsua = false;
-                alert(data);
                 if (data != 'El email ya existe') {
-                    usersRMW.classList.remove('modal__show');
-                    readUsers();
-                    cleanUpFormRegister();
+                    readUsers().then(() => {
+                        usersRMW.classList.remove('modal__show');
+                        rqstUsua = false;
+                        form.reset();
+                        alert(data);
+                    })
+                } else {
+                    rqstUsua = false;
+                    alert(data);
                 }
             }).catch(err => {
-                rqstCreateUsua = false;
-                alert(err);
+                rqstUsua = false;
+                Promise.resolve().then(() => {
+                    alert(err);
+                });
             });
         }
     } else {
@@ -206,8 +229,8 @@ function updateUser() {
     let pass1 = document.getElementsByName("contraseña_usuaM")[0];
     let pass2 = document.getElementsByName("contraseña2_usuaM")[0];
     if (pass1.value == pass2.value) {
-        if (rqstUpdateUsua == false) {
-            rqstUpdateUsua = true;
+        if (rqstUsua == false) {
+            rqstUsua = true;
             usersMMW.classList.remove('modal__show');
             let form = document.getElementById("formUsersM");
             let formData = new FormData(form);
@@ -218,12 +241,12 @@ function updateUser() {
                 body: formData
             }).then(response => response.text()).then(data => {
                 preloader.classList.remove('modal__show');
-                rqstUpdateUsua = false;
+                rqstUsua = false;
                 cleanUpFormModify();
                 readUsers();
                 alert(data)
             }).catch(err => {
-                rqstUpdateUsua = false;
+                rqstUsua = false;
                 alert(err);
             });
         }
@@ -235,8 +258,8 @@ function updateUser() {
 function deleteUser(usuario) {
     let id_usua = usuario.children[0].innerText;
     if (confirm(`¿Esta usted seguro? Se borrara el usuario "${usuario.children[2].innerText} ${usuario.children[3].innerText}"`)) {
-        if (rqstDeleteUsua == false) {
-            rqstDeleteUsua = true;
+        if (rqstUsua == false) {
+            rqstUsua = true;
             const formData = new FormData()
             formData.append('deleteUser', id_usua);
             preloader.classList.add('modal__show');
@@ -245,11 +268,11 @@ function deleteUser(usuario) {
                 body: formData
             }).then(response => response.text()).then(data => {
                 preloader.classList.remove('modal__show');
-                rqstDeleteUsua = false;
+                rqstUsua = false;
                 readUsers();
                 alert(data);
             }).catch(err => {
-                rqstDeleteUsua = false;
+                rqstUsua = false;
                 alert(err);
             });
         }
@@ -299,15 +322,3 @@ function cleanUpFormModify() {
         document.getElementById('admi').checked = false;
     }
 }
-function cleanUpFormRegister() {
-    registerInputs.forEach(input => input.value = "");
-    //limpiar los radio buton
-    if (document.getElementById('ingR').checked) {
-        document.getElementById('ingR').checked = false;
-    }
-    if (document.getElementById('admiR').checked) {
-        document.getElementById('admiR').checked = false;
-    }
-}
-//-----------------------------------------PRE LOADER---------------------------------------------
-const preloader = document.getElementById('preloader');

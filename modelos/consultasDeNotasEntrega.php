@@ -43,7 +43,7 @@ class consultas{
 			$i = 0;
 			foreach ($arrayObjetos as $valor) {
 				$id_inv = $valor['id_inv'];
-				$cantidad_neiv =	$valor['cantidad_neiv'];
+				$cantidad_neiv = $valor['cantidad_neiv'];
 				$consulta2 = "SELECT * FROM inventario WHERE id_inv = '$id_inv'";
 				$resultado2 = $conexion->query($consulta2);
 				$numeroNotaEntrega = $resultado2->num_rows;
@@ -54,7 +54,6 @@ class consultas{
 						$i++;
 					}
 				}
-
 			}
 			//-------Comprobar  que lo productos existan en el inventario
 			if (count($arrayObjetos) == $i) {
@@ -107,32 +106,26 @@ class consultas{
 		$id_prof = $fila['fk_id_prof_ne'];
 		$consulta = "UPDATE proforma set estado_prof = 'pendiente' WHERE id_prof='$id_prof'";
 		$resultado = $conexion->query($consulta);
-		//Eliminar los productos registrado en la tabla nte_inv
-		$consulta = "DELETE FROM nte_inv WHERE fk_id_ne_neiv = '$id_ne'";
-		$resultado = $conexion->query($consulta);
-		//Eliminar nota de entrega
-		$consulta = "DELETE FROM nota_entrega WHERE id_ne = '$id_ne'";
-		$resultado = $conexion->query($consulta);
 		if ($resultado) {
 			//Sumar cantidades
-			$consulta = "SELECT * FROM prof_prod WHERE fk_id_prof_pfpd = $id_prof";
+			$consulta = "SELECT * FROM nte_inv WHERE fk_id_ne_neiv = '$id_ne'";
 			$resultado = $conexion->query($consulta);
 			while ($fila = $resultado->fetch_assoc()){
-				$id_prod = $fila['fk_id_prod_pfpd'];
-				$cantidad_pfpd = $fila['cantidad_pfpd'];
-				$consulta2 = "SELECT * FROM inventario WHERE fk_id_prod_inv = '$id_prod'";
-				$resultado2 = $conexion->query($consulta2);
-				$numeroNotaEntrega = $resultado2->num_rows;
-				if($numeroNotaEntrega > 0){
-					$inventario = $resultado2->fetch_assoc();
-					$cantidad_inv = $inventario['cantidad_inv'];
-					$cantidad_inv = $cantidad_inv + $cantidad_pfpd;
-					$consulta3 = "UPDATE inventario set cantidad_inv='$cantidad_inv' WHERE fk_id_prod_inv='$id_prod'";
-					$resultado3 = $conexion->query($consulta3);
-				}
-			}
-			echo 'Nota de entrega eliminada correctamente';
+				$id_inv = $fila['fk_id_inv_neiv'];
+				$cantidad_neiv = $fila['cantidad_neiv'];
 			
+				//Sumar las cantidades de los productos vendidos
+				$consulta3 = "UPDATE inventario SET cantidad_inv = cantidad_inv + '$cantidad_neiv' WHERE id_inv='$id_inv'";
+				$resultado3 = $conexion->query($consulta3);
+				
+			}
+			//Eliminar los productos registrado en la tabla nte_inv
+			$consulta = "DELETE FROM nte_inv WHERE fk_id_ne_neiv = '$id_ne'";
+			$resultado = $conexion->query($consulta);
+			//Eliminar nota de entrega
+			$consulta = "DELETE FROM nota_entrega WHERE id_ne = '$id_ne'";
+			$resultado = $conexion->query($consulta);
+			echo 'Nota de entrega eliminada correctamente';
 		}
 	}
 	//--------------------------------------------Estado de proforma---------------------------------

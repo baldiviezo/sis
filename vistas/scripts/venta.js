@@ -419,7 +419,7 @@ excelProdVnt.addEventListener('click', () => {
 const formDates = document.getElementById('formDates');
 const startingDateInput = document.getElementById('startingDate');
 const endDateInput = document.getElementById('endDate');
-let filteredProducts =  [];
+let filteredProducts = [];
 formDates.addEventListener('submit', (e) => {
     e.preventDefault();
     const startingDate = startingDateInput.value;
@@ -474,6 +474,14 @@ function filterMostVnt() {
     }, []);
 
     productsSold = Object.values(productosVendidos).sort((a, b) => b.cantidad_vtpd - a.cantidad_vtpd);
+
+    productsSold.forEach(proforma => {
+        const encontrado = inventories.find(inventario => inventario.codigo_prod === proforma.codigo_vtpd);
+        const reponer = Math.ceil(proforma.cantidad_vtpd / 5)*2- encontrado.cantidad_inv;
+        proforma.reponer = reponer;
+    });
+
+
     paginacionMostProd(productsSold.length, 1);
 }
 //------Proformas por pagina
@@ -489,8 +497,7 @@ orderMostProd.forEach(div => {
         let valor = div.children[0].name;
         if (valor == 'codigo_vtpd') {
             productsSold.sort((a, b) => a[valor].localeCompare(b[valor]));
-        } else if (valor == 'cantidad_vtpd' || valor == 'costoTotal') {
-
+        } else if (valor == 'cantidad_vtpd' || valor == 'costoTotal' || valor == 'reponer') {
             productsSold.sort((a, b) => a[valor] - b[valor]);
         }
         paginacionMostProd(productsSold.length, 1);
@@ -499,7 +506,7 @@ orderMostProd.forEach(div => {
         let valor = div.children[0].name;
         if (valor == 'codigo_vtpd') {
             productsSold.sort((a, b) => b[valor].localeCompare(a[valor]));
-        } else if (valor == 'cantidad_vtpd' || valor == 'costoTotal') {
+        } else if (valor == 'cantidad_vtpd' || valor == 'costoTotal' || valor == 'reponer') {
             productsSold.sort((a, b) => b[valor] - a[valor]);
         }
         paginacionMostProd(productsSold.length, 1);
@@ -580,3 +587,20 @@ function tableMostVnt(page) {
         }
     }
 }
+
+
+let inventories = [];
+let filterInventories = [];
+readInventories();
+function readInventories() {
+    let formData = new FormData();
+    formData.append('readInventories', '');
+    fetch('../controladores/inventario.php', {
+        method: "POST",
+        body: formData
+    }).then(response => response.json()).then(data => {
+        inventories = Object.values(data);
+        filterInventories = inventories;
+    }).catch(err => console.log(err));
+}
+

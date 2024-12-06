@@ -10,13 +10,10 @@ if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol
     document.querySelector('#formProformaR .form__group--select').children[4].removeAttribute('hidden');
     document.querySelectorAll('#formProformaR .form__group--select')[1].children[4].removeAttribute('hidden');
 }
+//-----------------------------------------PRE LOADER---------------------------------------------
+const preloader = document.getElementById('preloader');
 //-----------------------------------------Block request with a flag---------------------------------------------
-let requestClte = false;
-let requestEmp = false;
-let requestProducts = false;
-let requestProforma = false;
-let requestProfMdf = false;
-let requestNE = false;
+let requestProf = false;
 //-----------------------------------------------FECHA ACTUAL-------------------------------------
 const date = new Date();
 const dateFormat = new Intl.DateTimeFormat('es-ES', {
@@ -544,8 +541,8 @@ document.getElementById('formProformaR').addEventListener('submit', createProfor
 function createProforma() {
     let cart = document.querySelectorAll('#cartItem .cart-item');
     if (cart.length > 0) {
-        if (requestProducts == false) {
-            requestProducts = true;
+        if (requestProf == false) {
+            requestProf = true;
             proformaRMW.classList.remove('modal__show');
             previewProducts.classList.remove('modal__show');
             cartItem.innerHTML = '';
@@ -574,14 +571,14 @@ function createProforma() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                requestProducts = false;
-                alert(data);
+                requestProf = false;
                 totalPrice();
                 readProformas();
                 readProf_prods();
+                alert(data);
                 preloader.classList.remove('modal__show');
             }).catch(err => {
-                requestProducts = false;
+                requestProf = false;
                 alert(err);
             });
         }
@@ -634,8 +631,8 @@ function updateProforma() {
     let modal = document.querySelector('#cartsProf_prodMW');
     let cartItems = modal.querySelectorAll('div.cart-item');
     if (cartItems.length > 0) {
-        if (requestProducts == false) {
-            requestProducts = true;
+        if (requestProf == false) {
+            requestProf = true;
             proformaMMW.classList.remove('modal__show');
             prof_prodMW.classList.remove('modal__show');
             previewProducts.classList.remove('modal__show');
@@ -659,15 +656,15 @@ function updateProforma() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                requestProducts = false;
-                alert(data);
+                requestProf = false;
                 readProformas();
                 readProf_prods();
                 readMdfProforma();
                 readmProf_prods();
                 preloader.classList.remove('modal__show');
+                alert(data);
             }).catch(err => {
-                requestProducts = false;
+                requestProf = false;
                 alert(err);
             });
         }
@@ -678,8 +675,8 @@ function updateProforma() {
 //-------Delete una proforma
 function deleteProforma(tr) {
     if (confirm('¿Esta usted seguro?')) {
-        if (requestProducts == false) {
-            requestProducts = true;
+        if (requestProf == false) {
+            requestProf = true;
             let id_prof = tr.children[0].innerText;
             let formData = new FormData();
             formData.append('deleteProforma', id_prof);
@@ -688,12 +685,12 @@ function deleteProforma(tr) {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                requestProducts = false;
-                alert(data);
+                requestProf = false;
                 readProformas();
                 preloader.classList.remove('modal__show');
+                alert(data);
             }).catch(err => {
-                requestProducts = false;
+                requestProf = false;
                 alert(err);
             });
         }
@@ -827,8 +824,8 @@ function showMdfProforma(id_prof) {
 //-------Delete una proforma modificada
 function deleteMdfProforma(tr) {
     if (confirm('¿Esta usted seguro?')) {
-        if (requestProfMdf == false) {
-            requestProfMdf = true;
+        if (requestProf == false) {
+            requestProf = true;
             let id_mprof = tr.children[1].innerText;
             let formData = new FormData();
             tablemProfMW.classList.remove('modal__show');
@@ -838,13 +835,13 @@ function deleteMdfProforma(tr) {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                requestProfMdf = false;
+                requestProf = false;
                 readMdfProforma();
                 readmProf_prods();
                 alert(data);
                 preloader.classList.remove('modal__show');
             }).catch(err => {
-                requestProfMdf = false;
+                requestProf = false;
                 alert(err);
             });
         }
@@ -939,7 +936,7 @@ function showPDF(prof_mprof_ne, pf_pd, pdf) {
     form.submit();
 }
 //------------------------------------------------CRUD PROF_PROD------------------------------------------------------------
-let prof_prods = {};
+let prof_prods = [];
 readProf_prods();
 function readProf_prods() {
     let formData = new FormData();
@@ -951,7 +948,7 @@ function readProf_prods() {
         prof_prods = Object.values(data);
     }).catch(err => console.log(err));
 }
-let mProf_prods = {};
+let mProf_prods = [];
 readmProf_prods();
 function readmProf_prods() {
     let formData = new FormData();
@@ -1148,6 +1145,7 @@ closePreviewProducts.addEventListener('click', () => {
 const productsSold = document.querySelector('#productsSold');
 const closeProductsSold = document.querySelector('#closeProductsSold');
 function openPreviwProductsSold() {
+    console.log('Entro aqui');
     const id_prof = document.getElementById('fk_id_prof_ne').value;
     const prof_prodsFiltered = prof_prods.filter(prof_prod => prof_prod['fk_id_prof_pfpd'] === id_prof);
     const inventoriesMap = new Map(inventories.map(inventory => [inventory['fk_id_prod_inv'], inventory]));
@@ -1228,8 +1226,8 @@ function createNotaEntrega() {
     }
     if (count == true) {
         if (confirm('¿Esta usted seguro?')) {
-            if (requestNE == false) {
-                requestNE = true;
+            if (requestProf == false) {
+                requestProf = true;
                 notaEntregaRMW.classList.remove('modal__show');
                 productsSold.classList.remove('modal__show');
                 const form = document.getElementById('formNotaEntregaR');
@@ -1243,14 +1241,14 @@ function createNotaEntrega() {
                     method: "POST",
                     body: formData
                 }).then(response => response.text()).then(data => {
-                    requestNE = false;
+                    requestProf = false;
                     alert(data);
                     form.reset();
                     readProformas();
                     readInventories();
                     preloader.classList.remove('modal__show');
                 }).catch(err => {
-                    requestNE = false;
+                    requestProf = false;
                     alert(err);
                 });
             }
@@ -1437,8 +1435,8 @@ const formClienteR = document.getElementById('formClienteR');
 formClienteR.addEventListener('submit', createCustomer);
 function createCustomer() {
     event.preventDefault();
-    if (requestClte == false) {
-        requestClte = true;
+    if (requestProf == false) {
+        requestProf = true;
         customersRMW.classList.remove('modal__show');
         let formData = new FormData(formClienteR);
         formData.append('createCustomer', '');
@@ -1447,14 +1445,14 @@ function createCustomer() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            requestClte = false;
+            requestProf = false;
             alert(data);
             indexCustomer = -1;
             readCustomers();
             formClienteR.reset();
             preloader.classList.remove('modal__show');
         }).catch(err => {
-            requestClte = false;
+            requestProf = false;
             alert(err);
         });
     }
@@ -1479,8 +1477,8 @@ const formClienteM = document.getElementById('formClienteM');
 formClienteM.addEventListener('submit', updateCustomer);
 function updateCustomer() {
     event.preventDefault();
-    if (requestClte == false) {
-        requestClte = true;
+    if (requestProf == false) {
+        requestProf = true;
         customersMMW.classList.remove('modal__show');
         let formData = new FormData(formClienteM);
         formData.append('updateCustomer', '');
@@ -1489,13 +1487,13 @@ function updateCustomer() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            requestClte = false;
+            requestProf = false;
             alert(data);
             indexCustomer = selectCustomerR.value;
             readCustomers();
             preloader.classList.remove('modal__show');
         }).catch(err => {
-            requestClte = false;
+            requestProf = false;
             alert(err);
         });
     }
@@ -1503,8 +1501,8 @@ function updateCustomer() {
 //------Delete a Customer
 function deleteCustomer(tr) {
     if (confirm('¿Esta usted seguro?')) {
-        if (requestClte == false) {
-            requestClte = true;
+        if (requestProf == false) {
+            requestProf = true;
             let id_clte = tr.children[0].value;
             let formData = new FormData();
             formData.append('deleteCustomer', id_clte);
@@ -1513,13 +1511,13 @@ function deleteCustomer(tr) {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                requestClte = false;
+                requestProf = false;
                 alert(data)
                 indexCustomer = 0;
                 readCustomers();
                 preloader.classList.remove('modal__show');
             }).catch(err => {
-                requestClte = false;
+                requestProf = false;
                 alert(err)
             });
         }
@@ -1776,8 +1774,8 @@ const formEmpresaR = document.getElementById('formEmpresaR');
 formEmpresaR.addEventListener('submit', createEnterprise);
 function createEnterprise() {
     event.preventDefault();
-    if (requestEmp == false) {
-        requestEmp = true;
+    if (requestProf == false) {
+        requestProf = true;
         enterprisesRMW.classList.remove('modal__show');
         let formData = new FormData(formEmpresaR);
         formData.append('createEnterprise', '');
@@ -1786,7 +1784,7 @@ function createEnterprise() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            requestEmp = false;
+            requestProf = false;
             indexEnterprise = -1;
             formEmpresaR.reset();
             readCustomers();
@@ -1794,7 +1792,7 @@ function createEnterprise() {
             alert(data);
             preloader.classList.remove('modal__show');
         }).catch(err => {
-            requestEmp = false;
+            requestProf = false;
             alert(err);
         });
     }
@@ -1817,8 +1815,8 @@ let formEmpresaM = document.getElementById('formEmpresaM');
 formEmpresaM.addEventListener('submit', updateEnterprise);
 function updateEnterprise() {
     event.preventDefault();
-    if (requestEmp == false) {
-        requestEmp = true;
+    if (requestProf == false) {
+        requestProf = true;
         enterprisesMMW.classList.remove('modal__show');
         let formData = new FormData(formEmpresaM);
         formData.append('updateEnterprise', '');
@@ -1827,13 +1825,13 @@ function updateEnterprise() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            requestEmp = false;
+            requestProf = false;
             indexEnterprise = document.getElementsByName('fk_id_emp_clteR')[0].value;
             readEnterprises();
             alert(data);
             preloader.classList.remove('modal__show');
         }).catch(err => {
-            requestEmp = false;
+            requestProf = false;
             alert(err);
         });
     }
@@ -1842,8 +1840,8 @@ function updateEnterprise() {
 function deleteEnterprise(div) {
     let id_emp = div.children[0].value;
     if (confirm('¿Esta usted seguro?')) {
-        if (requestEmp == false) {
-            requestEmp = true;
+        if (requestProf == false) {
+            requestProf = true;
             let formData = new FormData();
             formData.append('deleteEnterprise', id_emp);
             preloader.classList.add('modal__show');
@@ -1851,13 +1849,13 @@ function deleteEnterprise(div) {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                requestEmp = false;
+                requestProf = false;
                 alert(data);
                 indexEnterprise = 0;
                 readEnterprises();
                 preloader.classList.remove('modal__show');
             }).catch(err => {
-                requestEmp = false;
+                requestProf = false;
                 alert(err);
             });
         }
@@ -2243,8 +2241,8 @@ function createProduct() {
     } else if (categoria_prodR.value == "todasLasCategorias") {
         alert("Debe seleccionar una categoria");
     } else {
-        if (requestProducts == false) {
-            requestProducts = true;
+        if (requestProf == false) {
+            requestProf = true;
             productsRMW.classList.remove('modal__show');
             let form = document.getElementById("formProductsR");
             let formData = new FormData(form);
@@ -2255,7 +2253,7 @@ function createProduct() {
                 body: formData
             }).then(response => response.text()).then(data => {
                 preloader.classList.remove('modal__show');
-                requestProducts = false;
+                requestProf = false;
                 if (data == "El codigo ya existe") {
                     alert(data);
                 } else {
@@ -2264,7 +2262,7 @@ function createProduct() {
                     form.reset();
                 }
             }).catch(err => {
-                requestProducts = false;
+                requestProf = false;
                 alert(err);
             });
         }
@@ -2304,8 +2302,8 @@ function updateProduct() {
     } else if (categoria_prodM.value == "todasLasCategorias") {
         alert("Debe seleccionar una categoria");
     } else {
-        if (requestProducts == false) {
-            requestProducts = true;
+        if (requestProf == false) {
+            requestProf = true;
             productsMMW.classList.remove('modal__show');
             let form = document.getElementById("formProductsM");
             let formData = new FormData(form);
@@ -2316,11 +2314,11 @@ function updateProduct() {
                 body: formData
             }).then(response => response.text()).then(data => {
                 preloader.classList.remove('modal__show');
-                requestProducts = false;
+                requestProf = false;
                 readProducts();
                 alert(data);
             }).catch(err => {
-                requestProducts = false;
+                requestProf = false;
                 alert(err);
             });
         }
@@ -2744,5 +2742,3 @@ function selectCategoriaProdM() {
         }
     }
 }
-//-----------------------------------------PRE LOADER---------------------------------------------
-const preloader = document.getElementById('preloader');

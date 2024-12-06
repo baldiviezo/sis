@@ -419,6 +419,7 @@ function deleteNotaEntrega(tr) {
             rqstDeleteNE = true;
             let id_ne = tr.children[0].innerText;
             let formData = new FormData();
+            preloader.classList.add('modal__show');
             formData.append('deleteNotaEntrega', id_ne);
             fetch('../controladores/notaEntrega.php', {
                 method: "POST",
@@ -427,6 +428,7 @@ function deleteNotaEntrega(tr) {
                 rqstDeleteNE = false;
                 alert(data);
                 readNotasEntrega();
+                preloader.classList.remove('modal__show');
             }).catch(err => {
                 rqstDeleteNE = false;
                 alert(err);
@@ -540,10 +542,10 @@ function createSale() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                preloader.classList.remove('modal__show');
                 rqstCreateSale = false;
-                alert(data);
                 readNotasEntrega();
+                preloader.classList.remove('modal__show');
+                alert(data);
             }).catch(err => {
                 rqstCreateSale = false;
                 alert(err);
