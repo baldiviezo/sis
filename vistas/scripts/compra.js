@@ -629,14 +629,11 @@ function tableBuys(page) {
                 if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
                     td.innerHTML = `
                 <img src='../imagenes/receipt.svg' onclick='openProductBuyMW(this.parentNode.parentNode.children[0].innerText)' title='Añadir compra a inventario'>
-                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir orden de compra'>
-                <img src='../imagenes/edit.svg' onclick='readBuy(parseInt(this.parentNode.parentNode.children[0].innerText))' title='Editar compra'>
-                <img src='../imagenes/trash.svg' onclick='deleteBuy(parseInt(this.parentNode.parentNode.children[0].innerText))' title='Eliminar compra'>`;
+                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir orden de compra'>`;
                 } else {
                     td.innerHTML = `
                 <img src='../imagenes/receipt.svg' onclick='openProductBuyMW(this.parentNode.parentNode.children[0].innerText)' title='Añadir compra a inventario'>
-                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir orden de compra'>
-                <img src='../imagenes/edit.svg' onclick='readBuy(parseInt(this.parentNode.parentNode.children[0].innerText))' title='Editar compra'>`;
+                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir orden de compra'>`;
                 }
             } else {
                 td.innerHTML = `
@@ -864,9 +861,13 @@ function showproductsAddBuyMW() {
             <img src="../modelos/imagenes/${cmp_prods[cmp_prod]['imagen_prod']}" alt="" class="imagen--addProd"/>
             <p class="codigo--addProd">${cmp_prods[cmp_prod]['codigo_prod']}</p>
             <textarea class="cart__item--name">${cmp_prods[cmp_prod]['descripcion_cppd']}</textarea>
-            <p class="cantidad--addProd">${cmp_prods[cmp_prod]['cantidad_cppd']}</p>
-            <p class="costo--addProd">${cmp_prods[cmp_prod]['cost_uni_cppd']}</p>
-            <p class="total--addProd">${Number(cmp_prods[cmp_prod]['cost_uni_cppd'] * cmp_prods[cmp_prod]['cantidad_cppd']).toFixed(2)}</p>`;
+            <input type="number" value = "${cmp_prods[cmp_prod]['cantidad_cppd']}" min="1" onChange="changeQuantityCPPDM(this.parentNode)" class="cart__item--quantity">
+            <input type="number" value = "${cmp_prods[cmp_prod]['cost_uni_cppd']}" onChange="changeQuantityCPPDM(this.parentNode)" class="cart__item--costUnit">
+            <p class="total--addProd">${Number(cmp_prods[cmp_prod]['cost_uni_cppd'] * cmp_prods[cmp_prod]['cantidad_cppd']).toFixed(2)}</p>
+            <div>
+                <img src="../imagenes/cartAdd.svg">
+                
+            </div>`;
             body.appendChild(div);
         }
     }

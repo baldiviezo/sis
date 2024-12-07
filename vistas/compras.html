@@ -305,13 +305,9 @@
 						<input type="text" name="numero_cmp" placeholder=" " class="form__input" readonly>
 						<label for="numero_cmp" class="form__label">Numero de orden de compra:</label>
 					</div>
-					<div class="form__group">
-						<input type="text" name="factura_cmp"  placeholder=" " class="form__input">
-						<label for="factura_cmp" class="form__label">Factura:</label>
-					</div>
 				</div>
 			</form>
-			<button class="form__submit" onclick="showproductsAddBuyMW()">Registrar</button>
+			<button class="form__submit" onclick="showproductsAddBuyMW()">Productos</button>
 		</div>
 	</section>
 	<!--Modal of product of a proforma-->
@@ -332,6 +328,7 @@
 							<td>Cant.</td>
 							<td>Cost Uni.</td>
 							<td>Cost Total</td>
+							<td>Acc.</td>
 						</tr>
 					</thead>
 				</table>
@@ -349,7 +346,6 @@
                         <img src="../imagenes/carrito.svg">
                         <p id="quantityaddBuyMW">0</p>
                     </div>
-					<button class="form__submit" onclick="addBuysToInventory()">Registrar</button>
                 </div>
 			</div>
 		</div>

@@ -184,13 +184,10 @@
 }
 /**********************************************************************/
 
-
-
-
 .modal__container--addProd{
 	margin: auto;
 	background-color: #fff;
-	width: 68rem;
+	width: 71rem;
 	height: 90%;
 	border-radius: .5rem;
 	display: grid;
