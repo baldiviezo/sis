@@ -287,29 +287,6 @@
 			</div>
 		</div>
 	</section>
-	<!--Add buy to inventory-->
-	<section id="addBuyMW" class="modal">
-		<div class="modal__container">
-			<div class="modal__header">
-				<h2 class="modal__title">Registrar compra</h2>
-				<img src="../imagenes/salir.svg" id="closeAddBuyMW" class="button__close">
-			</div>
-			<form id="formAddBuy" class="form">
-				<div class="form__container">
-					<input type="hidden" name="id_cmp">
-					<div class="form__group">
-						<input type="text" name="fecha_entrega_cmp"  placeholder=" " class="form__input" readonly>
-						<label for="fecha_entrega_cmp" class="form__label">Fecha de entrega:</label>
-					</div>
-					<div class="form__group">
-						<input type="text" name="numero_cmp" placeholder=" " class="form__input" readonly>
-						<label for="numero_cmp" class="form__label">Numero de orden de compra:</label>
-					</div>
-				</div>
-			</form>
-			<button class="form__submit" onclick="showproductsAddBuyMW()">Productos</button>
-		</div>
-	</section>
 	<!--Modal of product of a proforma-->
 	<section id="productBuyMW" class="modal">
 		<div class="modal__container--addProd">
@@ -348,6 +325,41 @@
                     </div>
                 </div>
 			</div>
+		</div>
+	</section>
+	<!--Add buy to inventory-->
+	<section id="addBuyMW" class="modal">
+		<div class="modal__container">
+			<div class="modal__header">
+				<h2 class="modal__title">Registrar compra</h2>
+				<img src="../imagenes/salir.svg" id="closeAddBuyMW" class="button__close">
+			</div>
+			<form id="formAddBuy" class="form">
+				<div class="form__container">
+					<input type="hidden" name="id_cppd">
+					<div class="form__group">
+						<input type="text" name="fecha_entrega_cppd"  placeholder=" " class="form__input" readonly>
+						<label for="fecha_entrega_cppd" class="form__label">Fecha de entrega:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="codigo_cppd" placeholder=" " class="form__input" readonly>
+						<label for="codigo_cppd" class="form__label">Codigo:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="cantidad_cppd" placeholder=" " class="form__input" readonly>
+						<label for="cantidad_cppd" class="form__label">Cantidad:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="cost_uni_cppd" placeholder=" " class="form__input" readonly>
+						<label for="cost_uni_cppd" class="form__label">Costo Unitario:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="factura_cppd" placeholder=" " class="form__input">
+						<label for="factura_cppd" class="form__label">N° Factura:</label>
+					</div>
+				</div>
+			</form>
+			<button class="form__submit" onclick="showproductsAddBuyMW()">Productos</button>
 		</div>
 	</section>
 	<!--Modal de registro y modificacion de proveedor-->

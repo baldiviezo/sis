@@ -628,11 +628,11 @@ function tableBuys(page) {
             if (filterBuys[buy]['estado_cmp'] == '0') {
                 if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
                     td.innerHTML = `
-                <img src='../imagenes/receipt.svg' onclick='openProductBuyMW(this.parentNode.parentNode.children[0].innerText)' title='Añadir compra a inventario'>
+                <img src='../imagenes/receipt.svg' onclick='showproductsAddBuyMW(this.parentNode.parentNode.children[0].innerText)' title='Añadir compra a inventario'>
                 <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir orden de compra'>`;
                 } else {
                     td.innerHTML = `
-                <img src='../imagenes/receipt.svg' onclick='openProductBuyMW(this.parentNode.parentNode.children[0].innerText)' title='Añadir compra a inventario'>
+                <img src='../imagenes/receipt.svg' onclick='showproductsAddBuyMW(this.parentNode.parentNode.children[0].innerText)' title='Añadir compra a inventario'>
                 <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir orden de compra'>`;
                 }
             } else {
@@ -833,22 +833,9 @@ closeBuyMMW.addEventListener('click', () => {
     buyMMW.classList.remove('modal__show');
 });
 //-----------------------------------------------------add buy to inventory------------------------------- 
-function openProductBuyMW(id_cmp) {
-    addBuyMW.classList.add('modal__show');
-    document.getElementsByName('fecha_entrega_cmp')[2].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
-    for (let buy in buys) {
-        if (buys[buy]['id_cmp'] == id_cmp) {
-            document.getElementsByName('numero_cmp')[0].value = buys[buy]['numero_cmp'];
-            break;
-        }
-    }
-    document.getElementsByName('id_cmp')[0].value = id_cmp;
-
-}
 //------show products to buy
-function showproductsAddBuyMW() {
+function showproductsAddBuyMW(id_cmp) {
     document.getElementById('productBuyMW').classList.add('modal__show');
-    let id_cmp = document.getElementsByName('id_cmp')[0].value;
     let body = document.getElementById('productBuyMW').querySelector('.modal__body');
     body.innerHTML = '';
     let i = 0;
@@ -857,15 +844,17 @@ function showproductsAddBuyMW() {
             let div = document.createElement('div');
             div.classList.add('cart__item');
             div.innerHTML = `
+            <input type="hidden" value="${cmp_prods[cmp_prod]['id_cppd']}">
             <p class="numero--addProd">${++i}</p>
             <img src="../modelos/imagenes/${cmp_prods[cmp_prod]['imagen_prod']}" alt="" class="imagen--addProd"/>
             <p class="codigo--addProd">${cmp_prods[cmp_prod]['codigo_prod']}</p>
             <textarea class="cart__item--name">${cmp_prods[cmp_prod]['descripcion_cppd']}</textarea>
             <input type="number" value = "${cmp_prods[cmp_prod]['cantidad_cppd']}" min="1" onChange="changeQuantityCPPDM(this.parentNode)" class="cart__item--quantity">
             <input type="number" value = "${cmp_prods[cmp_prod]['cost_uni_cppd']}" onChange="changeQuantityCPPDM(this.parentNode)" class="cart__item--costUnit">
-            <p class="total--addProd">${Number(cmp_prods[cmp_prod]['cost_uni_cppd'] * cmp_prods[cmp_prod]['cantidad_cppd']).toFixed(2)}</p>
+            <input type="number" value = "${Number(cmp_prods[cmp_prod]['cost_uni_cppd'] * cmp_prods[cmp_prod]['cantidad_cppd']).toFixed(2)}" class="cart__item--costTotal" readonly>
             <div>
-                <img src="../imagenes/cartAdd.svg">
+                <img src="../imagenes/cartAdd.svg" class='icon__CRUD' onClick="openProductBuyMW(this.parentNode.parentNode)">
+                <img src="../imagenes/trash.svg" class='icon__CRUD' onClick="removeCartM(this.parentNode.parentNode)">
                 
             </div>`;
             body.appendChild(div);
@@ -879,9 +868,10 @@ function showproductsAddBuyMW() {
     let total = 0;
     let desc = 0;
     divs.forEach(div => {
-        costo_uni = Number(div.children[6].innerText);
+        costo_uni = Number(div.children[7].value);
         total = total + costo_uni;
     })
+    console.log(divs)
     subTotaladdBuyMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2) + ' Bs';
     desc = document.getElementsByName('descuento_cmpR')[0].value * total / 100;
     desc = desc.toFixed(2);
@@ -890,6 +880,44 @@ function showproductsAddBuyMW() {
     document.getElementsByName('total_cmpR')[0].value = Number(total.toFixed(2) - desc).toFixed(2);
     quantityaddBuyMW.innerHTML = divs.length;
 }
+function openProductBuyMW(row) {
+    id_cppd = row.children[0].value;
+    addBuyMW.classList.add('modal__show');
+    document.getElementsByName('fecha_entrega_cppd')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
+    document.getElementsByName('codigo_cppd')[0].value = row.children[3].innerText;
+    document.getElementsByName('cantidad_cppd')[0].value = row.children[5].value;
+    document.getElementsByName('cost_uni_cppd')[0].value = row.children[6].value + ' Bs';
+}
+function changeQuantityCPPDM(row) {
+    let cantidad_prod = row.children[5].value;
+    let costo_uni = row.children[6].value;
+    let cost_uni_total = cantidad_prod * costo_uni;
+    row.children[7].value = cost_uni_total.toFixed(2);
+    totalPriceCPPDM();
+}
+function totalPriceCPPDM() {
+    console.log('entro')
+    let divs = document.querySelectorAll('#cmp_prodMMW div.modal__body div.cart__item');
+    let quantityCPMMW = document.getElementById('quantityCPMMW');
+    let subTotalCPMMW = document.getElementById('subTotalCPMMW');
+    let descCPMMW = document.getElementById('descCPMMW');
+    let totalCPMMW = document.getElementById('totalCPMMW');
+    let total = 0;
+    let desc = 0;
+    console.log(divs)
+    divs.forEach(div => {
+        costo_total = Number(div.children[5].value);
+        total = total + costo_total;
+    })
+    subTotalCPMMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2) + ' Bs';
+    desc = document.getElementsByName('descuento_cmpM')[0].value * total / 100;
+    desc = desc.toFixed(2);
+    descCPMMW.innerHTML = `Desc. ${document.getElementsByName('descuento_cmpM')[0].value}% (Bs): ${desc} Bs`;
+    totalCPMMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2) - desc).toFixed(2)} Bs`;
+    document.getElementsByName('total_cmpM')[0].value = Number(total.toFixed(2) - desc).toFixed(2);
+    quantityCPMMW.innerHTML = divs.length;
+}
+
 //------Las copras ya llegaron y estan en inventario
 function addBuysToInventory() {
     addBuyMW.classList.remove('modal__show');
@@ -1018,7 +1046,7 @@ closeProductBuyMW.addEventListener('click', (e) => {
 });
 //------------------------------------------CRUD COMPRAS--------------------------------------------------
 //--------read Cmp_prods
-let cmp_prods;
+let cmp_prods = [];
 let filterCmp_prods;
 readCmp_prods();
 function readCmp_prods() {
@@ -1028,9 +1056,9 @@ function readCmp_prods() {
         method: "POST",
         body: formData
     }).then(response => response.json()).then(data => {
-        cmp_prods = data;
+        cmp_prods = Object.values(data);
         filterCmp_prods = cmp_prods;
-        paginacionProdOC(Object.values(cmp_prods).length, 1);
+        paginacionProdOC(cmp_prods.length, 1);
     }).catch(err => console.log(err));
 }
 //------------------------------MODAL ADD BUY TO INVETORY-----------------------------------------------------
@@ -1342,6 +1370,7 @@ function removeCartM(product) {
     listProducts.removeChild(product);
     totalPriceCPPDM();
 }
+/*
 function changeQuantityCPPDM(product) {
     let cantidad_prod = product.children[3].value;
     let costo_uni = product.children[4].value;
@@ -1368,7 +1397,7 @@ function totalPriceCPPDM() {
     totalCPMMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2) - desc).toFixed(2)} Bs`;
     document.getElementsByName('total_cmpM')[0].value = Number(total.toFixed(2) - desc).toFixed(2);
     quantityCPMMW.innerHTML = divs.length;
-}
+}*/
 //---------------------------VENTANA MODAL PARA BUSCAR PRODUCTOS
 const productSMW = document.getElementById('productSMW');
 const closeProductSMW = document.getElementById('closeProductSMW');
