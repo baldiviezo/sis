@@ -12,9 +12,9 @@ if (isset($_POST['createBuy'])) {
 	$createBuy->createBuy($_POST['createBuy']);
 }
 //--------Update productos recibidos
-if (isset($_POST['addBuysToInventory'])) {
-	$addBuysToInventory = new Consultas;
-	$addBuysToInventory->addBuysToInventory();
+if (isset($_POST['addBuyToInventory'])) {
+	$addBuyToInventory = new Consultas;
+	$addBuyToInventory->addBuyToInventory();
 }
 //------Update inComprario
 if (isset($_POST['updateBuy'])) {

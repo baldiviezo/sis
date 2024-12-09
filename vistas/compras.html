@@ -337,6 +337,7 @@
 			<form id="formAddBuy" class="form">
 				<div class="form__container">
 					<input type="hidden" name="id_cppd">
+					<input type="hidden" name="fk_id_prod_cppd">
 					<div class="form__group">
 						<input type="text" name="fecha_entrega_cppd"  placeholder=" " class="form__input" readonly>
 						<label for="fecha_entrega_cppd" class="form__label">Fecha de entrega:</label>
@@ -357,9 +358,9 @@
 						<input type="text" name="factura_cppd" placeholder=" " class="form__input">
 						<label for="factura_cppd" class="form__label">N° Factura:</label>
 					</div>
+					<input type="submit" value="Registrar" class="form__submit">
 				</div>
 			</form>
-			<button class="form__submit" onclick="showproductsAddBuyMW()">Productos</button>
 		</div>
 	</section>
 	<!--Modal de registro y modificacion de proveedor-->

@@ -71,7 +71,7 @@ class Consultas{
 				$descripcion_cppd = $celda['descripcion_cppd'];
 				$cantidad_cppd = $celda['cantidad_cppd'];
 				$cost_uni_cppd = $celda['cost_uni_cppd'];
-				$consulta = "INSERT INTO cmp_prod (fk_id_cmp_cppd, fk_id_prod_cppd, descripcion_cppd, cantidad_cppd, cost_uni_cppd) VALUES ('$fk_id_cmp_cppd' , '$fk_id_prod_cppd', '$descripcion_cppd', '$cantidad_cppd', '$cost_uni_cppd')";
+				$consulta = "INSERT INTO cmp_prod (fk_id_cmp_cppd, fk_id_prod_cppd, descripcion_cppd, cantidad_cppd, cost_uni_cppd, estado_cppd) VALUES ('$fk_id_cmp_cppd' , '$fk_id_prod_cppd', '$descripcion_cppd', '$cantidad_cppd', '$cost_uni_cppd', 'PENDIENTE')";
 				$resultado = $conexion->query($consulta);
 			}
 			echo 'Compra registrada exitosamente';
@@ -79,34 +79,26 @@ class Consultas{
 
     }
 	//------Update productos recibidos
-	public function addBuysToInventory(){
+	public function addBuyToInventory(){
 		include 'conexion.php';
-		$id_usua = $_POST['id_usua'];
-		$id_cmp = $_POST['id_cmp'];
-		$fecha_entrega_cmp = $_POST['fecha_entrega_cmp'];
-		$factura_cmp = $_POST['factura_cmp'];
-		$products = json_decode($_POST['addBuysToInventory'], true);
-		$consulta = "UPDATE compra set estado_cmp = '1', fk_id_usua_cmp = '$id_usua', fecha_entrega_cmp = '$fecha_entrega_cmp', factura_cmp = '$factura_cmp' WHERE id_cmp = '$id_cmp'";
+		$id_cppd = $_POST['id_cppd'];
+		$fk_id_prod_cppd = $_POST['fk_id_prod_cppd'];
+		$codigo_cppd = $_POST['codigo_cppd'];
+		$cantidad_cppd = $_POST['cantidad_cppd'];
+		$cost_uni_cppd = $_POST['cost_uni_cppd'];
+		$factura_cppd = $_POST['factura_cppd'];
+		$fecha_entrega_cppd = $_POST['fecha_entrega_cppd'];
+		
+		$consulta = "UPDATE cmp_prod set cantidad_cppd = '$cantidad_cppd', cost_uni_cppd = '$cost_uni_cppd', factura_cppd = '$factura_cppd', fecha_entrega_cppd = '$fecha_entrega_cppd', estado_cppd = 'RECIBIDO' WHERE id_cppd = '$id_cppd'";
 		$resultado = $conexion->query($consulta);
-		if($resultado){
-			//Insertando los productos de la compra
-			foreach($products as $celda){
-				$fk_id_prod_cppd = $celda['fk_id_prod_cppd'];
-				$cantidad_cppd = $celda['cantidad_cppd'];
-				$consulta2 = "SELECT * FROM inventario WHERE fk_id_prod_inv = '$fk_id_prod_cppd'";
-				$resultado2 = $conexion->query($consulta2);
-				$numeroNotaEntrega = $resultado2->num_rows;
-				if($numeroNotaEntrega > 0){
-					$inventario = $resultado2->fetch_assoc();
-					$id_inv = $inventario['id_inv'];
-					$cantidad_inv = $inventario['cantidad_inv'];
-					$cantidad_inv = $cantidad_inv + $cantidad_cppd;
-					$consulta3 = "UPDATE inventario set cantidad_inv='$cantidad_inv' WHERE id_inv='$id_inv'";
-					$resultado3 = $conexion->query($consulta3);
-				}
-			}
-			echo 'Se agregado la compra al inventario correctamente';
+		if ($resultado) {
+			$consulta = "UPDATE inventario set cantidad_inv = cantidad_inv + '$cantidad_cppd' WHERE fk_id_prod_inv = '$fk_id_prod_cppd'";
+			$resultado = $conexion->query($consulta);
+			echo 'Productos añadido exitosamente';
 		}
+		echo $fecha_entrega_cppd;
+		//Insertando los productos de la compra
+		$consulta2 = "SELECT * FROM inventario WHERE fk_id_prod_inv = '$fk_id_prod_cppd'";
 	}
 	//-----Update compra
 	public function updateBuy(){
