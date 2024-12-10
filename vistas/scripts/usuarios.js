@@ -31,10 +31,9 @@ if (localStorage.getItem('rol_usua') == 'Ingeniero') {
     document.querySelectorAll('.form__radio')[1].children[2].classList.add('hide');
     document.querySelectorAll('.form__radio')[1].children[3].classList.add('hide');
 }
-//-----------------------------------------PRE LOADER---------------------------------------------
-const preloader = document.getElementById('preloader');
-//----------------------------------------------BLOCK REQUEST WITH A FLAG----------------------------------------------
+//----------------------------------------------BLOCK REQUEST WITH A FLAG AND PRELOADER----------------------------------------------
 let rqstUsua = false;
+const preloader = document.getElementById('preloader');
 //<<-------------------------------------------CARGAR LA TABLA----------------------------------------------------->>
 //------Leer tabla de usuarios
 let usuarios = {};

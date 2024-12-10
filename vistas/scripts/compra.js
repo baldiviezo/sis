@@ -845,12 +845,12 @@ function showproductsAddBuyMW(id_cmp) {
     let i = 0;
     for (let cmp_prod in cmp_prods) {
         if (cmp_prods[cmp_prod]['fk_id_cmp_cppd'] == id_cmp) {
-            console.log(cmp_prods[cmp_prod]);
             let div = document.createElement('div');
             div.classList.add('cart__item');
             div.innerHTML = `
             <input type="hidden" value="${cmp_prods[cmp_prod]['id_cppd']}">
             <input type="hidden" value="${cmp_prods[cmp_prod]['fk_id_prod_cppd']}">
+            <input type="hidden" value="${cmp_prods[cmp_prod]['fk_id_cmp_cppd']}">
             <p class="numero--addProd">${++i}</p>
             <img src="../modelos/imagenes/${cmp_prods[cmp_prod]['imagen_prod']}" alt="" class="imagen--addProd"/>
             <p class="codigo--addProd">${cmp_prods[cmp_prod]['codigo_prod']}</p>
@@ -900,25 +900,24 @@ function showproductsAddBuyMW(id_cmp) {
     quantityaddBuyMW.innerHTML = divs.length;
 }
 function openProductBuyMW(row) {
-    console.log(row);
     id_cppd = row.children[0].value;
     addBuyMW.classList.add('modal__show');
     document.getElementsByName('id_cppd')[0].value = row.children[0].value;
     document.getElementsByName('fk_id_prod_cppd')[0].value = row.children[1].value;
+    document.getElementsByName('fk_id_cmp_cppd')[0].value = row.children[2].value;
     document.getElementsByName('fecha_entrega_cppd')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
-    document.getElementsByName('codigo_cppd')[0].value = row.children[4].innerText;
-    document.getElementsByName('cantidad_cppd')[0].value = row.children[6].value;
-    document.getElementsByName('cost_uni_cppd')[0].value = row.children[7].value + ' Bs';
+    document.getElementsByName('codigo_cppd')[0].value = row.children[5].innerText;
+    document.getElementsByName('cantidad_cppd')[0].value = row.children[7].value;
+    document.getElementsByName('cost_uni_cppd')[0].value = row.children[8].value + ' Bs';
 }
 function changeQuantityCPPDM(row) {
-    let cantidad_prod = row.children[6].value;
-    let costo_uni = row.children[7].value;
+    let cantidad_prod = row.children[7].value;
+    let costo_uni = row.children[8].value;
     let cost_uni_total = cantidad_prod * costo_uni;
-    row.children[8].value = cost_uni_total.toFixed(2);
+    row.children[9].value = cost_uni_total.toFixed(2);
     totalPriceCPPDM();
 }
 function totalPriceCPPDM() {
-    console.log('entro')
     let divs = document.querySelectorAll('#cmp_prodMMW div.modal__body div.cart__item');
     let quantityCPMMW = document.getElementById('quantityCPMMW');
     let subTotalCPMMW = document.getElementById('subTotalCPMMW');
@@ -926,7 +925,6 @@ function totalPriceCPPDM() {
     let totalCPMMW = document.getElementById('totalCPMMW');
     let total = 0;
     let desc = 0;
-    console.log(divs)
     divs.forEach(div => {
         costo_total = Number(div.children[6].value);
         total = total + costo_total;
@@ -1051,17 +1049,15 @@ formAddBuy.addEventListener('submit', (e) => {
         method: "POST",
         body: formData
     }).then(response => response.text()).then(data => {
-        alert(data);
-        //readBuys();
-        //readCmp_prods();
+        readCmp_prods();
+        showproductsAddBuyMW(data);
     }).catch(err => {
         alert(err);
     });
 })
 //-----CRUD CMP_PRODS
+/*
 function addBuysToInventory(id_cppd) {
-    console.log(id_cppd)
-
     addBuyMW.classList.remove('modal__show');
     productBuyMW.classList.remove('modal__show');
     let id_cmp = document.getElementsByName('id_cmp')[0].value;
@@ -1101,7 +1097,7 @@ function addBuysToInventory(id_cppd) {
             });
         }
     }
-}
+}*/
 //-----Delete CMP_PRODS
 function deleteCmp_prod(id_cppd) {
     console.log(id_cppd)

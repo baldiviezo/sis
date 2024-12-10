@@ -88,17 +88,14 @@ class Consultas{
 		$cost_uni_cppd = $_POST['cost_uni_cppd'];
 		$factura_cppd = $_POST['factura_cppd'];
 		$fecha_entrega_cppd = $_POST['fecha_entrega_cppd'];
-		
+		$fk_id_cmp_cppd = $_POST['fk_id_cmp_cppd'];
 		$consulta = "UPDATE cmp_prod set cantidad_cppd = '$cantidad_cppd', cost_uni_cppd = '$cost_uni_cppd', factura_cppd = '$factura_cppd', fecha_entrega_cppd = '$fecha_entrega_cppd', estado_cppd = 'RECIBIDO' WHERE id_cppd = '$id_cppd'";
 		$resultado = $conexion->query($consulta);
 		if ($resultado) {
 			$consulta = "UPDATE inventario set cantidad_inv = cantidad_inv + '$cantidad_cppd' WHERE fk_id_prod_inv = '$fk_id_prod_cppd'";
 			$resultado = $conexion->query($consulta);
-			echo 'Productos añadido exitosamente';
+			echo $fk_id_cmp_cppd;
 		}
-		echo $fecha_entrega_cppd;
-		//Insertando los productos de la compra
-		$consulta2 = "SELECT * FROM inventario WHERE fk_id_prod_inv = '$fk_id_prod_cppd'";
 	}
 	//-----Update compra
 	public function updateBuy(){
