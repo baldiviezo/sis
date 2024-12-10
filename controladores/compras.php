@@ -31,5 +31,10 @@ if (isset($_POST['deleteBuy'])) {
 if (isset($_POST['readCmp_prods'])) {
 	$readCmp_prods = new Consultas;
 	$readCmp_prods->readCmp_prods();
+}
+//------delate cpm_prod
+if (isset($_POST['deleteCmp_prod'])) {
+	$deleteCmp_prod = new Consultas;
+	$deleteCmp_prod->deleteCmp_prod($_POST['deleteCmp_prod']);
 }	
 ?>

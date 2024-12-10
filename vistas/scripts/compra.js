@@ -857,12 +857,26 @@ function showproductsAddBuyMW(id_cmp) {
             <textarea class="cart__item--name">${cmp_prods[cmp_prod]['descripcion_cppd']}</textarea>
             <input type="number" value = "${cmp_prods[cmp_prod]['cantidad_cppd']}" min="1" onChange="changeQuantityCPPDM(this.parentNode)" class="cart__item--quantity">
             <input type="number" value = "${cmp_prods[cmp_prod]['cost_uni_cppd']}" onChange="changeQuantityCPPDM(this.parentNode)" class="cart__item--costUnit">
-            <input type="number" value = "${Number(cmp_prods[cmp_prod]['cost_uni_cppd'] * cmp_prods[cmp_prod]['cantidad_cppd']).toFixed(2)}" class="cart__item--costTotal" readonly>
-            <div>
-                <img src="../imagenes/cartAdd.svg" class='icon__CRUD' onClick="openProductBuyMW(this.parentNode.parentNode)">
-                <img src="../imagenes/trash.svg" class='icon__CRUD' onClick="removeCartM(this.parentNode.parentNode)">
-                
-            </div>`;
+            <input type="number" value = "${Number(cmp_prods[cmp_prod]['cost_uni_cppd'] * cmp_prods[cmp_prod]['cantidad_cppd']).toFixed(2)}" class="cart__item--costTotal" readonly>`;
+            if (cmp_prods[cmp_prod]['estado_cppd'] == 'PENDIENTE') {
+                let img = document.createElement('img');
+                img.classList.add('icon__CRUD');
+                img.src = '../imagenes/cartAdd.svg';
+                img.setAttribute('onclick', 'openProductBuyMW(this.parentNode)');
+                img.setAttribute('title', 'Agregar producto');
+                div.appendChild(img);
+                let img2 = document.createElement('img');
+                img2.classList.add('icon__CRUD');
+                img2.src = '../imagenes/trash.svg';
+                img2.setAttribute('title', 'Eliminar producto');
+                img2.setAttribute('onclick', 'deleteCmp_prod(this.parentNode.children[0].value)');
+                div.appendChild(img2);
+            } else if (cmp_prods[cmp_prod]['estado_cppd'] == 'RECIBIDO'){
+                let img = document.createElement('img');
+                img.src = '../imagenes/checkCircle.svg';
+                img.setAttribute('title', 'Producto agregado');
+                div.appendChild(img);
+            }
             body.appendChild(div);
         }
     }
@@ -886,6 +900,7 @@ function showproductsAddBuyMW(id_cmp) {
     quantityaddBuyMW.innerHTML = divs.length;
 }
 function openProductBuyMW(row) {
+    console.log(row);
     id_cppd = row.children[0].value;
     addBuyMW.classList.add('modal__show');
     document.getElementsByName('id_cppd')[0].value = row.children[0].value;
@@ -1046,7 +1061,7 @@ formAddBuy.addEventListener('submit', (e) => {
 //-----CRUD CMP_PRODS
 function addBuysToInventory(id_cppd) {
     console.log(id_cppd)
-    
+
     addBuyMW.classList.remove('modal__show');
     productBuyMW.classList.remove('modal__show');
     let id_cmp = document.getElementsByName('id_cmp')[0].value;
@@ -1087,7 +1102,23 @@ function addBuysToInventory(id_cppd) {
         }
     }
 }
-
+//-----Delete CMP_PRODS
+function deleteCmp_prod(id_cppd) {
+    console.log(id_cppd)
+    if (confirm('¿Esta usted seguro de eliminar el producto?')) {
+        let formData = new FormData();
+        formData.append('deleteCmp_prod', id_cppd);
+        fetch('../controladores/compras.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            alert(data);
+            readCmp_prods();
+        }).catch(err => {
+            alert(err);
+        });
+    }
+}
 
 
 
