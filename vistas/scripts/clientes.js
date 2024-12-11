@@ -18,32 +18,43 @@ if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol
     //document.getElementsByName('apellido_clteM')[0].setAttribute('readonly', 'readonly');
     //document.getElementsByName('nombre_empM')[0].setAttribute('readonly', 'readonly');
 }
-//----------------------------------------------BLOCK REQUEST WITH A FLAG----------------------------------------------
-let requestUsua = false;
-let requestEmp = false;
+//----------------------------------------------BLOCK REQUEST WITH A FLAG AND PRELOADER----------------------------------------------
+let requestClte = false;
+const preloader = document.getElementById('preloader');
 /************************************************TABLA DE CLIENTES*********************************************/
 let customers = {};
 let filterCustomers = {};
 readCustomers();
-function readCustomers() {
-    let formData = new FormData();
-    formData.append('readCustomers', '');
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        for (let customer in data) {
-            for (let valor in data[customer]) {
-                if (data[customer]['nombre_clte'] == '' && data[customer]['nombre_clte'] == '') {
-                    delete data[customer];
-                    break;
+async function readCustomers() {
+    try {
+        if (requestClte == false) {
+            requestClte = true;
+            preloader.classList.add('modal__show');
+            let formData = new FormData();
+            formData.append('readCustomers', '');
+            const response = await fetch('../controladores/clientes.php', {
+                method: "POST",
+                body: formData
+            });
+            const data = await response.json();
+            requestClte = false;
+            for (const customer in data) {
+                for (const valor in data[customer]) {
+                    if (data[customer]['nombre_clte'] == '' && data[customer]['nombre_clte'] == '') {
+                        delete data[customer];
+                        break;
+                    }
                 }
             }
+            customers = Object.values(data);
+            filterCustomers = customers;
+            paginacionCustomer(customers.length, 1);
+            preloader.classList.remove('modal__show');
         }
-        customers = JSON.parse(JSON.stringify(data));
-        filterCustomers = customers;
-        paginacionCustomer(Object.values(customers).length, 1);
-    }).catch(err => console.log(err));
+
+    } catch (err) {
+        alert(err);
+    }
 }
 //------Select utilizado para buscar por columnas
 const selectSearchClte = document.getElementById('selectSearchClte');
@@ -123,37 +134,39 @@ orderCustomers.forEach(div => {
 })
 //------PaginacionCustomer
 function paginacionCustomer(allCustomers, page) {
-    let numberCustomers = Number(selectNumberClte.value);
-    let allPages = Math.ceil(allCustomers / numberCustomers);
-    let ul = document.querySelector('#wrapperCustomer ul');
-    let li = '';
-    let beforePages = page - 1;
-    let afterPages = page + 1;
-    let liActive;
-    if (page > 1) {
-        li += `<li class="btn" onclick="paginacionCustomer(${allCustomers}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
-    }
-    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
-        if (pageLength > allPages) {
-            continue;
+    setTimeout(() => {
+        let numberCustomers = Number(selectNumberClte.value);
+        let allPages = Math.ceil(allCustomers / numberCustomers);
+        let ul = document.querySelector('#wrapperCustomer ul');
+        let li = '';
+        let beforePages = page - 1;
+        let afterPages = page + 1;
+        let liActive;
+        if (page > 1) {
+            li += `<li class="btn" onclick="paginacionCustomer(${allCustomers}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
         }
-        if (pageLength == 0) {
-            pageLength = pageLength + 1;
+        for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
+            if (pageLength > allPages) {
+                continue;
+            }
+            if (pageLength == 0) {
+                pageLength = pageLength + 1;
+            }
+            if (page == pageLength) {
+                liActive = 'active';
+            } else {
+                liActive = '';
+            }
+            li += `<li class="numb ${liActive}" onclick="paginacionCustomer(${allCustomers}, ${pageLength})"><span>${pageLength}</span></li>`;
         }
-        if (page == pageLength) {
-            liActive = 'active';
-        } else {
-            liActive = '';
+        if (page < allPages) {
+            li += `<li class="btn" onclick="paginacionCustomer(${allCustomers}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
         }
-        li += `<li class="numb ${liActive}" onclick="paginacionCustomer(${allCustomers}, ${pageLength})"><span>${pageLength}</span></li>`;
-    }
-    if (page < allPages) {
-        li += `<li class="btn" onclick="paginacionCustomer(${allCustomers}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
-    }
-    ul.innerHTML = li;
-    let h2 = document.querySelector('#showPageCustomer h2');
-    h2.innerHTML = `Pagina ${page}/${allPages}, ${allCustomers} Clientes`;
-    tableCustomers(page);
+        ul.innerHTML = li;
+        let h2 = document.querySelector('#showPageCustomer h2');
+        h2.innerHTML = `Pagina ${page}/${allPages}, ${allCustomers} Clientes`;
+        tableCustomers(page);
+    }, 2000)
 }
 //------Crear la tabla
 function tableCustomers(page) {
@@ -216,8 +229,8 @@ const formClienteR = document.getElementById('formClienteR');
 formClienteR.addEventListener('submit', createCustomer);
 function createCustomer() {
     event.preventDefault();
-    if (requestUsua == false) {
-        requestUsua = true;
+    if (requestClte == false) {
+        requestClte = true;
         customersRMW.classList.remove('modal__show');
         let formData = new FormData(formClienteR);
         formData.append('createCustomer', '');
@@ -227,14 +240,14 @@ function createCustomer() {
             body: formData
         }).then(response => response.text()).then(data => {
             preloader.classList.remove('modal__show');
-            requestUsua = false;
+            requestClte = false;
             readCustomers();
             //Limpiar al registrar
             let inputsR = document.querySelectorAll('#formClienteR .form__input');
             inputsR.forEach(input => { input.value = '' });
             alert(data)
         }).catch(err => {
-            requestUsua = false;
+            requestClte = false;
             alert(err)
         });
     }
@@ -261,8 +274,8 @@ const formClienteM = document.getElementById('formClienteM');
 formClienteM.addEventListener('submit', updateCustomer);
 function updateCustomer() {
     event.preventDefault();
-    if (requestUsua == false) {
-        requestUsua = true;
+    if (requestClte == false) {
+        requestClte = true;
         customersMMW.classList.remove('modal__show');
         let formData = new FormData(formClienteM);
         formData.append('updateCustomer', '');
@@ -272,11 +285,11 @@ function updateCustomer() {
             body: formData
         }).then(response => response.text()).then(data => {
             preloader.classList.remove('modal__show');
-            requestUsua = false;
+            requestClte = false;
             readCustomers();
             alert(data)
         }).catch(err => {
-            requestUsua = false;
+            requestClte = false;
             alert(err)
         });
     }
@@ -284,8 +297,8 @@ function updateCustomer() {
 //------Eliminar cliente
 function deleteCustomer(tr) {
     if (confirm(`¿Esta usted seguro? se eliminara el cliente "${tr.children[2].innerText}"`)) {
-        if (requestUsua == false) {
-            requestUsua = true;
+        if (requestClte == false) {
+            requestClte = true;
             let id_clte = tr.children[0].innerText;
             let formData = new FormData();
             formData.append('deleteCustomer', id_clte);
@@ -295,11 +308,11 @@ function deleteCustomer(tr) {
                 body: formData
             }).then(response => response.text()).then(data => {
                 preloader.classList.remove('modal__show');
-                requestUsua = false;
+                requestClte = false;
                 readCustomers();
                 alert(data);
             }).catch(err => {
-                requestUsua = false;
+                requestClte = false;
                 alert(err)
             });
         }
@@ -361,8 +374,8 @@ const formEmpresaR = document.getElementById('formEmpresaR');
 formEmpresaR.addEventListener('submit', createEnterprise);
 function createEnterprise() {
     event.preventDefault();
-    if (requestEmp == false) {
-        requestEmp = true;
+    if (requestClte == false) {
+        requestClte = true;
         enterprisesRMW.classList.remove('modal__show');
         let formData = new FormData(formEmpresaR);
         formData.append('createEnterprise', '');
@@ -372,7 +385,7 @@ function createEnterprise() {
             body: formData
         }).then(response => response.text()).then(data => {
             preloader.classList.remove('modal__show');
-            requestEmp = false;
+            requestClte = false;
             alert(data);
             if (data != 'La empresa ya existe') {
                 formEmpresaR.reset();
@@ -380,7 +393,7 @@ function createEnterprise() {
                 readEnterprises();
             }
         }).catch(err => {
-            requestEmp = false;
+            requestClte = false;
             alert(err)
         });
     }
@@ -403,8 +416,8 @@ let formEmpresaM = document.getElementById('formEmpresaM');
 formEmpresaM.addEventListener('submit', updateEnterprise);
 function updateEnterprise() {
     event.preventDefault();
-    if (requestEmp == false) {
-        requestEmp = true;
+    if (requestClte == false) {
+        requestClte = true;
         enterprisesMMW.classList.remove('modal__show');
         let formData = new FormData(formEmpresaM);
         formData.append('updateEnterprise', '');
@@ -414,13 +427,13 @@ function updateEnterprise() {
             body: formData
         }).then(response => response.text()).then(data => {
             preloader.classList.remove('modal__show');
-            requestEmp = false;
+            requestClte = false;
             indexEnterprise = document.getElementsByName('fk_id_emp_clte' + formEnterprise)[0].value;
             readEnterprises();
             readCustomers();
             alert(data);
         }).catch(err => {
-            requestEmp = false;
+            requestClte = false;
             alert(err)
         });
     }
@@ -429,8 +442,8 @@ function updateEnterprise() {
 function deleteEnterprise(div) {
     let id_emp = div.children[0].value;
     if (confirm(`¿Esta usted seguro?`)) {
-        if (requestEmp == false) {
-            requestEmp = true;
+        if (requestClte == false) {
+            requestClte = true;
             let formData = new FormData();
             formData.append('deleteEnterprise', id_emp);
             preloader.classList.add('modal__show');
@@ -439,11 +452,11 @@ function deleteEnterprise(div) {
                 body: formData
             }).then(response => response.text()).then(data => {
                 preloader.classList.remove('modal__show');
-                requestEmp = false;
+                requestClte = false;
                 readEnterprises();
                 alert(data);
             }).catch(err => {
-                requestEmp = false;
+                requestClte = false;
                 alert(err)
             });
         }
@@ -628,7 +641,5 @@ function openEnterpriseSMW() {
 closeEnterpriseSMW.addEventListener('click', () => {
     enterpriseSMW.classList.remove('modal__show');
 });
-//-----------------------------------------PRE LOADER---------------------------------------------
-const preloader = document.getElementById('preloader');
 
 
