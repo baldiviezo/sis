@@ -48,7 +48,30 @@ async function readCustomers() {
         }
     })
 }
-console.log(readCustomers())
+/*
+async function readCustomers() {
+    if (!requestClte) {
+        requestClte = true;
+        preloader.classList.add('modal__show');
+        let formData = new FormData();
+        formData.append('readCustomers', '');
+        try {
+            const response = await fetch('../controladores/clientes.php', {
+                method: "POST",
+                body: formData
+            });
+            const data = await response.json();
+            customers = Object.values(data).filter(customer => customer.nombre_clte !== '' && customer.apellido_clte !== '');
+            filterCustomers = customers;
+            paginacionCustomer(customers.length, 1);
+            preloader.classList.remove('modal__show');
+            requestClte = false;
+        } catch (err) {
+            alert('Ocurrio un error al cargar la tabla de clientes. Cargue nuevamente la pagina.');
+        }
+    }
+}
+*/
 //------Select utilizado para buscar por columnas
 const selectSearchClte = document.getElementById('selectSearchClte');
 selectSearchClte.addEventListener('change', searchCustomers);
@@ -127,39 +150,37 @@ orderCustomers.forEach(div => {
 })
 //------PaginacionCustomer
 function paginacionCustomer(allCustomers, page) {
-    setTimeout(() => {
-        let numberCustomers = Number(selectNumberClte.value);
-        let allPages = Math.ceil(allCustomers / numberCustomers);
-        let ul = document.querySelector('#wrapperCustomer ul');
-        let li = '';
-        let beforePages = page - 1;
-        let afterPages = page + 1;
-        let liActive;
-        if (page > 1) {
-            li += `<li class="btn" onclick="paginacionCustomer(${allCustomers}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
+    let numberCustomers = Number(selectNumberClte.value);
+    let allPages = Math.ceil(allCustomers / numberCustomers);
+    let ul = document.querySelector('#wrapperCustomer ul');
+    let li = '';
+    let beforePages = page - 1;
+    let afterPages = page + 1;
+    let liActive;
+    if (page > 1) {
+        li += `<li class="btn" onclick="paginacionCustomer(${allCustomers}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
+    }
+    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
+        if (pageLength > allPages) {
+            continue;
         }
-        for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
-            if (pageLength > allPages) {
-                continue;
-            }
-            if (pageLength == 0) {
-                pageLength = pageLength + 1;
-            }
-            if (page == pageLength) {
-                liActive = 'active';
-            } else {
-                liActive = '';
-            }
-            li += `<li class="numb ${liActive}" onclick="paginacionCustomer(${allCustomers}, ${pageLength})"><span>${pageLength}</span></li>`;
+        if (pageLength == 0) {
+            pageLength = pageLength + 1;
         }
-        if (page < allPages) {
-            li += `<li class="btn" onclick="paginacionCustomer(${allCustomers}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
+        if (page == pageLength) {
+            liActive = 'active';
+        } else {
+            liActive = '';
         }
-        ul.innerHTML = li;
-        let h2 = document.querySelector('#showPageCustomer h2');
-        h2.innerHTML = `Pagina ${page}/${allPages}, ${allCustomers} Clientes`;
-        tableCustomers(page);
-    }, 2000)
+        li += `<li class="numb ${liActive}" onclick="paginacionCustomer(${allCustomers}, ${pageLength})"><span>${pageLength}</span></li>`;
+    }
+    if (page < allPages) {
+        li += `<li class="btn" onclick="paginacionCustomer(${allCustomers}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
+    }
+    ul.innerHTML = li;
+    let h2 = document.querySelector('#showPageCustomer h2');
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${allCustomers} Clientes`;
+    tableCustomers(page);
 }
 //------Crear la tabla
 function tableCustomers(page) {
