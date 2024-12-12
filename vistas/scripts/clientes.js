@@ -26,36 +26,29 @@ let customers = {};
 let filterCustomers = {};
 readCustomers();
 async function readCustomers() {
-    try {
-        if (requestClte == false) {
+    return new Promise((resolve, reject) => {
+        if (!requestClte) {
             requestClte = true;
             preloader.classList.add('modal__show');
             let formData = new FormData();
             formData.append('readCustomers', '');
-            const response = await fetch('../controladores/clientes.php', {
+            fetch('../controladores/clientes.php', {
                 method: "POST",
                 body: formData
+            }).then(response => response.json()).then(data => {
+                customers = Object.values(data).filter(customer => customer.nombre_clte !== '' && customer.apellido_clte !== '');
+                filterCustomers = customers;
+                paginacionCustomer(customers.length, 1);
+                preloader.classList.remove('modal__show');
+                requestClte = false;
+                resolve();
+            }).catch(err => {
+                alert('Ocurrio un error al cargar la tabla de clientes. Cargue nuevamente la pagina.');
             });
-            const data = await response.json();
-            requestClte = false;
-            for (const customer in data) {
-                for (const valor in data[customer]) {
-                    if (data[customer]['nombre_clte'] == '' && data[customer]['nombre_clte'] == '') {
-                        delete data[customer];
-                        break;
-                    }
-                }
-            }
-            customers = Object.values(data);
-            filterCustomers = customers;
-            paginacionCustomer(customers.length, 1);
-            preloader.classList.remove('modal__show');
         }
-
-    } catch (err) {
-        alert(err);
-    }
+    })
 }
+console.log(readCustomers())
 //------Select utilizado para buscar por columnas
 const selectSearchClte = document.getElementById('selectSearchClte');
 selectSearchClte.addEventListener('change', searchCustomers);
@@ -227,8 +220,10 @@ function tableCustomers(page) {
 //------Crear cliente
 const formClienteR = document.getElementById('formClienteR');
 formClienteR.addEventListener('submit', createCustomer);
-function createCustomer() {
+async function createCustomer() {
+
     event.preventDefault();
+
     if (requestClte == false) {
         requestClte = true;
         customersRMW.classList.remove('modal__show');
@@ -239,18 +234,21 @@ function createCustomer() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            preloader.classList.remove('modal__show');
-            requestClte = false;
-            readCustomers();
-            //Limpiar al registrar
-            let inputsR = document.querySelectorAll('#formClienteR .form__input');
-            inputsR.forEach(input => { input.value = '' });
-            alert(data)
+            readCustomers().then(() => {
+                preloader.classList.remove('modal__show');
+                requestClte = false;
+                //Limpiar al registrar
+                let inputsR = document.querySelectorAll('#formClienteR .form__input');
+                inputsR.forEach(input => { input.value = '' });
+                alert(data)
+            });
         }).catch(err => {
             requestClte = false;
             alert(err)
+            reject(err);
         });
     }
+
 }
 //------Leer cliente
 function readCustomer(tr) {
