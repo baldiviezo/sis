@@ -39,9 +39,12 @@ async function readCustomers() {
                 customers = Object.values(data).filter(customer => customer.nombre_clte !== '' && customer.apellido_clte !== '');
                 filterCustomers = customers;
                 paginacionCustomer(customers.length, 1);
-                preloader.classList.remove('modal__show');
-                requestClte = false;
-                resolve();
+                setTimeout(() => {
+                    preloader.classList.remove('modal__show');
+                    requestClte = false;
+                    resolve();
+                }, 2000);
+                
             }).catch(err => {
                 alert('Ocurrio un error al cargar la tabla de clientes. Cargue nuevamente la pagina.');
             });
@@ -242,9 +245,7 @@ function tableCustomers(page) {
 const formClienteR = document.getElementById('formClienteR');
 formClienteR.addEventListener('submit', createCustomer);
 async function createCustomer() {
-
     event.preventDefault();
-
     if (requestClte == false) {
         requestClte = true;
         customersRMW.classList.remove('modal__show');
@@ -255,9 +256,9 @@ async function createCustomer() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
+            requestClte = false;
             readCustomers().then(() => {
                 preloader.classList.remove('modal__show');
-                requestClte = false;
                 //Limpiar al registrar
                 let inputsR = document.querySelectorAll('#formClienteR .form__input');
                 inputsR.forEach(input => { input.value = '' });
