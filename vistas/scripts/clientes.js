@@ -455,6 +455,7 @@ async function deleteEnterprise(div) {
                 body: formData
             }).then(response => response.text()).then(data => {
                 requestClte = false;
+                indexEnterprise = 0;
                 readEnterprises().then(() => {
                     preloader.classList.remove('modal__show');
                     alert(data);
@@ -645,5 +646,3 @@ function openEnterpriseSMW() {
 closeEnterpriseSMW.addEventListener('click', () => {
     enterpriseSMW.classList.remove('modal__show');
 });
-
-
