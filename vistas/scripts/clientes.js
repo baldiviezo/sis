@@ -39,42 +39,15 @@ async function readCustomers() {
                 customers = Object.values(data).filter(customer => customer.nombre_clte !== '' && customer.apellido_clte !== '');
                 filterCustomers = customers;
                 paginacionCustomer(customers.length, 1);
-                setTimeout(() => {
-                    preloader.classList.remove('modal__show');
-                    requestClte = false;
-                    resolve();
-                }, 2000);
-                
+                preloader.classList.remove('modal__show');
+                requestClte = false;
+                resolve();
             }).catch(err => {
                 alert('Ocurrio un error al cargar la tabla de clientes. Cargue nuevamente la pagina.');
             });
         }
     })
 }
-/*
-async function readCustomers() {
-    if (!requestClte) {
-        requestClte = true;
-        preloader.classList.add('modal__show');
-        let formData = new FormData();
-        formData.append('readCustomers', '');
-        try {
-            const response = await fetch('../controladores/clientes.php', {
-                method: "POST",
-                body: formData
-            });
-            const data = await response.json();
-            customers = Object.values(data).filter(customer => customer.nombre_clte !== '' && customer.apellido_clte !== '');
-            filterCustomers = customers;
-            paginacionCustomer(customers.length, 1);
-            preloader.classList.remove('modal__show');
-            requestClte = false;
-        } catch (err) {
-            alert('Ocurrio un error al cargar la tabla de clientes. Cargue nuevamente la pagina.');
-        }
-    }
-}
-*/
 //------Select utilizado para buscar por columnas
 const selectSearchClte = document.getElementById('selectSearchClte');
 selectSearchClte.addEventListener('change', searchCustomers);
@@ -259,7 +232,6 @@ async function createCustomer() {
             requestClte = false;
             readCustomers().then(() => {
                 preloader.classList.remove('modal__show');
-                //Limpiar al registrar
                 let inputsR = document.querySelectorAll('#formClienteR .form__input');
                 inputsR.forEach(input => { input.value = '' });
                 alert(data)
@@ -276,23 +248,23 @@ async function createCustomer() {
 function readCustomer(tr) {
     formEnterprise = 'M';
     let id_clte = tr.children[0].innerText;
-    for (let customer in filterCustomers) {
-        if (filterCustomers[customer]['id_clte'] == id_clte) {
-            for (let valor in filterCustomers[customer]) {
-                if (valor == 'nombre_emp') {
-                } else {
-                    document.getElementsByName(valor + 'M')[0].value = filterCustomers[customer][valor];
+    const customer = filterCustomers.find(customers => customers.id_clte = id_clte);
+    if (customer) {
+        for (let valor in customer) {
+            if (valor !== 'nombre_emp') {
+                const inputElement = document.querySelector(`input[name="${valor}M"]`);
+                if (inputElement) {
+                    inputElement.value = customer[valor];
                 }
             }
-            break;
         }
+        customersMMW.classList.add('modal__show');
     }
-    customersMMW.classList.add('modal__show');
 }
 //------Actualizar cliente
 const formClienteM = document.getElementById('formClienteM');
 formClienteM.addEventListener('submit', updateCustomer);
-function updateCustomer() {
+async function updateCustomer() {
     event.preventDefault();
     if (requestClte == false) {
         requestClte = true;
@@ -304,10 +276,11 @@ function updateCustomer() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            preloader.classList.remove('modal__show');
             requestClte = false;
-            readCustomers();
-            alert(data)
+            readCustomers().then(() => {
+                preloader.classList.remove('modal__show');
+                alert(data);
+            })
         }).catch(err => {
             requestClte = false;
             alert(err)
@@ -315,7 +288,7 @@ function updateCustomer() {
     }
 }
 //------Eliminar cliente
-function deleteCustomer(tr) {
+async function deleteCustomer(tr) {
     if (confirm(`¿Esta usted seguro? se eliminara el cliente "${tr.children[2].innerText}"`)) {
         if (requestClte == false) {
             requestClte = true;
@@ -327,10 +300,11 @@ function deleteCustomer(tr) {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                preloader.classList.remove('modal__show');
                 requestClte = false;
-                readCustomers();
-                alert(data);
+                readCustomers().then(() => {
+                    preloader.classList.remove('modal__show');
+                    alert(data);
+                });
             }).catch(err => {
                 requestClte = false;
                 alert(err)
@@ -354,7 +328,6 @@ closeCustomersMMW.addEventListener('click', () => {
 closeCustomersRMW.addEventListener('click', () => {
     customersRMW.classList.remove('modal__show');
 });
-
 //<<------------------------LLENAR LA LISTA DE EMPRESAS-------------------------------------->>
 const selectEnterpriseR = document.getElementsByName('fk_id_emp_clteR')[0];
 const selectEnterpriseM = document.getElementsByName('fk_id_emp_clteM')[0];
@@ -363,19 +336,22 @@ let filterEnterprises = {};
 let indexEnterprise = 0;
 let formEnterprise;
 readEnterprises();
-function readEnterprises() {
-    let formData = new FormData();
-    formData.append('readEnterprises', '');
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        enterprises = JSON.parse(JSON.stringify(data));
-        filterEnterprises = enterprises;
-        paginacionEnterpriseMW(Object.values(filterEnterprises).length, 1);
-        fillSelectEmp(selectEnterpriseR, indexEnterprise);
-        fillSelectEmp(selectEnterpriseM, indexEnterprise);
-    }).catch(err => console.log(err));
+async function readEnterprises() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readEnterprises', '');
+        fetch('../controladores/clientes.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            enterprises = Object.values(data);
+            filterEnterprises = enterprises;
+            paginacionEnterpriseMW(filterEnterprises.length, 1);
+            fillSelectEmp(selectEnterpriseR, indexEnterprise);
+            fillSelectEmp(selectEnterpriseM, indexEnterprise);
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
 function fillSelectEmp(select, index) {
     let ordNameEnterprises = Object.values(enterprises).sort((a, b) => a['nombre_emp'].localeCompare(b['nombre_emp']));
@@ -392,7 +368,7 @@ function fillSelectEmp(select, index) {
 //------Craer una empresa
 const formEmpresaR = document.getElementById('formEmpresaR');
 formEmpresaR.addEventListener('submit', createEnterprise);
-function createEnterprise() {
+async function createEnterprise() {
     event.preventDefault();
     if (requestClte == false) {
         requestClte = true;
@@ -404,13 +380,17 @@ function createEnterprise() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            preloader.classList.remove('modal__show');
             requestClte = false;
-            alert(data);
             if (data != 'La empresa ya existe') {
                 formEmpresaR.reset();
                 indexEnterprise = 0;
-                readEnterprises();
+                readEnterprises().then(() => {
+                    preloader.classList.remove('modal__show');
+                    alert(data);
+                });
+            } else {
+                preloader.classList.remove('modal__show');
+                alert(data);
             }
         }).catch(err => {
             requestClte = false;
@@ -421,20 +401,21 @@ function createEnterprise() {
 //------Leer una empresa
 function readEnterprise(div) {
     let id_emp = div.children[0].value;
-    for (let enterprise in enterprises) {
-        if (enterprises[enterprise]['id_emp'] == id_emp) {
-            for (let valor in enterprises[enterprise]) {
-                document.getElementsByName(valor + 'M')[0].value = enterprises[enterprise][valor];
+    const enterprise = enterprises.find(enterprise => enterprise.id_emp === id_emp);
+    if (enterprise) {
+        for (let valor in enterprise) {
+            const inputElement = document.querySelector(`input[name="${valor}M"]`);
+            if (inputElement) {
+                inputElement.value = enterprise[valor];
             }
-            break;
         }
+        enterprisesMMW.classList.add('modal__show');
     }
-    enterprisesMMW.classList.add('modal__show');
 }
 //------Actualizar una empresa
 let formEmpresaM = document.getElementById('formEmpresaM');
 formEmpresaM.addEventListener('submit', updateEnterprise);
-function updateEnterprise() {
+async function updateEnterprise() {
     event.preventDefault();
     if (requestClte == false) {
         requestClte = true;
@@ -446,12 +427,14 @@ function updateEnterprise() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            preloader.classList.remove('modal__show');
             requestClte = false;
             indexEnterprise = document.getElementsByName('fk_id_emp_clte' + formEnterprise)[0].value;
-            readEnterprises();
-            readCustomers();
-            alert(data);
+            readEnterprises().then(() => {
+                readCustomers().then(() => {
+                    preloader.classList.remove('modal__show');
+                    alert(data);
+                });
+            });
         }).catch(err => {
             requestClte = false;
             alert(err)
@@ -459,7 +442,7 @@ function updateEnterprise() {
     }
 }
 //------Borrar una empresa
-function deleteEnterprise(div) {
+async function deleteEnterprise(div) {
     let id_emp = div.children[0].value;
     if (confirm(`¿Esta usted seguro?`)) {
         if (requestClte == false) {
@@ -471,10 +454,11 @@ function deleteEnterprise(div) {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                preloader.classList.remove('modal__show');
                 requestClte = false;
-                readEnterprises();
-                alert(data);
+                readEnterprises().then(() => {
+                    preloader.classList.remove('modal__show');
+                    alert(data);
+                });
             }).catch(err => {
                 requestClte = false;
                 alert(err)

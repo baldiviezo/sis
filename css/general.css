@@ -51,7 +51,7 @@ body.body {
 	bottom: 0;
 	left: 0;
 	right: 0;
-	background-color: #ffffff00;
+	background-color: #CCCCCC50;
 	display: flex;
 	--opacity: 0;
 	--pointer: none;
