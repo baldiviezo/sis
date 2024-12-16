@@ -21,28 +21,41 @@ const formattedDate = dateFormat.format(date);
 const datePart = formattedDate.split(', ');
 const dateActual = datePart[0].split('/');
 //-------------------------------------------------------BLOCK REQUEST WITH A FLAG--------------------------------------------
-let rqstDeleteNE = false;
-let rqstCreateSale = false;
+let rqstNotaEntrega = false;
+const preloader = document.getElementById('preloader');
+init();
+async function init() {
+    if (rqstNotaEntrega == false) {
+        rqstNotaEntrega = true;
+        preloader.classList.add('modal__show');
+        Promise.all([readNotasEntrega(), readProf_prods(), readProformas(), readProducts(), readInventories()]).then(() => {
+            rqstNotaEntrega = false;
+            preloader.classList.remove('modal__show');
+        });
+    }
+}
 //-------------------------------------------------------TABLA NOTA DE ENTREGA-----------------------------------------------------
 let notasEntrega = [];
 let filterNotasEntrega = [];
-readNotasEntrega();
-function readNotasEntrega() {
-    let formData = new FormData();
-    formData.append('readNotasEntrega', '');
-    fetch('../controladores/notaEntrega.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
-            notasEntrega = Object.values(data);
-            filterNotasEntrega = notasEntrega;
-        } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
-            notasEntrega = Object.values(data).filter(notaEntrega => notaEntrega.fk_id_usua_ne === localStorage.getItem('id_usua'));
-            filterNotasEntrega = notasEntrega;
-        }
-        filterByUserNe(notasEntrega.length, 1);
-    }).catch(err => console.log(err));
+async function readNotasEntrega() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readNotasEntrega', '');
+        fetch('../controladores/notaEntrega.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
+                notasEntrega = Object.values(data);
+                filterNotasEntrega = notasEntrega;
+            } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
+                notasEntrega = Object.values(data).filter(notaEntrega => notaEntrega.fk_id_usua_ne === localStorage.getItem('id_usua'));
+                filterNotasEntrega = notasEntrega;
+            }
+            filterByUserNe(notasEntrega.length, 1);
+            resolve();
+        }).catch(err => console.log(err));
+    });
 }
 //------Select utilizado para buscar por columnas
 const selectSearchNe = document.getElementById('selectSearchNe');
@@ -279,8 +292,7 @@ function tableNotaEntrega(page) {
             if (localStorage.getItem('rol_usua') == 'Administrador' || localStorage.getItem('rol_usua') == 'Gerente general') {
                 imgs = [
                     { src: '../imagenes/receipt.svg', onclick: 'readSale(this.parentNode.parentNode)', title: 'Facturar' },
-                    { src: '../imagenes/pdf.svg', onclick: 'pdfNotaEntrega(this.parentNode.parentNode)', title: 'Descargar nota de entrega' },
-                    { src: '../imagenes/trash.svg', onclick: 'deleteNotaEntrega(this.parentNode.parentNode)', title: 'Eliminar nota de entrega' }
+                    { src: '../imagenes/pdf.svg', onclick: 'pdfNotaEntrega(this.parentNode.parentNode)', title: 'Descargar nota de entrega' }
                 ];
             } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
                 imgs = [
@@ -374,49 +386,55 @@ function pdfNotaEntrega(tr) {
 }
 //-------------------------------------------PROF_PROD
 let prof_prods = {};
-readProf_prods();
-function readProf_prods() {
-    let formData = new FormData();
-    formData.append('readProf_prods', '');
-    fetch('../controladores/proforma.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        prof_prods = JSON.parse(JSON.stringify(data));
-    }).catch(err => console.log(err));
+async function readProf_prods() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readProf_prods', '');
+        fetch('../controladores/proforma.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            prof_prods = JSON.parse(JSON.stringify(data));
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
-//-------------------------------------------------------PROFORMA-----------------------------------------------------
+//-------------------------------------------------------PROFORMA----------------------------------------------------
 let proformas = {};  //base de datos de proformas
-readProformas();
-function readProformas() {
-    let formData = new FormData();
-    formData.append('readProformas', '');
-    fetch('../controladores/proforma.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        proformas = data;
-    }).catch(err => console.log(err));
+async function readProformas() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readProformas', '');
+        fetch('../controladores/proforma.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            proformas = data;
+            resolve();
+        }).catch(err => console.log(err));
+    });
 }
 //------------------------------------------------------PRODUCTOS---------------------------------------------------
 let products = {};
-readProducts();
-function readProducts() {
-    let formData = new FormData();
-    formData.append('readProducts', '');
-    fetch('../controladores/productos.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        products = JSON.parse(JSON.stringify(data));
-    }).catch(err => console.log(err));
+async function readProducts() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readProducts', '');
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            products = JSON.parse(JSON.stringify(data));
+            resolve();
+        }).catch(err => console.log(err));
+    });
 }
 //----------------------------------------------------------- CRUD NOTA ENTREGA----------------------------------------------
 //------Delete a nota de entrega
 function deleteNotaEntrega(tr) {
     if (confirm('¿Esta usted seguro?')) {
-        if (rqstDeleteNE == false) {
-            rqstDeleteNE = true;
+        if (rqstNotaEntrega == false) {
+            rqstNotaEntrega = true;
             let id_ne = tr.children[0].innerText;
             let formData = new FormData();
             preloader.classList.add('modal__show');
@@ -425,12 +443,12 @@ function deleteNotaEntrega(tr) {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                rqstDeleteNE = false;
+                rqstNotaEntrega = false;
                 alert(data);
                 readNotasEntrega();
                 preloader.classList.remove('modal__show');
             }).catch(err => {
-                rqstDeleteNE = false;
+                rqstNotaEntrega = false;
                 alert(err);
             });
         }
@@ -525,8 +543,8 @@ function createSale() {
         }
     }
     if (confirm('¿Esta usted seguro?')) {
-        if (rqstCreateSale == false) {
-            rqstCreateSale = true;
+        if (rqstNotaEntrega == false) {
+            rqstNotaEntrega = true;
             vnt_prodRMW.classList.remove('modal__show');
             saleRMW.classList.remove('modal__show');
             let formData = new FormData();
@@ -542,12 +560,13 @@ function createSale() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                rqstCreateSale = false;
-                readNotasEntrega();
-                preloader.classList.remove('modal__show');
-                alert(data);
+                readNotasEntrega().then(() => {
+                    rqstNotaEntrega = false;
+                    preloader.classList.remove('modal__show');
+                    alert(data);
+                });
             }).catch(err => {
-                rqstCreateSale = false;
+                rqstNotaEntrega = false;
                 alert(err);
             });
         }
@@ -565,19 +584,18 @@ const vnt_prodRMW = document.getElementById('vnt_prodRMW');
 closeVnt_prodRMW.addEventListener('click', (e) => {
     vnt_prodRMW.classList.remove('modal__show');
 });
-
 //-------------------------------------------------------INVENTARIO---------------------------------------------------
 let inventories = {};
-readInventories();
 function readInventories() {
-    let formData = new FormData();
-    formData.append('readInventories', '');
-    fetch('../controladores/inventario.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        inventories = data;
-    }).catch(err => console.log(err));
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readInventories', '');
+        fetch('../controladores/inventario.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            inventories = data;
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
-//-----------------------------------------PRE LOADER---------------------------------------------
-const preloader = document.getElementById('preloader');

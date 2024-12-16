@@ -25,6 +25,22 @@ if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getIte
 }
 //--------------------------------------------BLOCK REQUEST WITH A FLAG--------------------------------------------
 let requestInventory = false;
+const preloader = document.getElementById('preloader');
+init();
+async function init() {
+    if (!requestInventory) {
+        requestInventory = true;
+        preloader.classList.add('modal__show');
+        await Promise.all([readInventories(), readProductsMW(), readAllMarcas(), readAllCategorias()])
+            .then(() => {
+                requestInventory = false;
+                preloader.classList.remove('modal__show');
+            })
+            .catch((error) => {
+                alert('Ocurrio un error al cargar la tabla de productos. Cargue nuevamente la pagina.');
+            });
+    }
+}
 //---------------------------------------------TABLA INVENTORY--------------------------------------------
 //-------Marca y categoria
 const selectMarcaInventory = document.getElementById('selectMarcaInventory');
@@ -34,18 +50,20 @@ selectCategoriaInventory.addEventListener('change', searchInventories);
 //------Read inventarios
 let inventories = [];
 let filterInventories = [];
-readInventories();
-function readInventories() {
-    let formData = new FormData();
-    formData.append('readInventories', '');
-    fetch('../controladores/inventario.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        inventories = Object.values(data);
-        filterInventories = inventories;
-        (selectMarcaInventory.value == 'todasLasMarcas' && selectCategoriaInventory.value == 'todasLasCategorias') ? paginacionInventory(inventories.length, 1) : selectInventories();
-    }).catch(err => console.log(err));
+async function readInventories() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readInventories', '');
+        fetch('../controladores/inventario.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            inventories = Object.values(data);
+            filterInventories = inventories;
+            (selectMarcaInventory.value == 'todasLasMarcas' && selectCategoriaInventory.value == 'todasLasCategorias') ? paginacionInventory(inventories.length, 1) : selectInventories();
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
 //------Select utilizado para buscar por columnas
 const selectSearchInv = document.getElementById('selectSearchInv');
@@ -64,20 +82,20 @@ function searchInventories() {
     const valor = selectSearchInv.value;
     const busqueda = inputSearchInv.value.toLowerCase().trim();
     filterInventories = Object.values(inventories).filter(inventory => {
-      if (valor === 'todas') {
-        return (
-          inventory.codigo_prod.toLowerCase().includes(busqueda) ||
-          inventory.nombre_prod.toLowerCase().includes(busqueda) ||
-          inventory.descripcion_prod.toLowerCase().includes(busqueda) ||
-          inventory.descripcion_inv.toLowerCase().includes(busqueda) ||
-          inventory.cost_uni_inv.toString().toLowerCase().includes(busqueda)
-        );
-      } else {
-        return inventory[valor].toString().toLowerCase().includes(busqueda);
-      }
+        if (valor === 'todas') {
+            return (
+                inventory.codigo_prod.toLowerCase().includes(busqueda) ||
+                inventory.nombre_prod.toLowerCase().includes(busqueda) ||
+                inventory.descripcion_prod.toLowerCase().includes(busqueda) ||
+                inventory.descripcion_inv.toLowerCase().includes(busqueda) ||
+                inventory.cost_uni_inv.toString().toLowerCase().includes(busqueda)
+            );
+        } else {
+            return inventory[valor].toString().toLowerCase().includes(busqueda);
+        }
     });
     selectInventories();
-  }
+}
 //------buscar por marca y categoria:
 function selectInventories() {
     if (selectMarcaInventory.value == 'todasLasMarcas' && selectCategoriaInventory.value == 'todasLasCategorias') {
@@ -98,16 +116,16 @@ function selectInventories() {
 //------Ordenar tabla descendente ascendente
 let orderInventories = document.querySelectorAll('.tbody__head--inventory');
 orderInventories.forEach(div => {
-  div.children[0].addEventListener('click', function () {
-    const valor = div.children[0].name;
-    filterInventories.sort((a, b) => a[valor].localeCompare(b[valor]));
-    paginacionInventory(filterInventories.length, 1);
-  });
-  div.children[1].addEventListener('click', function () {
-    const valor = div.children[0].name;
-    filterInventories.sort((a, b) => b[valor].localeCompare(a[valor]));
-    paginacionInventory(filterInventories.length, 1);
-  });
+    div.children[0].addEventListener('click', function () {
+        const valor = div.children[0].name;
+        filterInventories.sort((a, b) => a[valor].localeCompare(b[valor]));
+        paginacionInventory(filterInventories.length, 1);
+    });
+    div.children[1].addEventListener('click', function () {
+        const valor = div.children[0].name;
+        filterInventories.sort((a, b) => b[valor].localeCompare(a[valor]));
+        paginacionInventory(filterInventories.length, 1);
+    });
 })
 //------PaginacionInventory
 function paginacionInventory(allInventories, page) {
@@ -186,8 +204,7 @@ function tableInventories(page) {
             let td = document.createElement('td');
             if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
                 td.innerHTML = `
-                <img src='../imagenes/edit.svg' onclick='readInventory(this.parentNode.parentNode)' title='Editar en Inventario'>
-                <img src='../imagenes/trash.svg' onclick='deleteInventory(this.parentNode.parentNode)' title='Eliminar en Inventario'>`;
+                <img src='../imagenes/edit.svg' onclick='readInventory(this.parentNode.parentNode)' title='Editar en Inventario'>`;
                 tr.appendChild(td);
             } else {
                 //td.innerHTML = ``;
@@ -201,7 +218,7 @@ function tableInventories(page) {
 //<<-----------------------------------------CRUD INVENTARIO-------------------------------------->>
 //------CREATE UN INVENTARIO
 document.getElementById("formInventarioR").addEventListener("submit", createInventory);
-function createInventory() {
+async function createInventory() {
     event.preventDefault();
     if (requestInventory == false) {
         requestInventory = true;
@@ -214,13 +231,12 @@ function createInventory() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            preloader.classList.remove('modal__show');
-            requestInventory = false;
-            alert(data);
-            //Limpiar al registrar
-            let inputsR = document.querySelectorAll('#formInventarioR .form__input');
-            inputsR.forEach(input => { input.value = '' });
-            readInventories();
+            readInventories().then(() => {
+                preloader.classList.remove('modal__show');
+                requestInventory = false;
+                form.reset();
+                alert(data);
+            });
         }).catch(err => {
             requestInventory = false;
             alert(err);
@@ -248,7 +264,7 @@ function readInventory(tr) {
 }
 //-------ACTUALIZAR UN INVENTARIO
 document.getElementById("formInventarioM").addEventListener("submit", updateInventory);
-function updateInventory() {
+async function updateInventory() {
     event.preventDefault();
     if (requestInventory == false) {
         requestInventory = true;
@@ -260,19 +276,20 @@ function updateInventory() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            inventoryMMW.classList.remove('modal__show');
-            requestInventory = false;
-            readInventories();
-            preloader.classList.remove('modal__show');
-            alert(data);
+            readInventories().then(() => {
+                requestInventory = false;
+                preloader.classList.remove('modal__show');
+                inventoryMMW.classList.remove('modal__show');
+                alert(data);
+            })
         }).catch(err => {
             requestInventory = false;
-            alert(err);
+            alert('Ocurrio un error al actualizar el inventario, cargue nuevamente la pagina.');
         });
     }
 }
 //------DELETE UN INVENTARIO
-function deleteInventory(tr) {
+async function deleteInventory(tr) {
     if (confirm('¿Esta usted seguro?')) {
         let cantidad_inv = parseInt(tr.children[9].innerText);
         if (cantidad_inv > 0) {
@@ -288,13 +305,14 @@ function deleteInventory(tr) {
                     method: "POST",
                     body: formData
                 }).then(response => response.text()).then(data => {
-                    requestInventory = false;
-                    readInventories();
-                    preloader.classList.remove('modal__show');
-                    alert(data);
+                    readInventories().then(() => {
+                        requestInventory = false;
+                        preloader.classList.remove('modal__show');
+                        alert(data);
+                    });
                 }).catch(err => {
                     requestInventory = false;
-                    alert(err);
+                    alert('Ocurrio un error al eliminar el inventario, cargue nuevamente la pagina.');
                 });
             }
         }
@@ -326,30 +344,32 @@ selectCategoriaProdMW.addEventListener('change', searchProductsMW);
 //<<-----------------------------------LLENAR LA LISTA DE PRODUCTOS-------------------------------------->>
 const selectProductR = document.getElementById('selectProductR');
 const selectProductM = document.getElementById('selectProductM');
-let products = {};
-let filterProducts = {};
-let sortProducts = {};
+let products = [];
+let filterProducts = [];
+let sortProducts = [];
 let indexProduct = 0;
 let formProduct;
-readProductsMW();
-function readProductsMW() {
-    let formData = new FormData();
-    formData.append('readProducts', '');
-    fetch('../controladores/productos.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        products = JSON.parse(JSON.stringify(data));
-        filterProducts = products;
-        sortProducts = products;
-        let array = Object.entries(sortProducts).sort((a, b) => {
-            return a[1].codigo_prod.toLowerCase().localeCompare(b[1].codigo_prod.toLowerCase());
-        });
-        sortProducts = Object.fromEntries(array);
-        fillSelectProd(selectProductR, indexProduct);
-        fillSelectProd(selectProductM, indexProduct);
-        (selectMarcaProdMW.value == 'todasLasMarcas' && selectCategoriaProdMW.value == 'todasLasCategorias') ? paginacionProductMW(Object.values(data).length, 1) : selectProductsMW();
-    }).catch(err => console.log(err));
+async function readProductsMW() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readProducts', '');
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            products = Object.values(data);
+            filterProducts = products;
+            sortProducts = products;
+            let array = Object.entries(sortProducts).sort((a, b) => {
+                return a[1].codigo_prod.toLowerCase().localeCompare(b[1].codigo_prod.toLowerCase());
+            });
+            sortProducts = Object.fromEntries(array);
+            fillSelectProd(selectProductR, indexProduct);
+            fillSelectProd(selectProductM, indexProduct);
+            (selectMarcaProdMW.value == 'todasLasMarcas' && selectCategoriaProdMW.value == 'todasLasCategorias') ? paginacionProductMW(products.length, 1) : selectProductsMW();
+            resolve();
+        }).catch(err => alert('Ocurrio un error al cargar los productos, cargue nuevamente la pagina.'));
+    })
 }
 function fillSelectProd(select, index) {
     select.innerHTML = '';
@@ -364,7 +384,7 @@ function fillSelectProd(select, index) {
 //<<------------------------------------------CRUD DE PRODUCTS------------------------------------->>
 //------Create un producto
 document.getElementById("formProductsR").addEventListener("submit", createProduct);
-function createProduct() {
+async function createProduct() {
     event.preventDefault();
     if (marca_prodR.value == "todasLasMarcas") {
         alert("Debe seleccionar una marca");
@@ -382,11 +402,11 @@ function createProduct() {
             if (data == "El codigo ya existe") {
                 alert(data);
             } else {
-                alert("El producto fue creado con éxito");
-                indexProduct = data;
-                readProductsMW();
-                readInventories();
-                cleanUpProductFormR();
+                Promise.all([readProductsMW(), readInventories()]).then(() => {
+                    indexProduct = data;
+                    form.reset();
+                    alert("El producto fue creado con éxito");
+                })
             }
         }).catch(err => console.log(err));
     }
@@ -418,7 +438,7 @@ function readProduct(div) {
 }
 //-------Update un producto
 document.getElementById("formProductsM").addEventListener("submit", updateProduct);
-function updateProduct() {
+async function updateProduct() {
     event.preventDefault();
     if (marca_prodM.value == "todasLasMarcas") {
         alert("Debe seleccionar una marca");
@@ -433,15 +453,15 @@ function updateProduct() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            alert(data);
-            indexProduct = document.getElementsByName('fk_id_prod_inv' + formProduct)[0].value;
-            readProductsMW();
-            readInventories();
+            Promise.all([readProductsMW(), readInventories()]).then(() => {
+                alert(data);
+                indexProduct = document.getElementsByName('fk_id_prod_inv' + formProduct)[0].value;
+            })
         }).catch(err => console.log(err));
     }
 }
 //------Delete un producto
-function deleteProduct(div) {
+async function deleteProduct(div) {
     if (confirm(`¿Esta usted seguro? Se eliminará el producto "${div.children[0].options[div.children[0].selectedIndex].text}"`)) {
         let id_prod = div.children[0].value;
         const formData = new FormData()
@@ -450,10 +470,10 @@ function deleteProduct(div) {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            alert(data);
-            indexProduct = 0;
-            readProductsMW();
-            readInventories();
+            Promise.all([readProductsMW(), readInventories()]).then(() => {
+                alert(data);
+                indexProduct = 0;
+            });
         }).catch(error => console.log("Ocurrio un error. Intente nuevamente mas tarde"));
     }
 }
@@ -816,37 +836,41 @@ closeProductSMW.addEventListener('click', () => {
 /*-----------------------------------------Marca y categoria producto-------------------------------------------------*/
 //-------Read all Marcas
 let marcas = {};
-readAllMarcas();
-function readAllMarcas() {
-    let formData = new FormData();
-    formData.append('readMarcas', '');
-    fetch('../controladores/productos.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        marcas = data;
-        selectMarcaProd();
-        selectMarcaProdR();
-        selectMarcaProdM();
-        selectMarcaInv();
-    }).catch(err => console.log(err));
+async function readAllMarcas() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readMarcas', '');
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            marcas = data;
+            selectMarcaProd();
+            selectMarcaProdR();
+            selectMarcaProdM();
+            selectMarcaInv();
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
 //-------Read all categorias
 let categorias = {};
-readAllCategorias();
-function readAllCategorias() {
-    let formData = new FormData();
-    formData.append('readCategorias', '');
-    fetch('../controladores/productos.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        categorias = data;
-        selectCategoriaProd();
-        selectCategoriaInv();
-        selectCategoriaProdR();
-        selectCategoriaProdM();
-    }).catch(err => console.log(err));
+async function readAllCategorias() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readCategorias', '');
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            categorias = data;
+            selectCategoriaProd();
+            selectCategoriaInv();
+            selectCategoriaProdR();
+            selectCategoriaProdM();
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
 /*----------------------------------------------Marca y categoria inventario-------------------------------------------------*/
 //-------Create Marca
@@ -1080,5 +1104,3 @@ openCategoriaRMW.addEventListener('click', (e) => {
 closeCategoriaRMW.addEventListener('click', (e) => {
     categoriaRMW.classList.remove('modal__show');
 });
-//-----------------------------------------PRE LOADER---------------------------------------------
-const preloader = document.getElementById('preloader');

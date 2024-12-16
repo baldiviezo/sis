@@ -13,6 +13,22 @@ if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getIte
 }
 //-------------------------------------------BLOCK REQUEST WITH A FLAG--------------------------------------------
 let requestProducts = false;
+const preloader = document.getElementById('preloader');
+init();
+async function init() {
+    if (!requestProducts) {
+        requestProducts = true;
+        preloader.classList.add('modal__show');
+        await Promise.all([readProducts(), readAllMarcas(), readAllCategorias()])
+            .then(() => {
+                requestProducts = false;
+                preloader.classList.remove('modal__show');
+            })
+            .catch((error) => {
+                alert('Ocurrio un error al cargar la tabla de productos. Cargue nuevamente la pagina.');
+            });
+    }
+}
 //--------------------------------------------TABLE PRODUCT-----------------------------------------------------
 //-------Marca y categoria
 const selectMarcaProduct = document.getElementById('selectMarcaProduct');
@@ -20,20 +36,22 @@ selectMarcaProduct.addEventListener('change', selectCategoriaProd);
 const selectCategoriaProduct = document.getElementById('selectCategoriaProduct');
 selectCategoriaProduct.addEventListener('change', searchProducts);
 //-------Read productos
-let products = {};
-let filterProducts = {};
-readProducts();
-function readProducts() {
-    let formData = new FormData();
-    formData.append('readProducts', '');
-    fetch('../controladores/productos.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        products = JSON.parse(JSON.stringify(data));
-        filterProducts = products;
-        (selectMarcaProduct.value == 'todasLasMarcas' && selectCategoriaProduct.value == 'todasLasCategorias') ? paginacionProduct(Object.values(data).length, 1) : selectProducts();
-    }).catch(err => console.log(err));
+let products = [];
+let filterProducts = [];
+async function readProducts() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readProducts', '');
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            products = Object.values(data);
+            filterProducts = products;
+            (selectMarcaProduct.value == 'todasLasMarcas' && selectCategoriaProduct.value == 'todasLasCategorias') ? paginacionProduct(products.length, 1) : selectProducts();
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
 //------Select utilizado para buscar por columnas
 const selectSearchProduct = document.getElementById('selectSearchProduct');
@@ -213,7 +231,7 @@ function tableProducts(page) {
 //<<------------------------------------------CRUD DE PRODUCTS------------------------------------->>
 //------Create un producto
 document.getElementById("formProductsR").addEventListener("submit", createProduct);
-function createProduct() {
+async function createProduct() {
     event.preventDefault();
     if (marca_prodR.value == "todasLasMarcas") {
         alert("Debe seleccionar una marca");
@@ -231,18 +249,21 @@ function createProduct() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                preloader.classList.remove('modal__show');
+
                 requestProducts = false;
                 if (data == "El codigo ya existe") {
                     alert(data);
+                    preloader.classList.remove('modal__show');
                 } else {
-                    alert("El producto fue creado con éxito");
-                    readProducts();
-                    cleanUpProductFormR();
+                    readProducts().then(() => {
+                        alert("El producto fue creado con éxito");
+                        preloader.classList.remove('modal__show');
+                        form.reset();
+                    })
                 }
             }).catch(err => {
                 requestProducts = false;
-                alert(err);
+                alert('Ocurrio un error al crear el producto. Cargue nuevamente la pagina.');
             });
         }
     }
@@ -274,7 +295,7 @@ function readProduct(tr) {
 }
 //-------Update un producto
 document.getElementById("formProductsM").addEventListener("submit", updateProduct);
-function updateProduct() {
+async function updateProduct() {
     event.preventDefault();
     if (marca_prodM.value == "todasLasMarcas") {
         alert("Debe seleccionar una marca");
@@ -292,19 +313,20 @@ function updateProduct() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                preloader.classList.remove('modal__show');
-                requestProducts = false;
-                readProducts();
-                alert(data);
+                readProducts().then(() => {
+                    preloader.classList.remove('modal__show');
+                    requestProducts = false;
+                    alert(data);
+                })
             }).catch(err => {
                 requestProducts = false;
-                alert(err);
+                alert('Ocurrio un error al actualizar el producto. Cargue nuevamente la pagina.');
             });
         }
     }
 }
 //------Delete un producto
-function deleteProduct(tr) {
+async function deleteProduct(tr) {
     if (confirm(`¿Esta usted seguro? Se eliminará el producto "${tr.children[4].innerText}"`)) {
         if (requestProducts == false) {
             requestProducts = true;
@@ -316,13 +338,14 @@ function deleteProduct(tr) {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                preloader.classList.remove('modal__show');
-                requestProducts = false;
-                alert(data);
-                readProducts();
+                readProducts().then(() => {
+                    preloader.classList.remove('modal__show');
+                    requestProducts = false;
+                    alert(data);
+                });
             }).catch(err => {
                 requestProducts = false;
-                alert(err);
+                alert('Ocurrio un error al eliminar el producto. Cargue nuevamente la pagina.');
             });
         }
 
@@ -505,41 +528,45 @@ function processFileM(file) {
 /*----------------------------------------------Marca y categoria-------------------------------------------------*/
 //-------Read all Marcas
 let marcas = {};
-readAllMarcas();
-function readAllMarcas() {
-    let formData = new FormData();
-    formData.append('readMarcas', '');
-    fetch('../controladores/productos.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        marcas = data;
-        selectMarcaProd();
-        selectMarcaProdR();
-        selectMarcaProdM();
-    }).catch(err => console.log(err));
+async function readAllMarcas() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readMarcas', '');
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            marcas = data;
+            selectMarcaProd();
+            selectMarcaProdR();
+            selectMarcaProdM();
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
 //-------Read all categorias
 let categorias = {};
-readAllCategorias();
-function readAllCategorias() {
-    let formData = new FormData();
-    formData.append('readCategorias', '');
-    fetch('../controladores/productos.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        categorias = data;
-        selectCategoriaProd();
-        selectCategoriaProdR();
-        selectCategoriaProdM();
-    }).catch(err => console.log(err));
+async function readAllCategorias() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readCategorias', '');
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            categorias = data;
+            selectCategoriaProd();
+            selectCategoriaProdR();
+            selectCategoriaProdM();
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
 /*---------------------------------------------- CRUD Marca y categoria-------------------------------------------------*/
 //-------Create Marca
 let formMarcaR = document.getElementById('formMarcaR');
 formMarcaR.addEventListener('submit', createMarcaProd);
-function createMarcaProd() {
+async function createMarcaProd() {
     marcaRMW.classList.remove('modal__show');
     event.preventDefault();
     let formData = new FormData(formMarcaR);
@@ -548,12 +575,13 @@ function createMarcaProd() {
         method: "POST",
         body: formData
     }).then(response => response.text()).then(data => {
-        alert(data);
-        readAllMarcas();
-    }).catch(err => console.log(err));
+        readAllMarcas().then(() => {
+            alert(data);
+        })
+    }).catch(err => alert('Ocurrio un error al crear la marca. Cargue nuevamente la pagina.'));
 }
 //-------Eliminar Marca
-function deleteMarcaProd() {
+async function deleteMarcaProd() {
     let id_mrc = selectMarcaProduct.value;
     if (confirm('¿Esta usted seguro?')) {
         let formData = new FormData();
@@ -562,9 +590,10 @@ function deleteMarcaProd() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            alert(data);
-            readAllMarcas();
-        }).catch(err => console.log(err));
+            readAllMarcas().then(() => {
+                alert(data);
+            })
+        }).catch(err => alert('Ocurrio un error al eliminar la marca. Cargue nuevamente la pagina.'));
     }
 }
 //-------Select de marcas
@@ -584,7 +613,7 @@ function selectMarcaProd() {
 //-------registrar categoria
 let formCategoriaR = document.getElementById('formCategoriaR');
 formCategoriaR.addEventListener('submit', createCategoriaProd);
-function createCategoriaProd() {
+async function createCategoriaProd() {
     event.preventDefault();
     if (selectMarcaProduct.value != 'todasLasMarcas') {
         categoriaRMW.classList.remove('modal__show');
@@ -595,15 +624,16 @@ function createCategoriaProd() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            alert(data);
-            readAllCategorias();
-        }).catch(err => console.log(err));
+            readAllCategorias().then(() => {
+                alert(data);
+            })
+        }).catch(err => alert('Ocurrio un error al crear la categoria. Cargue nuevamente la pagina.'));
     } else {
         alert('Seleccione una marca');
     }
 }
 //-------Eliminar Categoria
-function deleteCategoriaProd() {
+async function deleteCategoriaProd() {
     let id_ctgr = selectCategoriaProduct.value;
     if (confirm('¿Esta usted seguro?')) {
         let formData = new FormData();
@@ -613,9 +643,10 @@ function deleteCategoriaProd() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            alert(data);
-            readAllCategorias();
-        }).catch(err => console.log(err));
+            readAllCategorias().then(() => {
+                alert(data);
+            })
+        }).catch(err => alert('Ocurrio un error al eliminar la categoria. Cargue nuevamente la pagina.'));
     }
     selectCategoriaProduct.selectedIndex = 0;
 }
@@ -731,5 +762,3 @@ openCategoriaRMW.addEventListener('click', (e) => {
 closeCategoriaRMW.addEventListener('click', (e) => {
     categoriaRMW.classList.remove('modal__show');
 });
-//-----------------------------------------PRE LOADER---------------------------------------------
-const preloader = document.getElementById('preloader');

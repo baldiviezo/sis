@@ -5,11 +5,19 @@ if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getIte
     document.getElementsByName('codigo_prodM')[0].setAttribute('readonly', 'readonly');
 }
 //--------------------------------------------BLOCK REQUEST WITH A FLAG----------------------------------------------
-let rqstCreateBuy = false;
-let rqstUpdateBuy = false;
-let rqstDeleteBuy = false;
-let rqstAddBuy = false;
-let requestProducts = false;
+let rqstBuy = false;
+const preloader = document.getElementById('preloader');
+init();
+async function init() {
+    if (rqstBuy == false) {
+        preloader.classList.add('modal__show');
+        rqstBuy = true;
+        Promise.all([readSuppliers(), readEnterprises(), readBuys(), readCmp_prods(), readProducts(), readAllMarcas(), readAllCategorias()]).then(() => {
+            rqstBuy = false;
+            preloader.classList.remove('modal__show');
+        })
+    }
+}
 //-----------------------------------------------FECHA ACTUAL-------------------------------------
 const date = new Date();
 const dateFormat = new Intl.DateTimeFormat('es-ES', {
@@ -28,17 +36,19 @@ const dateActual = datePart[0].split('/');
 //-------------------------------------------------SUPPLIER--------------------------------------------------
 //<<-----------------------------------------CRUD SUPPLIER----------------------------------------->>
 let suppliers = {};
-readSuppliers();
-function readSuppliers() {
-    let formData = new FormData();
-    formData.append('readSuppliers', '');
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        suppliers = JSON.parse(JSON.stringify(data));
-        readEnterprises();
-    }).catch(err => console.log(err));
+async function readSuppliers() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readSuppliers', '');
+        fetch('../controladores/clientes.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            suppliers = JSON.parse(JSON.stringify(data));
+            readEnterprises();
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
 //------Create a supplier
 const formSupplierR = document.getElementById('formSupplierR');
@@ -420,18 +430,20 @@ closeEnterprisesMMW.addEventListener('click', () => {
 let buys = {};
 let filterBuys = {};
 let formBuy = '';
-readBuys();
-function readBuys() {
-    let formData = new FormData();
-    formData.append('readBuys', '');
-    fetch('../controladores/compras.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        buys = JSON.parse(JSON.stringify(data));
-        filterBuys = buys;
-        filterByUserBuys(Object.values(buys).length, 1);
-    }).catch(err => console.log(err));
+async function readBuys() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readBuys', '');
+        fetch('../controladores/compras.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            buys = JSON.parse(JSON.stringify(data));
+            filterBuys = buys;
+            filterByUserBuys(Object.values(buys).length, 1);
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
 //------Select utilizado para buscar por columnas
 const selectSearchBuy = document.getElementById('selectSearchBuy');
@@ -667,8 +679,8 @@ function createBuy() {
             array.push(object);
         });
         if (confirm('¿Esta usted seguro?')) {
-            if (rqstCreateBuy == false) {
-                rqstCreateBuy = true;
+            if (rqstBuy == false) {
+                rqstBuy = true;
                 let formData = new FormData(formBuyR);
                 formData.append('createBuy', JSON.stringify(array));
                 formData.append('id_usua', localStorage.getItem('id_usua'));
@@ -679,13 +691,13 @@ function createBuy() {
                     body: formData
                 }).then(response => response.text()).then(data => {
                     preloader.classList.remove('modal__show');
-                    rqstCreateBuy = false;
+                    rqstBuy = false;
                     alert(data);
                     readBuys();
                     readCmp_prods();
                     cleanFormBuyR();
                 }).catch(err => {
-                    rqstCreateBuy = false;
+                    rqstBuy = false;
                     alert(err);
                 });
             }
@@ -759,8 +771,8 @@ function updateBuy() {
             };
             array.push(object);
         });
-        if (rqstUpdateBuy == false) {
-            rqstUpdateBuy = true;
+        if (rqstBuy == false) {
+            rqstBuy = true;
             let formData = new FormData(formBuyM);
             formData.append('updateBuy', JSON.stringify(array));
             formData.append('id_usua', localStorage.getItem('id_usua'));
@@ -771,12 +783,12 @@ function updateBuy() {
                 body: formData
             }).then(response => response.text()).then(data => {
                 preloader.classList.remove('modal__show');
-                rqstCreateBuy = false;
+                rqstBuy = false;
                 alert(data);
                 readBuys();
                 readCmp_prods();
             }).catch(err => {
-                rqstCreateBuy = false;
+                rqstBuy = false;
                 alert(err);
             });
         }
@@ -789,20 +801,20 @@ function deleteBuy(id_cmp) {
     console.log('entros')
     /*
     if (confirm('¿Esta usted seguro?')) {
-        if (rqstDeleteBuy == false) {
-            rqstDeleteBuy = true;
+        if (rqstBuy == false) {
+            rqstBuy = true;
             let formData = new FormData();
             formData.append('deleteBuy', id_cmp);
             fetch('../controladores/compras.php', {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                rqstDeleteBuy = false;
+                rqstBuy = false;
                 alert(data);
                 readBuys();
                 readCmp_prods();
             }).catch(err => {
-                rqstDeleteBuy = false;
+                rqstBuy = false;
                 alert(err);
             });
         }
@@ -871,7 +883,7 @@ function showproductsAddBuyMW(id_cmp) {
                 img2.setAttribute('title', 'Eliminar producto');
                 img2.setAttribute('onclick', 'deleteCmp_prod(this.parentNode.children[0].value)');
                 div.appendChild(img2);
-            } else if (cmp_prods[cmp_prod]['estado_cppd'] == 'RECIBIDO'){
+            } else if (cmp_prods[cmp_prod]['estado_cppd'] == 'RECIBIDO') {
                 let img = document.createElement('img');
                 img.src = '../imagenes/checkCircle.svg';
                 img.setAttribute('title', 'Producto agregado');
@@ -1015,7 +1027,6 @@ function spaceRequiretBuyR() {
             this.value = valor.replace(/[^0-9\.]/g, '');
         }
     });
-
 }
 const closeProductBuyMW = document.getElementById('closeProductBuyMW');
 closeProductBuyMW.addEventListener('click', (e) => {
@@ -1025,18 +1036,26 @@ closeProductBuyMW.addEventListener('click', (e) => {
 //--------read Cmp_prods
 let cmp_prods = [];
 let filterCmp_prods;
-readCmp_prods();
-function readCmp_prods() {
-    let formData = new FormData();
-    formData.append('readCmp_prods', '');
-    fetch('../controladores/compras.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        cmp_prods = Object.values(data);
-        filterCmp_prods = cmp_prods;
-        paginacionProdOC(cmp_prods.length, 1);
-    }).catch(err => console.log(err));
+/*************  ✨ Codeium Command ⭐  *************/
+/**
+ * Lee todos los productos de compras
+ * @function readCmp_prods
+ */
+/******  d102cf09-0ba6-42a8-a04b-5f2704f5cb62  *******/
+async function readCmp_prods() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readCmp_prods', '');
+        fetch('../controladores/compras.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            cmp_prods = Object.values(data);
+            filterCmp_prods = cmp_prods;
+            paginacionProdOC(cmp_prods.length, 1);
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
 //------Cuando el producto llega, cambiar el estado del producto y registra fecha de llegada
 const formAddBuy = document.getElementById('formAddBuy');
@@ -1074,8 +1093,8 @@ function addBuysToInventory(id_cppd) {
         }
     }
     if (confirm('¿Esta usted seguro?')) {
-        if (rqstAddBuy == false) {
-            rqstAddBuy = true;
+        if (rqstBuy == false) {
+            rqstBuy = true;
             let formData = new FormData();
             formData.append('addBuysToInventory', JSON.stringify(array));
             formData.append('id_cmp', document.getElementsByName('id_cmp')[0].value);
@@ -1088,11 +1107,11 @@ function addBuysToInventory(id_cppd) {
                 body: formData
             }).then(response => response.text()).then(data => {
                 preloader.classList.remove('modal__show');
-                rqstAddBuy = false;
+                rqstBuy = false;
                 alert(data);
                 readBuys();
             }).catch(err => {
-                rqstAddBuy = false;
+                rqstBuy = false;
                 alert(err);
             });
         }
@@ -1115,10 +1134,6 @@ function deleteCmp_prod(id_cppd) {
         });
     }
 }
-
-
-
-
 //------------------------------MODAL ADD BUY TO INVETORY-----------------------------------------------------
 const addBuyMW = document.getElementById('addBuyMW');
 const closeAddBuyMW = document.getElementById('closeAddBuyMW');
@@ -1145,18 +1160,20 @@ closeCmp_prodRMW.addEventListener('click', (e) => {
 //------------------------------------------------TABLA MODAL PRODUCTS--------------------------------------------------
 let products = {};
 filterProductsMW = {};
-readProducts();
-function readProducts() {
-    let formData = new FormData();
-    formData.append('readProducts', '');
-    fetch('../controladores/productos.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        products = JSON.parse(JSON.stringify(data));
-        filterProductsMW = products;
-        paginacionProductMW(Object.values(filterProductsMW).length, 1);
-    }).catch(err => console.log(err));
+async function readProducts() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readProducts', '');
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            products = JSON.parse(JSON.stringify(data));
+            filterProductsMW = products;
+            paginacionProductMW(Object.values(filterProductsMW).length, 1);
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
 //------Select utilizado para buscar por columnas
 const selectSearchProdMW = document.getElementById('selectSearchProdMW');
@@ -1469,32 +1486,36 @@ closeProductSMW.addEventListener('click', () => {
 /*-----------------------------------------Marca y categoria producto-------------------------------------------------*/
 //-------Read all Marcas
 let marcas = {};
-readAllMarcas();
-function readAllMarcas() {
-    let formData = new FormData();
-    formData.append('readMarcas', '');
-    fetch('../controladores/productos.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        marcas = JSON.parse(JSON.stringify(data));
-        selectMarcaProdR();
-        selectMarcaProductMW();
-        selectMarcaProdM();
-    }).catch(err => console.log(err));
+async function readAllMarcas() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readMarcas', '');
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            marcas = JSON.parse(JSON.stringify(data));
+            selectMarcaProdR();
+            selectMarcaProductMW();
+            selectMarcaProdM();
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
 //-------Read all categorias
 let categorias = {};
-readAllCategorias();
-function readAllCategorias() {
-    let formData = new FormData();
-    formData.append('readCategorias', '');
-    fetch('../controladores/productos.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        categorias = JSON.parse(JSON.stringify(data));
-    }).catch(err => console.log(err));
+async function readAllCategorias() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readCategorias', '');
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            categorias = JSON.parse(JSON.stringify(data));
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
 /***************************MARCA Y CATEGORIA PARA FORMULARIO DE REGSITRO DE PRODUCTOS***************************/
 const marca_prodR = document.getElementById('marca_prodR');
@@ -1608,8 +1629,8 @@ function selectCategoriaProductMW() {
 document.getElementById("formProductsR").addEventListener("submit", createProduct);
 function createProduct() {
     event.preventDefault();
-    if (requestProducts == false) {
-        requestProducts = true;
+    if (rqstBuy == false) {
+        rqstBuy = true;
         if (marca_prodR.value == "todasLasMarcas") {
             alert("Debe seleccionar una marca");
         } else if (categoria_prodR.value == "todasLasCategorias") {
@@ -1625,7 +1646,7 @@ function createProduct() {
                 body: formData
             }).then(response => response.text()).then(data => {
                 preloader.classList.remove('modal__show');
-                requestProducts = false;
+                rqstBuy = false;
                 if (data == "El codigo ya existe") {
                     alert(data);
                 } else {
@@ -1634,7 +1655,7 @@ function createProduct() {
                     cleanUpProductFormR();
                 }
             }).catch(err => {
-                requestProducts = false;
+                rqstBuy = false;
                 alert(err);
             });
         }
@@ -1669,8 +1690,8 @@ function readProduct(tr) {
 document.getElementById("formProductsM").addEventListener("submit", updateProduct);
 function updateProduct() {
     event.preventDefault();
-    if (requestProducts == false) {
-        requestProducts = true;
+    if (rqstBuy == false) {
+        rqstBuy = true;
         if (marca_prodM.value == "todasLasMarcas") {
             alert("Debe seleccionar una marca");
         } else if (categoria_prodM.value == "todasLasCategorias") {
@@ -1686,11 +1707,11 @@ function updateProduct() {
                 body: formData
             }).then(response => response.text()).then(data => {
                 preloader.classList.remove('modal__show');
-                requestProducts = false;
+                rqstBuy = false;
                 readProducts();
                 alert(data);
             }).catch(err => {
-                requestProducts = false;
+                rqstBuy = false;
                 alert(err);
             });
         }
@@ -2065,5 +2086,3 @@ openProdOC.addEventListener('click', () => {
 closeTableProdOC.addEventListener('click', () => {
     tableProdOC.classList.remove('modal__show');
 })
-//-----------------------------------------PRE LOADER---------------------------------------------
-const preloader = document.getElementById('preloader');

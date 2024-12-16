@@ -34,15 +34,24 @@ if (localStorage.getItem('rol_usua') == 'Ingeniero') {
 //----------------------------------------------BLOCK REQUEST WITH A FLAG AND PRELOADER----------------------------------------------
 let rqstUsua = false;
 const preloader = document.getElementById('preloader');
+init();
+async function init() {
+    if (rqstUsua == false) {
+        rqstUsua = true;
+        preloader.classList.add('modal__show');
+        readUsers().then(() => {
+            preloader.classList.remove('modal__show');
+            rqstUsua = false;
+        });
+    }
+}
 //<<-------------------------------------------CARGAR LA TABLA----------------------------------------------------->>
 //------Leer tabla de usuarios
-let usuarios = {};
-readUsers();
-function readUsers() {
+let usuarios = [];
+async function readUsers() {
     return new Promise((resolve) => {
         let tbody = document.getElementById("tbody");
         tbody.innerHTML = '';
-        preloader.classList.add('modal__show');
         let formData = new FormData();
         formData.append('readUsers', '');
         fetch('../controladores/usuarios.php', {
@@ -50,91 +59,78 @@ function readUsers() {
             body: formData
         }).then(response => response.json()).then(data => {
             usuarios = data;
-            tableUsers().then(() => {
-                preloader.classList.remove('modal__show');
-                resolve();
-            });
-        }).catch(err => console.log(err));
+            tableUsers();
+            resolve();
+        }).catch(err => {
+            alert('Ocurrio un error al cargar la tabla de usuarios, cargue nuevamente la pagina');
+        });
     });
 }
 function tableUsers() {
-    return new Promise((resolve) => {
-        if (localStorage.getItem('rol_usua') == 'Gerente general') {
-            filterTableUsers(usuarios).then(() => {
-                resolve();
-            });
-        } else if (localStorage.getItem('rol_usua') == 'Administrador') {
-            let data = {};
-            for (let usuario in usuarios) {
-                if (usuarios[usuario]['rol_usua'] != 'Gerente general') {
-                    data[usuarios[usuario]['id_usua']] = usuarios[usuario];
-                }
+    if (localStorage.getItem('rol_usua') == 'Gerente general') {
+        filterTableUsers(usuarios);
+    } else if (localStorage.getItem('rol_usua') == 'Administrador') {
+        let data = {};
+        for (let usuario in usuarios) {
+            if (usuarios[usuario]['rol_usua'] != 'Gerente general') {
+                data[usuarios[usuario]['id_usua']] = usuarios[usuario];
             }
-            filterTableUsers(data).then(() => {
-                resolve();
-            });
-        } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
-            let data = {};
-            for (let usuario in usuarios) {
-                if (usuarios[usuario]['id_usua'] == localStorage.getItem('id_usua')) {
-                    data[usuarios[usuario]['id_usua']] = usuarios[usuario];
-                }
-            }
-            filterTableUsers(data).then(() => {
-                resolve();
-            });
         }
-    });
+        filterTableUsers(data);
+    } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
+        let data = {};
+        for (let usuario in usuarios) {
+            if (usuarios[usuario]['id_usua'] == localStorage.getItem('id_usua')) {
+                data[usuarios[usuario]['id_usua']] = usuarios[usuario];
+            }
+        }
+        filterTableUsers(data);
+    }
 }
 function filterTableUsers(data) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            let i = 1;
-            for (let usuario in data) {
-                let tr = document.createElement('tr');
-                for (let columna in data[usuario]) {
-                    if (columna == 'id_usua') {
-                        let td = document.createElement('td');
-                        td.innerText = data[usuario][columna];
-                        td.setAttribute('hidden', '');
-                        tr.appendChild(td);
-                        td = document.createElement('td');
-                        td.innerText = i;
-                        tr.appendChild(td);
-                        i++;
-                    } else {
-                        let td = document.createElement('td');
-                        td.innerText = data[usuario][columna];
-                        tr.appendChild(td);
-                    }
-                }
+    let i = 1;
+    for (let usuario in data) {
+        let tr = document.createElement('tr');
+        for (let columna in data[usuario]) {
+            if (columna == 'id_usua') {
                 let td = document.createElement('td');
-                if (localStorage.getItem('rol_usua') == 'Gerente general') {
-                    if (data[usuario]['rol_usua'] != 'Gerente general') {
-                        td.innerHTML = `
+                td.innerText = data[usuario][columna];
+                td.setAttribute('hidden', '');
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.innerText = i;
+                tr.appendChild(td);
+                i++;
+            } else {
+                let td = document.createElement('td');
+                td.innerText = data[usuario][columna];
+                tr.appendChild(td);
+            }
+        }
+        let td = document.createElement('td');
+        if (localStorage.getItem('rol_usua') == 'Gerente general') {
+            if (data[usuario]['rol_usua'] != 'Gerente general') {
+                td.innerHTML = `
                 <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)' title='Editar usuario'>
                 <img src='../imagenes/trash.svg' onclick='deleteUser(this.parentNode.parentNode)' title='Eliminar usuario'>`;
-                    } else {
-                        td.innerHTML = `
+            } else {
+                td.innerHTML = `
                 <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)' title='Editar usuario'>`;
-                    }
-                } else {
-                    if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
-                        td.innerHTML = `
-                <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)' title='Editar usuario'>`;
-                    } else if (localStorage.getItem('rol_usua') == 'Administrador') {
-                        if (data[usuario]['id_usua'] == localStorage.getItem('id_usua')) {
-                            td.innerHTML = `
-                    <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)' title='Editar usuario'>`;
-                        }
-                    }
-                }
-                tr.appendChild(td);
-                tbody.appendChild(tr);
             }
-            resolve();
-        }, 2000);
-    });
+        } else {
+            if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
+                td.innerHTML = `
+                <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)' title='Editar usuario'>`;
+            } else if (localStorage.getItem('rol_usua') == 'Administrador') {
+                if (data[usuario]['id_usua'] == localStorage.getItem('id_usua')) {
+                    td.innerHTML = `
+                    <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)' title='Editar usuario'>`;
+                }
+            }
+        }
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+    }
 }
 //------Buscar 
 const search = document.getElementById("buscar");
@@ -168,9 +164,9 @@ function createUser() {
                 body: formData
             }).then(response => response.text()).then(data => {
                 if (data != 'El email ya existe') {
+                    rqstUsua = false;
                     readUsers().then(() => {
                         usersRMW.classList.remove('modal__show');
-                        rqstUsua = false;
                         form.reset();
                         alert(data);
                     })
@@ -181,7 +177,7 @@ function createUser() {
             }).catch(err => {
                 rqstUsua = false;
                 Promise.resolve().then(() => {
-                    alert(err);
+                    alert('Ocurrio un error al crear el usuario, cargue nuevamente la pagina');
                 });
             });
         }
@@ -239,14 +235,15 @@ function updateUser() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                preloader.classList.remove('modal__show');
-                rqstUsua = false;
-                cleanUpFormModify();
-                readUsers();
-                alert(data)
+                readUsers().then(() => {
+                    rqstUsua = false;
+                    preloader.classList.remove('modal__show');
+                    cleanUpFormModify();
+                    alert(data);
+                });
             }).catch(err => {
                 rqstUsua = false;
-                alert(err);
+                alert('Ocurrio un error al actualizar el usuario, cargue nuevamente la pagina');
             });
         }
     } else {
@@ -266,13 +263,15 @@ function deleteUser(usuario) {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                preloader.classList.remove('modal__show');
-                rqstUsua = false;
-                readUsers();
-                alert(data);
+                readUsers().then(() => {
+                    preloader.classList.remove('modal__show');
+                    rqstUsua = false;
+                    alert(data);
+                })
+
             }).catch(err => {
                 rqstUsua = false;
-                alert(err);
+                alert('Ocurrio un error al borrar el usuario, cargue nuevamente la pagina');
             });
         }
     }

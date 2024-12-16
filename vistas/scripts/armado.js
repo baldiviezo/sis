@@ -1,5 +1,3 @@
-//----------------------------------------------BLOCK REQUEST WITH A FLAG----------------------------------------------
-let rqstCreateArmed = false;
 //-----------------------------------------------FECHA ACTUAL-------------------------------------
 const date = new Date();
 const dateFormat = new Intl.DateTimeFormat('es-ES', {
@@ -15,23 +13,38 @@ const dateFormat = new Intl.DateTimeFormat('es-ES', {
 const formattedDate = dateFormat.format(date);
 const datePart = formattedDate.split(', ');
 const dateActual = datePart[0].split('/');
+//-----------------------------------------PRE LOADER---------------------------------------------
+let rqstArmed = false;
+const preloader = document.getElementById('preloader');
+init();
+async function init() {
+    if (!rqstArmed) {
+        rqstArmed = true;
+        preloader.classList.add('modal__show');
+        Promise.all([readArmeds(), readInventories(), readProducts(), readAllMarcas(), readAllCategorias()]).then(() => {
+            rqstArmed = false;
+            preloader.classList.remove('modal__show');
+        });
+    }
+}
 //--------------------------------------------TABLE ARMED------------------------------------
 //------read armed
 let armeds = {};
 let filterArmeds = {};
-readArmeds();
-function readArmeds() {
-    let formData = new FormData();
-    formData.append('readArmeds', '');
-    fetch('../controladores/armado.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        armeds = data;
-        filterArmeds = armeds;
-        paginacionArmed(Object.values(filterArmeds).length, 1);
-    }).catch(err => console.log(err));
-
+async function readArmeds() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readArmeds', '');
+        fetch('../controladores/armado.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            armeds = Object.values(data);
+            filterArmeds = armeds;
+            paginacionArmed(filterArmeds.length, 1);
+            resolve();
+        }).catch(err => console.log(err));
+    });
 }
 //------Select utilizado para buscar por columnas
 const selectSearchRmd = document.getElementById('selectSearchRmd');
@@ -214,8 +227,8 @@ function createArmed() {
                 array.push(valor);
             })
             if (confirm('¿Esta usted seguro?')) {
-                if (rqstCreateArmed == false) {
-                    rqstCreateArmed = true;
+                if (rqstArmed == false) {
+                    rqstArmed = true;
                     let form = document.getElementById("formArmedR");
                     let formData = new FormData(form);
                     formData.set("fecha_rmdR", `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`);
@@ -226,14 +239,14 @@ function createArmed() {
                         method: 'POST',
                         body: formData
                     }).then(response => response.text()).then(data => {
-                        preloader.classList.remove('modal__show');
-                        rqstCreateArmed = false;
-                        alert(data);
-                        readArmeds();
-                        cleanUpArmedFormR();
-                        readInventories();
+                        Promise.all([readArmeds(), readInventories()]).then(() => {
+                            preloader.classList.remove('modal__show');
+                            rqstArmed = false;
+                            alert(data);
+                            cleanUpArmedFormR();
+                        });
                     }).catch(err => {
-                        rqstCreateArmed = false;
+                        rqstArmed = false;
                         alert(err);
                     });
                 }
@@ -275,18 +288,20 @@ closeArmedRMW.addEventListener('click', () => {
 //-------------------------------------------------TABLA MODAL INVENTARIOMW------------------------------------------------------------
 let inventories = {};
 let filterInventoriesMW = {};
-readInventories();
-function readInventories() {
-    let formData = new FormData();
-    formData.append('readInventories', '');
-    fetch('../controladores/inventario.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        inventories = JSON.parse(JSON.stringify(data));
-        filterInventoriesMW = inventories;
-        paginacionInventoryMW(Object.values(data).length, 1);
-    }).catch(err => console.log(err));
+async function readInventories() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readInventories', '');
+        fetch('../controladores/inventario.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            inventories = Object.values(data);
+            filterInventoriesMW = inventories;
+            paginacionInventoryMW(inventories.length, 1);
+            resolve();
+        }).catch(err => console.log(err));
+    });
 }
 //------Select utilizado para buscar por columnas
 const selectSearchInvMW = document.getElementById('selectSearchInvMW');
@@ -567,18 +582,20 @@ function getNewPosition(column, posY) {
 //------------------------------------------------TABLA MODAL PRODUCTS--------------------------------------------------
 let products = {};
 filterProductsMW = {};
-readProducts();
-function readProducts() {
-    let formData = new FormData();
-    formData.append('readProducts', '');
-    fetch('../controladores/productos.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        products = JSON.parse(JSON.stringify(data));
-        filterProductsMW = products;
-        paginacionProductMW(Object.values(filterProductsMW).length, 1);
-    }).catch(err => console.log(err));
+async function readProducts() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readProducts', '');
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            products = Object.values(data);
+            filterProductsMW = products;
+            paginacionProductMW(filterProductsMW.length, 1);
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
 //------Select utilizado para buscar por columnas
 const selectSearchProdMW = document.getElementById('selectSearchProdMW');
@@ -785,29 +802,37 @@ closeProductSMW.addEventListener('click', () => {
 //---------------------------------------------------CRUD PRODUCTOS----------------------------------------------------------------
 //------Create un producto
 document.getElementById("formProductsR").addEventListener("submit", createProduct);
-function createProduct() {
+async function createProduct() {
     event.preventDefault();
     if (marca_prodR.value == "todasLasMarcas") {
         alert("Debe seleccionar una marca");
     } else if (categoria_prodR.value == "todasLasCategorias") {
         alert("Debe seleccionar una categoria");
     } else {
-        productsRMW.classList.remove('modal__show');
-        let form = document.getElementById("formProductsR");
-        let formData = new FormData(form);
-        formData.append('createProduct', '');
-        fetch('../controladores/productos.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            if (data == "El codigo ya existe") {
-                alert(data);
-            } else {
-                alert("El producto fue creado con éxito");
-                readProducts();
-                cleanUpProductFormR();
-            }
-        }).catch(err => console.log(err));
+        if (!rqstArmed) {
+            rqstArmed = true;
+            productsRMW.classList.remove('modal__show');
+            let form = document.getElementById("formProductsR");
+            let formData = new FormData(form);
+            formData.append('createProduct', '');
+            preloader.classList.add('modal__show');
+            fetch('../controladores/productos.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                rqstArmed = false;
+                if (data == "El codigo ya existe") {
+                    preloader.classList.remove('modal__show');
+                    alert(data);
+                } else {
+                    readProducts().then(() => {
+                        cleanUpProductFormR();
+                        alert("El producto fue creado con éxito");
+                        preloader.classList.remove('modal__show');
+                    })
+                }
+            }).catch(err => console.log(err));
+        }
     }
 }
 //---------------------------------VENTANA MODAL PARA REGISTRAR PRODUCTOS------------------------------>>
@@ -905,32 +930,36 @@ function processFile(file) {
 /*-----------------------------------------Marca y categoria producto-------------------------------------------------*/
 //-------Read all Marcas
 let marcas = {};
-readAllMarcas();
-function readAllMarcas() {
-    let formData = new FormData();
-    formData.append('readMarcas', '');
-    fetch('../controladores/productos.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        marcas = JSON.parse(JSON.stringify(data));
-        selectMarcaProdR();
-        selectMarcaProductMW();
-        selectMarcaInventoryMW();
-    }).catch(err => console.log(err));
+async function readAllMarcas() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readMarcas', '');
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            marcas = JSON.parse(JSON.stringify(data));
+            selectMarcaProdR();
+            selectMarcaProductMW();
+            selectMarcaInventoryMW();
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
 //-------Read all categorias
 let categorias = {};
-readAllCategorias();
-function readAllCategorias() {
-    let formData = new FormData();
-    formData.append('readCategorias', '');
-    fetch('../controladores/productos.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        categorias = JSON.parse(JSON.stringify(data));
-    }).catch(err => console.log(err));
+async function readAllCategorias() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readCategorias', '');
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            categorias = JSON.parse(JSON.stringify(data));
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
 /*----------------------------------------------Marca y categoria  modal inventory-------------------------------------------------*/
 //-------Select de marcas
@@ -1039,6 +1068,3 @@ function selectCategoriaProdR() {
         }
     }
 }
-//-----------------------------------------PRE LOADER---------------------------------------------
-const preloader = document.getElementById('preloader');
-

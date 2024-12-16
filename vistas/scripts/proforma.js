@@ -12,8 +12,19 @@ if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol
 }
 //-----------------------------------------PRE LOADER---------------------------------------------
 const preloader = document.getElementById('preloader');
-//-----------------------------------------Block request with a flag---------------------------------------------
 let requestProf = false;
+init();
+async function init() {
+    if (requestProf == false) {
+        requestProf = true;
+        preloader.classList.add('modal__show');
+        Promise.all([readProducts(), readProformas(), readMdfProforma(), readProf_prods(), readmProf_prods(), readCustomers(), readEnterprises(), readInventories(), readAllMarcas(), readAllCategorias()])
+            .then(() => {
+                preloader.classList.remove('modal__show');
+                requestProf = false;
+            })
+    }
+}
 //-----------------------------------------------FECHA ACTUAL-------------------------------------
 const date = new Date();
 const dateFormat = new Intl.DateTimeFormat('es-ES', {
@@ -33,20 +44,22 @@ const dateActual = datePart[0].split('/');
 let products = [];
 let filterProducts = [];
 let filterProductsMW = [];
-readProducts();
-function readProducts() {
-    let formData = new FormData();
-    formData.append('readProducts', '');
-    fetch('../controladores/productos.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        products = Object.values(data);
-        filterProducts = products;
-        filterProductsMW = products;
-        paginacionProduct(products.length, 1);
-        paginacionProductMW(products.length, 1);
-    }).catch(err => console.log(err));
+async function readProducts() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readProducts', '');
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            products = Object.values(data);
+            filterProducts = products;
+            filterProductsMW = products;
+            paginacionProduct(products.length, 1);
+            paginacionProductMW(products.length, 1);
+            resolve();
+        }).catch(err => alert('Ocurrio un error al cargar los productos, cargue nuevamente la pagina.'));
+    })
 }
 //------Select utilizado para buscar por columnas
 const selectSearchProduct = document.getElementById('selectSearchProduct');
@@ -305,23 +318,26 @@ selectMoneyCart.addEventListener('change', function () {
 let proformas = [];
 let filterProformas = [];
 let formProformas;
-readProformas();
-function readProformas() {
-    let formData = new FormData();
-    formData.append('readProformas', '');
-    fetch('../controladores/proforma.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
-            proformas = Object.values(data);
-            filterProformas = proformas;
-        } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
-            proformas = Object.values(data).filter(proforma => proforma.fk_id_usua_prof === localStorage.getItem('id_usua'));
-            filterProformas = proformas;
-        }
-        paginacionProforma(proformas.length, 1);
-    }).catch(err => console.log(err));
+async function readProformas() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readProformas', '');
+        fetch('../controladores/proforma.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
+                proformas = Object.values(data);
+                filterProformas = proformas;
+                resolve();
+            } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
+                proformas = Object.values(data).filter(proforma => proforma.fk_id_usua_prof === localStorage.getItem('id_usua'));
+                filterProformas = proformas;
+                resolve();
+            }
+            paginacionProforma(proformas.length, 1);
+        }).catch(err => console.log(err));
+    })
 }
 //------Select utilizado para buscar por columnas
 const selectSearchProf = document.getElementById('selectSearchProf');
@@ -538,7 +554,7 @@ closeTableProfMW.addEventListener('click', (e) => {
 //---------------------------------------------------------CRUD PROFORMA-------------------------------------------
 //------Create una proforma
 document.getElementById('formProformaR').addEventListener('submit', createProforma);
-function createProforma() {
+async function createProforma() {
     let cart = document.querySelectorAll('#cartItem .cart-item');
     if (cart.length > 0) {
         if (requestProf == false) {
@@ -571,12 +587,12 @@ function createProforma() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                requestProf = false;
-                totalPrice();
-                readProformas();
-                readProf_prods();
-                alert(data);
-                preloader.classList.remove('modal__show');
+                Promise.all([readProformas(), readProf_prods()]).then(() => {
+                    requestProf = false;
+                    totalPrice();
+                    preloader.classList.remove('modal__show');
+                    alert(data);
+                })
             }).catch(err => {
                 requestProf = false;
                 alert(err);
@@ -627,7 +643,7 @@ function readProforma(tr) {
 //------Update una proforma
 let formProformaM = document.getElementById('formProformaM');
 formProformaM.addEventListener('submit', updateProforma)
-function updateProforma() {
+async function updateProforma() {
     let modal = document.querySelector('#cartsProf_prodMW');
     let cartItems = modal.querySelectorAll('div.cart-item');
     if (cartItems.length > 0) {
@@ -656,13 +672,11 @@ function updateProforma() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                requestProf = false;
-                readProformas();
-                readProf_prods();
-                readMdfProforma();
-                readmProf_prods();
-                preloader.classList.remove('modal__show');
-                alert(data);
+                Promise.all([readProformas(), readProf_prods(), readMdfProforma(), readmProf_prods()]).then(() => {
+                    requestProf = false;
+                    preloader.classList.remove('modal__show');
+                    alert(data);
+                })
             }).catch(err => {
                 requestProf = false;
                 alert(err);
@@ -673,7 +687,7 @@ function updateProforma() {
     }
 }
 //-------Delete una proforma
-function deleteProforma(tr) {
+async function deleteProforma(tr) {
     if (confirm('¿Esta usted seguro?')) {
         if (requestProf == false) {
             requestProf = true;
@@ -685,10 +699,11 @@ function deleteProforma(tr) {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                requestProf = false;
-                readProformas();
-                preloader.classList.remove('modal__show');
-                alert(data);
+                readProformas().then(() => {
+                    requestProf = false;
+                    preloader.classList.remove('modal__show');
+                    alert(data);
+                })
             }).catch(err => {
                 requestProf = false;
                 alert(err);
@@ -747,16 +762,18 @@ function isInteger(input) {
 //-------------------------------------------------------CRUD PROFORMAS MODIFICADAS---------------------------------
 let mdfPproforma = [];
 let filtermdfPproforma = [];
-readMdfProforma()
-function readMdfProforma() {
-    let formData = new FormData();
-    formData.append('read_mdf_Proforma', '')
-    fetch('../controladores/proforma.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        mdfPproforma = Object.values(data);
-    }).catch(err => console.log(err));
+async function readMdfProforma() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('read_mdf_Proforma', '')
+        fetch('../controladores/proforma.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            mdfPproforma = Object.values(data);
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
 function showMdfProforma(id_prof) {
     tablemProfMW.classList.add('modal__show');
@@ -822,7 +839,7 @@ function showMdfProforma(id_prof) {
     }
 }
 //-------Delete una proforma modificada
-function deleteMdfProforma(tr) {
+async function deleteMdfProforma(tr) {
     if (confirm('¿Esta usted seguro?')) {
         if (requestProf == false) {
             requestProf = true;
@@ -835,10 +852,10 @@ function deleteMdfProforma(tr) {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                requestProf = false;
-                readMdfProforma();
-                readmProf_prods();
-                alert(data);
+                Promise.all([readMdfProforma(), readmProf_prods()]).then(() => {
+                    requestProf = false;
+                    alert(data);
+                });
                 preloader.classList.remove('modal__show');
             }).catch(err => {
                 requestProf = false;
@@ -937,28 +954,32 @@ function showPDF(prof_mprof_ne, pf_pd, pdf) {
 }
 //------------------------------------------------CRUD PROF_PROD------------------------------------------------------------
 let prof_prods = [];
-readProf_prods();
-function readProf_prods() {
-    let formData = new FormData();
-    formData.append('readProf_prods', '');
-    fetch('../controladores/proforma.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        prof_prods = Object.values(data);
-    }).catch(err => console.log(err));
+async function readProf_prods() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readProf_prods', '');
+        fetch('../controladores/proforma.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            prof_prods = Object.values(data);
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
 let mProf_prods = [];
-readmProf_prods();
-function readmProf_prods() {
-    let formData = new FormData();
-    formData.append('readmProf_prods', '');
-    fetch('../controladores/proforma.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        mProf_prods = Object.values(data);
-    }).catch(err => console.log(err));
+async function readmProf_prods() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readmProf_prods', '');
+        fetch('../controladores/proforma.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            mProf_prods = Object.values(data);
+            resolve();
+        }).catch(err => console.log(err));
+    });
 }
 //------read prof_prod
 let modalProf_prod = document.querySelector('#prof_prodMW div.modal__body');
@@ -1204,7 +1225,7 @@ function readProductsSold(products) {
     document.getElementById('btnBuy').removeAttribute('hidden');
     productsSold.classList.add('modal__show');
 }
-function createNotaEntrega() {
+async function createNotaEntrega() {
     const carts = productsSold.querySelectorAll('#cartsProductsSold div.cart-item');
     const arrayObjetos = [];
     let count = true;
@@ -1241,12 +1262,12 @@ function createNotaEntrega() {
                     method: "POST",
                     body: formData
                 }).then(response => response.text()).then(data => {
-                    requestProf = false;
-                    alert(data);
-                    form.reset();
-                    readProformas();
-                    readInventories();
-                    preloader.classList.remove('modal__show');
+                    Promise.all([readProformas(), readInventories()]).then(() => {
+                        requestProf = false;
+                        alert(data);
+                        form.reset();
+                        preloader.classList.remove('modal__show');
+                    })
                 }).catch(err => {
                     requestProf = false;
                     alert(err);
@@ -1277,21 +1298,24 @@ let chooseCustomer = [];
 let filterChooseClte = [];
 let indexCustomer = 0;
 let formCustomer;
-readCustomers();
-function readCustomers() {
-    let formData = new FormData();
-    formData.append('readCustomers', '');
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        customers = Object.values(data);
-        sortCustomers = [...customers].sort((a, b) => {
-            const apellidoCompare = a.apellido_clte.localeCompare(b.apellido_clte);
-            return apellidoCompare !== 0 ? apellidoCompare : a.nombre_clte.localeCompare(b.nombre_clte);
-        });
-        fillSelectClte(selectCustomerR, indexCustomer);
-    }).catch(err => console.log(err));
+async function readCustomers() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readCustomers', '');
+        fetch('../controladores/clientes.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            customers = Object.values(data);
+            sortCustomers = [...customers].sort((a, b) => {
+                const apellidoCompare = a.apellido_clte.localeCompare(b.apellido_clte);
+                return apellidoCompare !== 0 ? apellidoCompare : a.nombre_clte.localeCompare(b.nombre_clte);
+            });
+            fillSelectClte(selectCustomerR, indexCustomer);
+            resolve();
+        }).catch(err => console.log(err));
+    })
+
 }
 //---------------------------------------------TABLA MODAL CUSTOMER---------------------------------
 //------Select utilizado para buscar por columnas
@@ -1433,7 +1457,7 @@ closeCustomerSMW.addEventListener('click', () => {
 //------Create a customer
 const formClienteR = document.getElementById('formClienteR');
 formClienteR.addEventListener('submit', createCustomer);
-function createCustomer() {
+async function createCustomer() {
     event.preventDefault();
     if (requestProf == false) {
         requestProf = true;
@@ -1445,12 +1469,13 @@ function createCustomer() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            requestProf = false;
-            alert(data);
-            indexCustomer = -1;
-            readCustomers();
-            formClienteR.reset();
-            preloader.classList.remove('modal__show');
+            readCustomers().then(() => {
+                requestProf = false;
+                indexCustomer = -1;
+                formClienteR.reset();
+                preloader.classList.remove('modal__show');
+                alert(data);
+            });
         }).catch(err => {
             requestProf = false;
             alert(err);
@@ -1475,7 +1500,7 @@ function readCustomer(tr) {
 //------Update a Customer
 const formClienteM = document.getElementById('formClienteM');
 formClienteM.addEventListener('submit', updateCustomer);
-function updateCustomer() {
+async function updateCustomer() {
     event.preventDefault();
     if (requestProf == false) {
         requestProf = true;
@@ -1487,11 +1512,12 @@ function updateCustomer() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            requestProf = false;
-            alert(data);
-            indexCustomer = selectCustomerR.value;
-            readCustomers();
-            preloader.classList.remove('modal__show');
+            readCustomers().then(() => {
+                requestProf = false;
+                indexCustomer = selectCustomerR.value;
+                preloader.classList.remove('modal__show');
+                alert(data);
+            })
         }).catch(err => {
             requestProf = false;
             alert(err);
@@ -1499,7 +1525,7 @@ function updateCustomer() {
     }
 }
 //------Delete a Customer
-function deleteCustomer(tr) {
+async function deleteCustomer(tr) {
     if (confirm('¿Esta usted seguro?')) {
         if (requestProf == false) {
             requestProf = true;
@@ -1511,11 +1537,12 @@ function deleteCustomer(tr) {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                requestProf = false;
-                alert(data)
-                indexCustomer = 0;
-                readCustomers();
-                preloader.classList.remove('modal__show');
+                readCustomers().then(() => {
+                    requestProf = false;
+                    preloader.classList.remove('modal__show');
+                    indexCustomer = 0;
+                    alert(data);
+                });
             }).catch(err => {
                 requestProf = false;
                 alert(err)
@@ -1565,20 +1592,22 @@ let enterprises = [];
 let filterEnterprises = [];
 let sortEnterprises = [];
 let indexEnterprise = 0;
-readEnterprises();
-function readEnterprises() {
-    let formData = new FormData();
-    formData.append('readEnterprises', '');
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        enterprises = Object.values(data);
-        filterEnterprises = enterprises;
-        sortEnterprises = [...enterprises].sort((a, b) => a.nombre_emp.localeCompare(b.nombre_emp));
-        paginacionEnterpriseMW(enterprises.length, 1);
-        fillSelectEmp(selectEnterpriseR, indexEnterprise);
-    }).catch(err => console.log(err));
+async function readEnterprises() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readEnterprises', '');
+        fetch('../controladores/clientes.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            enterprises = Object.values(data);
+            filterEnterprises = enterprises;
+            sortEnterprises = [...enterprises].sort((a, b) => a.nombre_emp.localeCompare(b.nombre_emp));
+            paginacionEnterpriseMW(enterprises.length, 1);
+            fillSelectEmp(selectEnterpriseR, indexEnterprise);
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
 //<<---------------------------------------TABLA MODAL EMPRESA--------------------------------------->>
 //------Select utilizado para buscar por columnas
@@ -1772,7 +1801,7 @@ closeEnterpriseSMW.addEventListener('click', () => {
 //------Craer una empresa
 const formEmpresaR = document.getElementById('formEmpresaR');
 formEmpresaR.addEventListener('submit', createEnterprise);
-function createEnterprise() {
+async function createEnterprise() {
     event.preventDefault();
     if (requestProf == false) {
         requestProf = true;
@@ -1784,13 +1813,13 @@ function createEnterprise() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            requestProf = false;
-            indexEnterprise = -1;
-            formEmpresaR.reset();
-            readCustomers();
-            readEnterprises();
-            alert(data);
-            preloader.classList.remove('modal__show');
+            Promise.all([readCustomers(), readEnterprises()]).then(() => {
+                requestProf = false;
+                indexEnterprise = -1;
+                formEmpresaR.reset();
+                alert(data);
+                preloader.classList.remove('modal__show');
+            })
         }).catch(err => {
             requestProf = false;
             alert(err);
@@ -1813,7 +1842,7 @@ function readEnterprise(div) {
 //------Actualizar una empresa
 let formEmpresaM = document.getElementById('formEmpresaM');
 formEmpresaM.addEventListener('submit', updateEnterprise);
-function updateEnterprise() {
+async function updateEnterprise() {
     event.preventDefault();
     if (requestProf == false) {
         requestProf = true;
@@ -1825,11 +1854,12 @@ function updateEnterprise() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            requestProf = false;
-            indexEnterprise = document.getElementsByName('fk_id_emp_clteR')[0].value;
-            readEnterprises();
-            alert(data);
-            preloader.classList.remove('modal__show');
+            readEnterprises().then(() => {
+                requestProf = false;
+                indexEnterprise = document.getElementsByName('fk_id_emp_clteR')[0].value;
+                alert(data);
+                preloader.classList.remove('modal__show');
+            })
         }).catch(err => {
             requestProf = false;
             alert(err);
@@ -1837,7 +1867,7 @@ function updateEnterprise() {
     }
 }
 //------Borrar una empresa
-function deleteEnterprise(div) {
+async function deleteEnterprise(div) {
     let id_emp = div.children[0].value;
     if (confirm('¿Esta usted seguro?')) {
         if (requestProf == false) {
@@ -1849,11 +1879,12 @@ function deleteEnterprise(div) {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                requestProf = false;
-                alert(data);
-                indexEnterprise = 0;
-                readEnterprises();
-                preloader.classList.remove('modal__show');
+                readEnterprises().then(() => {
+                    requestProf = false;
+                    alert(data);
+                    indexEnterprise = 0;
+                    preloader.classList.remove('modal__show');
+                })
             }).catch(err => {
                 requestProf = false;
                 alert(err);
@@ -1879,18 +1910,20 @@ closeEnterprisesMMW.addEventListener('click', () => {
 //------------------------------------------------------INVENTARIO----------------------------------------------------------
 let inventories = [];
 let filterInventoriesMW = [];
-readInventories();
-function readInventories() {
-    let formData = new FormData();
-    formData.append('readInventories', '');
-    fetch('../controladores/inventario.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        inventories = Object.values(data)
-        filterInventoriesMW = inventories;
-        paginacionInventoryMW(inventories.length, 1);
-    }).catch(err => console.log(err));
+async function readInventories() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readInventories', '');
+        fetch('../controladores/inventario.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            inventories = Object.values(data)
+            filterInventoriesMW = inventories;
+            paginacionInventoryMW(inventories.length, 1);
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
 //-------------------------------------------------TABLA MODAL INVENTARIOMW------------------------------------------------------------
 //------Select utilizado para buscar por columnas
@@ -2234,7 +2267,7 @@ closeProductSMW.addEventListener('click', () => {
 //<<------------------------------------------CRUD DE PRODUCTS------------------------------------->>
 //------Create un producto
 document.getElementById("formProductsR").addEventListener("submit", createProduct);
-function createProduct() {
+async function createProduct() {
     event.preventDefault();
     if (marca_prodR.value == "todasLasMarcas") {
         alert("Debe seleccionar una marca");
@@ -2252,14 +2285,16 @@ function createProduct() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                preloader.classList.remove('modal__show');
                 requestProf = false;
                 if (data == "El codigo ya existe") {
+                    preloader.classList.remove('modal__show');
                     alert(data);
                 } else {
-                    alert("El producto fue creado con éxito");
-                    readProducts();
-                    form.reset();
+                    readProducts().then(() => {
+                        preloader.classList.remove('modal__show');
+                        form.reset();
+                        alert("El producto fue creado con éxito");
+                    });
                 }
             }).catch(err => {
                 requestProf = false;
@@ -2295,7 +2330,7 @@ function readProduct(tr) {
 }
 //-------Update un producto
 document.getElementById("formProductsM").addEventListener("submit", updateProduct);
-function updateProduct() {
+async function updateProduct() {
     event.preventDefault();
     if (marca_prodM.value == "todasLasMarcas") {
         alert("Debe seleccionar una marca");
@@ -2313,10 +2348,11 @@ function updateProduct() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                preloader.classList.remove('modal__show');
-                requestProf = false;
-                readProducts();
-                alert(data);
+                readProducts().then(() => {
+                    preloader.classList.remove('modal__show');
+                    requestProf = false;
+                    alert(data);
+                })
             }).catch(err => {
                 requestProf = false;
                 alert(err);
@@ -2499,35 +2535,39 @@ function processFileM(file) {
 /*-----------------------------------------Marca y categoria producto-------------------------------------------------*/
 //-------Read all Marcas
 let marcas = {};
-readAllMarcas();
-function readAllMarcas() {
-    let formData = new FormData();
-    formData.append('readMarcas', '');
-    fetch('../controladores/productos.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        marcas = JSON.parse(JSON.stringify(data));
-        selectMarcaProd();
-        selectMarcaProdR();
-        //selectMarcaInv();
-        selectMarcaProdM()
-        selectMarcaProductMW();
-        selectMarcaInventoryMW();
-    }).catch(err => console.log(err));
+async function readAllMarcas() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readMarcas', '');
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            marcas = data;
+            selectMarcaProd();
+            selectMarcaProdR();
+            //selectMarcaInv();
+            selectMarcaProdM()
+            selectMarcaProductMW();
+            selectMarcaInventoryMW();
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
 //-------Read all categorias
 let categorias = {};
-readAllCategorias();
-function readAllCategorias() {
-    let formData = new FormData();
-    formData.append('readCategorias', '');
-    fetch('../controladores/productos.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        categorias = JSON.parse(JSON.stringify(data));
-    }).catch(err => console.log(err));
+async function readAllCategorias() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readCategorias', '');
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            categorias = data;
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
 /*----------------------------------------------Marca y categoria inventary-------------------------------------------------*/
 //-------Select de marcas

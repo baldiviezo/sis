@@ -21,31 +21,39 @@ if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol
 //----------------------------------------------BLOCK REQUEST WITH A FLAG AND PRELOADER----------------------------------------------
 let requestClte = false;
 const preloader = document.getElementById('preloader');
-/************************************************TABLA DE CLIENTES*********************************************/
-let customers = {};
-let filterCustomers = {};
-readCustomers();
-async function readCustomers() {
-    return new Promise((resolve, reject) => {
-        if (!requestClte) {
-            requestClte = true;
-            preloader.classList.add('modal__show');
-            let formData = new FormData();
-            formData.append('readCustomers', '');
-            fetch('../controladores/clientes.php', {
-                method: "POST",
-                body: formData
-            }).then(response => response.json()).then(data => {
-                customers = Object.values(data).filter(customer => customer.nombre_clte !== '' && customer.apellido_clte !== '');
-                filterCustomers = customers;
-                paginacionCustomer(customers.length, 1);
-                preloader.classList.remove('modal__show');
+init();
+async function init() {
+    if (!requestClte) {
+        requestClte = true;
+        preloader.classList.add('modal__show');
+        await Promise.all([readCustomers(), readEnterprises()])
+            .then(() => {
                 requestClte = false;
-                resolve();
-            }).catch(err => {
+                preloader.classList.remove('modal__show');
+            })
+            .catch((error) => {
                 alert('Ocurrio un error al cargar la tabla de clientes. Cargue nuevamente la pagina.');
             });
-        }
+    }
+}
+/************************************************TABLA DE CLIENTES*********************************************/
+let customers = [];
+let filterCustomers = [];
+async function readCustomers() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readCustomers', '');
+        fetch('../controladores/clientes.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            customers = Object.values(data).filter(customer => customer.nombre_clte !== '' && customer.apellido_clte !== '');
+            filterCustomers = customers;
+            paginacionCustomer(customers.length, 1);
+            resolve();
+        }).catch(err => {
+            alert('Ocurrio un error al cargar la tabla de clientes. Cargue nuevamente la pagina.');
+        });
     })
 }
 //------Select utilizado para buscar por columnas
@@ -229,8 +237,8 @@ async function createCustomer() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            requestClte = false;
             readCustomers().then(() => {
+                requestClte = false;
                 preloader.classList.remove('modal__show');
                 let inputsR = document.querySelectorAll('#formClienteR .form__input');
                 inputsR.forEach(input => { input.value = '' });
@@ -238,7 +246,7 @@ async function createCustomer() {
             });
         }).catch(err => {
             requestClte = false;
-            alert(err)
+            alert('Ocurrio un error al crear el cliente. Cargue nuevamente la pagina.');
             reject(err);
         });
     }
@@ -276,14 +284,14 @@ async function updateCustomer() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            requestClte = false;
             readCustomers().then(() => {
+                requestClte = false;
                 preloader.classList.remove('modal__show');
                 alert(data);
             })
         }).catch(err => {
             requestClte = false;
-            alert(err)
+            alert('Ocurrio un error al actualizar el cliente. Cargue nuevamente la pagina.');
         });
     }
 }
@@ -300,14 +308,14 @@ async function deleteCustomer(tr) {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                requestClte = false;
                 readCustomers().then(() => {
+                    requestClte = false;
                     preloader.classList.remove('modal__show');
                     alert(data);
                 });
             }).catch(err => {
                 requestClte = false;
-                alert(err)
+                alert('Ocurrio un error al eliminar el cliente. Cargue nuevamente la pagina.');
             });
         }
     }
@@ -331,11 +339,10 @@ closeCustomersRMW.addEventListener('click', () => {
 //<<------------------------LLENAR LA LISTA DE EMPRESAS-------------------------------------->>
 const selectEnterpriseR = document.getElementsByName('fk_id_emp_clteR')[0];
 const selectEnterpriseM = document.getElementsByName('fk_id_emp_clteM')[0];
-let enterprises = {};
-let filterEnterprises = {};
+let enterprises = [];
+let filterEnterprises = [];
 let indexEnterprise = 0;
 let formEnterprise;
-readEnterprises();
 async function readEnterprises() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
@@ -350,7 +357,9 @@ async function readEnterprises() {
             fillSelectEmp(selectEnterpriseR, indexEnterprise);
             fillSelectEmp(selectEnterpriseM, indexEnterprise);
             resolve();
-        }).catch(err => console.log(err));
+        }).catch(err => {
+            alert('Ocurrio un error al cargar la table de empresas. Cargue nuevamente la pagina.');
+        });
     })
 }
 function fillSelectEmp(select, index) {
@@ -394,7 +403,7 @@ async function createEnterprise() {
             }
         }).catch(err => {
             requestClte = false;
-            alert(err)
+            alert('Ocurrio un error al crear la empresa. Cargue nuevamente la pagina.');
         });
     }
 }
@@ -437,7 +446,7 @@ async function updateEnterprise() {
             });
         }).catch(err => {
             requestClte = false;
-            alert(err)
+            alert('Ocurrio un error al actualizar la empresa. Cargue nuevamente la pagina.');
         });
     }
 }
@@ -462,7 +471,7 @@ async function deleteEnterprise(div) {
                 });
             }).catch(err => {
                 requestClte = false;
-                alert(err)
+                alert('Ocurrio un error al eliminar la empresa. Cargue nuevamente la pagina.');
             });
         }
     }
