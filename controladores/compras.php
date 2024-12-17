@@ -27,6 +27,11 @@ if (isset($_POST['deleteBuy'])) {
 	$deleteBuy = new consultas;
 	$deleteBuy->deleteBuy($_POST['deleteBuy']);
 }
+//------Change status
+if (isset($_POST['changeStateBuy'])) {
+	$changeStateBuy = new Consultas;
+	$changeStateBuy->changeStateBuy($_POST['changeStateBuy']);
+}
 //------read cpm_prod
 if (isset($_POST['readCmp_prods'])) {
 	$readCmp_prods = new Consultas;

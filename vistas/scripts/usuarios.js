@@ -149,13 +149,14 @@ function searchUsers() {
 //<<------------------------------CRUD USERS--------------------------------->>
 //------crear usuario
 document.getElementById("formUsersR").addEventListener("submit", createUser);
-function createUser() {
+async function createUser() {
     event.preventDefault();
     let pass1 = document.getElementsByName("contraseña_usua_R")[0];
     let pass2 = document.getElementsByName("contraseña2_usua_R")[0];
     if (pass1.value == pass2.value) {
         if (rqstUsua == false) {
             rqstUsua = true;
+            preloader.classList.add('modal__show');
             let form = document.getElementById("formUsersR");
             let formData = new FormData(form);
             formData.append('createUser', '');
@@ -166,6 +167,7 @@ function createUser() {
                 if (data != 'El email ya existe') {
                     rqstUsua = false;
                     readUsers().then(() => {
+                        preloader.classList.remove('modal__show');
                         usersRMW.classList.remove('modal__show');
                         form.reset();
                         alert(data);
@@ -219,7 +221,7 @@ function readUser(usuario) {
 }
 //------Actualizar usuario
 document.getElementById("formUsersM").addEventListener("submit", updateUser);
-function updateUser() {
+async function updateUser() {
     event.preventDefault();
     let pass1 = document.getElementsByName("contraseña_usuaM")[0];
     let pass2 = document.getElementsByName("contraseña2_usuaM")[0];

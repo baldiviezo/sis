@@ -345,12 +345,25 @@ class consultas {
 		$consulta = "SELECT * FROM proveedor WHERE fk_id_empp_prov = '$id_empp'";
 		$resultado = $conexion->query($consulta);
 		$numeroClientes = $resultado->num_rows;
-		if ($numeroClientes > 0){
-			echo ("No se puede eliminar, la empresa esta siendo utilizado");
+		if ($numeroClientes > 1){
+			echo ("No se puede eliminar, la empresa pertenece a un proveedor");
 		}else{
-			$consulta = "DELETE FROM empresa_prov WHERE id_empp='$id_empp'";
+			//----Comprobar si la empresa esta siendo utilizada por una orden de compra
+			$id_prov = $resultado->fetch_assoc()['id_prov'];
+			$consulta = "SELECT * FROM compra WHERE fk_id_prov_cmp = '$id_prov'";
 			$resultado = $conexion->query($consulta);
-			echo ("Empresa eliminada exitosamente");
+			$numeroCompras = $resultado->num_rows;
+			if ($numeroCompras > 0){
+				echo "No se puede eliminar, la empresa está siendo utilizada por una orden de compra";
+			}else{
+				$consulta = "DELETE FROM proveedor WHERE fk_id_empp_prov='$id_empp'";
+				$resultado = $conexion->query($consulta);
+				$consulta = "DELETE FROM empresa_prov WHERE id_empp='$id_empp'";
+				$resultado = $conexion->query($consulta);
+				echo 'Empresa eliminada con éxito';
+			}
+
+			
 		}
 	}
 }

@@ -85,8 +85,6 @@
 						<th><div class="tbody__head--buy">Total<img src="../imagenes/sortA_Z.svg" name="total_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="total_cmp" class="icon__CRUD"></div></th>
 						<th>Forma de pago</th>
 						<th>Tiempo de entrega</th>
-						<th>Factura</th>
-						<th><div class="tbody__head--buy">Fecha de facturación<img src="../imagenes/sortA_Z.svg" name="fecha_entrega_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_entrega_cmp" class="icon__CRUD"></div></th>
 						<th>Observacion</th>
 						<th>Acciones</th>
 					</tr>
@@ -149,58 +147,6 @@
 			<button class="form__submit" onclick='openCmp_prodRMW()'>Productos</button>
 		</div>
 	</section>
-	<!--Ventana modal para modificar compra-->
-	<section id="buyMMW" class="modal">
-		<div class="modal__container">
-			<div class="modal__header">
-				<h2 class="modal__title">Modificar orden de compra</h2>
-				<img src="../imagenes/salir.svg" id="closeBuyMMW" class="button__close">
-			</div>
-			<form id="formBuyM" class="form">
-				<div class="form__container">
-					<input type="text" name="id_cmpM" placeholder=" " class="form__input" hidden>
-					<div class="form__group">
-						<input type="text" name="fecha_cmpM"  placeholder=" " class="form__input" readonly>
-						<label for="fecha_cmp" class="form__label">Fecha:</label>
-					</div>
-					<div class="form__group">
-						<input type="text" name="numero_cmpM" placeholder=" " class="form__input" readonly>
-						<label for="numero_cmpM" class="form__label">Numero de orden de compra:</label>
-					</div>
-					<label class="form__label--only">Empresa:</label>
-					<div class="form__group--select">
-						<select id="selectEnterpriseM" name="fk_id_emp_clteM"></select>
-					</div>
-					<label class="form__label--only">Proveedor:</label>
-					<div class="form__group--select">
-						<select id="selectSupplierM" name="fk_id_prov_cmpM"></select>
-					</div>
-					<div class="form__group">
-						<input type="text" name="descuento_cmpM"  placeholder=" " class="form__input">
-						<label for="descuento_cmpM" class="form__label">Descuento:</label>
-					</div>
-					<div class="form__group">
-						<input type="text" name="forma_pago_cmpM"  placeholder=" " class="form__input">
-						<label for="forma_pago_cmpM" class="form__label">Forma de pago:</label>
-					</div>
-					<div class="form__group">
-						<input type="text" name="tpo_entrega_cmpM"  placeholder=" " class="form__input">
-						<label for="tpo_entrega_cmpM" class="form__label">Tiempo de entrega:</label>
-					</div>
-					<div class="form__group">
-						<input type="text" name="tipo_cambio_cmpM"  placeholder=" " class="form__input">
-						<label for="tipo_cambio_cmpM" class="form__label">Tipo de cambio:</label>
-					</div>
-					<input type="hidden" name="total_cmpM">
-					<div class="form__group">
-						<input type="text" name="observacion_cmpM" placeholder=" " class="form__input">
-						<label for="observacion_cmp" class="form__label">Observacion:</label>
-					</div>
-				</div>
-			</form>
-			<button onclick='openCmp_prodMMW()' class="form__submit">Productos</button>
-		</div>
-	</section>
 	<!--Modal of product of a BuyR -->
 	<section id="cmp_prodRMW" class="modal">
 		<div class="modal__container--cppd">
@@ -244,53 +190,13 @@
 			</div>
 		</div>
 	</section>
-	<!--Modal of product of a BuyM -->
-	<section id="cmp_prodMMW" class="modal">
-		<div class="modal__container--cppd">
-			<div class="modal__header--cppd">
-				<div>
-					<img src="../imagenes/p.svg" onclick="openProductSMW()" class="icon__CRUD">
-				</div>
-				<h2 class="modal__title">Productos</h2>
-				<img src="../imagenes/salir.svg" id="closeCmp_prodMMW" class="button__close">
-			</div>
-			<div class="modal__body--cppd">
-				<table>
-					<thead>
-						<tr>
-							<td>N°</td>
-							<td>Codigo</td>
-							<td>Descripcion</td>
-							<td>Cant.</td>
-							<td>Cost Uni.</td>
-							<td>Cost Total</td>
-							<td>Elim.</td>
-						</tr>
-					</thead>
-				</table>
-			</div>
-			<div class="modal__body">
-			</div>
-			<div class="foot">
-				<div class="foot__left">
-                    <p id="subTotalCPMMW">Sub-Total (Bs)</p>
-                    <p id="descCPMMW">Desc. (Bs)</p>
-                    <p id="totalCPMMW">Total (Bs)</p>
-                </div>
-				<div class="foot__right">
-                    <div class="cart">
-                        <img src="../imagenes/carrito.svg">
-                        <p id="quantityCPMMW">0</p>
-                    </div>
-					<button onclick="updateBuy()" class="form__submit">Modificar</button>
-                </div>
-			</div>
-		</div>
-	</section>
-	<!--Modal of product of a proforma-->
+	<!--Modal of product of a Buy-->
 	<section id="productBuyMW" class="modal">
 		<div class="modal__container--addProd">
 			<div class="modal__header--addProd">
+				<div>
+					<img src="../imagenes/p.svg" onclick="openProductSMW()" class="icon__CRUD">
+				</div>
 				<h2 class="modal__title">Productos</h2>
 				<img src="../imagenes/salir.svg" id="closeProductBuyMW" class="button__close">
 			</div>
@@ -323,7 +229,7 @@
                         <img src="../imagenes/carrito.svg">
                         <p id="quantityaddBuyMW">0</p>
                     </div>
-					<button onclick="" class="form__submit">Registrar</button>
+					<button onclick="changeStateBuy(this.parentNode.parentNode.parentNode.children[2])" class="form__submit">Registrar</button>
                 </div>
 			</div>
 		</div>

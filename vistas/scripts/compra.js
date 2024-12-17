@@ -35,7 +35,7 @@ const datePart = formattedDate.split(', ');
 const dateActual = datePart[0].split('/');
 //-------------------------------------------------SUPPLIER--------------------------------------------------
 //<<-----------------------------------------CRUD SUPPLIER----------------------------------------->>
-let suppliers = {};
+let suppliers = [];
 async function readSuppliers() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
@@ -44,8 +44,7 @@ async function readSuppliers() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            suppliers = JSON.parse(JSON.stringify(data));
-            readEnterprises();
+            suppliers = Object.values(data);
             resolve();
         }).catch(err => console.log(err));
     })
@@ -53,23 +52,27 @@ async function readSuppliers() {
 //------Create a supplier
 const formSupplierR = document.getElementById('formSupplierR');
 formSupplierR.addEventListener('submit', createSupplier);
-function createSupplier() {
-    event.preventDefault();
-    supplierRMW.classList.remove('modal__show');
-    let formData = new FormData(formSupplierR);
-    formData.append('createSupplier', '');
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.text()).then(data => {
-        alert(data);
-        cleanFormSupplierR();
-        readSuppliers();
-    }).catch(err => console.log(err));
-}
-function cleanFormSupplierR() {
-    const inputsR = document.querySelectorAll('#formSupplierR .form__group input');
-    inputsR.forEach(input => { input.value = '' })
+async function createSupplier() {
+    if (!rqstBuy) {
+        rqstBuy = true;
+        event.preventDefault();
+        supplierRMW.classList.remove('modal__show');
+        let formData = new FormData(formSupplierR);
+        formData.append('createSupplier', '');
+        preloader.classList.add('modal__show');
+        fetch('../controladores/clientes.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            readSuppliers().then(() => {
+                preloader.classList.remove('modal__show');
+                rqstBuy = false;
+                formSupplierR.reset();
+                fillSelectClte(selectEnterpriseR, selectSupplierR);
+                alert(data);
+            })
+        }).catch(err => console.log(err));
+    }
 }
 //------Read a supplier
 function readSupplier(rm) {
@@ -95,33 +98,49 @@ function readSupplier(rm) {
 //------Update a supplier
 const formClienteM = document.getElementById('formSupplierM');
 formSupplierM.addEventListener('submit', updateSupplier);
-function updateSupplier() {
-    event.preventDefault();
-    supplierMMW.classList.remove('modal__show');
-    let formData = new FormData(formClienteM);
-    formData.append('updateSupplier', '');
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.text()).then(data => {
-        alert(data);
-        readSuppliers();
-    }).catch(err => console.log(err));
-}
-//------Delete a supplier
-function deleteSupplier(rm) {
-    let selectSupplierRM = document.getElementById('selectSupplier' + rm);
-    if (confirm('¿Esta usted seguro?')) {
-        let id = selectSupplierRM.value;
-        let formData = new FormData();
-        formData.append('deleteSupplier', id);
+async function updateSupplier() {
+    if (!rqstBuy) {
+        rqstBuy = true;
+        preloader.classList.add('modal__show');
+        event.preventDefault();
+        supplierMMW.classList.remove('modal__show');
+        let formData = new FormData(formClienteM);
+        formData.append('updateSupplier', '');
         fetch('../controladores/clientes.php', {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            alert(data);
-            readSuppliers();
+            readSuppliers().then(() => {
+                preloader.classList.remove('modal__show');
+                rqstBuy = false;
+                fillSelectClte(selectEnterpriseR, selectSupplierR);
+                alert(data);
+            })
         }).catch(err => console.log(err));
+    }
+}
+//------Delete a supplier
+async function deleteSupplier(rm) {
+    let selectSupplierRM = document.getElementById('selectSupplier' + rm);
+    if (confirm('¿Esta usted seguro?')) {
+        if (!rqstBuy) {
+            rqstBuy = true;
+            preloader.classList.add('modal__show');
+            let id = selectSupplierRM.value;
+            let formData = new FormData();
+            formData.append('deleteSupplier', id);
+            fetch('../controladores/clientes.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                readSuppliers().then(() => {
+                    preloader.classList.remove('modal__show');
+                    rqstBuy = false;
+                    fillSelectClte(selectEnterpriseR, selectSupplierR);
+                    alert(data);
+                })
+            }).catch(err => console.log(err));
+        }
     }
 }
 //<<-------------------------------------------MODAL SUPPLIER---------------------------------------->>
@@ -153,20 +172,23 @@ const selectSupplierM = document.getElementsByName('fk_id_prov_cmpM')[0];
 selectEnterpriseR.addEventListener('change', () => {
     fillSelectClte(selectEnterpriseR, selectSupplierR);
 });
-let enterprises = {};
-let filterEnterprises = {};
-function readEnterprises() {
-    let formData = new FormData();
-    formData.append('readEnterprisesP', '');
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        enterprises = JSON.parse(JSON.stringify(data));
-        filterEnterprises = enterprises;
-        paginacionEnterpriseMW(Object.values(filterEnterprises).length, 1);
-        fillSelectEmp(selectEnterpriseR, selectSupplierR);
-    }).catch(err => console.log(err));
+let enterprises = [];
+let filterEnterprises = [];
+async function readEnterprises() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readEnterprisesP', '');
+        fetch('../controladores/clientes.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            enterprises = Object.values(data);
+            filterEnterprises = enterprises;
+            paginacionEnterpriseMW(enterprises.length, 1);
+            fillSelectEmp(selectEnterpriseR, selectSupplierR);
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
 //<<---------------------------------------TABLA MODAL EMPRESA--------------------------------------->>
 //------Select utilizado para buscar por columnas
@@ -303,7 +325,6 @@ function fillSelectEmp(selectEmp, selectSpl) {
         selectEmp.appendChild(option);
     }
     fillSelectClte(selectEmp, selectSpl);
-
 }
 function fillSelectClte(selectEmp, selectSpl) {
     if (selectSpl != false) {
@@ -341,27 +362,32 @@ closeEnterpriseSMW.addEventListener('click', () => {
 //------Craer una empresa
 const formEmpresaR = document.getElementById('formEmpresaR');
 formEmpresaR.addEventListener('submit', createEnterprise);
-function createEnterprise() {
+async function createEnterprise() {
     event.preventDefault();
-    enterprisesRMW.classList.remove('modal__show');
-    let formData = new FormData(formEmpresaR);
-    formData.append('createEnterpriseP', '');
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.text()).then(data => {
-        alert(data);
-        if (data != 'La empresa ya existe') {
-            cleanFormEnterpriseR();
-            readEnterprises();
-            readSuppliers();
-        }
-    }).catch(err => console.log(err));
-}
-//Limpiar enterprisesRMW
-function cleanFormEnterpriseR() {
-    let inputs = document.querySelectorAll('#formEmpresaR input.form__input');
-    inputs.forEach(input => input.value = '');
+    if (!rqstBuy) {
+        rqstBuy = true;
+        preloader.classList.add('modal__show');
+        enterprisesRMW.classList.remove('modal__show');
+        let formData = new FormData(formEmpresaR);
+        formData.append('createEnterpriseP', '');
+        fetch('../controladores/clientes.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            if (data != 'La empresa ya existe') {
+                Promise.all([readSuppliers(), readEnterprises()]).then(() => {
+                    formEmpresaR.reset();
+                    preloader.classList.remove('modal__show');
+                    rqstBuy = false;
+                    alert(data);
+                })
+            } else {
+                preloader.classList.remove('modal__show');
+                rqstBuy = false;
+                alert(data);
+            }
+        }).catch(err => console.log(err));
+    }
 }
 //------Leer una empresa
 function readEnterprise(rm) {
@@ -380,35 +406,53 @@ function readEnterprise(rm) {
 //------Actualizar una empresa
 let formEmpresaM = document.getElementById('formEmpresaM');
 formEmpresaM.addEventListener('submit', updateEnterprise);
-function updateEnterprise() {
+async function updateEnterprise() {
     event.preventDefault();
-    enterprisesMMW.classList.remove('modal__show');
-    let formData = new FormData(formEmpresaM);
-    formData.append('updateEnterpriseP', '');
-    fetch('../controladores/clientes.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.text()).then(data => {
-        alert(data);
-        if (data == 'Empresa actualizada exitosamente') {
-            readEnterprises();
-        }
-    }).catch(err => console.log(err));
-}
-//------Borrar una empresa
-function deleteEnterprise(rm) {
-    let selectEnterpriseRM = document.getElementById('selectEnterprise' + rm);
-    if (confirm('¿Esta usted seguro?')) {
-        let id_empp = selectEnterpriseRM.value;
-        let formData = new FormData();
-        formData.append('deleteEnterpriseP', id_empp);
+    if (!rqstBuy) {
+        rqstBuy = true;
+        preloader.classList.add('modal__show');
+        enterprisesMMW.classList.remove('modal__show');
+        let formData = new FormData(formEmpresaM);
+        formData.append('updateEnterpriseP', '');
         fetch('../controladores/clientes.php', {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            alert(data);
-            readEnterprises();
+            rqstBuy = false;
+            if (data == 'Empresa actualizada exitosamente') {
+                readEnterprises().then(() => {
+                    preloader.classList.remove('modal__show');
+                    alert(data);
+                })
+            } else {
+                preloader.classList.remove('modal__show');
+                alert(data);
+            }
         }).catch(err => console.log(err));
+    }
+
+}
+//------Borrar una empresa
+async function deleteEnterprise(rm) {
+    let selectEnterpriseRM = document.getElementById('selectEnterprise' + rm);
+    if (confirm('¿Esta usted seguro?')) {
+        if (!rqstBuy) {
+            rqstBuy = true;
+            preloader.classList.add('modal__show');
+            let id_empp = selectEnterpriseRM.value;
+            let formData = new FormData();
+            formData.append('deleteEnterpriseP', id_empp);
+            fetch('../controladores/clientes.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                readEnterprises().then(() => {
+                    rqstBuy = false;
+                    preloader.classList.remove('modal__show');
+                    alert(data);
+                })
+            }).catch(err => console.log(err));
+        }
     }
 }
 //<<------------------------ABRIR Y CERRAR VENTANAS MODALES--------------------------------->>
@@ -427,8 +471,8 @@ closeEnterprisesMMW.addEventListener('click', () => {
     enterprisesMMW.classList.remove('modal__show');
 });
 //<<---------------------------------------------------TABLA DE COMPRA------------------------------------------>>
-let buys = {};
-let filterBuys = {};
+let buys = [];
+let filterBuys = [];
 let formBuy = '';
 async function readBuys() {
     return new Promise((resolve, reject) => {
@@ -438,9 +482,9 @@ async function readBuys() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            buys = JSON.parse(JSON.stringify(data));
+            buys = Object.values(data);
             filterBuys = buys;
-            filterByUserBuys(Object.values(buys).length, 1);
+            filterByUserBuys(buys.length, 1);
             resolve();
         }).catch(err => console.log(err));
     })
@@ -620,7 +664,7 @@ function tableBuys(page) {
                 } else if (valor == 'fecha_cmp') {
                     td.innerText = filterBuys[buy][valor].slice(0, 10);
                     tr.appendChild(td);
-                } else if (valor == 'fk_id_usua_cmp' || valor == 'fk_id_prov_cmp' || valor == 'apellido_usua' || valor == 'id_empp' || valor == 'apellido_prov' || valor == 'estado_cmp' || valor == 'moneda_cmp' || valor == 'tipo_cambio_cmp' || valor == 'descuento_cmp') {
+                } else if (valor == 'fk_id_usua_cmp' || valor == 'fk_id_prov_cmp' || valor == 'apellido_usua' || valor == 'id_empp' || valor == 'apellido_prov' || valor == 'estado_cmp' || valor == 'moneda_cmp' || valor == 'tipo_cambio_cmp' || valor == 'descuento_cmp' || valor == 'factura_cmp' || valor == 'fecha_entrega_cmp') {
                 } else if (valor == 'nombre_usua') {
                     td.innerText = `${filterBuys[buy][valor]} ${filterBuys[buy]['apellido_usua']}`;
                     tr.appendChild(td);
@@ -662,7 +706,7 @@ function tableBuys(page) {
 //<<-------------------------------------------CRUD DE COMPRAS-------------------------------------------->>
 //-------Create buy
 let formBuyR = document.getElementById('formBuyR');
-function createBuy() {
+async function createBuy() {
     buyRMW.classList.remove('modal__show');
     cmp_prodRMW.classList.remove('modal__show');
     totalPriceCPPDR();
@@ -690,12 +734,12 @@ function createBuy() {
                     method: "POST",
                     body: formData
                 }).then(response => response.text()).then(data => {
-                    preloader.classList.remove('modal__show');
-                    rqstBuy = false;
-                    alert(data);
-                    readBuys();
-                    readCmp_prods();
-                    cleanFormBuyR();
+                    Promise.all([readBuys(), readCmp_prods()]).then(() => {
+                        cleanFormBuyR();
+                        preloader.classList.remove('modal__show');
+                        rqstBuy = false;
+                        alert(data);
+                    });
                 }).catch(err => {
                     rqstBuy = false;
                     alert(err);
@@ -706,96 +750,6 @@ function createBuy() {
         alert('No a seleccionado ningun producto');
     }
 }
-//------read Buy
-/*
-function readBuy(id_cmp) {
-    let filterBuy = Object.values(filterBuys).find(buy => buy['id_cmp'] === id_cmp);
-    if (filterBuy) {
-        const properties = ['id_cmp', 'fecha_cmp', 'numero_cmp', 'forma_pago_cmp', 'tpo_entrega_cmp', 'tipo_cambio_cmp', 'descuento_cmp', 'observacion_cmp'];
-        properties.forEach(property => {
-            document.getElementsByName(property + 'M')[0].value = filterBuy[property];
-        });
-
-        selectEnterpriseM.innerHTML = '';
-        const option = document.createElement('option');
-        option.value = filterBuy.id_empp;
-        option.innerText = filterBuy.nombre_empp;
-        selectEnterpriseM.appendChild(option);
-
-        selectSupplierM.innerHTML = '';
-        const option2 = document.createElement('option');
-        option2.value = filterBuy.fk_id_prov_cmp;
-        option2.innerText = `${filterBuy.nombre_prov} ${filterBuy.apellido_prov}`;
-        selectSupplierM.appendChild(option2);
-    }
-    readCmp_prod(id_cmp);
-}
-function readCmp_prod(id_cmp) {
-    formBuy = 'M';
-    let filterCmpProds = Object.values(cmp_prods).filter(cmp_prod => cmp_prod['fk_id_cmp_cppd'] == id_cmp);
-    cmp_prodMMW.querySelector('div.modal__body').innerHTML = '';
-    let i = 0;
-    filterCmpProds.forEach(cmp_prod => {
-        i++;
-        let div = document.createElement('div');
-        div.classList.add('cart__item');
-        div.innerHTML = `
-        <input type="hidden"  value = "${cmp_prod['fk_id_prod_cppd']}" class="cart__item--id">
-        <input type="text" value = "${cmp_prod['codigo_prod']}" class="cart__item--code">
-        <textarea class="cart__item--name">${cmp_prod['descripcion_cppd']}</textarea>
-        <input type="number" value = "${cmp_prod['cantidad_cppd']}" min="1" onChange="changeQuantityCPPDM(this.parentNode)" class="cart__item--quantity">
-        <input type="number" value = "${cmp_prod['cost_uni_cppd']}" onChange="changeQuantityCPPDM(this.parentNode)" class="cart__item--costUnit">
-        <input type="number" value = "${cmp_prod['cost_uni_cppd'] * cmp_prod['cantidad_cppd']}" class="cart__item--costTotal" readonly>
-        <img src="../imagenes/trash.svg" onClick="removeCartM(this.parentNode)" class='icon__CRUD'>`;
-        cmp_prodMMW.querySelector('div.modal__body').appendChild(div);
-    });
-    totalPriceCPPDM();
-    buyMMW.classList.add('modal__show');
-}*/
-//------Update buy
-/*
-const formBuyM = document.getElementById('formBuyM');
-function updateBuy() {
-    buyMMW.classList.remove('modal__show');
-    cmp_prodMMW.classList.remove('modal__show');
-    totalPriceCPPDM();
-    let products = document.querySelectorAll('#cmp_prodMMW div.modal__body div.cart__item');
-    if (products.length > 0) {
-        let array = [];
-        products.forEach(producto => {
-            let object = {
-                'fk_id_prod_cppd': producto.children[0].value,
-                'descripcion_cppd': producto.children[2].value,
-                'cantidad_cppd': producto.children[3].value,
-                'cost_uni_cppd': producto.children[4].value
-            };
-            array.push(object);
-        });
-        if (rqstBuy == false) {
-            rqstBuy = true;
-            let formData = new FormData(formBuyM);
-            formData.append('updateBuy', JSON.stringify(array));
-            formData.append('id_usua', localStorage.getItem('id_usua'));
-            formData.set('fecha_cmpM', `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`);
-            preloader.classList.add('modal__show');
-            fetch('../controladores/compras.php', {
-                method: "POST",
-                body: formData
-            }).then(response => response.text()).then(data => {
-                preloader.classList.remove('modal__show');
-                rqstBuy = false;
-                alert(data);
-                readBuys();
-                readCmp_prods();
-            }).catch(err => {
-                rqstBuy = false;
-                alert(err);
-            });
-        }
-    } else {
-        alert('No a seleccionado ningun producto');
-    }
-}*/
 //------Delete buy
 function deleteBuy(id_cmp) {
     console.log('entros')
@@ -820,6 +774,42 @@ function deleteBuy(id_cmp) {
         }
     }*/
 }
+//------Estado de compra
+async function changeStateBuy(divs) {
+    const divshihijos = divs.children;
+    const cantidadDivsHijos = Array.prototype.filter.call(divshihijos, hijo => hijo.tagName === 'DIV').length;
+    if (cantidadDivsHijos > 0) {
+        id_cmp = divs.children[0].children[2].value;
+        const product = cmp_prods.filter(cmp_prod => cmp_prod.fk_id_cmp_cppd == id_cmp);
+        const productRecibidos = product.filter(obj => obj.estado_cppd === "RECIBIDO");
+        if (product.length == productRecibidos.length) {
+            if (rqstBuy == false) {
+                rqstBuy = true;
+                preloader.classList.add('modal__show');
+                let formData = new FormData();
+                formData.append('changeStateBuy', id_cmp);
+                fetch('../controladores/compras.php', {
+                    method: "POST",
+                    body: formData
+                }).then(response => response.text()).then(data => {
+                    readBuys().then(() => {
+                        preloader.classList.remove('modal__show');
+                        rqstBuy = false;
+                        document.getElementById('productBuyMW').classList.remove('modal__show');
+                        alert(data);
+                    })
+                }).catch(err => {
+                    rqstBuy = false;
+                    alert(err);
+                });
+            }
+        } else {
+            alert('Falta registrar productos');
+        }
+    } else {
+        alert('La nota de entrega no tiene ningun producto');
+    }
+}
 function cleanFormBuyR() {
     document.querySelector('#cmp_prodRMW .modal__body').innerHTML = '';
     document.getElementsByName('forma_pago_cmpR')[0].value = '';
@@ -833,11 +823,9 @@ function cleanFormBuyR() {
     totalCPRMW.innerHTML = 'Total (Bs):';
 
 }
-//<<------------------------ABRIR Y CERRAR MODALES DE  COMPRA--------------------------------->>
+//------Open and close buyR
 const closeBuyRMW = document.getElementById('closeBuyRMW');
-const closeBuyMMW = document.getElementById('closeBuyMMW');
 const openBuyRMW = document.getElementById('openBuyRMW');
-const openBuyMMW = document.getElementById('openBuyMMW');
 openBuyRMW.addEventListener('click', () => {
     buyRMW.classList.add('modal__show');
     document.getElementsByName('fecha_cmpR')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
@@ -846,109 +834,6 @@ openBuyRMW.addEventListener('click', () => {
 closeBuyRMW.addEventListener('click', () => {
     buyRMW.classList.remove('modal__show');
 });
-closeBuyMMW.addEventListener('click', () => {
-    buyMMW.classList.remove('modal__show');
-});
-//------show products to buy
-function showproductsAddBuyMW(id_cmp) {
-    document.getElementById('productBuyMW').classList.add('modal__show');
-    let body = document.getElementById('productBuyMW').querySelector('.modal__body');
-    body.innerHTML = '';
-    let i = 0;
-    for (let cmp_prod in cmp_prods) {
-        if (cmp_prods[cmp_prod]['fk_id_cmp_cppd'] == id_cmp) {
-            let div = document.createElement('div');
-            div.classList.add('cart__item');
-            div.innerHTML = `
-            <input type="hidden" value="${cmp_prods[cmp_prod]['id_cppd']}">
-            <input type="hidden" value="${cmp_prods[cmp_prod]['fk_id_prod_cppd']}">
-            <input type="hidden" value="${cmp_prods[cmp_prod]['fk_id_cmp_cppd']}">
-            <p class="numero--addProd">${++i}</p>
-            <img src="../modelos/imagenes/${cmp_prods[cmp_prod]['imagen_prod']}" alt="" class="imagen--addProd"/>
-            <p class="codigo--addProd">${cmp_prods[cmp_prod]['codigo_prod']}</p>
-            <textarea class="cart__item--name">${cmp_prods[cmp_prod]['descripcion_cppd']}</textarea>
-            <input type="number" value = "${cmp_prods[cmp_prod]['cantidad_cppd']}" min="1" onChange="changeQuantityCPPDM(this.parentNode)" class="cart__item--quantity">
-            <input type="number" value = "${cmp_prods[cmp_prod]['cost_uni_cppd']}" onChange="changeQuantityCPPDM(this.parentNode)" class="cart__item--costUnit">
-            <input type="number" value = "${Number(cmp_prods[cmp_prod]['cost_uni_cppd'] * cmp_prods[cmp_prod]['cantidad_cppd']).toFixed(2)}" class="cart__item--costTotal" readonly>`;
-            if (cmp_prods[cmp_prod]['estado_cppd'] == 'PENDIENTE') {
-                let img = document.createElement('img');
-                img.classList.add('icon__CRUD');
-                img.src = '../imagenes/cartAdd.svg';
-                img.setAttribute('onclick', 'openProductBuyMW(this.parentNode)');
-                img.setAttribute('title', 'Agregar producto');
-                div.appendChild(img);
-                let img2 = document.createElement('img');
-                img2.classList.add('icon__CRUD');
-                img2.src = '../imagenes/trash.svg';
-                img2.setAttribute('title', 'Eliminar producto');
-                img2.setAttribute('onclick', 'deleteCmp_prod(this.parentNode.children[0].value)');
-                div.appendChild(img2);
-            } else if (cmp_prods[cmp_prod]['estado_cppd'] == 'RECIBIDO') {
-                let img = document.createElement('img');
-                img.src = '../imagenes/checkCircle.svg';
-                img.setAttribute('title', 'Producto agregado');
-                div.appendChild(img);
-            }
-            body.appendChild(div);
-        }
-    }
-    let divs = document.querySelectorAll('#productBuyMW div.modal__body div.cart__item');
-    const quantityaddBuyMW = document.getElementById('quantityaddBuyMW');
-    const subTotaladdBuyMW = document.getElementById('subTotaladdBuyMW');
-    const descaddBuyMW = document.getElementById('descaddBuyMW');
-    const totaladdBuyMW = document.getElementById('totaladdBuyMW');
-    let total = 0;
-    let desc = 0;
-    divs.forEach(div => {
-        costo_uni = Number(div.children[7].value);
-        total = total + costo_uni;
-    })
-    subTotaladdBuyMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2) + ' Bs';
-    desc = document.getElementsByName('descuento_cmpR')[0].value * total / 100;
-    desc = desc.toFixed(2);
-    descaddBuyMW.innerHTML = `Desc. ${document.getElementsByName('descuento_cmpR')[0].value}% (Bs): ${desc} Bs`;
-    totaladdBuyMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2) - desc).toFixed(2)} Bs`;
-    document.getElementsByName('total_cmpR')[0].value = Number(total.toFixed(2) - desc).toFixed(2);
-    quantityaddBuyMW.innerHTML = divs.length;
-}
-function openProductBuyMW(row) {
-    id_cppd = row.children[0].value;
-    addBuyMW.classList.add('modal__show');
-    document.getElementsByName('id_cppd')[0].value = row.children[0].value;
-    document.getElementsByName('fk_id_prod_cppd')[0].value = row.children[1].value;
-    document.getElementsByName('fk_id_cmp_cppd')[0].value = row.children[2].value;
-    document.getElementsByName('fecha_entrega_cppd')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
-    document.getElementsByName('codigo_cppd')[0].value = row.children[5].innerText;
-    document.getElementsByName('cantidad_cppd')[0].value = row.children[7].value;
-    document.getElementsByName('cost_uni_cppd')[0].value = row.children[8].value + ' Bs';
-}
-function changeQuantityCPPDM(row) {
-    let cantidad_prod = row.children[7].value;
-    let costo_uni = row.children[8].value;
-    let cost_uni_total = cantidad_prod * costo_uni;
-    row.children[9].value = cost_uni_total.toFixed(2);
-    totalPriceCPPDM();
-}
-function totalPriceCPPDM() {
-    let divs = document.querySelectorAll('#cmp_prodMMW div.modal__body div.cart__item');
-    let quantityCPMMW = document.getElementById('quantityCPMMW');
-    let subTotalCPMMW = document.getElementById('subTotalCPMMW');
-    let descCPMMW = document.getElementById('descCPMMW');
-    let totalCPMMW = document.getElementById('totalCPMMW');
-    let total = 0;
-    let desc = 0;
-    divs.forEach(div => {
-        costo_total = Number(div.children[6].value);
-        total = total + costo_total;
-    })
-    subTotalCPMMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2) + ' Bs';
-    desc = document.getElementsByName('descuento_cmpM')[0].value * total / 100;
-    desc = desc.toFixed(2);
-    descCPMMW.innerHTML = `Desc. ${document.getElementsByName('descuento_cmpM')[0].value}% (Bs): ${desc} Bs`;
-    totalCPMMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2) - desc).toFixed(2)} Bs`;
-    document.getElementsByName('total_cmpM')[0].value = Number(total.toFixed(2) - desc).toFixed(2);
-    quantityCPMMW.innerHTML = divs.length;
-}
 /*---------------------------------------------------------------------------------------------*/
 //------------PDF of buys
 function selectPDFInformation(id_cmp) {
@@ -1036,12 +921,6 @@ closeProductBuyMW.addEventListener('click', (e) => {
 //--------read Cmp_prods
 let cmp_prods = [];
 let filterCmp_prods;
-/*************  ✨ Codeium Command ⭐  *************/
-/**
- * Lee todos los productos de compras
- * @function readCmp_prods
- */
-/******  d102cf09-0ba6-42a8-a04b-5f2704f5cb62  *******/
 async function readCmp_prods() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
@@ -1059,80 +938,157 @@ async function readCmp_prods() {
 }
 //------Cuando el producto llega, cambiar el estado del producto y registra fecha de llegada
 const formAddBuy = document.getElementById('formAddBuy');
-formAddBuy.addEventListener('submit', (e) => {
-    e.preventDefault();
-    let formData = new FormData(formAddBuy);
-    formData.append('addBuyToInventory', '');
-    formData.set("fecha_entrega_cppd", `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`);
-    fetch('../controladores/compras.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.text()).then(data => {
-        readCmp_prods();
-        showproductsAddBuyMW(data);
-    }).catch(err => {
-        alert(err);
-    });
-})
-//-----CRUD CMP_PRODS
-/*
-function addBuysToInventory(id_cppd) {
-    addBuyMW.classList.remove('modal__show');
-    productBuyMW.classList.remove('modal__show');
-    let id_cmp = document.getElementsByName('id_cmp')[0].value;
-    let array = [];
-    for (let cmp_prod in cmp_prods) {
-        if (cmp_prods[cmp_prod]['fk_id_cmp_cppd'] == id_cmp) {
-            let object = {
-                'id_cppd': cmp_prods[cmp_prod]['id_cppd'],
-                'fk_id_cmp_cppd': cmp_prods[cmp_prod]['fk_id_cmp_cppd'],
-                'fk_id_prod_cppd': cmp_prods[cmp_prod]['fk_id_prod_cppd'],
-                'cantidad_cppd': cmp_prods[cmp_prod]['cantidad_cppd']
-            }
-            array.push(object);
-        }
-    }
-    if (confirm('¿Esta usted seguro?')) {
-        if (rqstBuy == false) {
+formAddBuy.addEventListener('submit', createCmp_prod);
+//----Create Cmp_prod
+async function createCmp_prod() {
+    event.preventDefault();
+    if (rqstBuy == false) {
+        if (confirm('Se añadirá el producto a el inventario. ¿Esta usted seguro?')) {
             rqstBuy = true;
-            let formData = new FormData();
-            formData.append('addBuysToInventory', JSON.stringify(array));
-            formData.append('id_cmp', document.getElementsByName('id_cmp')[0].value);
-            formData.append('factura_cmp', document.getElementsByName('factura_cmp')[0].value);
-            formData.append('fecha_entrega_cmp', `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`);
-            formData.append('id_usua', localStorage.getItem('id_usua'));
             preloader.classList.add('modal__show');
+            let formData = new FormData(formAddBuy);
+            formData.append('addBuyToInventory', '');
+            formData.set("fecha_entrega_cppd", `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`);
             fetch('../controladores/compras.php', {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                preloader.classList.remove('modal__show');
-                rqstBuy = false;
-                alert(data);
-                readBuys();
+                readCmp_prods().then(() => {
+                    rqstBuy = false;
+                    preloader.classList.remove('modal__show');
+                    formAddBuy.reset();
+                    addBuyMW.classList.remove('modal__show');
+                    showproductsAddBuyMW(data);
+                })
             }).catch(err => {
-                rqstBuy = false;
                 alert(err);
             });
         }
     }
-}*/
+}
 //-----Delete CMP_PRODS
-function deleteCmp_prod(id_cppd) {
-    console.log(id_cppd)
+async function deleteCmp_prod(id_cppd) {
     if (confirm('¿Esta usted seguro de eliminar el producto?')) {
-        let formData = new FormData();
-        formData.append('deleteCmp_prod', id_cppd);
-        fetch('../controladores/compras.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            alert(data);
-            readCmp_prods();
-        }).catch(err => {
-            alert(err);
-        });
+        if (rqstBuy == false) {
+            rqstBuy = true;
+            preloader.classList.add('modal__show');
+            let formData = new FormData();
+            formData.append('deleteCmp_prod', id_cppd);
+            fetch('../controladores/compras.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                readCmp_prods().then(() => {
+                    rqstBuy = false;
+                    preloader.classList.remove('modal__show');
+                    showproductsAddBuyMW(data);
+                })
+            }).catch(err => {
+                alert(err);
+            });
+        }
     }
+}
+//------show products to buy
+function showproductsAddBuyMW(id_cmp) {
+    formBuy = 'M';
+    document.getElementById('productBuyMW').classList.add('modal__show');
+    let body = document.getElementById('productBuyMW').querySelector('.modal__body');
+    body.innerHTML = '';
+    let i = 0;
+    for (let cmp_prod in cmp_prods) {
+        if (cmp_prods[cmp_prod]['fk_id_cmp_cppd'] == id_cmp) {
+            let div = document.createElement('div');
+            div.classList.add('cart__item');
+            div.innerHTML = `
+            <input type="hidden" value="${cmp_prods[cmp_prod]['id_cppd']}">
+            <input type="hidden" value="${cmp_prods[cmp_prod]['fk_id_prod_cppd']}">
+            <input type="hidden" value="${cmp_prods[cmp_prod]['fk_id_cmp_cppd']}">
+            <p class="numero--addProd">${++i}</p>
+            <img src="../modelos/imagenes/${cmp_prods[cmp_prod]['imagen_prod']}" alt="" class="imagen--addProd"/>
+            <p class="codigo--addProd">${cmp_prods[cmp_prod]['codigo_prod']}</p>
+            <textarea class="cart__item--name">${cmp_prods[cmp_prod]['descripcion_cppd']}</textarea>
+            <input type="number" value = "${cmp_prods[cmp_prod]['cantidad_cppd']}" min="1" onChange="changeQuantityCPPD(this.parentNode)" class="cart__item--quantity">
+            <input type="number" value = "${cmp_prods[cmp_prod]['cost_uni_cppd']}" onChange="changeQuantityCPPD(this.parentNode)" class="cart__item--costUnit">
+            <input type="number" value = "${Number(cmp_prods[cmp_prod]['cost_uni_cppd'] * cmp_prods[cmp_prod]['cantidad_cppd']).toFixed(2)}" class="cart__item--costTotal" readonly>`;
+            if (cmp_prods[cmp_prod]['estado_cppd'] == 'PENDIENTE') {
+                let img = document.createElement('img');
+                img.classList.add('icon__CRUD');
+                img.src = '../imagenes/cartAdd.svg';
+                img.setAttribute('onclick', 'openProductBuyMW(this.parentNode)');
+                img.setAttribute('title', 'Agregar producto');
+                div.appendChild(img);
+                let img2 = document.createElement('img');
+                img2.classList.add('icon__CRUD');
+                img2.src = '../imagenes/trash.svg';
+                img2.setAttribute('title', 'Eliminar producto');
+                img2.setAttribute('onclick', 'deleteCmp_prod(this.parentNode.children[0].value)');
+                div.appendChild(img2);
+            } else if (cmp_prods[cmp_prod]['estado_cppd'] == 'RECIBIDO') {
+                let img = document.createElement('img');
+                img.src = '../imagenes/checkCircle.svg';
+                img.setAttribute('title', 'Producto agregado');
+                div.appendChild(img);
+            }
+            body.appendChild(div);
+        }
+    }
+    let divs = document.querySelectorAll('#productBuyMW div.modal__body div.cart__item');
+    const quantityaddBuyMW = document.getElementById('quantityaddBuyMW');
+    const subTotaladdBuyMW = document.getElementById('subTotaladdBuyMW');
+    const descaddBuyMW = document.getElementById('descaddBuyMW');
+    const totaladdBuyMW = document.getElementById('totaladdBuyMW');
+    let total = 0;
+    let desc = 0;
+    divs.forEach(div => {
+        costo_uni = Number(div.children[9].value);
+        total = total + costo_uni;
+    })
+    subTotaladdBuyMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2) + ' Bs';
+    desc = document.getElementsByName('descuento_cmpR')[0].value * total / 100;
+    desc = desc.toFixed(2);
+    descaddBuyMW.innerHTML = `Desc. ${document.getElementsByName('descuento_cmpR')[0].value}% (Bs): ${desc} Bs`;
+    totaladdBuyMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2) - desc).toFixed(2)} Bs`;
+    document.getElementsByName('total_cmpR')[0].value = Number(total.toFixed(2) - desc).toFixed(2);
+    quantityaddBuyMW.innerHTML = divs.length;
+}
+function openProductBuyMW(row) {
+    id_cppd = row.children[0].value;
+    addBuyMW.classList.add('modal__show');
+    document.getElementsByName('id_cppd')[0].value = row.children[0].value;
+    document.getElementsByName('fk_id_prod_cppd')[0].value = row.children[1].value;
+    document.getElementsByName('fk_id_cmp_cppd')[0].value = row.children[2].value;
+    document.getElementsByName('fecha_entrega_cppd')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
+    document.getElementsByName('codigo_cppd')[0].value = row.children[5].innerText;
+    document.getElementsByName('cantidad_cppd')[0].value = row.children[7].value;
+    document.getElementsByName('cost_uni_cppd')[0].value = row.children[8].value + ' Bs';
+}
+function changeQuantityCPPD(row) {
+    let cantidad_prod = row.children[7].value;
+    let costo_uni = row.children[8].value;
+    let cost_uni_total = cantidad_prod * costo_uni;
+    row.children[9].value = cost_uni_total.toFixed(2);
+    totalPriceCPPD();
+}
+function totalPriceCPPD() {
+    let divs = document.querySelectorAll('#cmp_prodMMW div.modal__body div.cart__item');
+    let quantityCPMMW = document.getElementById('quantityCPMMW');
+    let subTotalCPMMW = document.getElementById('subTotalCPMMW');
+    let descCPMMW = document.getElementById('descCPMMW');
+    let totalCPMMW = document.getElementById('totalCPMMW');
+    let total = 0;
+    let desc = 0;
+    divs.forEach(div => {
+        costo_total = Number(div.children[7].value);
+        total = total + costo_total;
+    })
+    subTotalCPMMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2) + ' Bs';
+    desc = document.getElementsByName('descuento_cmpM')[0].value * total / 100;
+    desc = desc.toFixed(2);
+    descCPMMW.innerHTML = `Desc. ${document.getElementsByName('descuento_cmpM')[0].value}% (Bs): ${desc} Bs`;
+    totalCPMMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2) - desc).toFixed(2)} Bs`;
+    document.getElementsByName('total_cmpM')[0].value = Number(total.toFixed(2) - desc).toFixed(2);
+    quantityCPMMW.innerHTML = divs.length;
 }
 //------------------------------MODAL ADD BUY TO INVETORY-----------------------------------------------------
 const addBuyMW = document.getElementById('addBuyMW');
@@ -1143,14 +1099,6 @@ closeAddBuyMW.addEventListener('click', (e) => {
 //<<-------------------------------------MODAL DE PRODUCTS PARA COMPRAR-------------------------------------------->>
 const closeCmp_prodRMW = document.getElementById('closeCmp_prodRMW');
 const cmp_prodRMW = document.getElementById('cmp_prodRMW');
-const closeCmp_prodMMW = document.getElementById('closeCmp_prodMMW');
-const cmp_prodMMW = document.getElementById('cmp_prodMMW');
-function openCmp_prodMMW() {
-    cmp_prodMMW.classList.add('modal__show');
-}
-closeCmp_prodMMW.addEventListener('click', (e) => {
-    cmp_prodMMW.classList.remove('modal__show');
-});
 function openCmp_prodRMW() {
     cmp_prodRMW.classList.add('modal__show');
 }
@@ -1158,8 +1106,8 @@ closeCmp_prodRMW.addEventListener('click', (e) => {
     cmp_prodRMW.classList.remove('modal__show');
 });
 //------------------------------------------------TABLA MODAL PRODUCTS--------------------------------------------------
-let products = {};
-filterProductsMW = {};
+let products = [];
+filterProductsMW = [];
 async function readProducts() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
@@ -1168,9 +1116,9 @@ async function readProducts() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            products = JSON.parse(JSON.stringify(data));
+            products = Object.values(data);
             filterProductsMW = products;
-            paginacionProductMW(Object.values(filterProductsMW).length, 1);
+            paginacionProductMW(products.length, 1);
             resolve();
         }).catch(err => console.log(err));
     })
@@ -1390,6 +1338,24 @@ function cartProduct_cppdR(product) {
     cmpProdRMW.appendChild(item);
     totalPriceCPPDR();
 }
+function cartProduct_cppdM(product) {
+    let body = document.getElementById('productBuyMW').querySelector('.modal__body');
+    let div = document.createElement('div');
+    div.classList.add('cart__item');
+    div.innerHTML = `
+            <input type="hidden" value="">
+            <input type="hidden" value="">
+            <input type="hidden" value="">
+            <p class="numero--addProd"> - </p>
+            <img src="../modelos/imagenes/${product['imagen_prod']}" alt="" class="imagen--addProd"/>
+            <p class="codigo--addProd">${product['codigo_prod']}</p>
+            <textarea class="cart__item--name">${product['nombre_prod']}</textarea>
+            <input type="number" value = "1" min="1" onChange="changeQuantityCPPD(this.parentNode)" class="cart__item--quantity">
+            <input type="number" value = "0" onChange="changeQuantityCPPD(this.parentNode)" class="cart__item--costUnit">
+            <input type="number" value = "0" class="cart__item--costTotal" readonly>
+            <img src="../imagenes/plus.svg" onClick="removeCart(this.parentNode)" class='icon__CRUD'>`;
+    body.appendChild(div);
+}
 //-------Eliminar producto 
 function removeCartR(product) {
     let listProducts = document.querySelector('#cmp_prodRMW div.modal__body');
@@ -1424,55 +1390,6 @@ function totalPriceCPPDR() {
     document.getElementsByName('total_cmpR')[0].value = Number(total.toFixed(2) - desc).toFixed(2);
     quantityCPRMW.innerHTML = divs.length;
 }
-const cmpProdMMW = document.querySelector('#cmp_prodMMW div.modal__body');
-function cartProduct_cppdM(product) {
-    let item = document.createElement('div');
-    item.classList.add('cart__item');
-    let html =
-        `<input type="hidden"  value = "${product['id_prod']}" class="cart__item--id">
-        <input type="text" value = "${product['codigo_prod']}" class="cart__item--code">
-        <textarea class="cart__item--name">${product['nombre_prod']}</textarea>
-        <input type="number" value = "1" min="1" onChange="changeQuantityCPPDM(this.parentNode)" class="cart__item--quantity">
-        <input type="number" value = "0" onChange="changeQuantityCPPDM(this.parentNode)" class="cart__item--costUnit">
-        <input type="number" value = "0" class="cart__item--costTotal" readonly>
-        <img src="../imagenes/trash.svg" onClick="removeCartM(this.parentNode)" class='icon__CRUD'>`;
-    item.innerHTML = html;
-    cmpProdMMW.appendChild(item);
-    totalPriceCPPDM();
-}
-function removeCartM(product) {
-    let listProducts = document.querySelector('#cmp_prodMMW div.modal__body');
-    listProducts.removeChild(product);
-    totalPriceCPPDM();
-}
-/*
-function changeQuantityCPPDM(product) {
-    let cantidad_prod = product.children[3].value;
-    let costo_uni = product.children[4].value;
-    let cost_uni_total = cantidad_prod * costo_uni;
-    product.children[5].value = cost_uni_total.toFixed(2);
-    totalPriceCPPDM();
-}
-function totalPriceCPPDM() {
-    let divs = document.querySelectorAll('#cmp_prodMMW div.modal__body div.cart__item');
-    let quantityCPMMW = document.getElementById('quantityCPMMW');
-    let subTotalCPMMW = document.getElementById('subTotalCPMMW');
-    let descCPMMW = document.getElementById('descCPMMW');
-    let totalCPMMW = document.getElementById('totalCPMMW');
-    let total = 0;
-    let desc = 0;
-    divs.forEach(div => {
-        costo_total = Number(div.children[5].value);
-        total = total + costo_total;
-    })
-    subTotalCPMMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2) + ' Bs';
-    desc = document.getElementsByName('descuento_cmpM')[0].value * total / 100;
-    desc = desc.toFixed(2);
-    descCPMMW.innerHTML = `Desc. ${document.getElementsByName('descuento_cmpM')[0].value}% (Bs): ${desc} Bs`;
-    totalCPMMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2) - desc).toFixed(2)} Bs`;
-    document.getElementsByName('total_cmpM')[0].value = Number(total.toFixed(2) - desc).toFixed(2);
-    quantityCPMMW.innerHTML = divs.length;
-}*/
 //---------------------------VENTANA MODAL PARA BUSCAR PRODUCTOS
 const productSMW = document.getElementById('productSMW');
 const closeProductSMW = document.getElementById('closeProductSMW');
@@ -1494,7 +1411,7 @@ async function readAllMarcas() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            marcas = JSON.parse(JSON.stringify(data));
+            marcas = data;
             selectMarcaProdR();
             selectMarcaProductMW();
             selectMarcaProdM();
@@ -1512,7 +1429,7 @@ async function readAllCategorias() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            categorias = JSON.parse(JSON.stringify(data));
+            categorias = data;
             resolve();
         }).catch(err => console.log(err));
     })

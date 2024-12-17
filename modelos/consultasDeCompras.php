@@ -78,25 +78,6 @@ class Consultas{
 		}
 
     }
-	//------Update productos recibidos
-	public function addBuyToInventory(){
-		include 'conexion.php';
-		$id_cppd = $_POST['id_cppd'];
-		$fk_id_prod_cppd = $_POST['fk_id_prod_cppd'];
-		$codigo_cppd = $_POST['codigo_cppd'];
-		$cantidad_cppd = $_POST['cantidad_cppd'];
-		$cost_uni_cppd = $_POST['cost_uni_cppd'];
-		$factura_cppd = $_POST['factura_cppd'];
-		$fecha_entrega_cppd = $_POST['fecha_entrega_cppd'];
-		$fk_id_cmp_cppd = $_POST['fk_id_cmp_cppd'];
-		$consulta = "UPDATE cmp_prod set cantidad_cppd = '$cantidad_cppd', cost_uni_cppd = '$cost_uni_cppd', factura_cppd = '$factura_cppd', fecha_entrega_cppd = '$fecha_entrega_cppd', estado_cppd = 'RECIBIDO' WHERE id_cppd = '$id_cppd'";
-		$resultado = $conexion->query($consulta);
-		if ($resultado) {
-			$consulta = "UPDATE inventario set cantidad_inv = cantidad_inv + '$cantidad_cppd' WHERE fk_id_prod_inv = '$fk_id_prod_cppd'";
-			$resultado = $conexion->query($consulta);
-			echo $fk_id_cmp_cppd;
-		}
-	}
 	//-----Update compra
 	public function updateBuy(){
         include 'conexion.php';
@@ -139,6 +120,15 @@ class Consultas{
 			echo 'Compra eliminada exitosamente';
 		}
 	}
+	//------Change status
+	public function changeStateBuy($id_cmp){
+		include 'conexion.php';
+		$consulta = "UPDATE compra SET estado_cmp = '1' WHERE id_cmp = '$id_cmp'";
+		$resultado = $conexion->query($consulta);
+		if ($resultado) {
+			echo 'Compra actualizada exitosamente';
+		}
+	}
 	//------read cpm_prod
 	public function readCmp_prods(){
 		include 'conexion.php';
@@ -151,13 +141,35 @@ class Consultas{
 		}
 		echo json_encode($filas, JSON_UNESCAPED_UNICODE);
 	}
+	//------Update productos recibidos
+	public function addBuyToInventory(){
+		include 'conexion.php';
+		$id_cppd = $_POST['id_cppd'];
+		$fk_id_prod_cppd = $_POST['fk_id_prod_cppd'];
+		$codigo_cppd = $_POST['codigo_cppd'];
+		$cantidad_cppd = $_POST['cantidad_cppd'];
+		$cost_uni_cppd = $_POST['cost_uni_cppd'];
+		$factura_cppd = $_POST['factura_cppd'];
+		$fecha_entrega_cppd = $_POST['fecha_entrega_cppd'];
+		$fk_id_cmp_cppd = $_POST['fk_id_cmp_cppd'];
+		$consulta = "UPDATE cmp_prod set cantidad_cppd = '$cantidad_cppd', cost_uni_cppd = '$cost_uni_cppd', factura_cppd = '$factura_cppd', fecha_entrega_cppd = '$fecha_entrega_cppd', estado_cppd = 'RECIBIDO' WHERE id_cppd = '$id_cppd'";
+		$resultado = $conexion->query($consulta);
+		if ($resultado) {
+			$consulta = "UPDATE inventario set cantidad_inv = cantidad_inv + '$cantidad_cppd' WHERE fk_id_prod_inv = '$fk_id_prod_cppd'";
+			$resultado = $conexion->query($consulta);
+			echo $fk_id_cmp_cppd;
+		}
+	}
 	//------Delete cmp_prod
 	public function deleteCmp_prod($id_cppd){
 		include 'conexion.php';
-		$consulta = "DELETE FROM cmp_prod WHERE id_cppd = '$id_cppd'";
+		$consulta = "SELECT * FROM cmp_prod WHERE id_cppd = '$id_cppd'";
 		$resultado = $conexion->query($consulta);
+		$fk_id_cmp_cppd = $resultado->fetch_assoc()['fk_id_cmp_cppd'];
 		if ($resultado) {
-			echo 'Producto eliminado exitosamente';
+			$consulta = "DELETE FROM cmp_prod WHERE id_cppd = '$id_cppd'";
+			$resultado = $conexion->query($consulta);
+			echo $fk_id_cmp_cppd;
 		}
 	}
 	public function addZerosGo($numero) {
