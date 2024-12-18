@@ -938,9 +938,9 @@ async function readCmp_prods() {
 }
 //------Cuando el producto llega, cambiar el estado del producto y registra fecha de llegada
 const formAddBuy = document.getElementById('formAddBuy');
-formAddBuy.addEventListener('submit', createCmp_prod);
-//----Create Cmp_prod
-async function createCmp_prod() {
+formAddBuy.addEventListener('submit', updateCmp_prod);
+//----Update Cmp_prod
+async function updateCmp_prod() {
     event.preventDefault();
     if (rqstBuy == false) {
         if (confirm('Se añadirá el producto a el inventario. ¿Esta usted seguro?')) {
@@ -953,12 +953,12 @@ async function createCmp_prod() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                readCmp_prods().then(() => {
+                Promise.all([readBuys(), readCmp_prods()]).then(() => {
                     rqstBuy = false;
-                    preloader.classList.remove('modal__show');
                     formAddBuy.reset();
                     addBuyMW.classList.remove('modal__show');
                     showproductsAddBuyMW(data);
+                    preloader.classList.remove('modal__show');
                 })
             }).catch(err => {
                 alert(err);
@@ -1008,8 +1008,8 @@ function showproductsAddBuyMW(id_cmp) {
             <img src="../modelos/imagenes/${cmp_prods[cmp_prod]['imagen_prod']}" alt="" class="imagen--addProd"/>
             <p class="codigo--addProd">${cmp_prods[cmp_prod]['codigo_prod']}</p>
             <textarea class="cart__item--name">${cmp_prods[cmp_prod]['descripcion_cppd']}</textarea>
-            <input type="number" value = "${cmp_prods[cmp_prod]['cantidad_cppd']}" min="1" onChange="changeQuantityCPPD(this.parentNode)" class="cart__item--quantity">
-            <input type="number" value = "${cmp_prods[cmp_prod]['cost_uni_cppd']}" onChange="changeQuantityCPPD(this.parentNode)" class="cart__item--costUnit">
+            <input type="number" value = "${cmp_prods[cmp_prod]['cantidad_cppd']}" min="1" onChange="changeQuantityCPPD(this.parentNode, ${id_cmp})" class="cart__item--quantity">
+            <input type="number" value = "${cmp_prods[cmp_prod]['cost_uni_cppd']}" onChange="changeQuantityCPPD(this.parentNode, ${id_cmp})" class="cart__item--costUnit">
             <input type="number" value = "${Number(cmp_prods[cmp_prod]['cost_uni_cppd'] * cmp_prods[cmp_prod]['cantidad_cppd']).toFixed(2)}" class="cart__item--costTotal" readonly>`;
             if (cmp_prods[cmp_prod]['estado_cppd'] == 'PENDIENTE') {
                 let img = document.createElement('img');
@@ -1044,10 +1044,11 @@ function showproductsAddBuyMW(id_cmp) {
         costo_uni = Number(div.children[9].value);
         total = total + costo_uni;
     })
+    let ordenCompra = filterBuys.find(cmp_prod => cmp_prod.id_cmp == id_cmp);
     subTotaladdBuyMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2) + ' Bs';
-    desc = document.getElementsByName('descuento_cmpR')[0].value * total / 100;
+    desc = Number(ordenCompra.descuento_cmp) * total / 100;
     desc = desc.toFixed(2);
-    descaddBuyMW.innerHTML = `Desc. ${document.getElementsByName('descuento_cmpR')[0].value}% (Bs): ${desc} Bs`;
+    descaddBuyMW.innerHTML = `Desc. ${ordenCompra.descuento_cmp}% (Bs): ${desc} Bs`;
     totaladdBuyMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2) - desc).toFixed(2)} Bs`;
     document.getElementsByName('total_cmpR')[0].value = Number(total.toFixed(2) - desc).toFixed(2);
     quantityaddBuyMW.innerHTML = divs.length;
@@ -1063,31 +1064,32 @@ function openProductBuyMW(row) {
     document.getElementsByName('cantidad_cppd')[0].value = row.children[7].value;
     document.getElementsByName('cost_uni_cppd')[0].value = row.children[8].value + ' Bs';
 }
-function changeQuantityCPPD(row) {
+function changeQuantityCPPD(row, id_cmp) {
     let cantidad_prod = row.children[7].value;
     let costo_uni = row.children[8].value;
     let cost_uni_total = cantidad_prod * costo_uni;
     row.children[9].value = cost_uni_total.toFixed(2);
-    totalPriceCPPD();
+    totalPriceCPPD(id_cmp);
 }
-function totalPriceCPPD() {
-    let divs = document.querySelectorAll('#cmp_prodMMW div.modal__body div.cart__item');
-    let quantityCPMMW = document.getElementById('quantityCPMMW');
-    let subTotalCPMMW = document.getElementById('subTotalCPMMW');
-    let descCPMMW = document.getElementById('descCPMMW');
-    let totalCPMMW = document.getElementById('totalCPMMW');
+function totalPriceCPPD(id_cmp) {
+    let divs = document.querySelectorAll('#productBuyMW div.modal__body div.cart__item');
+    let quantityCPMMW = document.getElementById('quantityaddBuyMW');
+    let subTotalCPMMW = document.getElementById('subTotaladdBuyMW');
+    let descCPMMW = document.getElementById('descaddBuyMW');
+    let totalCPMMW = document.getElementById('totaladdBuyMW');
     let total = 0;
     let desc = 0;
     divs.forEach(div => {
-        costo_total = Number(div.children[7].value);
+        costo_total = Number(div.children[9].value);
         total = total + costo_total;
     })
+    let ordenCompra = filterBuys.find(cmp_prod => cmp_prod.id_cmp == id_cmp);
     subTotalCPMMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2) + ' Bs';
-    desc = document.getElementsByName('descuento_cmpM')[0].value * total / 100;
+    desc = Number(ordenCompra.descuento_cmp) * total / 100;
     desc = desc.toFixed(2);
-    descCPMMW.innerHTML = `Desc. ${document.getElementsByName('descuento_cmpM')[0].value}% (Bs): ${desc} Bs`;
+    console.log(ordenCompra.descuento_cmp)
+    descCPMMW.innerHTML = `Desc. ${ordenCompra.descuento_cmp}% (Bs): ${desc} Bs`;
     totalCPMMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2) - desc).toFixed(2)} Bs`;
-    document.getElementsByName('total_cmpM')[0].value = Number(total.toFixed(2) - desc).toFixed(2);
     quantityCPMMW.innerHTML = divs.length;
 }
 //------------------------------MODAL ADD BUY TO INVETORY-----------------------------------------------------
@@ -1300,16 +1302,32 @@ function sendProduct(tr) {
     let id_prod = tr.children[0].innerText;
     for (let product in filterProductsMW) {
         if (filterProductsMW[product]['id_prod'] == id_prod) {
-            let cart__items = document.querySelectorAll(`#cmp_prod${formBuy}MW div.modal__body div.cart__item`);
+            let cart__items = '';
             let i = 0;
-            if (cart__items.length > 0) {
-                cart__items.forEach(prod => {
-                    let id_prod = prod.children[0].value;
-                    if (id_prod == filterProductsMW[product]['id_prod']) {
-                        i++;
-                    }
-                })
+            if (formBuy == 'R') {
+                cart__items = document.querySelectorAll(`#cmp_prod${formBuy}MW div.modal__body div.cart__item`);
+                if (cart__items.length > 0) {
+                    cart__items.forEach(prod => {
+                        let id_prod = prod.children[0].value;
+                        if (id_prod == filterProductsMW[product]['id_prod']) {
+                            i++;
+                        }
+                    })
+                }
+            }else if (formBuy == 'M') {
+                cart__items = document.querySelectorAll(`#productBuyMW div.modal__body div.cart__item`);
+                if (cart__items.length > 0) {
+                    cart__items.forEach(prod => {
+                        let id_prod = prod.children[1].value;
+                        console.log(id_prod);
+                        if (id_prod == filterProductsMW[product]['id_prod']) {
+                            i++;
+                        }
+                    })
+                }
             }
+            
+            
             if (i == 0) {
                 if (formBuy == 'R') {
                     cartProduct_cppdR(filterProductsMW[product]);
@@ -1353,7 +1371,7 @@ function cartProduct_cppdM(product) {
             <input type="number" value = "1" min="1" onChange="changeQuantityCPPD(this.parentNode)" class="cart__item--quantity">
             <input type="number" value = "0" onChange="changeQuantityCPPD(this.parentNode)" class="cart__item--costUnit">
             <input type="number" value = "0" class="cart__item--costTotal" readonly>
-            <img src="../imagenes/plus.svg" onClick="removeCart(this.parentNode)" class='icon__CRUD'>`;
+            <img src="../imagenes/plus.svg" onClick="createCmp_prod(this.parentNode)" class='icon__CRUD'>`;
     body.appendChild(div);
 }
 //-------Eliminar producto 

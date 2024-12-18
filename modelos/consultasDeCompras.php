@@ -147,17 +147,36 @@ class Consultas{
 		$id_cppd = $_POST['id_cppd'];
 		$fk_id_prod_cppd = $_POST['fk_id_prod_cppd'];
 		$codigo_cppd = $_POST['codigo_cppd'];
-		$cantidad_cppd = $_POST['cantidad_cppd'];
-		$cost_uni_cppd = $_POST['cost_uni_cppd'];
+		$cantidad_cppd = intval($_POST['cantidad_cppd']);
+		$cost_uni_cppd = doubleval($_POST['cost_uni_cppd']);
 		$factura_cppd = $_POST['factura_cppd'];
 		$fecha_entrega_cppd = $_POST['fecha_entrega_cppd'];
 		$fk_id_cmp_cppd = $_POST['fk_id_cmp_cppd'];
-		$consulta = "UPDATE cmp_prod set cantidad_cppd = '$cantidad_cppd', cost_uni_cppd = '$cost_uni_cppd', factura_cppd = '$factura_cppd', fecha_entrega_cppd = '$fecha_entrega_cppd', estado_cppd = 'RECIBIDO' WHERE id_cppd = '$id_cppd'";
+		//optener cantidad y cost unitario del producto
+		$consulta = "SELECT * FROM cmp_prod WHERE id_cppd = '$id_cppd'";
 		$resultado = $conexion->query($consulta);
+		$fila = $resultado->fetch_assoc();
 		if ($resultado) {
-			$consulta = "UPDATE inventario set cantidad_inv = cantidad_inv + '$cantidad_cppd' WHERE fk_id_prod_inv = '$fk_id_prod_cppd'";
+			$cantidad = intval($fila['cantidad_cppd']);
+			$cost_uni = doubleval($fila['cost_uni_cppd']);
+			//encontra el descuento que tiene este producto en la orden de compra
+			$consulta = "SELECT compra.descuento_cmp FROM compra INNER JOIN cmp_prod ON compra.id_cmp = cmp_prod.fk_id_cmp_cppd WHERE cmp_prod.id_cppd = '$id_cppd'";
 			$resultado = $conexion->query($consulta);
-			echo $fk_id_cmp_cppd;
+			$fila = $resultado->fetch_assoc();
+			$descuento = floatval($fila['descuento_cmp']);
+			$diferencia = ($cantidad_cppd*$cost_uni_cppd - $cantidad*$cost_uni)*(1-$descuento/100);
+			//restas la diferencia al costo total de la compra
+			$consulta = "UPDATE compra set total_cmp = total_cmp + '$diferencia' WHERE id_cmp = '$fk_id_cmp_cppd'";
+			$resultado = $conexion->query($consulta);
+			if ($resultado) {
+				$consulta = "UPDATE cmp_prod set cantidad_cppd = '$cantidad_cppd', cost_uni_cppd = '$cost_uni_cppd', factura_cppd = '$factura_cppd', fecha_entrega_cppd = '$fecha_entrega_cppd', estado_cppd = 'RECIBIDO' WHERE id_cppd = '$id_cppd'";
+				$resultado = $conexion->query($consulta);
+				if ($resultado) {
+					$consulta = "UPDATE inventario set cantidad_inv = cantidad_inv + '$cantidad_cppd' WHERE fk_id_prod_inv = '$fk_id_prod_cppd'";
+					$resultado = $conexion->query($consulta);
+					echo $fk_id_cmp_cppd;
+				}
+			}
 		}
 	}
 	//------Delete cmp_prod

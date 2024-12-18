@@ -70,42 +70,23 @@ selectNumberClte.addEventListener('change', function () {
 });
 //------buscar por:
 function searchCustomers() {
-    filterCustomers = {};
-    for (let customer in customers) {
-        for (let valor in customers[customer]) {
-            if (selectSearchClte.value == 'todas') {
-                if (valor == 'apellido_clte' || valor == 'nombre_emp' || valor == 'sigla_emp' || valor == 'nit_emp' || valor == 'email_clte' || valor == 'descuento_emp' || valor == 'nit_clte') {
-                    if (valor == 'apellido_clte') {
-                        if ((customers[customer][valor] + ' ' + customers[customer]['nombre_clte']).toLowerCase().indexOf(inputSerchClte.value.toLowerCase()) >= 0) {
-                            filterCustomers[customer] = customers[customer];
-                            break;
-                        }
-                    } else {
-                        if (customers[customer][valor].toLowerCase().indexOf(inputSerchClte.value.toLowerCase()) >= 0) {
-                            filterCustomers[customer] = customers[customer];
-                            break;
-                        }
-                    }
-                }
-            } else if (selectSearchClte.value == 'cliente') {
-                if (valor == 'apellido_clte') {
-                    if ((customers[customer][valor] + ' ' + customers[customer]['nombre_clte']).toLowerCase().indexOf(inputSerchClte.value.toLowerCase()) >= 0) {
-                        filterCustomers[customer] = customers[customer];
-                        break;
-                    }
-                }
-            } else {
-                if (valor == selectSearchClte.value) {
-                    if (customers[customer][valor].toLowerCase().indexOf(inputSerchClte.value.toLowerCase()) >= 0) {
-                        filterCustomers[customer] = customers[customer];
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    paginacionCustomer(Object.values(filterCustomers).length, 1);
-}
+    filterCustomers = customers.filter(customer => {
+      if (selectSearchClte.value === 'todas') {
+        return Object.values(customer).some(valor => {
+          if (valor === 'apellido_clte') {
+            return (customer.apellido_clte + ' ' + customer.nombre_clte).toLowerCase().includes(inputSerchClte.value.toLowerCase());
+          } else {
+            return valor.toLowerCase().includes(inputSerchClte.value.toLowerCase());
+          }
+        });
+      } else if (selectSearchClte.value === 'cliente') {
+        return (customer.apellido_clte + ' ' + customer.nombre_clte).toLowerCase().includes(inputSerchClte.value.toLowerCase());
+      } else {
+        return customer[selectSearchClte.value].toLowerCase().includes(inputSerchClte.value.toLowerCase());
+      }
+    });
+    paginacionCustomer(filterCustomers.length, 1);
+  }
 //------Ordenar tabla descendente ascendente
 let orderCustomers = document.querySelectorAll('.tbody__head--customer');
 orderCustomers.forEach(div => {
@@ -256,6 +237,7 @@ async function createCustomer() {
 function readCustomer(tr) {
     formEnterprise = 'M';
     let id_clte = tr.children[0].innerText;
+    console.log(filterCustomers);
     const customer = filterCustomers.find(customers => customers.id_clte = id_clte);
     if (customer) {
         for (let valor in customer) {
