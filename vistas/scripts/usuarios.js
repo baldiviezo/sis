@@ -62,7 +62,7 @@ async function readUsers() {
             tableUsers();
             resolve();
         }).catch(err => {
-            alert('Ocurrio un error al cargar la tabla de usuarios, cargue nuevamente la pagina');
+            mostrarAlerta('Ocurrio un error al cargar la tabla de usuarios, cargue nuevamente la pagina');
         });
     });
 }
@@ -165,26 +165,26 @@ async function createUser() {
                 body: formData
             }).then(response => response.text()).then(data => {
                 if (data != 'El email ya existe') {
-                    rqstUsua = false;
                     readUsers().then(() => {
+                        rqstUsua = false;
                         preloader.classList.remove('modal__show');
                         usersRMW.classList.remove('modal__show');
                         form.reset();
-                        alert(data);
+                        mostrarAlerta(data);
                     })
+                    
                 } else {
                     rqstUsua = false;
-                    alert(data);
+                    preloader.classList.remove('modal__show');
+                    mostrarAlerta(data);
                 }
             }).catch(err => {
                 rqstUsua = false;
-                Promise.resolve().then(() => {
-                    alert('Ocurrio un error al crear el usuario, cargue nuevamente la pagina');
-                });
+                mostrarAlerta('Ocurrio un error al crear el usuario, cargue nuevamente la pagina');
             });
         }
     } else {
-        alert("Las contraseñas no son iguales");
+        mostrarAlerta("Las contraseñas no son iguales");
     }
 }
 //------Leer usuario
@@ -241,15 +241,15 @@ async function updateUser() {
                     rqstUsua = false;
                     preloader.classList.remove('modal__show');
                     cleanUpFormModify();
-                    alert(data);
+                    mostrarAlerta(data);
                 });
             }).catch(err => {
                 rqstUsua = false;
-                alert('Ocurrio un error al actualizar el usuario, cargue nuevamente la pagina');
+                mostrarAlerta('Ocurrio un error al actualizar el usuario, cargue nuevamente la pagina');
             });
         }
     } else {
-        alert("Las contraseñas no son iguales");
+        mostrarAlerta("Las contraseñas no son iguales");
     }
 }
 //------Borrar usuario
@@ -268,12 +268,11 @@ function deleteUser(usuario) {
                 readUsers().then(() => {
                     preloader.classList.remove('modal__show');
                     rqstUsua = false;
-                    alert(data);
-                })
-
+                    mostrarAlerta(data);
+                });
             }).catch(err => {
                 rqstUsua = false;
-                alert('Ocurrio un error al borrar el usuario, cargue nuevamente la pagina');
+                mostrarAlerta('Ocurrio un error al borrar el usuario, cargue nuevamente la pagina');
             });
         }
     }
@@ -322,3 +321,13 @@ function cleanUpFormModify() {
         document.getElementById('admi').checked = false;
     }
 }
+//------Alert
+const modalAlerta = document.getElementById('alerta');
+const botonAceptar = document.getElementById('botonAceptar');
+function mostrarAlerta(message) {
+    modalAlerta.classList.add('modal__show');
+    document.getElementById('mensaje-alerta').innerText = message;
+}
+botonAceptar.addEventListener('click', (e) => {
+    modalAlerta.classList.remove('modal__show');
+});

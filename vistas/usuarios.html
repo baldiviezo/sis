@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,6 +13,7 @@
 	<link rel="stylesheet" type="text/css" href="../css/table.css">
 	<link rel="stylesheet" type="text/css" href="../css/userModal.css">
 </head>
+
 <body class="body">
 	<header class="header">
 		<nav class="header__nav header__container">
@@ -23,7 +25,7 @@
 			<h1><img src="../imagenes/user.svg">Usuarios</h1>
 		</div>
 		<section class="table__header">
-			<img src="../imagenes/registrar.svg" id="openUsersRMW" title ="Registrar usuario"> 
+			<img src="../imagenes/registrar.svg" id="openUsersRMW" title="Registrar usuario">
 			<div class="table__search">
 				<input type="search" id="buscar" placeholder="Buscar...">
 				<img src="../imagenes/search.png">
@@ -98,7 +100,7 @@
 						<label for="admiR">Administrador</label>
 					</div>
 					<input type="submit" value="Registrar" class="form__submit">
-				</div>	
+				</div>
 			</form>
 		</div>
 	</section>
@@ -111,7 +113,7 @@
 			<form id="formUsersM" class="form">
 				<div class="form__container">
 					<!--Para recuperar el id del usuario modificado para guardarlo-->
-					<input type="text" name="id_usuaM" >
+					<input type="text" name="id_usuaM">
 					<div class="form__group">
 						<input type="text" name="nombre_usuaM" placeholder=" " class="form__input required">
 						<label for="nombre_usuaM" class="form__label">Nombres:</label>
@@ -154,7 +156,7 @@
 						<label for="admi">Administrador</label>
 					</div>
 					<input type="submit" value="Guardar" class="form__submit">
-				</div>	
+				</div>
 			</form>
 		</div>
 	</section>
@@ -177,7 +179,15 @@
 			</div>
 		</div>
 	</section>
+	<!--Alerta-->
+	<div id="alerta" class="container__alert">
+		<div class="alert">
+			<p id="mensaje-alerta"></p>
+			<button id="botonAceptar">Aceptar</button>
+		</div>
+	</div>
 	<script src="scripts/header.js"></script>
 	<script src="scripts/usuarios.js"></script>
 </body>
+
 </html>

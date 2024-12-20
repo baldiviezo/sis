@@ -168,3 +168,50 @@ body.body {
 		opacity: 0;
 	}
 }
+/*alert*/
+.container__alert{
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: #00000000;
+	display: flex;
+	--opacity: 0;
+	--pointer: none;
+	opacity: var(--opacity);
+	pointer-events: var(--pointer);
+	font-family: 'Roboto', sans-serif;
+}
+.alert {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background-color: #fff;
+	border: 1px solid #ddd;
+	padding: 20px;
+	border-radius: 10px;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+	width: 300px;
+	text-align: center;
+  }
+  
+  .alert p {
+	font-size: 18px;
+	margin-bottom: 20px;
+  }
+  
+  .alert button {
+	background-color: #4CAF50;
+	color: #fff;
+	padding: 10px 20px;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+  }
+  
+  .alert button:hover {
+	background-color: #3e8e41;
+  }
+  
