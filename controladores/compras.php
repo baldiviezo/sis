@@ -11,11 +11,6 @@ if (isset($_POST['createBuy'])) {
 	$createBuy->asignarValores($_POST['id_usua']);
 	$createBuy->createBuy($_POST['createBuy']);
 }
-//--------Update productos recibidos
-if (isset($_POST['addBuyToInventory'])) {
-	$addBuyToInventory = new Consultas;
-	$addBuyToInventory->addBuyToInventory();
-}
 //------Update inComprario
 if (isset($_POST['updateBuy'])) {
 	$updateBuy = new Consultas;
@@ -36,6 +31,16 @@ if (isset($_POST['changeStateBuy'])) {
 if (isset($_POST['readCmp_prods'])) {
 	$readCmp_prods = new Consultas;
 	$readCmp_prods->readCmp_prods();
+}
+//------Create cmp_prod
+if (isset($_POST['createCmp_prod'])){
+	$createCmp_prod = new Consultas;
+	$createCmp_prod->createCmp_prod($_POST['createCmp_prod']);
+}
+//------Update cmp_prod
+if (isset($_POST['addBuyToInventory'])) {
+	$addBuyToInventory = new Consultas;
+	$addBuyToInventory->addBuyToInventory();
 }
 //------delate cpm_prod
 if (isset($_POST['deleteCmp_prod'])) {

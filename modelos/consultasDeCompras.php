@@ -111,13 +111,22 @@ class Consultas{
     public function deleteBuy($id_cmp){
 		//------Eliminar productos de la tabla prof_prof
 		include 'conexion.php';
-		$consulta = "DELETE FROM cmp_prod WHERE fk_id_cmp_cppd = '$id_cmp'";
+		//------verificar si hay productos recibidos en la compra
+		$consulta = "SELECT * FROM cmp_prod WHERE fk_id_cmp_cppd = '$id_cmp' AND estado_cppd = 'RECIBIDO'";
 		$resultado = $conexion->query($consulta);
-		//------Eliminar proforma de la tabla proforma
-		$consulta = "DELETE FROM compra WHERE id_cmp = '$id_cmp'";
-		$resultado = $conexion->query($consulta);
-		if ($resultado) {
-			echo 'Compra eliminada exitosamente';
+		$numero_productos = $resultado->num_rows;
+		if ($numero_productos > 0) {
+			echo 'No se puede eliminar la compra porque tiene productos recibidos';
+			return;
+		} else {
+			$consulta = "DELETE FROM cmp_prod WHERE fk_id_cmp_cppd = '$id_cmp'";
+			$resultado = $conexion->query($consulta);
+			//------Eliminar proforma de la tabla proforma
+			$consulta = "DELETE FROM compra WHERE id_cmp = '$id_cmp'";
+			$resultado = $conexion->query($consulta);
+			if ($resultado) {
+				echo 'Compra eliminada exitosamente';
+			}
 		}
 	}
 	//------Change status
@@ -140,6 +149,24 @@ class Consultas{
 			$filas[$fila['id_cppd'].'_cppd'] = $row;
 		}
 		echo json_encode($filas, JSON_UNESCAPED_UNICODE);
+	}
+	//-----Create cmp_prod
+	public function createCmp_prod($object){
+		include 'conexion.php';
+		//----Convertir el stric a objeto
+		$cmp_prod = json_decode($object, true);
+		$consulta = "INSERT INTO cmp_prod (fk_id_cmp_cppd, fk_id_prod_cppd, descripcion_cppd, cantidad_cppd, cost_uni_cppd, estado_cppd) VALUES ('$cmp_prod[fk_id_cmp_cppd]', '$cmp_prod[fk_id_prod_cppd]', '$cmp_prod[descripcion_cppd]', '$cmp_prod[cantidad_cppd]', '$cmp_prod[cost_uni_cppd]', 'PENDIENTE')";
+		$resultado = $conexion->query($consulta);
+		$consulta = "SELECT * FROM compra WHERE id_cmp = '$cmp_prod[fk_id_cmp_cppd]'";
+		$resultado = $conexion->query($consulta);
+		$product = $resultado->fetch_assoc();
+		$descuento = floatval($product['descuento_cmp'])/100;
+		$total = (floatval($cmp_prod['cost_uni_cppd']) * intval($cmp_prod['cantidad_cppd']))*(1-$descuento);
+		if ($resultado) {
+			$consulta = "UPDATE compra set total_cmp = total_cmp + '$total' WHERE id_cmp = '$cmp_prod[fk_id_cmp_cppd]'";
+			$resultado = $conexion->query($consulta);
+			echo $cmp_prod['fk_id_cmp_cppd'];
+		}
 	}
 	//------Update productos recibidos
 	public function addBuyToInventory(){
@@ -180,15 +207,16 @@ class Consultas{
 		}
 	}
 	//------Delete cmp_prod
-	public function deleteCmp_prod($id_cppd){
+	public function deleteCmp_prod($cmp_prod){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM cmp_prod WHERE id_cppd = '$id_cppd'";
+		$product = json_decode($cmp_prod, true);
+		$total = (floatval($product['cost_uni_cppd']) * intval($product['cantidad_cppd']))*(1-floatval($product['descuento_cmp'])/100);
+		$consulta = "UPDATE compra set total_cmp = total_cmp - '$total' WHERE id_cmp = '$product[fk_id_cmp_cppd]'";
 		$resultado = $conexion->query($consulta);
-		$fk_id_cmp_cppd = $resultado->fetch_assoc()['fk_id_cmp_cppd'];
 		if ($resultado) {
-			$consulta = "DELETE FROM cmp_prod WHERE id_cppd = '$id_cppd'";
+			$consulta = "DELETE FROM cmp_prod WHERE id_cppd = '$product[id_cppd]'";
 			$resultado = $conexion->query($consulta);
-			echo $fk_id_cmp_cppd;
+			echo $product['fk_id_cmp_cppd'];
 		}
 	}
 	public function addZerosGo($numero) {
