@@ -35,7 +35,7 @@ class Consultas{
 		$array = array();
 		while ($row = $resultado->fetch_assoc()) {
 			$buy = array('id_cmp'=>intval($row['id_cmp']), 'numero_cmp'=>'OC-SMS'.substr($row['fecha_cmp'],2,2).'-'.$this->addZerosGo($row['numero_cmp']), 'fecha_cmp'=>$row['fecha_cmp'], 'fk_id_usua_cmp'=>$row['fk_id_usua_cmp'], 'nombre_usua'=>$row['nombre_usua'], 'apellido_usua'=>$row['apellido_usua'], 'id_empp'=>$row['id_empp'], 'nombre_empp'=>$row['nombre_empp'], 'fk_id_prov_cmp'=>$row['fk_id_prov_cmp'], 'nombre_prov'=>$row['nombre_prov'], 'apellido_prov'=>$row['apellido_prov'], 'total_cmp'=>floatval($row['total_cmp']), 'forma_pago_cmp'=>$row['forma_pago_cmp'], 'tpo_entrega_cmp'=>$row['tpo_entrega_cmp'], 'estado_cmp'=>$row['estado_cmp'],
-			'moneda_cmp'=>$row['moneda_cmp'], 'tipo_cambio_cmp'=>number_format(floatval($row['tipo_cambio_cmp']), 2), 'descuento_cmp'=>$row['descuento_cmp'], 'factura_cmp'=>$row['factura_cmp'], 'fecha_entrega_cmp'=>$row['fecha_entrega_cmp'], 'observacion_cmp'=>$row['observacion_cmp']);
+			'moneda_cmp'=>$row['moneda_cmp'], 'tipo_cambio_cmp'=>number_format(floatval($row['tipo_cambio_cmp']), 2), 'descuento_cmp'=>$row['descuento_cmp'], 'factura_cmp'=>$row['factura_cmp'], 'observacion_cmp'=>$row['observacion_cmp']);
 			$array[$row['id_cmp'].'_id_cmp'] = $buy;
 		}
 		echo json_encode($array, JSON_UNESCAPED_UNICODE);
@@ -63,7 +63,7 @@ class Consultas{
 				$resultado = $conexion->query($consulta);
 				$numero_productos = $resultado->num_rows;
 				if ($numero_productos == 0) {
-					$consulta = "INSERT INTO inventario (fk_id_prod_inv, cantidad_inv, cost_uni_inv, descripcion_inv) VALUES ('$celda[fk_id_prod_cppd]', 0, 0, '')";
+					$consulta = "INSERT INTO inventario (fk_id_prod_inv, cantidad_inv, cost_uni_inv, descripcion_inv) VALUES ('$celda[fk_id_prod_cppd]', 0, '$celda[cost_uni_cppd]', '')";
 					$resultado = $conexion->query($consulta);
 				}
 				//Insertando los productos de la compra
@@ -145,7 +145,7 @@ class Consultas{
 		$resultado = $conexion->query($consulta);
 		$filas = array();
 		while ($fila = $resultado->fetch_assoc()){
-			$row = array('id_cppd'=>$fila['id_cppd'], 'fk_id_cmp_cppd'=>$fila['fk_id_cmp_cppd'], 'numero_cmp'=>'OC-SMS'.substr($fila['fecha_cmp'],2,2).'-'.$this->addZerosGo($fila['numero_cmp']), 'fecha_cmp'=>$fila['fecha_cmp'], 'fecha_entrega_cmp'=>$fila['fecha_entrega_cmp'], 'nombre_usua'=>$fila['nombre_usua'], 'apellido_usua'=>$fila['apellido_usua'], 'nombre_empp'=>$fila['nombre_empp'], 'nombre_mrc'=>$fila['nombre_mrc'], 'nombre_ctgr'=>$fila['nombre_ctgr'], 'fk_id_prod_cppd'=>$fila['fk_id_prod_cppd'], 'codigo_prod'=>$fila['codigo_prod'], 'imagen_prod'=>$fila['imagen_prod'], 'descripcion_cppd'=>$fila['descripcion_cppd'], 'factura_cmp'=>$fila['factura_cmp'],  'cantidad_cppd'=>intval($fila['cantidad_cppd']), 'cost_uni_cppd'=>doubleval($fila['cost_uni_cppd']), 'estado_cppd'=>$fila['estado_cppd'], 'factura_cppd'=>$fila['factura_cppd'], 'fecha_entrega_cppd'=>$fila['fecha_entrega_cppd'], 'descuento_cmp'=>floatval($fila['descuento_cmp']), 'estado_cmp'=>$fila['estado_cmp']);
+			$row = array('id_cppd'=>$fila['id_cppd'], 'fk_id_cmp_cppd'=>$fila['fk_id_cmp_cppd'], 'numero_cmp'=>'OC-SMS'.substr($fila['fecha_cmp'],2,2).'-'.$this->addZerosGo($fila['numero_cmp']), 'fecha_cmp'=>$fila['fecha_cmp'],  'nombre_usua'=>$fila['nombre_usua'], 'apellido_usua'=>$fila['apellido_usua'], 'nombre_empp'=>$fila['nombre_empp'], 'nombre_mrc'=>$fila['nombre_mrc'], 'nombre_ctgr'=>$fila['nombre_ctgr'], 'fk_id_prod_cppd'=>$fila['fk_id_prod_cppd'], 'codigo_prod'=>$fila['codigo_prod'], 'imagen_prod'=>$fila['imagen_prod'], 'descripcion_cppd'=>$fila['descripcion_cppd'], 'factura_cmp'=>$fila['factura_cmp'],  'cantidad_cppd'=>intval($fila['cantidad_cppd']), 'cost_uni_cppd'=>doubleval($fila['cost_uni_cppd']), 'estado_cppd'=>$fila['estado_cppd'], 'factura_cppd'=>$fila['factura_cppd'], 'fecha_entrega_cppd'=>$fila['fecha_entrega_cppd'], 'descuento_cmp'=>floatval($fila['descuento_cmp']), 'estado_cmp'=>$fila['estado_cmp']);
 			$filas[$fila['id_cppd'].'_cppd'] = $row;
 		}
 		echo json_encode($filas, JSON_UNESCAPED_UNICODE);
@@ -155,6 +155,14 @@ class Consultas{
 		include 'conexion.php';
 		//----Convertir el stric a objeto
 		$cmp_prod = json_decode($object, true);
+		//Coprobar que los productos esten creados en inventario
+		$consulta = "SELECT * FROM inventario WHERE fk_id_prod_inv = '$cmp_prod[fk_id_prod_cppd]'";
+		$resultado = $conexion->query($consulta);
+		$numero_productos = $resultado->num_rows;
+		if ($numero_productos == 0) {
+			$consulta = "INSERT INTO inventario (fk_id_prod_inv, cantidad_inv, cost_uni_inv, descripcion_inv) VALUES ('$cmp_prod[fk_id_prod_cppd]', 0, '$cmp_prod[cost_uni_cppd]', '')";
+			$resultado = $conexion->query($consulta);
+		}
 		$consulta = "INSERT INTO cmp_prod (fk_id_cmp_cppd, fk_id_prod_cppd, descripcion_cppd, cantidad_cppd, cost_uni_cppd, estado_cppd) VALUES ('$cmp_prod[fk_id_cmp_cppd]', '$cmp_prod[fk_id_prod_cppd]', '$cmp_prod[descripcion_cppd]', '$cmp_prod[cantidad_cppd]', '$cmp_prod[cost_uni_cppd]', 'PENDIENTE')";
 		$resultado = $conexion->query($consulta);
 		$consulta = "SELECT * FROM compra WHERE id_cmp = '$cmp_prod[fk_id_cmp_cppd]'";

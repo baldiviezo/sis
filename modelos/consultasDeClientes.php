@@ -114,7 +114,7 @@ class consultas {
 		include 'conexion.php';
 		$consulta = "INSERT INTO cliente (nombre_clte, apellido_clte, nit_clte, email_clte, direccion_clte, celular_clte, fk_id_emp_clte) VALUES ('$this->nombreCliente', '$this->apellidoCliente', '$this->nit_clte', '$this->email_clte', '$this->direccion_clte' , '$this->celularCliente', '$this->empresaCliente')";
 		$resultado = $conexion->query($consulta);
-		echo ("Cliente creado con exito");
+		echo ("Cliente creado con éxito");
 	}
 	//------Actualizar un cliente
 	public function updateCustomer(){

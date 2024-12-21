@@ -61,88 +61,65 @@ inputSerchProduct.addEventListener("keyup", searchProducts);
 const selectNumberProduct = document.getElementById('selectNumberProduct');
 selectNumberProduct.selectedIndex = 3;
 selectNumberProduct.addEventListener('change', function () {
-    paginacionProduct(Object.values(filterProducts).length, 1);
+    paginacionProduct(filterProducts.length, 1);
 });
 //------buscar por:
 function searchProducts() {
-    filterProducts = {};
-    for (let product in products) {
-        for (let valor in products[product]) {
-            if (selectSearchProduct.value == 'todas') {
-                if (valor == 'codigo_prod' || valor == 'nombre_prod' || valor == 'descripcion_prod') {
-                    if (products[product][valor].toLowerCase().indexOf(inputSerchProduct.value.toLowerCase()) >= 0) {
-                        filterProducts[product] = products[product];
-                        break;
-                    }
-                }
-            } else {
-                if (valor == selectSearchProduct.value) {
-                    if (products[product][valor].toLowerCase().indexOf(inputSerchProduct.value.toLowerCase()) >= 0) {
-                        filterProducts[product] = products[product];
-                        filterProducts = filterProducts;
-                        break;
-                    }
-                }
-            }
+    const busqueda = inputSerchProduct.value.toLowerCase();
+    const valor = selectSearchProduct.value;
+    filterProducts = products.filter(product => {
+        if (valor == 'todas') {
+            return product.codigo_prod.toLowerCase().includes(busqueda) ||
+                product.nombre_prod.toLowerCase().includes(busqueda) ||
+                product.descripcion_prod.toLowerCase().includes(busqueda);
+        } else {
+            return product[valor].toLowerCase().includes(busqueda);
         }
-    }
+    });
     selectProducts();
 }
 //------buscar por marca y categoria:
 function selectProducts() {
     if (selectMarcaProduct.value == 'todasLasMarcas' && selectCategoriaProduct.value == 'todasLasCategorias') {
-        paginacionProduct(Object.values(filterProducts).length, 1);
+        paginacionProduct(filterProducts.length, 1);
     } else {
-        for (let product in filterProducts) {
-            for (let valor in filterProducts[product]) {
-                if (selectMarcaProduct.value == 'todasLasMarcas') {
-                    if (filterProducts[product]['id_ctgr'] != selectCategoriaProduct.value) {
-                        delete filterProducts[product];
-                        break;
-                    }
-                } else if (selectCategoriaProduct.value == 'todasLasCategorias') {
-                    if (filterProducts[product]['id_mrc'] != selectMarcaProduct.value) {
-                        delete filterProducts[product];
-                        break;
-                    }
-                } else {
-                    if (filterProducts[product]['id_ctgr'] != selectCategoriaProduct.value || filterProducts[product]['id_mrc'] != selectMarcaProduct.value) {
-                        delete filterProducts[product];
-                        break;
-                    }
-                }
+        filterProducts = filterProducts.filter(product => {
+            if (selectMarcaProduct.value == 'todasLasMarcas') {
+                return product['id_ctgr'] == selectCategoriaProduct.value;
+            } else if (selectCategoriaProduct.value == 'todasLasCategorias') {
+                return product['id_mrc'] == selectMarcaProduct.value;
+            } else {
+                return product['id_ctgr'] == selectCategoriaProduct.value && product['id_mrc'] == selectMarcaProduct.value;
             }
-        }
-        filterProducts = filterProducts;
-        paginacionProduct(Object.values(filterProducts).length, 1);
+        });
+        paginacionProduct(filterProducts.length, 1);
     }
 }
 //------Ordenar tabla descendente ascendente
 let orderProducts = document.querySelectorAll('.tbody__head--Product');
 orderProducts.forEach(div => {
     div.children[0].addEventListener('click', function () {
-        let array = Object.entries(filterProducts).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
+        filterProducts.sort((a, b) => {
+            let first = a[div.children[0].name].toLowerCase();
+            let second = b[div.children[0].name].toLowerCase();
             if (first < second) { return -1 }
             if (first > second) { return 1 }
             return 0;
-        })
-        filterProducts = Object.fromEntries(array);
-        paginacionProduct(Object.values(filterProducts).length, 1);
+        });
+        paginacionProduct(filterProducts.length, 1);
     });
+
     div.children[1].addEventListener('click', function () {
-        let array = Object.entries(filterProducts).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
+        filterProducts.sort((a, b) => {
+            let first = a[div.children[0].name].toLowerCase();
+            let second = b[div.children[0].name].toLowerCase();
             if (first > second) { return -1 }
             if (first < second) { return 1 }
             return 0;
-        })
-        filterProducts = Object.fromEntries(array);
-        paginacionProduct(Object.values(filterProducts).length, 1);
+        });
+        paginacionProduct(filterProducts.length, 1);
     });
-})
+});
 //------PaginacionProduct
 function paginacionProduct(allProducts, page) {
     let numberProducts = Number(selectNumberProduct.value);
@@ -238,16 +215,14 @@ async function createProduct() {
     } else {
         if (requestProducts == false) {
             requestProducts = true;
-            productsRMW.classList.remove('modal__show');
+            preloader.classList.add('modal__show');
             let form = document.getElementById("formProductsR");
             let formData = new FormData(form);
             formData.append('createProduct', '');
-            preloader.classList.add('modal__show');
             fetch('../controladores/productos.php', {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-
                 requestProducts = false;
                 if (data == "El codigo ya existe") {
                     mostrarAlerta(data);
@@ -255,6 +230,7 @@ async function createProduct() {
                 } else {
                     readProducts().then(() => {
                         mostrarAlerta("El producto fue creado con éxito");
+                        productsRMW.classList.remove('modal__show');
                         preloader.classList.remove('modal__show');
                         form.reset();
                     })

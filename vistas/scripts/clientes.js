@@ -68,19 +68,22 @@ selectNumberClte.addEventListener('change', function () {
 });
 //------buscar por:
 function searchCustomers() {
+    const busqueda = inputSerchClte.value.toLowerCase();
+    const valor = selectSearchClte.value.toLowerCase().trim();
     filterCustomers = customers.filter(customer => {
-        if (selectSearchClte.value === 'todas') {
-            return Object.values(customer).some(valor => {
-                if (valor === 'apellido_clte') {
-                    return (customer.apellido_clte + ' ' + customer.nombre_clte).toLowerCase().includes(inputSerchClte.value.toLowerCase());
-                } else {
-                    return valor.toLowerCase().includes(inputSerchClte.value.toLowerCase());
-                }
-            });
-        } else if (selectSearchClte.value === 'cliente') {
-            return (customer.apellido_clte + ' ' + customer.nombre_clte).toLowerCase().includes(inputSerchClte.value.toLowerCase());
+        if (valor === 'todas') {
+            return (
+                customer.nit_clte.toLowerCase().includes(busqueda) ||
+                customer.nombre_clte.toLowerCase().includes(busqueda) ||
+                customer.email_clte.toLowerCase().includes(busqueda) ||
+                customer.direccion_clte.toLowerCase().includes(busqueda) ||
+                customer.celular_clte.toLowerCase().includes(busqueda) ||
+                (customer.apellido_clte + ' ' + customer.nombre_clte).toLowerCase().includes(busqueda)
+            );
+        } else if (valor === 'cliente') {
+            return (customer.apellido_clte + ' ' + customer.nombre_clte).toLowerCase().includes(busqueda);
         } else {
-            return customer[selectSearchClte.value].toLowerCase().includes(inputSerchClte.value.toLowerCase());
+            return customer[valor].toLowerCase().includes(busqueda);
         }
     });
     paginacionCustomer(filterCustomers.length, 1);
@@ -235,7 +238,6 @@ async function createCustomer() {
 function readCustomer(tr) {
     formEnterprise = 'M';
     let id_clte = tr.children[0].innerText;
-    console.log(filterCustomers);
     const customer = filterCustomers.find(customers => customers.id_clte = id_clte);
     if (customer) {
         for (let valor in customer) {
