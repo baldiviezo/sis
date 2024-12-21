@@ -69,7 +69,7 @@ async function createSupplier() {
                 rqstBuy = false;
                 formSupplierR.reset();
                 fillSelectClte(selectEnterpriseR, selectSupplierR);
-                alert(data);
+                mostrarAlerta(data);
             })
         }).catch(err => console.log(err));
     }
@@ -114,7 +114,7 @@ async function updateSupplier() {
                 preloader.classList.remove('modal__show');
                 rqstBuy = false;
                 fillSelectClte(selectEnterpriseR, selectSupplierR);
-                alert(data);
+                mostrarAlerta(data);
             })
         }).catch(err => console.log(err));
     }
@@ -137,7 +137,7 @@ async function deleteSupplier(rm) {
                     preloader.classList.remove('modal__show');
                     rqstBuy = false;
                     fillSelectClte(selectEnterpriseR, selectSupplierR);
-                    alert(data);
+                    mostrarAlerta(data);
                 })
             }).catch(err => console.log(err));
         }
@@ -379,12 +379,12 @@ async function createEnterprise() {
                     formEmpresaR.reset();
                     preloader.classList.remove('modal__show');
                     rqstBuy = false;
-                    alert(data);
+                    mostrarAlerta(data);
                 })
             } else {
                 preloader.classList.remove('modal__show');
                 rqstBuy = false;
-                alert(data);
+                mostrarAlerta(data);
             }
         }).catch(err => console.log(err));
     }
@@ -422,11 +422,11 @@ async function updateEnterprise() {
             if (data == 'Empresa actualizada exitosamente') {
                 readEnterprises().then(() => {
                     preloader.classList.remove('modal__show');
-                    alert(data);
+                    mostrarAlerta(data);
                 })
             } else {
                 preloader.classList.remove('modal__show');
-                alert(data);
+                mostrarAlerta(data);
             }
         }).catch(err => console.log(err));
     }
@@ -449,7 +449,7 @@ async function deleteEnterprise(rm) {
                 readEnterprises().then(() => {
                     rqstBuy = false;
                     preloader.classList.remove('modal__show');
-                    alert(data);
+                    mostrarAlerta(data);
                 })
             }).catch(err => console.log(err));
         }
@@ -737,16 +737,16 @@ async function createBuy() {
                         totalPriceCPPDR();
                         preloader.classList.remove('modal__show');
                         rqstBuy = false;
-                        alert(data);
+                        mostrarAlerta(data);
                     });
                 }).catch(err => {
                     rqstBuy = false;
-                    alert(err);
+                    mostrarAlerta(err);
                 });
             }
         }
     } else {
-        alert('No a seleccionado ningun producto');
+        mostrarAlerta('No a seleccionado ningun producto');
     }
 }
 //------Delete buy
@@ -764,11 +764,11 @@ function deleteBuy(id_cmp) {
                 Promise.all([readBuys(), readCmp_prods()]).then(() => {
                     rqstBuy = false;
                     preloader.classList.remove('modal__show');
-                    alert(data);
+                    mostrarAlerta(data);
                 })
             }).catch(err => {
                 rqstBuy = false;
-                alert(err);
+                mostrarAlerta(err);
             });
         }
     }
@@ -795,18 +795,18 @@ async function changeStateBuy(divs) {
                         preloader.classList.remove('modal__show');
                         rqstBuy = false;
                         document.getElementById('productBuyMW').classList.remove('modal__show');
-                        alert(data);
+                        mostrarAlerta(data);
                     })
                 }).catch(err => {
                     rqstBuy = false;
-                    alert(err);
+                    mostrarAlerta(err);
                 });
             }
         } else {
-            alert('Falta registrar productos');
+            mostrarAlerta('Falta registrar productos');
         }
     } else {
-        alert('La nota de entrega no tiene ningun producto');
+        mostrarAlerta('La nota de entrega no tiene ningun producto');
     }
 }
 function cleanFormBuyR() {
@@ -959,7 +959,7 @@ async function createCmp_prod(row) {
                 showproductsAddBuyMW(data);     
             })
         }).catch(err => {
-            alert(err);
+            mostrarAlerta(err);
         });
     }
 }
@@ -987,7 +987,7 @@ async function updateCmp_prod() {
                     preloader.classList.remove('modal__show');
                 })
             }).catch(err => {
-                alert(err);
+                mostrarAlerta(err);
             });
         }
     }
@@ -1011,7 +1011,7 @@ async function deleteCmp_prod(id_cppd) {
                     showproductsAddBuyMW(data);
                 })
             }).catch(err => {
-                alert(err);
+                mostrarAlerta(err);
             });
         }
     }
@@ -1361,7 +1361,7 @@ function sendProduct(tr) {
                     cartProduct_cppdM(filterProductsMW[product], formBuy);
                 }
             } else {
-                alert("El producto ya se encuentra en la lista");
+                mostrarAlerta("El producto ya se encuentra en la lista");
             }
         }
     }
@@ -1593,9 +1593,9 @@ function createProduct() {
     if (rqstBuy == false) {
         rqstBuy = true;
         if (marca_prodR.value == "todasLasMarcas") {
-            alert("Debe seleccionar una marca");
+            mostrarAlerta("Debe seleccionar una marca");
         } else if (categoria_prodR.value == "todasLasCategorias") {
-            alert("Debe seleccionar una categoria");
+            mostrarAlerta("Debe seleccionar una categoria");
         } else {
             productsRMW.classList.remove('modal__show');
             let form = document.getElementById("formProductsR");
@@ -1609,15 +1609,15 @@ function createProduct() {
                 preloader.classList.remove('modal__show');
                 rqstBuy = false;
                 if (data == "El codigo ya existe") {
-                    alert(data);
+                    mostrarAlerta(data);
                 } else {
-                    alert("El producto fue creado con éxito");
+                    mostrarAlerta("El producto fue creado con éxito");
                     readProducts();
                     cleanUpProductFormR();
                 }
             }).catch(err => {
                 rqstBuy = false;
-                alert(err);
+                mostrarAlerta(err);
             });
         }
     }
@@ -1654,9 +1654,9 @@ function updateProduct() {
     if (rqstBuy == false) {
         rqstBuy = true;
         if (marca_prodM.value == "todasLasMarcas") {
-            alert("Debe seleccionar una marca");
+            mostrarAlerta("Debe seleccionar una marca");
         } else if (categoria_prodM.value == "todasLasCategorias") {
-            alert("Debe seleccionar una categoria");
+            mostrarAlerta("Debe seleccionar una categoria");
         } else {
             productsMMW.classList.remove('modal__show');
             let form = document.getElementById("formProductsM");
@@ -1670,10 +1670,10 @@ function updateProduct() {
                 preloader.classList.remove('modal__show');
                 rqstBuy = false;
                 readProducts();
-                alert(data);
+                mostrarAlerta(data);
             }).catch(err => {
                 rqstBuy = false;
-                alert(err);
+                mostrarAlerta(err);
             });
         }
     }
@@ -1790,7 +1790,7 @@ function processFile(file) {
         mostrarimagenR();
     } else {
         //archivo no valido
-        alert('No es una archivo valido');
+        mostrarAlerta('No es una archivo valido');
     }
 }
 const dropAreaM = document.querySelector('.drop__areaM');
@@ -1841,7 +1841,7 @@ function processFileM(file) {
         mostrarimagenM();
     } else {
         //archivo no valido
-        alert('No es una archivo valido');
+        mostrarAlerta('No es una archivo valido');
     }
 }
 /***********************************************PRODUCT FILTER******************************************/
@@ -2047,3 +2047,13 @@ openProdOC.addEventListener('click', () => {
 closeTableProdOC.addEventListener('click', () => {
     tableProdOC.classList.remove('modal__show');
 })
+//------Alert
+const modalAlerta = document.getElementById('alerta');
+const botonAceptar = document.getElementById('botonAceptar');
+function mostrarAlerta(message) {
+    modalAlerta.classList.add('modal__show');
+    document.getElementById('mensaje-alerta').innerText = message;
+}
+botonAceptar.addEventListener('click', (e) => {
+    modalAlerta.classList.remove('modal__show');
+});

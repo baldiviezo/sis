@@ -444,12 +444,12 @@ function deleteNotaEntrega(tr) {
                 body: formData
             }).then(response => response.text()).then(data => {
                 rqstNotaEntrega = false;
-                alert(data);
+                mostrarAlerta(data);
                 readNotasEntrega();
                 preloader.classList.remove('modal__show');
             }).catch(err => {
                 rqstNotaEntrega = false;
-                alert(err);
+                mostrarAlerta(err);
             });
         }
 
@@ -563,11 +563,11 @@ function createSale() {
                 readNotasEntrega().then(() => {
                     rqstNotaEntrega = false;
                     preloader.classList.remove('modal__show');
-                    alert(data);
+                    mostrarAlerta(data);
                 });
             }).catch(err => {
                 rqstNotaEntrega = false;
-                alert(err);
+                mostrarAlerta(err);
             });
         }
     }
@@ -599,3 +599,13 @@ function readInventories() {
         }).catch(err => console.log(err));
     })
 }
+//------Alert
+const modalAlerta = document.getElementById('alerta');
+const botonAceptar = document.getElementById('botonAceptar');
+function mostrarAlerta(message) {
+    modalAlerta.classList.add('modal__show');
+    document.getElementById('mensaje-alerta').innerText = message;
+}
+botonAceptar.addEventListener('click', (e) => {
+    modalAlerta.classList.remove('modal__show');
+});

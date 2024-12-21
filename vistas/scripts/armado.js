@@ -202,7 +202,7 @@ function createArmed() {
         let count = true;
         for (let i = 0; i < carts.length; i++) {
             if (Number(carts[i].children[1].innerText) < Number(carts[i].children[4].value)) {
-                alert('No hay la cantidad suficiente en inventario del prducto: ' + carts[i].children[3].innerText);
+                mostrarAlerta('No hay la cantidad suficiente en inventario del prducto: ' + carts[i].children[3].innerText);
                 count = false;
                 break; // Detiene la ejecución del bucle
             }
@@ -242,18 +242,18 @@ function createArmed() {
                         Promise.all([readArmeds(), readInventories()]).then(() => {
                             preloader.classList.remove('modal__show');
                             rqstArmed = false;
-                            alert(data);
+                            mostrarAlerta(data);
                             cleanUpArmedFormR();
                         });
                     }).catch(err => {
                         rqstArmed = false;
-                        alert(err);
+                        mostrarAlerta(err);
                     });
                 }
             }
         }
     } else {
-        alert('No es un armado correcto');
+        mostrarAlerta('No es un armado correcto');
     }
 }
 function cleanUpArmedFormR() {
@@ -494,7 +494,7 @@ function sendInventory(tr) {
             if (i == 0) {
                 addProduct(filterInventoriesMW[inventario]);
             } else {
-                alert("El producto ya se encuentra en la lista");
+                mostrarAlerta("El producto ya se encuentra en la lista");
             }
         }
     }
@@ -784,7 +784,7 @@ function sendProduct(tr) {
             if (i == 0) {
                 addProduct(filterProductsMW[product]);
             } else {
-                alert("El producto ya se encuentra en la lista");
+                mostrarAlerta("El producto ya se encuentra en la lista");
             }
         }
     }
@@ -805,9 +805,9 @@ document.getElementById("formProductsR").addEventListener("submit", createProduc
 async function createProduct() {
     event.preventDefault();
     if (marca_prodR.value == "todasLasMarcas") {
-        alert("Debe seleccionar una marca");
+        mostrarAlerta("Debe seleccionar una marca");
     } else if (categoria_prodR.value == "todasLasCategorias") {
-        alert("Debe seleccionar una categoria");
+        mostrarAlerta("Debe seleccionar una categoria");
     } else {
         if (!rqstArmed) {
             rqstArmed = true;
@@ -823,11 +823,11 @@ async function createProduct() {
                 rqstArmed = false;
                 if (data == "El codigo ya existe") {
                     preloader.classList.remove('modal__show');
-                    alert(data);
+                    mostrarAlerta(data);
                 } else {
                     readProducts().then(() => {
                         cleanUpProductFormR();
-                        alert("El producto fue creado con éxito");
+                        mostrarAlerta("El producto fue creado con éxito");
                         preloader.classList.remove('modal__show');
                     })
                 }
@@ -924,7 +924,7 @@ function processFile(file) {
         mostrarimagenR();
     } else {
         //archivo no valido
-        alert('No es una archivo valido');
+        mostrarAlerta('No es una archivo valido');
     }
 }
 /*-----------------------------------------Marca y categoria producto-------------------------------------------------*/
@@ -1068,3 +1068,13 @@ function selectCategoriaProdR() {
         }
     }
 }
+//------Alert
+const modalAlerta = document.getElementById('alerta');
+const botonAceptar = document.getElementById('botonAceptar');
+function mostrarAlerta(message) {
+    modalAlerta.classList.add('modal__show');
+    document.getElementById('mensaje-alerta').innerText = message;
+}
+botonAceptar.addEventListener('click', (e) => {
+    modalAlerta.classList.remove('modal__show');
+});

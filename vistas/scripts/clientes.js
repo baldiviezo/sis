@@ -26,14 +26,12 @@ async function init() {
     if (!requestClte) {
         requestClte = true;
         preloader.classList.add('modal__show');
-        await Promise.all([readCustomers(), readEnterprises()])
-            .then(() => {
-                requestClte = false;
-                preloader.classList.remove('modal__show');
-            })
-            .catch((error) => {
-                alert('Ocurrio un error al cargar la tabla de clientes. Cargue nuevamente la pagina.');
-            });
+        Promise.all([readCustomers(), readEnterprises()]).then(() => {
+            requestClte = false;
+            preloader.classList.remove('modal__show');
+        }).catch((error) => {
+            mostrarAlerta('Ocurrio un error al cargar la tabla de clientes. Cargue nuevamente la pagina.');
+        });
     }
 }
 /************************************************TABLA DE CLIENTES*********************************************/
@@ -52,7 +50,7 @@ async function readCustomers() {
             paginacionCustomer(customers.length, 1);
             resolve();
         }).catch(err => {
-            alert('Ocurrio un error al cargar la tabla de clientes. Cargue nuevamente la pagina.');
+            mostrarAlerta('Ocurrio un error al cargar la tabla de clientes. Cargue nuevamente la pagina.');
         });
     })
 }
@@ -71,22 +69,22 @@ selectNumberClte.addEventListener('change', function () {
 //------buscar por:
 function searchCustomers() {
     filterCustomers = customers.filter(customer => {
-      if (selectSearchClte.value === 'todas') {
-        return Object.values(customer).some(valor => {
-          if (valor === 'apellido_clte') {
+        if (selectSearchClte.value === 'todas') {
+            return Object.values(customer).some(valor => {
+                if (valor === 'apellido_clte') {
+                    return (customer.apellido_clte + ' ' + customer.nombre_clte).toLowerCase().includes(inputSerchClte.value.toLowerCase());
+                } else {
+                    return valor.toLowerCase().includes(inputSerchClte.value.toLowerCase());
+                }
+            });
+        } else if (selectSearchClte.value === 'cliente') {
             return (customer.apellido_clte + ' ' + customer.nombre_clte).toLowerCase().includes(inputSerchClte.value.toLowerCase());
-          } else {
-            return valor.toLowerCase().includes(inputSerchClte.value.toLowerCase());
-          }
-        });
-      } else if (selectSearchClte.value === 'cliente') {
-        return (customer.apellido_clte + ' ' + customer.nombre_clte).toLowerCase().includes(inputSerchClte.value.toLowerCase());
-      } else {
-        return customer[selectSearchClte.value].toLowerCase().includes(inputSerchClte.value.toLowerCase());
-      }
+        } else {
+            return customer[selectSearchClte.value].toLowerCase().includes(inputSerchClte.value.toLowerCase());
+        }
     });
     paginacionCustomer(filterCustomers.length, 1);
-  }
+}
 //------Ordenar tabla descendente ascendente
 let orderCustomers = document.querySelectorAll('.tbody__head--customer');
 orderCustomers.forEach(div => {
@@ -223,11 +221,11 @@ async function createCustomer() {
                 preloader.classList.remove('modal__show');
                 let inputsR = document.querySelectorAll('#formClienteR .form__input');
                 inputsR.forEach(input => { input.value = '' });
-                alert(data)
+                mostrarAlerta(data)
             });
         }).catch(err => {
             requestClte = false;
-            alert('Ocurrio un error al crear el cliente. Cargue nuevamente la pagina.');
+            mostrarAlerta('Ocurrio un error al crear el cliente. Cargue nuevamente la pagina.');
             reject(err);
         });
     }
@@ -269,11 +267,11 @@ async function updateCustomer() {
             readCustomers().then(() => {
                 requestClte = false;
                 preloader.classList.remove('modal__show');
-                alert(data);
+                mostrarAlerta(data);
             })
         }).catch(err => {
             requestClte = false;
-            alert('Ocurrio un error al actualizar el cliente. Cargue nuevamente la pagina.');
+            mostrarAlerta('Ocurrio un error al actualizar el cliente. Cargue nuevamente la pagina.');
         });
     }
 }
@@ -293,11 +291,11 @@ async function deleteCustomer(tr) {
                 readCustomers().then(() => {
                     requestClte = false;
                     preloader.classList.remove('modal__show');
-                    alert(data);
+                    mostrarAlerta(data);
                 });
             }).catch(err => {
                 requestClte = false;
-                alert('Ocurrio un error al eliminar el cliente. Cargue nuevamente la pagina.');
+                mostrarAlerta('Ocurrio un error al eliminar el cliente. Cargue nuevamente la pagina.');
             });
         }
     }
@@ -340,7 +338,7 @@ async function readEnterprises() {
             fillSelectEmp(selectEnterpriseM, indexEnterprise);
             resolve();
         }).catch(err => {
-            alert('Ocurrio un error al cargar la table de empresas. Cargue nuevamente la pagina.');
+            mostrarAlerta('Ocurrio un error al cargar la table de empresas. Cargue nuevamente la pagina.');
         });
     })
 }
@@ -377,15 +375,15 @@ async function createEnterprise() {
                 indexEnterprise = 0;
                 readEnterprises().then(() => {
                     preloader.classList.remove('modal__show');
-                    alert(data);
+                    mostrarAlerta(data);
                 });
             } else {
                 preloader.classList.remove('modal__show');
-                alert(data);
+                mostrarAlerta(data);
             }
         }).catch(err => {
             requestClte = false;
-            alert('Ocurrio un error al crear la empresa. Cargue nuevamente la pagina.');
+            mostrarAlerta('Ocurrio un error al crear la empresa. Cargue nuevamente la pagina.');
         });
     }
 }
@@ -423,12 +421,12 @@ async function updateEnterprise() {
             readEnterprises().then(() => {
                 readCustomers().then(() => {
                     preloader.classList.remove('modal__show');
-                    alert(data);
+                    mostrarAlerta(data);
                 });
             });
         }).catch(err => {
             requestClte = false;
-            alert('Ocurrio un error al actualizar la empresa. Cargue nuevamente la pagina.');
+            mostrarAlerta('Ocurrio un error al actualizar la empresa. Cargue nuevamente la pagina.');
         });
     }
 }
@@ -449,11 +447,11 @@ async function deleteEnterprise(div) {
                 indexEnterprise = 0;
                 readEnterprises().then(() => {
                     preloader.classList.remove('modal__show');
-                    alert(data);
+                    mostrarAlerta(data);
                 });
             }).catch(err => {
                 requestClte = false;
-                alert('Ocurrio un error al eliminar la empresa. Cargue nuevamente la pagina.');
+                mostrarAlerta('Ocurrio un error al eliminar la empresa. Cargue nuevamente la pagina.');
             });
         }
     }
@@ -636,4 +634,14 @@ function openEnterpriseSMW() {
 }
 closeEnterpriseSMW.addEventListener('click', () => {
     enterpriseSMW.classList.remove('modal__show');
+});
+//------Alert
+const modalAlerta = document.getElementById('alerta');
+const botonAceptar = document.getElementById('botonAceptar');
+function mostrarAlerta(message) {
+    modalAlerta.classList.add('modal__show');
+    document.getElementById('mensaje-alerta').innerText = message;
+}
+botonAceptar.addEventListener('click', (e) => {
+    modalAlerta.classList.remove('modal__show');
 });

@@ -603,4 +603,13 @@ function readInventories() {
         filterInventories = inventories;
     }).catch(err => console.log(err));
 }
-
+//------Alert
+const modalAlerta = document.getElementById('alerta');
+const botonAceptar = document.getElementById('botonAceptar');
+function mostrarAlerta(message) {
+    modalAlerta.classList.add('modal__show');
+    document.getElementById('mensaje-alerta').innerText = message;
+}
+botonAceptar.addEventListener('click', (e) => {
+    modalAlerta.classList.remove('modal__show');
+});

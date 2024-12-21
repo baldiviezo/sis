@@ -58,7 +58,7 @@ async function readProducts() {
             paginacionProduct(products.length, 1);
             paginacionProductMW(products.length, 1);
             resolve();
-        }).catch(err => alert('Ocurrio un error al cargar los productos, cargue nuevamente la pagina.'));
+        }).catch(err => mostrarAlerta('Ocurrio un error al cargar los productos, cargue nuevamente la pagina.'));
     })
 }
 //------Select utilizado para buscar por columnas
@@ -240,7 +240,7 @@ function addCard(card) {
         cartProduct(id_prod);
         totalPrice();
     } else {
-        alert('El producto ya se encuentra en el carrito');
+        mostrarAlerta('El producto ya se encuentra en el carrito');
     }
 }
 //------Cart
@@ -591,15 +591,15 @@ async function createProforma() {
                     requestProf = false;
                     totalPrice();
                     preloader.classList.remove('modal__show');
-                    alert(data);
+                    mostrarAlerta(data);
                 })
             }).catch(err => {
                 requestProf = false;
-                alert(err);
+                mostrarAlerta(err);
             });
         }
     } else {
-        alert('No a seleccionado ningun producto');
+        mostrarAlerta('No a seleccionado ningun producto');
     }
 }
 //------Read una proforma
@@ -675,15 +675,15 @@ async function updateProforma() {
                 Promise.all([readProformas(), readProf_prods(), readMdfProforma(), readmProf_prods()]).then(() => {
                     requestProf = false;
                     preloader.classList.remove('modal__show');
-                    alert(data);
+                    mostrarAlerta(data);
                 })
             }).catch(err => {
                 requestProf = false;
-                alert(err);
+                mostrarAlerta(err);
             });
         }
     } else {
-        alert('No a seleccionado ningun producto');
+        mostrarAlerta('No a seleccionado ningun producto');
     }
 }
 //-------Delete una proforma
@@ -702,11 +702,11 @@ async function deleteProforma(tr) {
                 readProformas().then(() => {
                     requestProf = false;
                     preloader.classList.remove('modal__show');
-                    alert(data);
+                    mostrarAlerta(data);
                 })
             }).catch(err => {
                 requestProf = false;
-                alert(err);
+                mostrarAlerta(err);
             });
         }
     }
@@ -724,7 +724,7 @@ openProformaRMW.addEventListener('click', () => {
     if (findOutCartItem() == '') {
         proformaRMW.classList.add('modal__show');
     } else {
-        alert(findOutCartItem());
+        mostrarAlerta(findOutCartItem());
     }
 });
 closeProformaRMW.addEventListener('click', (e) => {
@@ -854,12 +854,12 @@ async function deleteMdfProforma(tr) {
             }).then(response => response.text()).then(data => {
                 Promise.all([readMdfProforma(), readmProf_prods()]).then(() => {
                     requestProf = false;
-                    alert(data);
+                    mostrarAlerta(data);
                 });
                 preloader.classList.remove('modal__show');
             }).catch(err => {
                 requestProf = false;
-                alert(err);
+                mostrarAlerta(err);
             });
         }
 
@@ -1234,7 +1234,7 @@ async function createNotaEntrega() {
         const cantidadInv = Number(cart.children[0].innerText);
         const cantidadPedida = Number(cart.children[3].value);
         if (cantidadInv < cantidadPedida) {
-            alert(`No hay la cantidad suficiente en inventario del producto: ${cart.children[2].innerText}`);
+            mostrarAlerta(`No hay la cantidad suficiente en inventario del producto: ${cart.children[2].innerText}`);
             count = false;
             break;
         }
@@ -1264,13 +1264,13 @@ async function createNotaEntrega() {
                 }).then(response => response.text()).then(data => {
                     Promise.all([readProformas(), readInventories()]).then(() => {
                         requestProf = false;
-                        alert(data);
+                        mostrarAlerta(data);
                         form.reset();
                         preloader.classList.remove('modal__show');
                     })
                 }).catch(err => {
                     requestProf = false;
-                    alert(err);
+                    mostrarAlerta(err);
                 });
             }
         }
@@ -1474,11 +1474,11 @@ async function createCustomer() {
                 indexCustomer = -1;
                 formClienteR.reset();
                 preloader.classList.remove('modal__show');
-                alert(data);
+                mostrarAlerta(data);
             });
         }).catch(err => {
             requestProf = false;
-            alert(err);
+            mostrarAlerta(err);
         });
     }
 }
@@ -1516,11 +1516,11 @@ async function updateCustomer() {
                 requestProf = false;
                 indexCustomer = selectCustomerR.value;
                 preloader.classList.remove('modal__show');
-                alert(data);
+                mostrarAlerta(data);
             })
         }).catch(err => {
             requestProf = false;
-            alert(err);
+            mostrarAlerta(err);
         });
     }
 }
@@ -1541,11 +1541,11 @@ async function deleteCustomer(tr) {
                     requestProf = false;
                     preloader.classList.remove('modal__show');
                     indexCustomer = 0;
-                    alert(data);
+                    mostrarAlerta(data);
                 });
             }).catch(err => {
                 requestProf = false;
-                alert(err)
+                mostrarAlerta(err)
             });
         }
     }
@@ -1817,12 +1817,12 @@ async function createEnterprise() {
                 requestProf = false;
                 indexEnterprise = -1;
                 formEmpresaR.reset();
-                alert(data);
+                mostrarAlerta(data);
                 preloader.classList.remove('modal__show');
             })
         }).catch(err => {
             requestProf = false;
-            alert(err);
+            mostrarAlerta(err);
         });
     }
 }
@@ -1857,12 +1857,12 @@ async function updateEnterprise() {
             readEnterprises().then(() => {
                 requestProf = false;
                 indexEnterprise = document.getElementsByName('fk_id_emp_clteR')[0].value;
-                alert(data);
+                mostrarAlerta(data);
                 preloader.classList.remove('modal__show');
             })
         }).catch(err => {
             requestProf = false;
-            alert(err);
+            mostrarAlerta(err);
         });
     }
 }
@@ -1881,13 +1881,13 @@ async function deleteEnterprise(div) {
             }).then(response => response.text()).then(data => {
                 readEnterprises().then(() => {
                     requestProf = false;
-                    alert(data);
+                    mostrarAlerta(data);
                     indexEnterprise = 0;
                     preloader.classList.remove('modal__show');
                 })
             }).catch(err => {
                 requestProf = false;
-                alert(err);
+                mostrarAlerta(err);
             });
         }
     }
@@ -2084,7 +2084,7 @@ function sendInventory(tr) {
         if (!existe) {
             cartProduct_pfpd(inventory, 'new');
         } else {
-            alert("El producto ya se encuentra en la lista");
+            mostrarAlerta("El producto ya se encuentra en la lista");
         }
     }
 }
@@ -2250,7 +2250,7 @@ function sendProduct(tr) {
         if (!existe) {
             cartProduct_pfpd(product, 'new');
         } else {
-            alert("El producto ya se encuentra en la lista");
+            mostrarAlerta("El producto ya se encuentra en la lista");
         }
     }
 }
@@ -2270,9 +2270,9 @@ document.getElementById("formProductsR").addEventListener("submit", createProduc
 async function createProduct() {
     event.preventDefault();
     if (marca_prodR.value == "todasLasMarcas") {
-        alert("Debe seleccionar una marca");
+        mostrarAlerta("Debe seleccionar una marca");
     } else if (categoria_prodR.value == "todasLasCategorias") {
-        alert("Debe seleccionar una categoria");
+        mostrarAlerta("Debe seleccionar una categoria");
     } else {
         if (requestProf == false) {
             requestProf = true;
@@ -2288,17 +2288,17 @@ async function createProduct() {
                 requestProf = false;
                 if (data == "El codigo ya existe") {
                     preloader.classList.remove('modal__show');
-                    alert(data);
+                    mostrarAlerta(data);
                 } else {
                     readProducts().then(() => {
                         preloader.classList.remove('modal__show');
                         form.reset();
-                        alert("El producto fue creado con éxito");
+                        mostrarAlerta("El producto fue creado con éxito");
                     });
                 }
             }).catch(err => {
                 requestProf = false;
-                alert(err);
+                mostrarAlerta(err);
             });
         }
     }
@@ -2333,9 +2333,9 @@ document.getElementById("formProductsM").addEventListener("submit", updateProduc
 async function updateProduct() {
     event.preventDefault();
     if (marca_prodM.value == "todasLasMarcas") {
-        alert("Debe seleccionar una marca");
+        mostrarAlerta("Debe seleccionar una marca");
     } else if (categoria_prodM.value == "todasLasCategorias") {
-        alert("Debe seleccionar una categoria");
+        mostrarAlerta("Debe seleccionar una categoria");
     } else {
         if (requestProf == false) {
             requestProf = true;
@@ -2351,11 +2351,11 @@ async function updateProduct() {
                 readProducts().then(() => {
                     preloader.classList.remove('modal__show');
                     requestProf = false;
-                    alert(data);
+                    mostrarAlerta(data);
                 })
             }).catch(err => {
                 requestProf = false;
-                alert(err);
+                mostrarAlerta(err);
             });
         }
     }
@@ -2478,7 +2478,7 @@ function processFile(file) {
         mostrarimagenR();
     } else {
         //archivo no valido
-        alert('No es una archivo valido');
+        mostrarAlerta('No es una archivo valido');
     }
 }
 const dropAreaM = document.querySelector('.drop__areaM');
@@ -2529,7 +2529,7 @@ function processFileM(file) {
         mostrarimagenM();
     } else {
         //archivo no valido
-        alert('No es una archivo valido');
+        mostrarAlerta('No es una archivo valido');
     }
 }
 /*-----------------------------------------Marca y categoria producto-------------------------------------------------*/
@@ -2782,3 +2782,13 @@ function selectCategoriaProdM() {
         }
     }
 }
+//------Alert
+const modalAlerta = document.getElementById('alerta');
+const botonAceptar = document.getElementById('botonAceptar');
+function mostrarAlerta(message) {
+    modalAlerta.classList.add('modal__show');
+    document.getElementById('mensaje-alerta').innerText = message;
+}
+botonAceptar.addEventListener('click', (e) => {
+    modalAlerta.classList.remove('modal__show');
+});

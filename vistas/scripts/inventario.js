@@ -31,14 +31,12 @@ async function init() {
     if (!requestInventory) {
         requestInventory = true;
         preloader.classList.add('modal__show');
-        await Promise.all([readInventories(), readProductsMW(), readAllMarcas(), readAllCategorias()])
-            .then(() => {
-                requestInventory = false;
-                preloader.classList.remove('modal__show');
-            })
-            .catch((error) => {
-                alert('Ocurrio un error al cargar la tabla de productos. Cargue nuevamente la pagina.');
-            });
+        Promise.all([readInventories(), readProductsMW(), readAllMarcas(), readAllCategorias()]).then(() => {
+            requestInventory = false;
+            preloader.classList.remove('modal__show');
+        }).catch((error) => {
+            mostrarAlerta('Ocurrio un error al cargar la tabla de productos. Cargue nuevamente la pagina.');
+        });
     }
 }
 //---------------------------------------------TABLA INVENTORY--------------------------------------------
@@ -235,11 +233,11 @@ async function createInventory() {
                 preloader.classList.remove('modal__show');
                 requestInventory = false;
                 form.reset();
-                alert(data);
+                mostrarAlerta(data);
             });
         }).catch(err => {
             requestInventory = false;
-            alert(err);
+            mostrarAlerta(err);
         });
     }
 }
@@ -280,11 +278,11 @@ async function updateInventory() {
                 requestInventory = false;
                 preloader.classList.remove('modal__show');
                 inventoryMMW.classList.remove('modal__show');
-                alert(data);
+                mostrarAlerta(data);
             })
         }).catch(err => {
             requestInventory = false;
-            alert('Ocurrio un error al actualizar el inventario, cargue nuevamente la pagina.');
+            mostrarAlerta('Ocurrio un error al actualizar el inventario, cargue nuevamente la pagina.');
         });
     }
 }
@@ -293,7 +291,7 @@ async function deleteInventory(tr) {
     if (confirm('¿Esta usted seguro?')) {
         let cantidad_inv = parseInt(tr.children[9].innerText);
         if (cantidad_inv > 0) {
-            alert('No se puede eliminar los productos que existen en almacen');
+            mostrarAlerta('No se puede eliminar los productos que existen en almacen');
         } else {
             if (requestInventory == false) {
                 requestInventory = true;
@@ -308,11 +306,11 @@ async function deleteInventory(tr) {
                     readInventories().then(() => {
                         requestInventory = false;
                         preloader.classList.remove('modal__show');
-                        alert(data);
+                        mostrarAlerta(data);
                     });
                 }).catch(err => {
                     requestInventory = false;
-                    alert('Ocurrio un error al eliminar el inventario, cargue nuevamente la pagina.');
+                    mostrarAlerta('Ocurrio un error al eliminar el inventario, cargue nuevamente la pagina.');
                 });
             }
         }
@@ -368,7 +366,7 @@ async function readProductsMW() {
             fillSelectProd(selectProductM, indexProduct);
             (selectMarcaProdMW.value == 'todasLasMarcas' && selectCategoriaProdMW.value == 'todasLasCategorias') ? paginacionProductMW(products.length, 1) : selectProductsMW();
             resolve();
-        }).catch(err => alert('Ocurrio un error al cargar los productos, cargue nuevamente la pagina.'));
+        }).catch(err => mostrarAlerta('Ocurrio un error al cargar los productos, cargue nuevamente la pagina.'));
     })
 }
 function fillSelectProd(select, index) {
@@ -387,9 +385,9 @@ document.getElementById("formProductsR").addEventListener("submit", createProduc
 async function createProduct() {
     event.preventDefault();
     if (marca_prodR.value == "todasLasMarcas") {
-        alert("Debe seleccionar una marca");
+        mostrarAlerta("Debe seleccionar una marca");
     } else if (categoria_prodR.value == "todasLasCategorias") {
-        alert("Debe seleccionar una categoria");
+        mostrarAlerta("Debe seleccionar una categoria");
     } else {
         productsRMW.classList.remove('modal__show');
         let form = document.getElementById("formProductsR");
@@ -400,12 +398,12 @@ async function createProduct() {
             body: formData
         }).then(response => response.text()).then(data => {
             if (data == "El codigo ya existe") {
-                alert(data);
+                mostrarAlerta(data);
             } else {
                 Promise.all([readProductsMW(), readInventories()]).then(() => {
                     indexProduct = data;
                     form.reset();
-                    alert("El producto fue creado con éxito");
+                    mostrarAlerta("El producto fue creado con éxito");
                 })
             }
         }).catch(err => console.log(err));
@@ -441,9 +439,9 @@ document.getElementById("formProductsM").addEventListener("submit", updateProduc
 async function updateProduct() {
     event.preventDefault();
     if (marca_prodM.value == "todasLasMarcas") {
-        alert("Debe seleccionar una marca");
+        mostrarAlerta("Debe seleccionar una marca");
     } else if (categoria_prodM.value == "todasLasCategorias") {
-        alert("Debe seleccionar una categoria");
+        mostrarAlerta("Debe seleccionar una categoria");
     } else {
         productsMMW.classList.remove('modal__show');
         let form = document.getElementById("formProductsM");
@@ -454,7 +452,7 @@ async function updateProduct() {
             body: formData
         }).then(response => response.text()).then(data => {
             Promise.all([readProductsMW(), readInventories()]).then(() => {
-                alert(data);
+                mostrarAlerta(data);
                 indexProduct = document.getElementsByName('fk_id_prod_inv' + formProduct)[0].value;
             })
         }).catch(err => console.log(err));
@@ -471,7 +469,7 @@ async function deleteProduct(div) {
             body: formData
         }).then(response => response.text()).then(data => {
             Promise.all([readProductsMW(), readInventories()]).then(() => {
-                alert(data);
+                mostrarAlerta(data);
                 indexProduct = 0;
             });
         }).catch(error => console.log("Ocurrio un error. Intente nuevamente mas tarde"));
@@ -595,7 +593,7 @@ function processFile(file) {
         mostrarimagenR();
     } else {
         //archivo no valido
-        alert('No es una archivo valido');
+        mostrarAlerta('No es una archivo valido');
     }
 }
 const dropAreaM = document.querySelector('.drop__areaM');
@@ -646,7 +644,7 @@ function processFileM(file) {
         mostrarimagenM();
     } else {
         //archivo no valido
-        alert('No es una archivo valido');
+        mostrarAlerta('No es una archivo valido');
     }
 }
 //------------------------------------------------TABLA MODAL PRODUCTS--------------------------------------------------
@@ -885,7 +883,7 @@ function createMarcaInv() {
         method: "POST",
         body: formData
     }).then(response => response.text()).then(data => {
-        alert(data);
+        mostrarAlerta(data);
         readAllMarcas();
     }).catch(err => console.log(err));
 }
@@ -899,7 +897,7 @@ function deleteMarcaInv() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            alert(data);
+            mostrarAlerta(data);
             readAllMarcas();
         }).catch(err => console.log(err));
     }
@@ -933,11 +931,11 @@ function createCategoriaInv() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            alert(data);
+            mostrarAlerta(data);
             readAllCategorias();
         }).catch(err => console.log(err));
     } else {
-        alert('Seleccione una marca');
+        mostrarAlerta('Seleccione una marca');
     }
 }
 //-------Eliminar Categoria
@@ -951,7 +949,7 @@ function deleteCategoriaInv() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            alert(data)
+            mostrarAlerta(data)
             readAllCategorias();
         }).catch(err => console.log(err));
     }
@@ -1103,4 +1101,14 @@ openCategoriaRMW.addEventListener('click', (e) => {
 });
 closeCategoriaRMW.addEventListener('click', (e) => {
     categoriaRMW.classList.remove('modal__show');
+});
+//------Alert
+const modalAlerta = document.getElementById('alerta');
+const botonAceptar = document.getElementById('botonAceptar');
+function mostrarAlerta(message) {
+    modalAlerta.classList.add('modal__show');
+    document.getElementById('mensaje-alerta').innerText = message;
+}
+botonAceptar.addEventListener('click', (e) => {
+    modalAlerta.classList.remove('modal__show');
 });

@@ -19,14 +19,12 @@ async function init() {
     if (!requestProducts) {
         requestProducts = true;
         preloader.classList.add('modal__show');
-        await Promise.all([readProducts(), readAllMarcas(), readAllCategorias()])
-            .then(() => {
-                requestProducts = false;
-                preloader.classList.remove('modal__show');
-            })
-            .catch((error) => {
-                alert('Ocurrio un error al cargar la tabla de productos. Cargue nuevamente la pagina.');
-            });
+        Promise.all([readProducts(), readAllMarcas(), readAllCategorias()]).then(() => {
+            requestProducts = false;
+            preloader.classList.remove('modal__show');
+        }).catch((error) => {
+            mostrarAlerta('Ocurrio un error al cargar la tabla de productos. Cargue nuevamente la pagina.');
+        });
     }
 }
 //--------------------------------------------TABLE PRODUCT-----------------------------------------------------
@@ -234,9 +232,9 @@ document.getElementById("formProductsR").addEventListener("submit", createProduc
 async function createProduct() {
     event.preventDefault();
     if (marca_prodR.value == "todasLasMarcas") {
-        alert("Debe seleccionar una marca");
+        mostrarAlerta("Debe seleccionar una marca");
     } else if (categoria_prodR.value == "todasLasCategorias") {
-        alert("Debe seleccionar una categoria");
+        mostrarAlerta("Debe seleccionar una categoria");
     } else {
         if (requestProducts == false) {
             requestProducts = true;
@@ -252,18 +250,18 @@ async function createProduct() {
 
                 requestProducts = false;
                 if (data == "El codigo ya existe") {
-                    alert(data);
+                    mostrarAlerta(data);
                     preloader.classList.remove('modal__show');
                 } else {
                     readProducts().then(() => {
-                        alert("El producto fue creado con éxito");
+                        mostrarAlerta("El producto fue creado con éxito");
                         preloader.classList.remove('modal__show');
                         form.reset();
                     })
                 }
             }).catch(err => {
                 requestProducts = false;
-                alert('Ocurrio un error al crear el producto. Cargue nuevamente la pagina.');
+                mostrarAlerta('Ocurrio un error al crear el producto. Cargue nuevamente la pagina.');
             });
         }
     }
@@ -298,9 +296,9 @@ document.getElementById("formProductsM").addEventListener("submit", updateProduc
 async function updateProduct() {
     event.preventDefault();
     if (marca_prodM.value == "todasLasMarcas") {
-        alert("Debe seleccionar una marca");
+        mostrarAlerta("Debe seleccionar una marca");
     } else if (categoria_prodM.value == "todasLasCategorias") {
-        alert("Debe seleccionar una categoria");
+        mostrarAlerta("Debe seleccionar una categoria");
     } else {
         if (requestProducts == false) {
             requestProducts = true;
@@ -316,11 +314,11 @@ async function updateProduct() {
                 readProducts().then(() => {
                     preloader.classList.remove('modal__show');
                     requestProducts = false;
-                    alert(data);
+                    mostrarAlerta(data);
                 })
             }).catch(err => {
                 requestProducts = false;
-                alert('Ocurrio un error al actualizar el producto. Cargue nuevamente la pagina.');
+                mostrarAlerta('Ocurrio un error al actualizar el producto. Cargue nuevamente la pagina.');
             });
         }
     }
@@ -341,11 +339,11 @@ async function deleteProduct(tr) {
                 readProducts().then(() => {
                     preloader.classList.remove('modal__show');
                     requestProducts = false;
-                    alert(data);
+                    mostrarAlerta(data);
                 });
             }).catch(err => {
                 requestProducts = false;
-                alert('Ocurrio un error al eliminar el producto. Cargue nuevamente la pagina.');
+                mostrarAlerta('Ocurrio un error al eliminar el producto. Cargue nuevamente la pagina.');
             });
         }
 
@@ -471,7 +469,7 @@ function processFile(file) {
         mostrarimagenR();
     } else {
         //archivo no valido
-        alert('No es una archivo valido');
+        mostrarAlerta('No es una archivo valido');
     }
 }
 const dropAreaM = document.querySelector('.drop__areaM');
@@ -522,7 +520,7 @@ function processFileM(file) {
         mostrarimagenM();
     } else {
         //archivo no valido
-        alert('No es una archivo valido');
+        mostrarAlerta('No es una archivo valido');
     }
 }
 /*----------------------------------------------Marca y categoria-------------------------------------------------*/
@@ -576,9 +574,9 @@ async function createMarcaProd() {
         body: formData
     }).then(response => response.text()).then(data => {
         readAllMarcas().then(() => {
-            alert(data);
+            mostrarAlerta(data);
         })
-    }).catch(err => alert('Ocurrio un error al crear la marca. Cargue nuevamente la pagina.'));
+    }).catch(err => mostrarAlerta('Ocurrio un error al crear la marca. Cargue nuevamente la pagina.'));
 }
 //-------Eliminar Marca
 async function deleteMarcaProd() {
@@ -591,9 +589,9 @@ async function deleteMarcaProd() {
             body: formData
         }).then(response => response.text()).then(data => {
             readAllMarcas().then(() => {
-                alert(data);
+                mostrarAlerta(data);
             })
-        }).catch(err => alert('Ocurrio un error al eliminar la marca. Cargue nuevamente la pagina.'));
+        }).catch(err => mostrarAlerta('Ocurrio un error al eliminar la marca. Cargue nuevamente la pagina.'));
     }
 }
 //-------Select de marcas
@@ -625,11 +623,11 @@ async function createCategoriaProd() {
             body: formData
         }).then(response => response.text()).then(data => {
             readAllCategorias().then(() => {
-                alert(data);
+                mostrarAlerta(data);
             })
-        }).catch(err => alert('Ocurrio un error al crear la categoria. Cargue nuevamente la pagina.'));
+        }).catch(err => mostrarAlerta('Ocurrio un error al crear la categoria. Cargue nuevamente la pagina.'));
     } else {
-        alert('Seleccione una marca');
+        mostrarAlerta('Seleccione una marca');
     }
 }
 //-------Eliminar Categoria
@@ -644,9 +642,9 @@ async function deleteCategoriaProd() {
             body: formData
         }).then(response => response.text()).then(data => {
             readAllCategorias().then(() => {
-                alert(data);
+                mostrarAlerta(data);
             })
-        }).catch(err => alert('Ocurrio un error al eliminar la categoria. Cargue nuevamente la pagina.'));
+        }).catch(err => mostrarAlerta('Ocurrio un error al eliminar la categoria. Cargue nuevamente la pagina.'));
     }
     selectCategoriaProduct.selectedIndex = 0;
 }
@@ -761,4 +759,14 @@ openCategoriaRMW.addEventListener('click', (e) => {
 });
 closeCategoriaRMW.addEventListener('click', (e) => {
     categoriaRMW.classList.remove('modal__show');
+});
+//------Alert
+const modalAlerta = document.getElementById('alerta');
+const botonAceptar = document.getElementById('botonAceptar');
+function mostrarAlerta(message) {
+    modalAlerta.classList.add('modal__show');
+    document.getElementById('mensaje-alerta').innerText = message;
+}
+botonAceptar.addEventListener('click', (e) => {
+    modalAlerta.classList.remove('modal__show');
 });
