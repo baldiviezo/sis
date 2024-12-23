@@ -14,20 +14,23 @@ const formattedDate = dateFormat.format(date);
 const datePart = formattedDate.split(', ');
 const dateActual = datePart[0].split('/');
 //--------------------------------------------------------TABLE SALES--------------------------------------------
-let sales = {};
-let filterSales = {};
+let sales = [];
+let filterSales = [];
 readSales();
-function readSales() {
-    let formData = new FormData();
-    formData.append('readSales', '');
-    fetch('../controladores/ventas.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        sales = data;
-        filterSales = data;
-        paginationSales(Object.values(data).length, 1);
-    }).catch(err => console.log(err));
+async function readSales() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readSales', '');
+        fetch('../controladores/ventas.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            sales = Object.values(data);
+            filterSales = sales;
+            paginationSales(sales.length, 1);
+            resolve();
+        }).catch(err => console.log(err));
+    });
 }
 //------Select utilizado para buscar por columnas
 const selectSearchVnt = document.getElementById('selectSearchVnt');
@@ -39,56 +42,61 @@ inputSerchVnt.addEventListener("keyup", searchSales);
 const selectNumberVnt = document.getElementById('selectNumberVnt');
 selectNumberVnt.selectedIndex = 3;
 selectNumberVnt.addEventListener('change', function () {
-    paginationSales(Object.values(filterSales).length, 1);
+    paginationSales(filterSales.length, 1);
 });
 //------buscar por:
 function searchSales() {
-    filterSales = {};
-    for (let sale in sales) {
-        for (let valor in sales[sale]) {
-            if (selectSearchVnt.value == 'todas') {
-                if (valor != 'id_prof') {
-                    if (sales[sale][valor].toLowerCase().indexOf(inputSerchVnt.value.toLowerCase()) >= 0) {
-                        filterSales[sale] = sales[sale];
-                        break;
-                    }
-                }
-            } else {
-                if (valor == selectSearchVnt.value) {
-                    if (sales[sale][valor].toLowerCase().indexOf(inputSerchVnt.value.toLowerCase()) >= 0) {
-                        filterSales[sale] = sales[sale];
-                        break;
-                    }
-                }
-            }
+    const busqueda = inputSerchVnt.value.toLowerCase();
+    const valor = selectSearchVnt.value.toLowerCase().trim();
+    filterSales = sales.filter(sale => {
+        if (valor === 'todas') {
+            return (
+                sale.numero_prof.toLowerCase().includes(busqueda) ||
+                sale.fecha_ne.includes(busqueda) ||
+                sale.fecha_vnt.toLowerCase().includes(busqueda) ||
+                (sale.nombre_usua + ' ' + sale.apellido_usua).toLowerCase().includes(busqueda) ||
+                sale.nombre_emp.toLowerCase().includes(busqueda) ||
+                sale.cliente_clte.toLowerCase().includes(busqueda) ||
+                sale.orden_ne.toLowerCase().includes(busqueda) ||
+                sale.factura_vnt.toLowerCase().includes(busqueda) ||
+                sale.total_vnt.toLowerCase().includes(busqueda)
+            );
+        } else {
+            return sale[valor].toLowerCase().includes(busqueda);
         }
-    }
-    paginationSales(Object.values(filterSales).length, 1);
+    });
+    paginationSales(filterSales.length, 1);
 }
 //------Ordenar tabla descendente ascendente
 let orderSales = document.querySelectorAll('.tbody__head--venta');
 orderSales.forEach(div => {
     div.children[0].addEventListener('click', function () {
-        let array = Object.entries(filterSales).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
-            if (first < second) { return -1 }
-            if (first > second) { return 1 }
-            return 0;
+        filterSales.sort((a, b) => {
+            if (div.children[0].name === 'factura_vnt' || div.children[0].name == 'total_vnt') {
+                return a[div.children[0].name] - b[div.children[0].name];
+            } else {
+                let first = a[div.children[0].name].toLowerCase();
+                let second = b[div.children[0].name].toLowerCase();
+                if (first < second) { return -1 }
+                if (first > second) { return 1 }
+                return 0;
+            }
         })
-        filterSales = Object.fromEntries(array);
-        paginationSales(Object.values(filterSales).length, 1);
+        paginationSales(filterSales.length, 1);
     });
     div.children[1].addEventListener('click', function () {
-        let array = Object.entries(filterSales).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
-            if (first > second) { return -1 }
-            if (first < second) { return 1 }
-            return 0;
+        filterSales.sort((a, b) => {
+            if (div.children[0].name === 'factura_vnt' || div.children[0].name == 'total_vnt') {
+                return b[div.children[0].name] - a[div.children[0].name];
+            } else {
+                let first = a[div.children[0].name].toLowerCase();
+                let second = b[div.children[0].name].toLowerCase();
+                if (first > second) { return -1 }
+                if (first < second) { return 1 }
+                return 0;
+            }
         })
-        filterSales = Object.fromEntries(array);
-        paginationSales(Object.values(filterSales).length, 1);
+        paginationSales(filterSales.length, 1);
     });
 })
 //------PaginationSales
@@ -176,9 +184,9 @@ function readvnt_prods() {
         method: "POST",
         body: formData
     }).then(response => response.json()).then(data => {
-        vnt_prods = data;
+        vnt_prods = Object.values(data);
         filterVnt_prods = vnt_prods;
-        paginacionProdVnt(Object.values(vnt_prods).length, 1);
+        paginacionProdVnt(vnt_prods.length, 1);
     }).catch(err => console.log(err));
 }
 //------------------------------------------------------TABLE PRODUCT FILTER-----------------------------------------------------
@@ -192,7 +200,7 @@ inputSearchProdVnt.addEventListener("keyup", searchProdVnt);
 const selectNumberProdVnt = document.getElementById('selectNumberProdVnt');
 selectNumberProdVnt.selectedIndex = 3;
 selectNumberProdVnt.addEventListener('change', function () {
-    paginacionProdVnt(Object.values(filterVnt_prods).length, 1);
+    paginacionProdVnt(filterVnt_prods.length, 1);
 });
 //------buscar por:
 function searchProdVnt() {
@@ -252,7 +260,7 @@ function searchProdVnt() {
 let orderProforma = document.querySelectorAll('.tbody__head--proforma');
 orderProforma.forEach(div => {
     div.children[0].addEventListener('click', function () {
-        let array = Object.entries(filterVnt_prods).sort((a, b) => {
+        filterVnt_prods.sort((a, b) => {
             let first = a[1][div.children[0].name];
             let second = b[1][div.children[0].name];
             if (typeof first === 'number' && typeof second === 'number') {
@@ -261,11 +269,10 @@ orderProforma.forEach(div => {
                 return String(first).localeCompare(String(second));
             }
         });
-        filterVnt_prods = Object.fromEntries(array);
-        paginacionProdVnt(Object.values(filterVnt_prods).length, 1);
+        paginacionProdVnt(filterVnt_prods.length, 1);
     });
     div.children[1].addEventListener('click', function () {
-        let array = Object.entries(filterVnt_prods).sort((a, b) => {
+        filterVnt_prods.sort((a, b) => {
             let first = a[1][div.children[0].name];
             let second = b[1][div.children[0].name];
             if (typeof first === 'number' && typeof second === 'number') {
@@ -274,8 +281,7 @@ orderProforma.forEach(div => {
                 return String(second).localeCompare(String(first));
             }
         });
-        filterVnt_prods = Object.fromEntries(array);
-        paginacionProdVnt(Object.values(filterVnt_prods).length, 1);
+        paginacionProdVnt(filterVnt_prods.length, 1);
     });
 });
 //------PaginacionProdVnt
@@ -477,7 +483,7 @@ function filterMostVnt() {
 
     productsSold.forEach(proforma => {
         const encontrado = inventories.find(inventario => inventario.codigo_prod === proforma.codigo_vtpd);
-        const reponer = Math.ceil(proforma.cantidad_vtpd / 5)*2- encontrado.cantidad_inv;
+        const reponer = Math.ceil(proforma.cantidad_vtpd / 5) * 2 - encontrado.cantidad_inv;
         proforma.reponer = reponer;
     });
 
@@ -587,8 +593,6 @@ function tableMostVnt(page) {
         }
     }
 }
-
-
 let inventories = [];
 let filterInventories = [];
 readInventories();

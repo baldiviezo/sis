@@ -108,7 +108,6 @@ orderProducts.forEach(div => {
         });
         paginacionProduct(filterProducts.length, 1);
     });
-
     div.children[1].addEventListener('click', function () {
         filterProducts.sort((a, b) => {
             let first = a[div.children[0].name].toLowerCase();

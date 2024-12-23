@@ -47,7 +47,23 @@ class Consultas{
 		$factura_vnt = $_POST['factura_vnt'];
 		$observacion_vnt = $_POST['observacion_vnt'];
 		include 'conexion.php';
-	
+		//-----Comprobar que la factura no exista
+		$consulta = "SELECT * FROM venta WHERE factura_vnt = '$factura_vnt'";
+		$resultado = $conexion->query($consulta);
+		$numeroClientes = $resultado->num_rows;
+		if($numeroClientes > 0){
+			if($factura_vnt == 'S/F'){
+				$this->addProduct($id_ne, $products, $fecha_vnt, $total_vnt, $id_usua, $factura_vnt, $observacion_vnt);
+			}else{
+				echo "La factura ya existe";
+				exit();
+			}
+		} else {
+			$this->addProduct($id_ne, $products, $fecha_vnt, $total_vnt, $id_usua, $factura_vnt, $observacion_vnt);
+		}
+	}
+	public function addProduct($id_ne, $products, $fecha_vnt, $total_vnt, $id_usua, $factura_vnt, $observacion_vnt){
+		include 'conexion.php';
 		$consulta = "UPDATE nota_entrega set estado_ne='vendido' WHERE id_ne = '$id_ne'";
 		$resultado = $conexion->query($consulta);
 		if($resultado){
@@ -69,7 +85,7 @@ class Consultas{
 				}
 				echo "Venta registrada exitosamente";
 			}
-		}
+		}	
 	}
 	//------------------------------------------------------------------------CRUD VNT-PROD-------------------------------------------------------
 	//------Read vnt-prods

@@ -18,11 +18,10 @@ async function init() {
     if (requestProf == false) {
         requestProf = true;
         preloader.classList.add('modal__show');
-        Promise.all([readProducts(), readProformas(), readMdfProforma(), readProf_prods(), readmProf_prods(), readCustomers(), readEnterprises(), readInventories(), readAllMarcas(), readAllCategorias()])
-            .then(() => {
-                preloader.classList.remove('modal__show');
-                requestProf = false;
-            })
+        Promise.all([readProducts(), readProformas(), readMdfProforma(), readProf_prods(), readmProf_prods(), readCustomers(), readEnterprises(), readInventories(), readAllMarcas(), readAllCategorias()]).then(() => {
+            preloader.classList.remove('modal__show');
+            requestProf = false;
+        })
     }
 }
 //-----------------------------------------------FECHA ACTUAL-------------------------------------
@@ -71,7 +70,7 @@ inputSerchProduct.addEventListener("keyup", searchProducts);
 const selectNumberProduct = document.getElementById('selectNumberProduct');
 selectNumberProduct.selectedIndex = 2;
 selectNumberProduct.addEventListener('change', function () {
-    paginacionProduct(Object.values(filterProducts).length, 1);
+    paginacionProduct(filterProducts.length, 1);
 });
 //-------Marca y categoria
 const selectMarcaProduct = document.getElementById('selectMarcaProduct');
@@ -349,7 +348,7 @@ inputSearchProf.addEventListener("keyup", searchProforma);
 const selectNumberProf = document.getElementById('selectNumberProf');
 selectNumberProf.selectedIndex = 3;
 selectNumberProf.addEventListener('change', function () {
-    paginacionProforma(Object.values(filterProformas).length, 1);
+    paginacionProforma(filterProformas.length, 1);
 });
 //-------Estado de proforma
 const selectStateProf = document.getElementById('selectStateProf');
