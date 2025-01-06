@@ -1,3 +1,17 @@
+//-----------------------------------------PRE LOADER---------------------------------------------
+const preloader = document.getElementById('preloader');
+let requestProf = false;
+init();
+function init() {
+    if (requestProf == false) {
+        requestProf = true;
+        preloader.classList.add('modal__show');
+        Promise.all([readSales(), readvnt_prods()]).then(() => {
+            requestProf = false;
+            preloader.classList.remove('modal__show');
+        });
+    }
+}
 //----------------------------------------------------------FECHA----------------------------------------------------
 const date = new Date();
 const dateFormat = new Intl.DateTimeFormat('es-ES', {
@@ -16,7 +30,6 @@ const dateActual = datePart[0].split('/');
 //--------------------------------------------------------TABLE SALES--------------------------------------------
 let sales = [];
 let filterSales = [];
-readSales();
 async function readSales() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
@@ -176,18 +189,20 @@ function tableSales(page) {
 //--------read vnt_prods
 let vnt_prods;
 let filterVnt_prods;
-readvnt_prods();
 function readvnt_prods() {
-    let formData = new FormData();
-    formData.append('readVnt_prods', '');
-    fetch('../controladores/ventas.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        vnt_prods = Object.values(data);
-        filterVnt_prods = vnt_prods;
-        paginacionProdVnt(vnt_prods.length, 1);
-    }).catch(err => console.log(err));
+    new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readVnt_prods', '');
+        fetch('../controladores/ventas.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            vnt_prods = Object.values(data);
+            filterVnt_prods = vnt_prods;
+            paginacionProdVnt(vnt_prods.length, 1);
+            resolve();
+        }).catch(err => console.log(err));
+    });
 }
 //------------------------------------------------------TABLE PRODUCT FILTER-----------------------------------------------------
 //------Select utilizado para buscar por columnas

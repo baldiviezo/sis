@@ -545,8 +545,6 @@ function createSale() {
     if (confirm('¿Esta usted seguro?')) {
         if (rqstNotaEntrega == false) {
             rqstNotaEntrega = true;
-            vnt_prodRMW.classList.remove('modal__show');
-            saleRMW.classList.remove('modal__show');
             let formData = new FormData();
             formData.append('createSale', id_ne);
             formData.append('prodCart', JSON.stringify(prodCart));
@@ -560,11 +558,21 @@ function createSale() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                readNotasEntrega().then(() => {
+                console.log(data);
+                if (data == 'La factura ya existe') {
                     rqstNotaEntrega = false;
                     preloader.classList.remove('modal__show');
+                    vnt_prodRMW.classList.remove('modal__show');
                     mostrarAlerta(data);
-                });
+                } else {
+                    readNotasEntrega().then(() => {
+                        vnt_prodRMW.classList.remove('modal__show');
+                        saleRMW.classList.remove('modal__show');
+                        rqstNotaEntrega = false;
+                        preloader.classList.remove('modal__show');
+                        mostrarAlerta(data);
+                    });
+                }
             }).catch(err => {
                 rqstNotaEntrega = false;
                 mostrarAlerta(err);
