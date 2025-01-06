@@ -115,11 +115,7 @@ class consultas{
 		$resultado = $conexion->query($consulta);
 		$productos = json_decode($productos,true);
 		foreach($productos as $celda){
-    		$codigo = $celda['codigo'];
-    		$consulta = "SELECT * FROM producto WHERE codigo_prod='$codigo'";
-			$resultado = $conexion->query($consulta);
-			$producto = $resultado->fetch_assoc();
-			$id_prod = $producto['id_prod'];
+			$id_prod = $celda['id_prod'];
     		$cantidad = $celda['cantidad'];
     		$costoUnitario = $celda['costoUnitario'];
     		$consulta2 = "INSERT INTO prof_prod (fk_id_prof_pfpd, fk_id_prod_pfpd, cantidad_pfpd, cost_uni_pfpd) VALUES ('$this->id_prof' , '$id_prod', '$cantidad', '$costoUnitario')";
@@ -179,11 +175,7 @@ class consultas{
 		include 'conexion.php';
 		$productos = json_decode($productos,true);
 		foreach($productos as $celda){
-    		$codigo = $celda['codigo'];
-    		$consulta = "SELECT * FROM producto WHERE codigo_prod='$codigo'";
-			$resultado = $conexion->query($consulta);
-			$producto = $resultado->fetch_assoc();
-			$id_prod = $producto['id_prod'];
+    		$id_prod = $celda['id_prod'];
     		$cantidad = $celda['cantidad'];
     		$costoUnitario = $celda['costoUnitario'];
     		$consulta2 = "INSERT INTO  prof_prod (fk_id_prof_pfpd, fk_id_prod_pfpd, cantidad_pfpd, cost_uni_pfpd) VALUES ('$this->nProforma','$id_prod','$cantidad','$costoUnitario')";

@@ -171,8 +171,7 @@ async function createUser() {
                         usersRMW.classList.remove('modal__show');
                         form.reset();
                         mostrarAlerta(data);
-                    })
-                    
+                    }); 
                 } else {
                     rqstUsua = false;
                     preloader.classList.remove('modal__show');

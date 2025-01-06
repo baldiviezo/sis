@@ -92,26 +92,24 @@ function searchCustomers() {
 let orderCustomers = document.querySelectorAll('.tbody__head--customer');
 orderCustomers.forEach(div => {
     div.children[0].addEventListener('click', function () {
-        let array = Object.entries(filterCustomers).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
+        filterCustomers.sort((a, b) => {
+            let first = a[div.children[0].name].toLowerCase();
+            let second = b[div.children[0].name].toLowerCase();
             if (first < second) { return -1 }
             if (first > second) { return 1 }
             return 0;
         })
-        filterCustomers = Object.fromEntries(array);
-        paginacionCustomer(Object.values(filterCustomers).length, 1);
+        paginacionCustomer(filterCustomers.length, 1);
     });
     div.children[1].addEventListener('click', function () {
-        let array = Object.entries(filterCustomers).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
+        filterCustomers.sort((a, b) => {
+            let first = a[div.children[0].name].toLowerCase();
+            let second = b[div.children[0].name].toLowerCase();
             if (first > second) { return -1 }
             if (first < second) { return 1 }
             return 0;
         })
-        filterCustomers = Object.fromEntries(array);
-        paginacionCustomer(Object.values(filterCustomers).length, 1);
+        paginacionCustomer(filterCustomers.length, 1);
     });
 })
 //------PaginacionCustomer

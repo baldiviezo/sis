@@ -259,6 +259,7 @@ function cartProduct(id_prod) {
         const card = document.createElement('div');
         card.classList.add('cart-item');
         const html = `
+        <input type="hidden" value="${product['id_prod']}">
         <p class="cart-item__cantInv">${cantidad_inv}</p>
         <div class="row-img">
           <img src="../modelos/imagenes/${product['imagen_prod']}" class="rowimg">
@@ -282,10 +283,10 @@ function removeCardFromCart(cart) {
 }
 //------Al cambia la cantidad
 function changeQuantity(product) {
-    let cantidad_prod = product.children[3].value;
-    let costo_uni = product.children[4].value;
+    let cantidad_prod = product.children[4].value;
+    let costo_uni = product.children[5].value;
     let cost_uni_total = cantidad_prod * costo_uni;
-    product.children[5].value = cost_uni_total.toFixed(2);
+    product.children[6].value = cost_uni_total.toFixed(2);
     totalPrice();
 }
 //-------Precio total y moneda
@@ -294,7 +295,7 @@ function totalPrice() {
     let moneda = selectMoneyCart.value;
     let total = 0;
     divs.forEach(div => {
-        costo = Number(div.children[5].value);
+        costo = Number(div.children[6].value);
         total = total + costo;
     })
     document.getElementById('total').innerHTML = moneda + ' ' + total.toFixed(2);
@@ -564,11 +565,9 @@ async function createProforma() {
             let array = [];
             cart.forEach(product => {
                 let valor = {};
-                valor['codigo'] = product.children[2].innerHTML;
-                valor['descripcion'] = product.children[7].innerText;
-                valor['cantidad'] = product.children[3].value;
-                valor['costoUnitario'] = product.children[4].value;
-                valor['imagen'] = product.children[1].children[0].src;
+                valor['id_prod'] = product.children[0].value;
+                valor['cantidad'] = product.children[4].value;
+                valor['costoUnitario'] = product.children[5].value;
                 array.push(valor);
             });
             let productos = JSON.stringify(array);
@@ -588,8 +587,9 @@ async function createProforma() {
             }).then(response => response.text()).then(data => {
                 Promise.all([readProformas(), readProf_prods()]).then(() => {
                     requestProf = false;
-                    totalPrice();
                     preloader.classList.remove('modal__show');
+                    totalPrice();
+                    fillFormProfR();
                     mostrarAlerta(data);
                 })
             }).catch(err => {
@@ -654,11 +654,12 @@ async function updateProforma() {
             let array = [];
             cartItems.forEach(product => {
                 let valor = {};
-                valor['codigo'] = product.children[2].innerText;
-                valor['cantidad'] = product.children[3].value;
-                valor['costoUnitario'] = product.children[4].value;
+                valor['id_prod'] = product.children[0].value;
+                valor['cantidad'] = product.children[4].value;
+                valor['costoUnitario'] = product.children[5].value;
                 array.push(valor);
             });
+            console.log(array)
             let productos = JSON.stringify(array); //string json
             let form = document.getElementById('formProformaM');
             let formData = new FormData(form);
@@ -749,8 +750,8 @@ function findOutCartItem() {
     let cartItem = document.querySelectorAll('#cartItem div.cart-item');
     let errorMessage = '';
     cartItem.forEach(cart => {
-        if (!isInteger(cart.children[3].value)) {
-            errorMessage += 'La cantidad no es un número entero\n';
+        if (!isInteger(cart.children[4].value)) {
+            errorMessage += `El precio unitario del producto "${cart.children[3].innerText}" no es un valor entero\n`;
         }
     });
     return errorMessage;
@@ -991,6 +992,7 @@ function readProf_prod() {
         if (product) {
             const nuevo_objeto = {
                 'fk_id_prof_pfpd': prof_prod['fk_id_prof_pfpd'],
+                'id_prod': product['id_prod'],
                 'codigo_prod': product['codigo_prod'],
                 'nombre_prod': product['nombre_prod'],
                 'descripcion_prod': product['descripcion_prod'],
@@ -1004,6 +1006,7 @@ function readProf_prod() {
 }
 //--------Muestra la lista de los productos de la proforma
 function cartProduct_pfpd(product, action) {
+    console.log(product);
     const inventory = inventories.find(inv => inv['codigo_prod'] === product['codigo_prod']);
     const cantidad_inv = inventory ? inventory['cantidad_inv'] : 0;
     let cost_uni = undefined;
@@ -1018,17 +1021,18 @@ function cartProduct_pfpd(product, action) {
     const item = document.createElement('div');
     item.classList.add('cart-item');
     const html = `
-      <p class="cart-item__cantInv">${cantidad_inv}</p>
-      <div class="row-img">
-        <img src="../modelos/imagenes/${product['imagen_prod']}" class="rowimg">
-      </div>
-      <p class="cart-item__codigo">${product['codigo_prod']}</p>
-      <input type="number" value="${cantidad_prod}" min="1" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__cantidad">
-      <input type="number" value="${cost_uni}" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__costUnit">
-      <input type="number" value="${cantidad_prod * cost_uni}" class="cart-item__costTotal" readonly>
-      <img src="../imagenes/trash.svg" onClick="remove_pfpd(this.parentNode)" class='icon__CRUD'>
-      <h3 hidden>${product['nombre_prod']}</h3>
-      <h3 hidden>${product['descripcion_prod']}</h3>
+        <input type="hidden" value="${product['id_prod']}">
+        <p class="cart-item__cantInv">${cantidad_inv}</p>
+        <div class="row-img">
+            <img src="../modelos/imagenes/${product['imagen_prod']}" class="rowimg">
+        </div>
+        <p class="cart-item__codigo">${product['codigo_prod']}</p>
+        <input type="number" value="${cantidad_prod}" min="1" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__cantidad">
+        <input type="number" value="${cost_uni}" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__costUnit">
+        <input type="number" value="${cantidad_prod * cost_uni}" class="cart-item__costTotal" readonly>
+        <img src="../imagenes/trash.svg" onClick="remove_pfpd(this.parentNode)" class='icon__CRUD'>
+        <h3 hidden>${product['nombre_prod']}</h3>
+        <h3 hidden>${product['descripcion_prod']}</h3>
     `;
     item.innerHTML = html;
     modalProf_prod.appendChild(item);
@@ -1042,10 +1046,10 @@ function remove_pfpd(product) {
 }
 //-------Cuando cambia la cantidad
 function changeQuantity_pfpd(product) {
-    let cantidad_prod = product.children[3].value;
-    let costo_uni = product.children[4].value;
+    let cantidad_prod = product.children[4].value;
+    let costo_uni = product.children[5].value;
     let cost_uni_total = cantidad_prod * costo_uni;
-    product.children[5].value = cost_uni_total.toFixed(2);
+    product.children[6].value = cost_uni_total.toFixed(2);
     totalPrice_pfpd();
 }
 function totalPrice_pfpd() {
@@ -1053,7 +1057,7 @@ function totalPrice_pfpd() {
     let moneda = document.getElementsByName('moneda_profM')[0].value;
     let total = 0;
     divs.forEach(div => {
-        costo = Number(div.children[5].value);
+        costo = Number(div.children[6].value);
         total = total + costo;
     })
     document.getElementById('total_pfpd').innerHTML = moneda + ' ' + total.toFixed(2);
@@ -1108,7 +1112,7 @@ function getMoneda() {
 function calculateTotal(productos) {
     let total = 0;
     productos.forEach(producto => {
-        total += Number(producto.children[5].value);
+        total += Number(producto.children[6].value);
     });
     return total;
 }
@@ -1118,16 +1122,17 @@ function getDescuento() {
 function createTable(tbody, productos, moneda) {
     const html = [];
     productos.forEach(producto => {
+        console.log(producto);
         html.push(`
         <tr>
           <td>${i}</td>
-          <td>${producto.children[2].innerText}</td>
-          <td><textarea class="textarea__preview" readonly>${producto.children[7].innerText}</textarea></td>
+          <td>${producto.children[3].innerText}</td>
           <td><textarea class="textarea__preview" readonly>${producto.children[8].innerText}</textarea></td>
-          <td><img src='${producto.children[1].children[0].src}' class='tbody__img'></td>
-          <td>${producto.children[3].value}</td>
-          <td>${producto.children[4].value} <b>${moneda}</b></td>
+          <td><textarea class="textarea__preview" readonly>${producto.children[9].innerText}</textarea></td>
+          <td><img src='${producto.children[2].children[0].src}' class='tbody__img'></td>
+          <td>${producto.children[4].value}</td>
           <td>${producto.children[5].value} <b>${moneda}</b></td>
+          <td>${producto.children[6].value} <b>${moneda}</b></td>
         </tr>
       `);
         i++;
@@ -1165,7 +1170,6 @@ closePreviewProducts.addEventListener('click', () => {
 const productsSold = document.querySelector('#productsSold');
 const closeProductsSold = document.querySelector('#closeProductsSold');
 function openPreviwProductsSold() {
-    console.log('Entro aqui');
     const id_prof = document.getElementById('fk_id_prof_ne').value;
     const prof_prodsFiltered = prof_prods.filter(prof_prod => prof_prod['fk_id_prof_pfpd'] === id_prof);
     const inventoriesMap = new Map(inventories.map(inventory => [inventory['fk_id_prod_inv'], inventory]));
