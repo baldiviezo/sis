@@ -12,7 +12,7 @@ async function init() {
     if (rqstBuy == false) {
         preloader.classList.add('modal__show');
         rqstBuy = true;
-        Promise.all([readSuppliers(), readEnterprises(), readBuys(), readCmp_prods(), readProducts(), readAllMarcas(), readAllCategorias()]).then(() => {
+        Promise.all([readSuppliers(), readEnterprises(), readBuys(), readCmp_prods(), readProducts(), readAllMarcas(), readAllCategorias()], readInventories()).then(() => {
             rqstBuy = false;
             preloader.classList.remove('modal__show');
         })
@@ -732,7 +732,7 @@ async function createBuy() {
                     body: formData
                 }).then(response => response.text()).then(data => {
                     Promise.all([readBuys(), readCmp_prods()]).then(() => {
-                        cleanFormBuyR();buyRMW.classList.remove('modal__show');
+                        cleanFormBuyR(); buyRMW.classList.remove('modal__show');
                         cmp_prodRMW.classList.remove('modal__show');
                         totalPriceCPPDR();
                         preloader.classList.remove('modal__show');
@@ -927,7 +927,7 @@ async function readCmp_prods() {
         fetch('../controladores/compras.php', {
             method: "POST",
             body: formData
-        }).then(response => response.json()).then(data => {
+        }).then(response => response.json()).then(data => { 
             cmp_prods = Object.values(data);
             filterCmp_prods = cmp_prods;
             paginacionProdOC(cmp_prods.length, 1);
@@ -956,7 +956,7 @@ async function createCmp_prod(row) {
             Promise.all([readBuys(), readCmp_prods()]).then(() => {
                 rqstBuy = false;
                 preloader.classList.remove('modal__show');
-                showproductsAddBuyMW(data);     
+                showproductsAddBuyMW(data);
             })
         }).catch(err => {
             mostrarAlerta(err);
@@ -1345,16 +1345,20 @@ function sendProduct(tr) {
                 if (cart__items.length > 0) {
                     cart__items.forEach(prod => {
                         let id_prod = prod.children[1].value;
-                        //console.log(prod);
                         if (id_prod == filterProductsMW[product]['id_prod']) {
                             i++;
                         }
                     })
                 }
             }
-
-
             if (i == 0) {
+                let inventario = inventories.find(inventory => inventory.fk_id_prod_inv == filterProductsMW[product]['id_prod']);
+                if (inventario != undefined) {
+                    //Añadir ivnetario.cost_uni_inv a el objeto filterProductsMW[product]
+                    filterProductsMW[product]['cost_uni_inv'] = inventario['cost_uni_inv'];
+                } else {
+                    filterProductsMW[product]['cost_uni_inv'] = 0;
+                }
                 if (formBuy == 'R') {
                     cartProduct_cppdR(filterProductsMW[product]);
                 } else if (formBuy != 'R') {
@@ -1375,7 +1379,7 @@ function cartProduct_cppdR(product) {
         <input type="text" value = "${product['codigo_prod']}" class="cart__item--code">
         <textarea class="cart__item--name">${product['nombre_prod']}</textarea>
         <input type="number" value = "1" min="1" onChange="changeQuantityCPPDR(this.parentNode)" class="cart__item--quantity">
-        <input type="number" value = "0" onChange="changeQuantityCPPDR(this.parentNode)" class="cart__item--costUnit">
+        <input type="number" value = "${product['cost_uni_inv']}" onChange="changeQuantityCPPDR(this.parentNode)" class="cart__item--costUnit">
         <input type="number" value = "0" class="cart__item--costTotal" readonly>
         <img src="../imagenes/trash.svg" onClick="removeCartR(this.parentNode)" class='icon__CRUD'>`;
     item.innerHTML = html;
@@ -2025,7 +2029,7 @@ function tableCmpProds(page) {
                     let total = filterCmp_prods[proforma]['cantidad_cppd'] * filterCmp_prods[proforma]['cost_uni_cppd'] * (100 - filterCmp_prods[proforma]['descuento_cmp']) / 100;
                     td2.innerText = total.toFixed(2) + ' Bs';
                     tr.appendChild(td2);
-                } else if (valor == 'fk_id_cmp_cppd' || valor == 'apellido_usua' || valor == 'fk_id_prod_cppd' || valor == 'imagen_prod' || valor == 'estado_cmp') {
+                } else if (valor == 'fk_id_cmp_cppd' || valor == 'apellido_usua' || valor == 'fk_id_prod_cppd' || valor == 'imagen_prod' || valor == 'estado_cmp' || valor == 'estado_cppd') {
                 } else {
                     td.innerText = filterCmp_prods[proforma][valor];
                     tr.appendChild(td);
@@ -2057,3 +2061,17 @@ function mostrarAlerta(message) {
 botonAceptar.addEventListener('click', (e) => {
     modalAlerta.classList.remove('modal__show');
 });
+//------------------------------------------------------Leer invnetario
+let inventories = [];
+async function readInventories() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readInventories', '');
+        fetch('../controladores/inventario.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            inventories = Object.values(data);
+        }).catch(err => console.log(err));
+    })
+}

@@ -286,13 +286,16 @@ function tableNotaEntrega(page) {
 
         if (notaEntrega.estado_ne == 'vendido') {
             imgs = [
-                { src: '../imagenes/pdf.svg', onclick: 'pdfNotaEntrega(this.parentNode.parentNode)', title: 'Descargar nota de entrega' }
+                { src: '../imagenes/pdf.svg', onclick: 'pdfNotaEntrega(this.parentNode.parentNode)', title: 'Descargar nota de entrega' },
+                { src: '../imagenes/return.svg', onclick: 'openReturnMW(this.parentNode.parentNode)', title: 'Devolución de la nota de entrega' }
+
             ];
         } else {
             if (localStorage.getItem('rol_usua') == 'Administrador' || localStorage.getItem('rol_usua') == 'Gerente general') {
                 imgs = [
                     { src: '../imagenes/receipt.svg', onclick: 'readSale(this.parentNode.parentNode)', title: 'Facturar' },
-                    { src: '../imagenes/pdf.svg', onclick: 'pdfNotaEntrega(this.parentNode.parentNode)', title: 'Descargar nota de entrega' }
+                    { src: '../imagenes/pdf.svg', onclick: 'pdfNotaEntrega(this.parentNode.parentNode)', title: 'Descargar nota de entrega' },
+                    { src: '../imagenes/return.svg', onclick: 'openReturnMW(this.parentNode.parentNode)', title: 'Devolución de la nota de entrega' }
                 ];
             } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
                 imgs = [
@@ -428,32 +431,6 @@ async function readProducts() {
             resolve();
         }).catch(err => console.log(err));
     });
-}
-//----------------------------------------------------------- CRUD NOTA ENTREGA----------------------------------------------
-//------Delete a nota de entrega
-function deleteNotaEntrega(tr) {
-    if (confirm('¿Esta usted seguro?')) {
-        if (rqstNotaEntrega == false) {
-            rqstNotaEntrega = true;
-            let id_ne = tr.children[0].innerText;
-            let formData = new FormData();
-            preloader.classList.add('modal__show');
-            formData.append('deleteNotaEntrega', id_ne);
-            fetch('../controladores/notaEntrega.php', {
-                method: "POST",
-                body: formData
-            }).then(response => response.text()).then(data => {
-                rqstNotaEntrega = false;
-                mostrarAlerta(data);
-                readNotasEntrega();
-                preloader.classList.remove('modal__show');
-            }).catch(err => {
-                rqstNotaEntrega = false;
-                mostrarAlerta(err);
-            });
-        }
-
-    }
 }
 //------------------------------------------------------CRUD SALES--------------------------------------------------------
 //-----Read a sale
@@ -617,3 +594,42 @@ function mostrarAlerta(message) {
 botonAceptar.addEventListener('click', (e) => {
     modalAlerta.classList.remove('modal__show');
 });
+//-------------------------------------------------------DEVOLUCION---------------------------------------------------
+const returnMW = document.getElementById('returnMW');
+const closeReturnMW = document.getElementById('closeReturnMW');
+closeReturnMW.addEventListener('click', (e) => {
+    returnMW.classList.remove('modal__show');
+});
+function openReturnMW(row) {
+    returnMW.classList.add('modal__show');
+    document.getElementsByName('fk_id_ne_dvl')[0].value = row.children[0].innerText;
+}
+const formReturn = document.getElementById('formReturn');
+formReturn.addEventListener('submit', (e) => {
+    deleteNotaEntrega();
+});
+//----------------------------------------------------------- CRUD NOTA ENTREGA----------------------------------------------
+//------Delete a nota de entrega
+function deleteNotaEntrega() {
+    event.preventDefault();
+    if (confirm('¿Esta usted seguro?')) {
+        if (rqstNotaEntrega == false) {
+            rqstNotaEntrega = true;
+            preloader.classList.add('modal__show');
+            let formData = new FormData(formReturn);
+            formData.append('deleteNotaEntrega', '');
+            fetch('../controladores/notaEntrega.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                rqstNotaEntrega = false;
+                mostrarAlerta(data);
+                readNotasEntrega();
+                preloader.classList.remove('modal__show');
+            }).catch(err => {
+                rqstNotaEntrega = false;
+                mostrarAlerta(err);
+            });
+        }
+    }
+}

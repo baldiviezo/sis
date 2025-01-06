@@ -15,7 +15,7 @@ if (isset($_POST['readNotasEntrega'])) {
 //-------delete nota de entrega
 if (isset($_POST['deleteNotaEntrega'])) {
 	$deleteNotaEntrega = new consultas;
-	$deleteNotaEntrega->deleteNotaEntrega($_POST['deleteNotaEntrega']);
+	$deleteNotaEntrega->deleteNotaEntrega();
 }
 //------read todas las notas de entrega
 if (isset($_POST['readAllNotaEntrega'])) {

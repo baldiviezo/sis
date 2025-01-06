@@ -118,6 +118,25 @@
             <button onclick="openPreviwProductsSold()" class="form__submit">Facturar</button>
         </div>
     </section>
+    <!--form of product return-->
+    <section id="returnMW" class="modal">
+        <div class="modal__container">
+            <div class="modal__header">
+                <h2 class="modal__title">Devolución</h2>
+                <img src="../imagenes/salir.svg" id="closeReturnMW" class="button__close">
+            </div>
+            <form id="formReturn" class="form">
+                <div class="form__container">
+                    <input type="text" name="fk_id_ne_dvl" placeholder=" " class="form__input" hidden>
+                    <div class="form__group">
+                        <input type="text" name="motivo_dvl"  placeholder=" " class="form__input">
+                        <label for="motivo_dvl" class="form__label">Motivo:</label>
+                    </div>
+                    <input type="submit" class="form__submit" value="Devolución">
+                </div>
+            </form>
+        </div>
+    </section>
     <!--Modal of product of a BuyR -->
     <section id="vnt_prodRMW" class="modal">
         <div class="modalPdpf__container">

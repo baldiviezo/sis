@@ -67,7 +67,7 @@ class Consultas{
 		$consulta = "UPDATE nota_entrega set estado_ne='vendido' WHERE id_ne = '$id_ne'";
 		$resultado = $conexion->query($consulta);
 		if($resultado){
-			$consulta = "INSERT INTO venta (fecha_vnt, factura_vnt, total_vnt, fk_id_ne_vnt, fk_id_usua_vnt, observacion_vnt) VALUES ('$fecha_vnt' , '$factura_vnt', '$total_vnt', '$id_ne', '$id_usua', '$observacion_vnt')"; 
+			$consulta = "INSERT INTO venta (fecha_vnt, factura_vnt, total_vnt, fk_id_ne_vnt, fk_id_usua_vnt, observacion_vnt, estado_vnt) VALUES ('$fecha_vnt' , '$factura_vnt', '$total_vnt', '$id_ne', '$id_usua', '$observacion_vnt', 'FACTURADO')"; 
 			$resultado = $conexion->query($consulta);
 			if($resultado){
 				$consulta = "SELECT MAX(id_vnt) as id_vnt_max FROM venta";

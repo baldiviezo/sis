@@ -97,36 +97,57 @@ class consultas{
 		}
 	}
 	//-----Delete nota de entrega
-	public function deleteNotaEntrega($id_ne){
+	public function deleteNotaEntrega(){
 		include 'conexion.php';
+		$id_ne = trim($conexion->real_escape_string($_POST['fk_id_ne_dvl']));
+		$motivo_dvl = trim($conexion->real_escape_string($_POST['motivo_dvl']));
 		//Modificar el estado de la proforma
 		$consulta = "SELECT * FROM nota_entrega WHERE id_ne = '$id_ne'";
 		$resultado = $conexion->query($consulta);
 		$fila = $resultado->fetch_assoc();
 		$id_prof = $fila['fk_id_prof_ne'];
-		$consulta = "UPDATE proforma set estado_prof = 'pendiente' WHERE id_prof='$id_prof'";
+		$consulta = "UPDATE proforma set estado_prof = 'devuelto' WHERE id_prof='$id_prof'";
 		$resultado = $conexion->query($consulta);
-		if ($resultado) {
-			//Sumar cantidades
-			$consulta = "SELECT * FROM nte_inv WHERE fk_id_ne_neiv = '$id_ne'";
+		//Buscar si la nota de entrega fue facturada
+		$consulta = "SELECT * FROM venta WHERE fk_id_ne_vnt = '$id_ne'";
+		$resultado = $conexion->query($consulta);
+		$numeroNotaEntrega = $resultado->num_rows;
+		if ($numeroNotaEntrega > 0) {
+			//camabiar el estado de la venta
+			$consulta = "UPDATE venta set estado_vnt = 'DEVOLUCION' WHERE fk_id_ne_vnt = '$id_ne'";
 			$resultado = $conexion->query($consulta);
-			while ($fila = $resultado->fetch_assoc()){
-				$id_inv = $fila['fk_id_inv_neiv'];
-				$cantidad_neiv = $fila['cantidad_neiv'];
-			
-				//Sumar las cantidades de los productos vendidos
-				$consulta3 = "UPDATE inventario SET cantidad_inv = cantidad_inv + '$cantidad_neiv' WHERE id_inv='$id_inv'";
-				$resultado3 = $conexion->query($consulta3);
-				
-			}
 			//Eliminar los productos registrado en la tabla nte_inv
-			$consulta = "DELETE FROM nte_inv WHERE fk_id_ne_neiv = '$id_ne'";
-			$resultado = $conexion->query($consulta);
-			//Eliminar nota de entrega
-			$consulta = "DELETE FROM nota_entrega WHERE id_ne = '$id_ne'";
-			$resultado = $conexion->query($consulta);
-			echo 'Nota de entrega eliminada correctamente';
+			$this->deleteNe_inv($id_ne, $motivo_dvl );
+		}else{
+			//Eliminar los productos registrado en la tabla nte_inv
+			$this->deleteNe_inv($id_ne, $motivo_dvl );
 		}
+	}
+	public function deleteNe_inv($id_ne, $motivo_dvl){
+		include 'conexion.php';
+		//Crear un registro en la tabla devolucion y obtener el ultimo id
+		$consulta = "INSERT INTO devolucion (fk_id_ne_dvl, motivo_dvl) VALUES ('$id_ne', '$motivo_dvl')";
+		$resultado = $conexion->query($consulta);
+		$consulta = "SELECT * FROM devolucion ORDER BY id_dvl DESC LIMIT 1";
+		$resultado = $conexion->query($consulta);
+		$devolucion = $resultado->fetch_assoc();
+		$id_dvl = $devolucion['id_dvl'];
+		//Sumar cantidades
+		$consulta = "SELECT * FROM nte_inv WHERE fk_id_ne_neiv = '$id_ne'";
+		$resultado = $conexion->query($consulta);
+		while ($fila = $resultado->fetch_assoc()){
+			$id_inv = $fila['fk_id_inv_neiv'];
+			$codigo_neiv =	$fila['codigo_neiv'];
+			$cantidad_neiv = $fila['cantidad_neiv'];
+			$cost_uni_neiv = $fila['cost_uni_neiv'];
+			//Sumar las cantidades de los productos vendidos
+			$consulta3 = "UPDATE inventario SET cantidad_inv = cantidad_inv + '$cantidad_neiv' WHERE id_inv='$id_inv'";
+			$resultado3 = $conexion->query($consulta3);
+			//registrar los productos devueltos a la tabla dvl_inv
+			$consulta = "INSERT INTO dvl_inv (fk_id_dvl_dliv, fk_id_inv_dliv, codigo_dliv, cantidad_dliv, cost_uni_dliv) VALUES ('$id_dvl', '$id_inv', '$cantidad_neiv', '$codigo_neiv', '$cost_uni_neiv')";
+			$resultado = $conexion->query($consulta);
+		}
+		echo 'Nota de entrega eliminada correctamente';
 	}
 	//--------------------------------------------Estado de proforma---------------------------------
 	public function proformaStatus(){
