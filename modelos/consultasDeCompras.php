@@ -227,6 +227,21 @@ class Consultas{
 			echo $product['fk_id_cmp_cppd'];
 		}
 	}
+	//------edit factura
+	public function editFactura(){
+		$id_cppd = $_POST['id_cppd2'];
+		$factura_cppd = $_POST['factura_cppd2'];
+		include 'conexion.php';
+		$consulta = "UPDATE cmp_prod set factura_cppd = '$factura_cppd' WHERE id_cppd = '$id_cppd'";
+		$resultado = $conexion->query($consulta);
+		if ($resultado) {
+			//obtener fk_id_cmp_cppd
+			$consulta = "SELECT fk_id_cmp_cppd FROM cmp_prod WHERE id_cppd = '$id_cppd'";
+			$resultado = $conexion->query($consulta);
+			$fila = $resultado->fetch_assoc();
+			echo $fila['fk_id_cmp_cppd'];
+		}
+	}
 	public function addZerosGo($numero) {
 		return str_pad($numero, 4, "0", STR_PAD_LEFT);
 	}

@@ -138,6 +138,7 @@
 	border: none;
 	padding: 0;
 	font-family: Arial, Helvetica, sans-serif;
+	font-size: .9rem;
 }
 .cart__item--name::-webkit-scrollbar{
 	width: 0.5rem;
@@ -151,9 +152,6 @@
 .cart__item--name:hover::-webkit-scrollbar-thumb{
 	visibility: visible;
 }
-
-
-
 .cart__item--name:focus{
 	outline: none;
 }
@@ -178,6 +176,11 @@
 .cart__item--costTotal:focus{
 	outline: none;
 }
+.cart__item--factura{
+	width: 8rem;
+	border : none;
+}
+
 .cart__item--delete{
 	width: 4rem;
 	border: none;
@@ -187,7 +190,7 @@
 .modal__container--addProd{
 	margin: auto;
 	background-color: #fff;
-	width: 71rem;
+	width: 79rem;
 	height: 90%;
 	border-radius: .5rem;
 	display: grid;
@@ -257,6 +260,10 @@
 	width: 6rem;
 }
 .modal__body--addProd table thead tr td:nth-of-type(7){
+	padding: 0;
+	width: 8rem;
+}
+.modal__body--addProd table thead tr td:nth-of-type(8){
 	padding: 0;
 	width: 8rem;
 }

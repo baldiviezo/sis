@@ -1122,7 +1122,6 @@ function getDescuento() {
 function createTable(tbody, productos, moneda) {
     const html = [];
     productos.forEach(producto => {
-        console.log(producto);
         html.push(`
         <tr>
           <td>${i}</td>

@@ -211,6 +211,7 @@
 							<td>Cant.</td>
 							<td>Cost Uni.</td>
 							<td>Cost Total</td>
+							<td>N° Factura</td>
 							<td>Acc.</td>
 						</tr>
 					</thead>
@@ -232,6 +233,25 @@
 					<button onclick="changeStateBuy(this.parentNode.parentNode.parentNode.children[2])" class="form__submit">Registrar</button>
                 </div>
 			</div>
+		</div>
+	</section>
+	<!--Modal of edit factura of product of a Buy-->
+	<section id="editFactura" class="modal">
+		<div class="modal__container">
+			<div class="modal__header">
+				<h2 class="modal__title">Editar factura</h2>
+				<img src="../imagenes/salir.svg" id="closeEditFactura" class="button__close">
+			</div>
+			<form id="formEditFactura" class="form">
+				<div class="form__container">
+					<input type="hidden" name="id_cppd2">
+					<div class="form__group">
+						<input type="text" name="factura_cppd2"  placeholder=" " class="form__input">
+						<label for="factura_cppd2" class="form__label">Numero de factura:</label>
+					</div>
+					<input type="submit" value="Editar" class="form__submit">
+				</div>
+			</form>
 		</div>
 	</section>
 	<!--Add buy to inventory-->

@@ -46,5 +46,10 @@ if (isset($_POST['addBuyToInventory'])) {
 if (isset($_POST['deleteCmp_prod'])) {
 	$deleteCmp_prod = new Consultas;
 	$deleteCmp_prod->deleteCmp_prod($_POST['deleteCmp_prod']);
-}	
+}
+//-----edit factura
+if (isset($_POST['editFactura'])) {
+	$editFactura = new Consultas;
+	$editFactura->editFactura();
+}
 ?>

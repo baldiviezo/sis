@@ -732,7 +732,8 @@ async function createBuy() {
                     body: formData
                 }).then(response => response.text()).then(data => {
                     Promise.all([readBuys(), readCmp_prods()]).then(() => {
-                        cleanFormBuyR(); buyRMW.classList.remove('modal__show');
+                        cleanFormBuyR();
+                        buyRMW.classList.remove('modal__show');
                         cmp_prodRMW.classList.remove('modal__show');
                         totalPriceCPPDR();
                         preloader.classList.remove('modal__show');
@@ -927,7 +928,7 @@ async function readCmp_prods() {
         fetch('../controladores/compras.php', {
             method: "POST",
             body: formData
-        }).then(response => response.json()).then(data => { 
+        }).then(response => response.json()).then(data => {
             cmp_prods = Object.values(data);
             filterCmp_prods = cmp_prods;
             paginacionProdOC(cmp_prods.length, 1);
@@ -1037,7 +1038,8 @@ function showproductsAddBuyMW(id_cmp) {
             <textarea class="cart__item--name">${cmp_prods[cmp_prod]['descripcion_cppd']}</textarea>
             <input type="number" value = "${cmp_prods[cmp_prod]['cantidad_cppd']}" min="1" onChange="changeQuantityCPPD(this.parentNode, ${id_cmp})" class="cart__item--quantity">
             <input type="number" value = "${cmp_prods[cmp_prod]['cost_uni_cppd']}" onChange="changeQuantityCPPD(this.parentNode, ${id_cmp})" class="cart__item--costUnit">
-            <input type="number" value = "${Number(cmp_prods[cmp_prod]['cost_uni_cppd'] * cmp_prods[cmp_prod]['cantidad_cppd']).toFixed(2)}" class="cart__item--costTotal" readonly>`;
+            <input type="number" value = "${Number(cmp_prods[cmp_prod]['cost_uni_cppd'] * cmp_prods[cmp_prod]['cantidad_cppd']).toFixed(2)}" class="cart__item--costTotal" readonly>
+            <input type="number" value="${cmp_prods[cmp_prod]['factura_cppd']}" class="cart__item--factura" readonly>`;
             if (cmp_prods[cmp_prod]['estado_cppd'] == 'PENDIENTE') {
                 let img = document.createElement('img');
                 img.classList.add('icon__CRUD');
@@ -1056,6 +1058,12 @@ function showproductsAddBuyMW(id_cmp) {
                 img.src = '../imagenes/checkCircle.svg';
                 img.setAttribute('title', 'Producto agregado');
                 div.appendChild(img);
+                let img2 = document.createElement('img');
+                img2.classList.add('icon__CRUD');
+                img2.src = '../imagenes/edit.svg';
+                img2.setAttribute('title', 'Editar factura');
+                img2.setAttribute('onclick', 'openEditFactura(this.parentNode.children[0].value)');
+                div.appendChild(img2);
             }
             body.appendChild(div);
         }
@@ -1117,6 +1125,40 @@ function totalPriceCPPD(id_cmp) {
     descCPMMW.innerHTML = `Desc. ${ordenCompra.descuento_cmp}% (Bs): ${desc} Bs`;
     totalCPMMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2) - desc).toFixed(2)} Bs`;
     quantityCPMMW.innerHTML = divs.length;
+}
+//-------------------------------EDITAR EL NUMERO DE FACTURA---------------------------------------------
+const editFactura = document.getElementById('editFactura');
+const closeEditFactura = document.getElementById('closeEditFactura');
+closeEditFactura.addEventListener('click', (e) => {
+    editFactura.classList.remove('modal__show');
+})
+function openEditFactura(id_cppd) {
+    editFactura.classList.add('modal__show');
+    document.getElementsByName('id_cppd2')[0].value = id_cppd;
+}
+const formEditFactura = document.getElementById('formEditFactura');
+formEditFactura.addEventListener('submit', editFacturaCompra)
+async function editFacturaCompra() {
+    event.preventDefault();
+    if (rqstBuy == false) {
+        rqstBuy = true;
+        preloader.classList.add('modal__show');
+        let formData = new FormData(formEditFactura);
+        formData.append('editFactura', '');
+        fetch('../controladores/compras.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            Promise.all([readBuys(), readCmp_prods()]).then(() => {
+                rqstBuy = false;
+                formEditFactura.reset();
+                addBuyMW.classList.remove('modal__show');
+                editFactura.classList.remove('modal__show');
+                showproductsAddBuyMW(data);
+                preloader.classList.remove('modal__show');
+            })
+        })
+    }
 }
 //------------------------------MODAL ADD BUY TO INVETORY-----------------------------------------------------
 const addBuyMW = document.getElementById('addBuyMW');

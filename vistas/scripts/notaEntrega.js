@@ -290,7 +290,7 @@ function tableNotaEntrega(page) {
                 { src: '../imagenes/return.svg', onclick: 'openReturnMW(this.parentNode.parentNode)', title: 'Devolución de la nota de entrega' }
 
             ];
-        } else {
+        } else if (notaEntrega.estado_ne == 'pendiente') {
             if (localStorage.getItem('rol_usua') == 'Administrador' || localStorage.getItem('rol_usua') == 'Gerente general') {
                 imgs = [
                     { src: '../imagenes/receipt.svg', onclick: 'readSale(this.parentNode.parentNode)', title: 'Facturar' },
@@ -302,6 +302,10 @@ function tableNotaEntrega(page) {
                     { src: '../imagenes/pdf.svg', onclick: 'pdfNotaEntrega(this.parentNode.parentNode)', title: 'Descargar nota de entrega' }
                 ];
             }
+        } else if (notaEntrega.estado_ne == 'DEVOLUCION') {
+            imgs = [
+                { src: '../imagenes/annulled.svg', title: 'Nota de entrega anulada' }
+            ];
         }
         imgs.forEach((img) => {
             const imgElement = document.createElement('img');
@@ -623,9 +627,10 @@ function deleteNotaEntrega() {
                 body: formData
             }).then(response => response.text()).then(data => {
                 rqstNotaEntrega = false;
-                mostrarAlerta(data);
-                readNotasEntrega();
                 preloader.classList.remove('modal__show');
+                returnMW.classList.remove('modal__show');
+                readNotasEntrega();
+                mostrarAlerta(data);
             }).catch(err => {
                 rqstNotaEntrega = false;
                 mostrarAlerta(err);

@@ -101,12 +101,7 @@ class consultas{
 		include 'conexion.php';
 		$id_ne = trim($conexion->real_escape_string($_POST['fk_id_ne_dvl']));
 		$motivo_dvl = trim($conexion->real_escape_string($_POST['motivo_dvl']));
-		//Modificar el estado de la proforma
-		$consulta = "SELECT * FROM nota_entrega WHERE id_ne = '$id_ne'";
-		$resultado = $conexion->query($consulta);
-		$fila = $resultado->fetch_assoc();
-		$id_prof = $fila['fk_id_prof_ne'];
-		$consulta = "UPDATE proforma set estado_prof = 'devuelto' WHERE id_prof='$id_prof'";
+		$consulta = "UPDATE nota_entrega set estado_ne = 'DEVOLUCION' WHERE id_ne='$id_ne'";
 		$resultado = $conexion->query($consulta);
 		//Buscar si la nota de entrega fue facturada
 		$consulta = "SELECT * FROM venta WHERE fk_id_ne_vnt = '$id_ne'";
@@ -134,8 +129,8 @@ class consultas{
 		$id_dvl = $devolucion['id_dvl'];
 		//Sumar cantidades
 		$consulta = "SELECT * FROM nte_inv WHERE fk_id_ne_neiv = '$id_ne'";
-		$resultado = $conexion->query($consulta);
-		while ($fila = $resultado->fetch_assoc()){
+		$resultado2 = $conexion->query($consulta);
+		while ($fila = $resultado2->fetch_assoc()){
 			$id_inv = $fila['fk_id_inv_neiv'];
 			$codigo_neiv =	$fila['codigo_neiv'];
 			$cantidad_neiv = $fila['cantidad_neiv'];

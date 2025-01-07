@@ -24,7 +24,7 @@ class Consultas{
 	//-----read ventas
 	public function readSales(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM venta INNER JOIN nota_entrega ON venta.fk_id_ne_vnt = id_ne INNER JOIN proforma ON nota_entrega.fk_id_prof_ne = id_prof INNER JOIN cliente ON proforma.fk_id_clte_prof = id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = id_emp INNER JOIN usuario ON venta.fk_id_usua_vnt = id_usua ORDER BY fecha_vnt DESC";
+		$consulta = "SELECT * FROM venta INNER JOIN nota_entrega ON venta.fk_id_ne_vnt = id_ne INNER JOIN proforma ON nota_entrega.fk_id_prof_ne = id_prof INNER JOIN cliente ON proforma.fk_id_clte_prof = id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = id_emp INNER JOIN usuario ON venta.fk_id_usua_vnt = id_usua WHERE venta.estado_vnt = 'FACTURADO' ORDER BY fecha_vnt DESC";
 		$resultado = $conexion->query($consulta);
 		$numeroClientes = $resultado->num_rows;
 		$clientes =  array();
@@ -91,7 +91,7 @@ class Consultas{
 	//------Read vnt-prods
 	public function readVnt_prods(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM vnt_prod INNER JOIN producto ON vnt_prod.fk_id_prod_vtpd = id_prod INNER JOIN venta ON vnt_prod.fk_id_vnt_vtpd = id_vnt INNER JOIN marca ON producto.fk_id_mrc_prod = marca.id_mrc INNER JOIN categoria ON producto.fk_id_ctgr_prod = categoria.id_ctgr INNER JOIN usuario ON venta.fk_id_usua_vnt = usuario.id_usua INNER JOIN nota_entrega ON venta.fk_id_ne_vnt = id_ne INNER JOIN proforma ON nota_entrega.fk_id_prof_ne = id_prof INNER JOIN cliente ON proforma.fk_id_clte_prof = id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = id_emp ORDER BY id_vnt DESC";
+		$consulta = "SELECT * FROM vnt_prod INNER JOIN producto ON vnt_prod.fk_id_prod_vtpd = id_prod INNER JOIN venta ON vnt_prod.fk_id_vnt_vtpd = id_vnt INNER JOIN marca ON producto.fk_id_mrc_prod = marca.id_mrc INNER JOIN categoria ON producto.fk_id_ctgr_prod = categoria.id_ctgr INNER JOIN usuario ON venta.fk_id_usua_vnt = usuario.id_usua INNER JOIN nota_entrega ON venta.fk_id_ne_vnt = id_ne INNER JOIN proforma ON nota_entrega.fk_id_prof_ne = id_prof INNER JOIN cliente ON proforma.fk_id_clte_prof = id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = id_emp WHERE venta.estado_vnt = 'FACTURADO' ORDER BY id_vnt DESC";
 		$resultado = $conexion->query($consulta);
 		$numeroClientes = $resultado->num_rows;
 		$clientes =  array(); 
