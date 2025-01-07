@@ -4,6 +4,7 @@ class consultas {
 		include 'conexion.php';
 		//Ponemos TRIM para el momento de comparar, al no usar trim se puede guardar una variable con espasio en la base de datos y al comparar con la misma variable ya guardada en el fronent el espacio se quita y al comparar no son las mismas
 		$this->codigo = trim($conexion->real_escape_string(strtoupper($_POST['codigo_prodR'])));
+		$this->codigo_smc_prod = trim($conexion->real_escape_string($_POST['codigo_smc_prodR']));
 		$this->marca = trim($conexion->real_escape_string($_POST['marca_prodR']));
 		$this->categoria = trim($conexion->real_escape_string($_POST['categoria_prodR']));
 		$this->nombre = trim($conexion->real_escape_string($_POST['nombre_prodR']));
@@ -14,6 +15,7 @@ class consultas {
 		include 'conexion.php';
 		$this->id = trim($conexion->real_escape_string($_POST['id_prodM']));
 		$this->codigo = trim($conexion->real_escape_string(strtoupper($_POST['codigo_prodM'])));
+		$this->codigo_smc_prod = trim($conexion->real_escape_string($_POST['codigo_smc_prodM']));
 		$this->marca = trim($conexion->real_escape_string($_POST['marca_prodM']));
 		$this->categoria = trim($conexion->real_escape_string($_POST['categoria_prodM']));
 		$this->descripcion = trim($conexion->real_escape_string($_POST['descripcion_prodM']));
@@ -29,7 +31,7 @@ class consultas {
 		$productos =  array();
 		while ($fila = $resultado->fetch_assoc()){
 			$description = $fila['descripcion_prod'];
-			$datos = array ( 'id_prod'=>$fila['id_prod'], 'id_mrc'=>$fila['id_mrc'], 'marca_prod'=>$fila['nombre_mrc'], 'id_ctgr'=>$fila['id_ctgr'], 'categoria_prod'=>$fila['nombre_ctgr'], 'codigo_prod'=>$fila['codigo_prod'], 'nombre_prod'=>$fila['nombre_prod'], 'descripcion_prod'=>$description,  'imagen_prod'=>$fila['imagen_prod']);
+			$datos = array ( 'id_prod'=>$fila['id_prod'], 'id_mrc'=>$fila['id_mrc'], 'marca_prod'=>$fila['nombre_mrc'], 'id_ctgr'=>$fila['id_ctgr'], 'categoria_prod'=>$fila['nombre_ctgr'], 'codigo_smc_prod'=>$fila['codigo_smc_prod'], 'codigo_prod'=>$fila['codigo_prod'], 'nombre_prod'=>$fila['nombre_prod'], 'descripcion_prod'=>$description,  'imagen_prod'=>$fila['imagen_prod']);
 			$productos['id_prod_'.$fila['id_prod']] = $datos;
 		}
 		echo json_encode($productos, JSON_UNESCAPED_UNICODE);
@@ -45,7 +47,7 @@ class consultas {
 		}else{
 			$fecha = new DateTime();
 			$nombreImagen=($this->imagen!="")?$fecha->getTimestamp()."_".$this->imagen:"imagen.jpg";
-			$consulta = "INSERT INTO producto (codigo_prod, fk_id_mrc_prod, fk_id_ctgr_prod, nombre_prod, descripcion_prod, imagen_prod) VALUES ('$this->codigo', '$this->marca', '$this->categoria', '$this->nombre','$this->descripcion', '$nombreImagen')";
+			$consulta = "INSERT INTO producto (codigo_prod, codigo_smc_prod, fk_id_mrc_prod, fk_id_ctgr_prod, nombre_prod, descripcion_prod, imagen_prod) VALUES ('$this->codigo', '$this->codigo_smc_prod', '$this->marca', '$this->categoria', '$this->nombre','$this->descripcion', '$nombreImagen')";
 			$resultado = $conexion->query($consulta);
 			if($resultado){
 				$imagenTemporal = $_FILES['imagen_prodR']['tmp_name'];
@@ -77,7 +79,7 @@ class consultas {
 	}
 	public function update(){
 		include 'conexion.php';
-		$consulta = "UPDATE producto set codigo_prod='$this->codigo', fk_id_mrc_prod='$this->marca', fk_id_ctgr_prod='$this->categoria', descripcion_prod='$this->descripcion', nombre_prod='$this->nombre' WHERE id_prod='$this->id'";
+		$consulta = "UPDATE producto set codigo_prod='$this->codigo', codigo_smc_prod='$this->codigo_smc_prod', fk_id_mrc_prod='$this->marca', fk_id_ctgr_prod='$this->categoria', descripcion_prod='$this->descripcion', nombre_prod='$this->nombre' WHERE id_prod='$this->id'";
 		$resultado = $conexion->query($consulta);
 		if($this->imagen != "" && $resultado){
 			//borrar la anterior imagen

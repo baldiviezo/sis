@@ -1006,7 +1006,6 @@ function readProf_prod() {
 }
 //--------Muestra la lista de los productos de la proforma
 function cartProduct_pfpd(product, action) {
-    console.log(product);
     const inventory = inventories.find(inv => inv['codigo_prod'] === product['codigo_prod']);
     const cantidad_inv = inventory ? inventory['cantidad_inv'] : 0;
     let cost_uni = undefined;
@@ -2219,6 +2218,7 @@ function tableProductsMW(page) {
                     td.innerText = i;
                     tr.appendChild(td);
                     i++;
+                } else if (valor == 'codigo_smc_prod') {
                 } else if (valor == 'id_mrc') {
                 } else if (valor == 'id_ctgr') {
                 } else if (valor == 'imagen_prod') {
@@ -2314,6 +2314,11 @@ function readProduct(tr) {
             for (let valor in filterProducts[product]) {
                 if (valor == 'imagen_prod') {
                     document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("../modelos/imagenes/${filterProducts[product][valor]}"); background-size: cover;`);
+                } else if (valor == 'codigo_smc_prod') {
+                    if (filterProducts[product]['id_mrc'] == '15') {
+                        divCodigoSMCM.removeAttribute('hidden');
+                        document.getElementsByName(valor + 'M')[0].value = filterProducts[product][valor];
+                    } 
                 } else if (valor == 'id_ctgr') {
                 } else if (valor == 'id_mrc') {
                 } else if (valor == 'marca_prod') {

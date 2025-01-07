@@ -173,6 +173,7 @@ function tableProducts(page) {
                     td.innerText = i;
                     tr.appendChild(td);
                     i++;
+                } else if (valor == 'codigo_smc_prod') {
                 } else if (valor == 'id_mrc') {
                 } else if (valor == 'id_ctgr') {
                 } else if (valor == 'imagen_prod') {
@@ -247,9 +248,15 @@ function readProduct(tr) {
     let id_prod = tr.children[0].innerText;
     for (let product in filterProducts) {
         if (filterProducts[product]['id_prod'] == id_prod) {
+            console.log(filterProducts[product])
             for (let valor in filterProducts[product]) {
                 if (valor == 'imagen_prod') {
                     document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("../modelos/imagenes/${filterProducts[product][valor]}"); background-size: cover;`);
+                } else if (valor == 'codigo_smc_prod') {
+                    if (filterProducts[product]['id_mrc'] == '15') {
+                        divCodigoSMCM.removeAttribute('hidden');
+                        document.getElementsByName(valor + 'M')[0].value = filterProducts[product][valor];
+                    } 
                 } else if (valor == 'id_ctgr') {
                 } else if (valor == 'id_mrc') {
                 } else if (valor == 'marca_prod') {
@@ -744,4 +751,21 @@ function mostrarAlerta(message) {
 }
 botonAceptar.addEventListener('click', (e) => {
     modalAlerta.classList.remove('modal__show');
+});
+//------div codigo smc
+const divCodigoSMCR = document.getElementById('divCodigoSMCR');
+const divCodigoSMCM = document.getElementById('divCodigoSMCM');
+marca_prodR.addEventListener('change', () => {
+    if (marca_prodR.value == '15') {
+        divCodigoSMCR.removeAttribute('hidden');
+    } else {
+        divCodigoSMCR.setAttribute('hidden', '');
+    }
+});
+marca_prodM.addEventListener('change', () => {
+    if (marca_prodM.value == '15') {
+        divCodigoSMCM.removeAttribute('hidden');
+    } else {
+        divCodigoSMCM.setAttribute('hidden', '');
+    }
 });
