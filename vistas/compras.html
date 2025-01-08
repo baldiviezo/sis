@@ -676,7 +676,7 @@
 		<div class="modalP__container">
 			<div class="modalP__header">
 				<h2 class="modalP__title">Registrar producto<img src="../imagenes/producto.svg"></h2>
-				<img class="button__close" src="../imagenes/salir.svg" id="closeProductsRMW">
+				<img class="button__close" src="../imagenes/salir.svg" id="closeProductsRMW" title="Minimizar">
 			</div>
 			<form id="formProductsR" class="modalP__form">
 				<!--For nos ayuda a enlazarnos con otro objeto utilizando su id, por ejemplo cuando se hace foco(un click) al elemento que tiene for este nos redijira a su objeto en lazado-->
@@ -685,6 +685,10 @@
 						<div class="modalP__group">
 							<label for="codigo_prodR" class="modalP__label">Codigo:</label>	
 							<input type="text" name="codigo_prodR"  placeholder=" " class="modalP__input">
+						</div>
+						<div class="modalP__group" id="divCodigoSMCR" hidden="true">
+							<label for="codigo_smc_prodR" class="modalP__label">Codigo SMC:</label>	
+							<input type="text" name="codigo_smc_prodR"  placeholder=" " class="modalP__input">
 						</div>
 					</div>
 					<div class="modalP__group--select">
@@ -721,7 +725,7 @@
 		<div class="modalP__container">
 			<div class="modalP__header">
 				<h2 class="modalP__title">Modificar producto<img src="../imagenes/producto.svg"></h2>
-				<img class="button__close" src="../imagenes/salir.svg" id="closeProductsMMW">
+				<img class="button__close" src="../imagenes/salir.svg" id="closeProductsMMW" title="Minimizar">
 			</div>
 			<form id="formProductsM" class="modalP__form">
 				<div class="modalP__inputs--container">
@@ -730,6 +734,10 @@
 						<div class="modalP__group">
 							<label for="codigo_prodM" class="modalP__label">Codigo:</label>
 							<input type="text" name="codigo_prodM" placeholder=" " class="modalP__input">
+						</div>
+						<div class="modalP__group" id="divCodigoSMCM" hidden="true">
+							<label for="codigo_smc_prodM" class="modalP__label">Codigo SMC:</label>	
+							<input type="text" name="codigo_smc_prodM"  placeholder=" " class="modalP__input">
 						</div>
 					</div>
 					<div class="modalP__group--select">

@@ -746,6 +746,7 @@ function tableProductsMW(page) {
                     td.innerText = i;
                     tr.appendChild(td);
                     i++;
+                } else if (valor == 'codigo_smc_prod') {
                 } else if (valor == 'id_mrc') {
                 } else if (valor == 'id_ctgr') {
                 } else if (valor == 'imagen_prod') {
@@ -1077,4 +1078,21 @@ function mostrarAlerta(message) {
 }
 botonAceptar.addEventListener('click', (e) => {
     modalAlerta.classList.remove('modal__show');
+});
+//------div codigo smc
+const divCodigoSMCR = document.getElementById('divCodigoSMCR');
+const divCodigoSMCM = document.getElementById('divCodigoSMCM');
+marca_prodR.addEventListener('change', () => {
+    if (marca_prodR.value == '15') {
+        divCodigoSMCR.removeAttribute('hidden');
+    } else {
+        divCodigoSMCR.setAttribute('hidden', '');
+    }
+});
+marca_prodM.addEventListener('change', () => {
+    if (marca_prodM.value == '15') {
+        divCodigoSMCM.removeAttribute('hidden');
+    } else {
+        divCodigoSMCM.setAttribute('hidden', '');
+    }
 });
