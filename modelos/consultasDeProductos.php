@@ -45,19 +45,34 @@ class consultas {
 		if($numeroFilas > 0){
 			echo "El codigo ya existe";	
 		}else{
-			$fecha = new DateTime();
-			$nombreImagen=($this->imagen!="")?$fecha->getTimestamp()."_".$this->imagen:"imagen.jpg";
-			$consulta = "INSERT INTO producto (codigo_prod, codigo_smc_prod, fk_id_mrc_prod, fk_id_ctgr_prod, nombre_prod, descripcion_prod, imagen_prod) VALUES ('$this->codigo', '$this->codigo_smc_prod', '$this->marca', '$this->categoria', '$this->nombre','$this->descripcion', '$nombreImagen')";
-			$resultado = $conexion->query($consulta);
-			if($resultado){
-				$imagenTemporal = $_FILES['imagen_prodR']['tmp_name'];
-        		move_uploaded_file($imagenTemporal, "../modelos/imagenes/" . $nombreImagen);
+			if ($this->marca == 15){
+				$consulta = "SELECT * FROM producto WHERE codigo_smc_prod='$this->codigo_smc_prod'";
+				$resultado = $conexion->query($consulta);
+				$numeroFilas2 = $resultado->num_rows;
+				if ($numeroFilas2 > 0) {
+					echo "El codigo ya existe";
+				}else{
+					$this->registrar2();
+				}
+			}else{
+				$this->registrar2();
 			}
-			$consulta = "SELECT MAX(id_prod) as id_prod_max FROM producto";
-			$resultado = $conexion->query($consulta);
-			$producto = $resultado->fetch_assoc();
-			echo $producto['id_prod_max'];
 		}
+	}
+	public function registrar2(){
+		include 'conexion.php';
+		$fecha = new DateTime();
+		$nombreImagen=($this->imagen!="")?$fecha->getTimestamp()."_".$this->imagen:"imagen.jpg";
+		$consulta = "INSERT INTO producto (codigo_prod, codigo_smc_prod, fk_id_mrc_prod, fk_id_ctgr_prod, nombre_prod, descripcion_prod, imagen_prod) VALUES ('$this->codigo', '$this->codigo_smc_prod', '$this->marca', '$this->categoria', '$this->nombre','$this->descripcion', '$nombreImagen')";
+		$resultado = $conexion->query($consulta);
+		if($resultado){
+			$imagenTemporal = $_FILES['imagen_prodR']['tmp_name'];
+        	move_uploaded_file($imagenTemporal, "../modelos/imagenes/" . $nombreImagen);
+		}
+		$consulta = "SELECT MAX(id_prod) as id_prod_max FROM producto";
+		$resultado = $conexion->query($consulta);
+		$producto = $resultado->fetch_assoc();
+		echo $producto['id_prod_max'];
 	}
 	//------Actualizar un producto
 	public function guardar(){
@@ -69,12 +84,34 @@ class consultas {
 			$producto = $resultado->fetch_assoc();
 			$id_prod = $producto['id_prod'];
 			if($id_prod == $this->id){
-				$this->update();
+				if ($this->marca == 15){
+					$consulta = "SELECT * FROM producto WHERE codigo_smc_prod='$this->codigo_smc_prod'";
+					$resultado = $conexion->query($consulta);
+					$numeroFilas2 = $resultado->num_rows;
+					if ($numeroFilas2 > 0) {
+						echo "El codigo ya existe";
+					}else{
+						$this->update();
+					}
+				}else{
+					$this->update();
+				}
 			}else{
 				echo json_encode("El codigo ya existe");
 			}
 		}else{
-			$this->update();
+			if ($this->marca == 15){
+				$consulta = "SELECT * FROM producto WHERE codigo_smc_prod='$this->codigo_smc_prod'";
+				$resultado = $conexion->query($consulta);
+				$numeroFilas2 = $resultado->num_rows;
+				if ($numeroFilas2 > 0) {
+					echo "El codigo ya existe";
+				}else{
+					$this->update();
+				}
+			}else{
+				$this->update();
+			}
 		}
 	}
 	public function update(){

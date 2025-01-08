@@ -248,7 +248,6 @@ function readProduct(tr) {
     let id_prod = tr.children[0].innerText;
     for (let product in filterProducts) {
         if (filterProducts[product]['id_prod'] == id_prod) {
-            console.log(filterProducts[product])
             for (let valor in filterProducts[product]) {
                 if (valor == 'imagen_prod') {
                     document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("../modelos/imagenes/${filterProducts[product][valor]}"); background-size: cover;`);
@@ -284,7 +283,6 @@ async function updateProduct() {
     } else {
         if (requestProducts == false) {
             requestProducts = true;
-            productsMMW.classList.remove('modal__show');
             let form = document.getElementById("formProductsM");
             let formData = new FormData(form);
             formData.append('updateProduct', '');
@@ -293,11 +291,20 @@ async function updateProduct() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                readProducts().then(() => {
-                    preloader.classList.remove('modal__show');
-                    requestProducts = false;
-                    mostrarAlerta(data);
-                })
+                if (data == "El codigo ya existe") {
+                    readProducts().then(() => {
+                        preloader.classList.remove('modal__show');
+                        requestProducts = false;
+                        mostrarAlerta(data);
+                    })
+                }else {
+                    readProducts().then(() => {
+                        productsMMW.classList.remove('modal__show');
+                        preloader.classList.remove('modal__show');
+                        requestProducts = false;
+                        mostrarAlerta(data);
+                    })
+                }
             }).catch(err => {
                 requestProducts = false;
                 mostrarAlerta('Ocurrio un error al actualizar el producto. Cargue nuevamente la pagina.');
@@ -373,34 +380,20 @@ function mostrarimagenM() {
 //<<------------------------------------------------------CAMPOS DE LOS FORMULARIOS------------------------------->>
 const inputsFormProduct = document.querySelectorAll('.modalP__form .modalP__group input');
 //------Vuelve oblogatorios los campos del formulario
-function requiredInputProd() {
-    inputsFormProduct.forEach(input => input.setAttribute("required", ""));
-    //formulario registrar
-    document.getElementsByName("imagen_prodR")[0].setAttribute('accept', "image/jpeg, image/jpg");
-    document.getElementsByName("descripcion_prodR")[0].setAttribute("required", "");
-    //formulario modificar
-    document.getElementsByName("id_prodM")[0].setAttribute("hidden", "");
-    document.getElementsByName("imagen_prodM")[0].setAttribute("accept", "image/jpeg, image/jpg");
-    document.getElementsByName("descripcion_prodM")[0].setAttribute("required", "");
-}
 //<<-------------------------------------------------------ESPACIOS OBLIGATORIOS de formProductsR y formProductsM ------------------------------------------>>
 inputsFormProduct.forEach(input => {
     input.setAttribute('required', '');
+    document.getElementsByName("codigo_smc_prodR")[0].removeAttribute('required');
+    document.getElementsByName("codigo_smc_prodM")[0].removeAttribute('required');
 })
 //<<---------------------------------------------------LIMPIAR CAMPOS DEL FORMULARIO----------------------------------->>
-//------Limpia los campos del fomulario registrar
-function cleanUpProductFormR() {
-    inputsFormProduct.forEach(input => input.value = "");
-    document.getElementsByName("descripcion_prodR")[0].value = "";
-    document.getElementsByName("imagen_prodR")[0].value = "";
-    document.querySelector('.drop__areaR').removeAttribute('style');
-}
 //------Limpia los campos del fomulario Modificar
 function cleanUpProductFormM() {
     inputsFormProduct.forEach(input => input.value = "");
     document.getElementsByName("descripcion_prodM")[0].value = "";
     document.getElementsByName("imagen_prodM")[0].value = "";
     document.querySelector('.drop__areaM').removeAttribute('style');
+    divCodigoSMCM.setAttribute('hidden', '');
 }
 //----------------------------------DRANG AND DROP-----------------------------------------------------
 const dropAreaR = document.querySelector('.drop__areaR');

@@ -1704,7 +1704,6 @@ function updateProduct() {
         } else if (categoria_prodM.value == "todasLasCategorias") {
             mostrarAlerta("Debe seleccionar una categoria");
         } else {
-            productsMMW.classList.remove('modal__show');
             let form = document.getElementById("formProductsM");
             let formData = new FormData(form);
             formData.append('updateProduct', '');
@@ -1713,10 +1712,20 @@ function updateProduct() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                preloader.classList.remove('modal__show');
-                rqstBuy = false;
-                readProducts();
-                mostrarAlerta(data);
+                if (data == "El codigo ya existe") {
+                    readProducts().then(() => {
+                        preloader.classList.remove('modal__show');
+                        rqstBuy = false;
+                        mostrarAlerta(data);
+                    })
+                }else {
+                    readProducts().then(() => {
+                        productsMMW.classList.remove('modal__show');
+                        preloader.classList.remove('modal__show');
+                        rqstBuy = false;
+                        mostrarAlerta(data);
+                    })
+                }
             }).catch(err => {
                 rqstBuy = false;
                 mostrarAlerta(err);
@@ -1773,6 +1782,8 @@ function requiredInputProd() {
 //<<-------------------------------------------------------ESPACIOS OBLIGATORIOS de formProductsR y formProductsM ------------------------------------------>>
 inputsFormProduct.forEach(input => {
     input.setAttribute('required', '');
+    document.getElementsByName("codigo_smc_prodR")[0].removeAttribute('required');
+    document.getElementsByName("codigo_smc_prodM")[0].removeAttribute('required');
 })
 //------Limpia los campos del fomulario registrar
 function cleanUpProductFormR() {
@@ -1787,6 +1798,7 @@ function cleanUpProductFormM() {
     document.getElementsByName("descripcion_prodM")[0].value = "";
     document.getElementsByName("imagen_prodM")[0].value = "";
     document.querySelector('.drop__areaM').removeAttribute('style');
+    divCodigoSMCM.setAttribute('hidden', '');
 }
 //----------------------------------DRANG AND DROP-----------------------------------------------------
 const dropAreaR = document.querySelector('.drop__areaR');
