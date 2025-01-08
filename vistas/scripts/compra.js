@@ -1342,6 +1342,7 @@ function tableProductsMW(page) {
                     td.innerText = i;
                     tr.appendChild(td);
                     i++;
+                } else if (valor == 'codigo_smc_prod') {
                 } else if (valor == 'id_mrc') {
                 } else if (valor == 'id_ctgr') {
                 } else if (valor == 'imagen_prod') {
@@ -1422,7 +1423,7 @@ function cartProduct_cppdR(product) {
         <textarea class="cart__item--name">${product['nombre_prod']}</textarea>
         <input type="number" value = "1" min="1" onChange="changeQuantityCPPDR(this.parentNode)" class="cart__item--quantity">
         <input type="number" value = "${product['cost_uni_inv']}" onChange="changeQuantityCPPDR(this.parentNode)" class="cart__item--costUnit">
-        <input type="number" value = "0" class="cart__item--costTotal" readonly>
+        <input type="number" value = "${product['cost_uni_inv']}" class="cart__item--costTotal" readonly>
         <img src="../imagenes/trash.svg" onClick="removeCartR(this.parentNode)" class='icon__CRUD'>`;
     item.innerHTML = html;
     cmpProdRMW.appendChild(item);
@@ -1441,8 +1442,8 @@ function cartProduct_cppdM(product, id_cmp) {
             <p class="codigo--addProd">${product['codigo_prod']}</p>
             <textarea class="cart__item--name">${product['nombre_prod']}</textarea>
             <input type="number" value = "1" min="1" onChange="changeQuantityCPPD(this.parentNode, ${id_cmp})" class="cart__item--quantity">
-            <input type="number" value = "0" onChange="changeQuantityCPPD(this.parentNode, ${id_cmp})" class="cart__item--costUnit">
-            <input type="number" value = "0" class="cart__item--costTotal" readonly>
+            <input type="number" value = "${product['cost_uni_inv']}" onChange="changeQuantityCPPD(this.parentNode, ${id_cmp})" class="cart__item--costUnit">
+            <input type="number" value = "${product['cost_uni_inv']}" class="cart__item--costTotal" readonly>
             <img src="../imagenes/plus.svg" onClick="createCmp_prod(this.parentNode)" class='icon__CRUD'>`;
     body.appendChild(div);
 }
@@ -1672,20 +1673,25 @@ function createProduct() {
 function readProduct(tr) {
     cleanUpProductFormM();
     let id_prod = tr.children[0].innerText;
-    for (let product in filterProducts) {
-        if (filterProducts[product]['id_prod'] == id_prod) {
-            for (let valor in filterProducts[product]) {
+    for (let product in filterProductsMW) {
+        if (filterProductsMW[product]['id_prod'] == id_prod) {
+            for (let valor in filterProductsMW[product]) {
                 if (valor == 'imagen_prod') {
-                    document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("../modelos/imagenes/${filterProducts[product][valor]}"); background-size: cover;`);
+                    document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("../modelos/imagenes/${filterProductsMW[product][valor]}"); background-size: cover;`);
+                } else if (valor == 'codigo_smc_prod') {
+                    if (filterProductsMW[product]['id_mrc'] == '15') {
+                        divCodigoSMCM.removeAttribute('hidden');
+                        document.getElementsByName(valor + 'M')[0].value = filterProductsMW[product][valor];
+                    } 
                 } else if (valor == 'id_ctgr') {
                 } else if (valor == 'id_mrc') {
                 } else if (valor == 'marca_prod') {
-                    document.getElementsByName(valor + 'M')[0].value = filterProducts[product]['id_mrc'];
+                    document.getElementsByName(valor + 'M')[0].value = filterProductsMW[product]['id_mrc'];
                 } else if (valor == 'categoria_prod') {
                     selectCategoriaProdM();
-                    document.getElementsByName(valor + 'M')[0].value = filterProducts[product]['id_ctgr'];
+                    document.getElementsByName(valor + 'M')[0].value = filterProductsMW[product]['id_ctgr'];
                 } else {
-                    document.getElementsByName(valor + 'M')[0].value = filterProducts[product][valor];
+                    document.getElementsByName(valor + 'M')[0].value = filterProductsMW[product][valor];
                 }
             }
             break;
@@ -2117,3 +2123,20 @@ async function readInventories() {
         }).catch(err => console.log(err));
     })
 }
+//------div codigo smc
+const divCodigoSMCR = document.getElementById('divCodigoSMCR');
+const divCodigoSMCM = document.getElementById('divCodigoSMCM');
+marca_prodR.addEventListener('change', () => {
+    if (marca_prodR.value == '15') {
+        divCodigoSMCR.removeAttribute('hidden');
+    } else {
+        divCodigoSMCR.setAttribute('hidden', '');
+    }
+});
+marca_prodM.addEventListener('change', () => {
+    if (marca_prodM.value == '15') {
+        divCodigoSMCM.removeAttribute('hidden');
+    } else {
+        divCodigoSMCM.setAttribute('hidden', '');
+    }
+});
