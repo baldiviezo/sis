@@ -219,57 +219,35 @@ selectNumberProdVnt.addEventListener('change', function () {
 });
 //------buscar por:
 function searchProdVnt() {
-    filterVnt_prods = {};
-    for (let proforma in vnt_prods) {
-        for (let valor in vnt_prods[proforma]) {
-            if (selectSearchProdVnt.value == 'todas') {
-                if (valor == 'numero_prof') {
-                    if (vnt_prods[proforma][valor].toString().toLowerCase().indexOf(inputSearchProdVnt.value.toLowerCase()) >= 0) {
-                        filterVnt_prods[proforma] = vnt_prods[proforma];
-                        break;
-                    }
-                } else if (valor == 'nombre_usua') {
-                    if ((vnt_prods[proforma][valor] + ' ' + vnt_prods[proforma]['apellido_usua']).toLowerCase().indexOf(inputSearchProdVnt.value.toLowerCase()) >= 0) {
-                        filterVnt_prods[proforma] = vnt_prods[proforma];
-                        break;
-                    }
-                } else if (valor == 'nombre_clte') {
-                    if ((vnt_prods[proforma]['apellido_clte'] + ' ' + vnt_prods[proforma][valor]).toLowerCase().indexOf(inputSearchProdVnt.value.toLowerCase()) >= 0) {
-                        filterVnt_prods[proforma] = vnt_prods[proforma];
-                        break;
-                    }
-                } else if (valor == 'nombre_emp' || valor == 'nombre_mrc' || valor == 'nombre_ctgr' || valor == 'codigo_vtpd' || valor == 'nombre_prod' || valor == 'factura_vnt' || valor == 'cantidad_vtpd' || valor == 'cost_uni_vtpd' || valor == 'descuento_prof' || valor == 'fecha_ne' || valor == 'fecha_vnt') {
-                    if (vnt_prods[proforma][valor].toString().toLowerCase().indexOf(inputSearchProdVnt.value.toLowerCase()) >= 0) {
-                        filterVnt_prods[proforma] = vnt_prods[proforma];
-                        break;
-                    }
-                }
-            } else if (selectSearchProdVnt.value == 'encargado') {
-                if (valor == 'nombre_usua') {
-                    if ((vnt_prods[proforma][valor] + ' ' + vnt_prods[proforma]['apellido_usua']).toLowerCase().indexOf(inputSearchProdVnt.value.toLowerCase()) >= 0) {
-                        filterVnt_prods[proforma] = vnt_prods[proforma];
-                        break;
-                    }
-                }
-            } else if (selectSearchProdVnt.value == 'cliente') {
-                if (valor == 'nombre_clte') {
-                    if ((vnt_prods[proforma]['apellido_clte'] + ' ' + vnt_prods[proforma][valor]).toLowerCase().indexOf(inputSearchProdVnt.value.toLowerCase()) >= 0) {
-                        filterVnt_prods[proforma] = vnt_prods[proforma];
-                        break;
-                    }
-                }
-            } else {
-                if (valor == selectSearchProdVnt.value) {
-                    if (vnt_prods[proforma][valor].toString().toLowerCase().indexOf(inputSearchProdVnt.value.toLowerCase()) >= 0) {
-                        filterVnt_prods[proforma] = vnt_prods[proforma];
-                        break;
-                    }
-                }
-            }
+    const valor = selectSearchProdVnt.value;
+    const busqueda = inputSearchProdVnt.value.toLowerCase().trim();
+    filterVnt_prods = vnt_prods.filter(proforma => {
+        if (valor === 'todas') {
+            return (
+                proforma.numero_prof.toString().toLowerCase().includes(busqueda) ||
+                (proforma.nombre_usua + ' ' + proforma.apellido_usua).toLowerCase().includes(busqueda) ||
+                (proforma.apellido_clte + ' ' + proforma.nombre_clte).toLowerCase().includes(busqueda) ||
+                proforma.nombre_emp.toLowerCase().includes(busqueda) ||
+                proforma.nombre_mrc.toLowerCase().includes(busqueda) ||
+                proforma.nombre_ctgr.toLowerCase().includes(busqueda) ||
+                proforma.codigo_vtpd.toLowerCase().includes(busqueda) ||
+                proforma.nombre_prod.toLowerCase().includes(busqueda) ||
+                proforma.factura_vnt.toLowerCase().includes(busqueda) ||
+                proforma.cantidad_vtpd.toString().toLowerCase().includes(busqueda) ||
+                proforma.cost_uni_vtpd.toString().toLowerCase().includes(busqueda) ||
+                proforma.descuento_prof.toString().toLowerCase().includes(busqueda) ||
+                proforma.fecha_ne.toLowerCase().includes(busqueda) ||
+                proforma.fecha_vnt.toLowerCase().includes(busqueda)
+            );
+        } else if (valor === 'encargado') {
+            return (proforma.nombre_usua + ' ' + proforma.apellido_usua).toLowerCase().includes(busqueda);
+        } else if (valor === 'cliente') {
+            return (proforma.apellido_clte + ' ' + proforma.nombre_clte).toLowerCase().includes(busqueda);
+        } else {
+            return proforma[valor].toString().toLowerCase().includes(busqueda);
         }
-    }
-    //selectStateProductOC();
-    paginacionProdVnt(Object.values(filterVnt_prods).length, 1);
+    });
+    paginacionProdVnt(filterVnt_prods.length, 1);
 }
 //------Ordenar tabla descendente ascendente
 let orderProforma = document.querySelectorAll('.tbody__head--proforma');
@@ -378,7 +356,7 @@ function tableVntProds(page) {
                     let total = filterVnt_prods[proforma]['cantidad_vtpd'] * filterVnt_prods[proforma]['cost_uni_vtpd'] * (100 - filterVnt_prods[proforma]['descuento_prof']) / 100;
                     td2.innerText = total.toFixed(2) + ' Bs';
                     tr.appendChild(td2);
-                } else if (valor == 'apellido_usua' || valor == 'apellido_clte' || valor == 'fk_id_prod_vtpd' || valor == 'imagen_prod' || valor == 'estado_ne') {
+                } else if (valor == 'apellido_usua' || valor == 'apellido_clte' || valor == 'fk_id_prod_vtpd' || valor == 'imagen_prod' || valor == 'estado_ne' || valor == 'codigo_smc_prod' || valor == 'cost_uni_inv') {
                 } else {
                     td.innerText = filterVnt_prods[proforma][valor];
                     tr.appendChild(td);
@@ -421,17 +399,20 @@ function saveAsExcel(buffer, filename) {
 }
 const excelProdVnt = document.getElementById('excelProdVnt');
 excelProdVnt.addEventListener('click', () => {
-    let reversed = Object.values(filterVnt_prods).reverse();
-    reversed = reversed.map(item => {
-        delete item['id_vtpd'];
-        delete item['fk_id_prod_vtpd'];
-        delete item['imagen_prod'];
-        item.cost_uni_vtpd = parseFloat(item.cost_uni_vtpd).toFixed(2);
-        item.costoTotal = (item.cost_uni_vtpd * item.cantidad_vtpd).toFixed(2);
-        return item
-    })
-    console.log(reversed);
-    //downloadAsExcel(reversed)
+    const reporte = filterVnt_prods.map((obj, index) => ({
+        'Item': index + 1,
+        'Nombre cliente': obj.nombre_emp === 'Ninguna' ? obj.nombre_clte + ' ' + obj.apellido_clte : obj.nombre_emp,
+        'Codigo producto': obj.codigo_smc_prod,
+        'Codigo Japón': obj.codigo_vtpd,
+        'Descripcion del producto': obj.nombre_prod,
+        'Cantidad': obj.cantidad_vtpd,
+        'Precio venta sin IVA': obj.cost_uni_vtpd * obj.cantidad_vtpd * 0.87,
+        'Total a precio venta': obj.cost_uni_vtpd * obj.cantidad_vtpd,
+        'Fecha venta': obj.fecha_vnt.toString().split(' ')[0],
+        'Precio Lista': obj.cost_uni_inv,
+        'Total a precio de lista': obj.cost_uni_inv * obj.cantidad_vtpd
+    }));
+    downloadAsExcel(reporte);
 });
 //*******************************************BEST SELLER PRODUCT**************************************************/
 //----------------------------------------------TABLE MODAL MOST VENDIDOS----------------------------------------->
