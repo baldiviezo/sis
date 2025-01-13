@@ -113,6 +113,11 @@
 	/*Que no aparesca el borde cuando empecemos a escribir*/
 	outline: none;
 }
+.filter__search{
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
 .select__search select{
 	border-color: #225c74;
 	border-radius: .4rem;

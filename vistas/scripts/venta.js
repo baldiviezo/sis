@@ -149,46 +149,35 @@ function paginationSales(allVentas, page) {
 //------Crear la tabla
 function tableSales(page) {
     let tbody = document.getElementById('tbodyVenta');
-    inicio = (page - 1) * Number(selectNumberVnt.value);
-    final = inicio + Number(selectNumberVnt.value);
-    let i = 1;
+    let pageItems = filterSales.slice((page - 1) * Number(selectNumberVnt.value), page * Number(selectNumberVnt.value));
     tbody.innerHTML = '';
-    for (let sale in filterSales) {
-        if (i > inicio && i <= final) {
-            let tr = document.createElement('tr');
-            for (let valor in filterSales[sale]) {
-                let td = document.createElement('td');
-                if (valor == 'id_vnt') {
-                    td.innerText = i;
-                    tr.appendChild(td);
-                    i++;
-                } else if (valor == 'nombre_usua') {
-                    td.innerText = filterSales[sale][valor] + ' ' + filterSales[sale]['apellido_usua'];
-                    tr.appendChild(td);
-                } else if (valor == 'apellido_usua') {
-                } else if (valor == 'total_vnt') {
-                    td.innerText = Number(filterSales[sale][valor]).toFixed(2) + ' Bs';
-                    tr.appendChild(td);
-                } else {
-                    td.innerText = filterSales[sale][valor];
-                    tr.appendChild(td);
-                }
+    for (let i = 0; i < pageItems.length; i++) {
+        let sale = pageItems[i];
+        let tr = document.createElement('tr');
+        for (const propiedad in sale) {
+            let td = document.createElement('td');
+            if (propiedad === 'id_vnt') {
+                td.innerText = i + 1;
+                tr.appendChild(td);
+            } else if (propiedad === 'nombre_usua') {
+                td.innerText = sale[propiedad] + ' ' + sale['apellido_usua'];
+                tr.appendChild(td);
+            } else if (propiedad === 'total_vnt') {
+                td.innerText = Number(sale[propiedad]).toFixed(2) + ' Bs';
+                tr.appendChild(td);
+            } else if (propiedad === 'apellido_usua') {
+            } else {
+                td.innerText = sale[propiedad];
+                tr.appendChild(td);
             }
-            /*let td = document.createElement('td');
-            td.innerHTML = `
-            <img src='../imagenes/edit.svg' onclick='readVenta(this.parentNode.parentNode)'>
-            <img src='../imagenes/trash.svg' onclick='deleteVenta(this.parentNode.parentNode)'>`;
-            tr.appendChild(td);*/
-            tbody.appendChild(tr);
-        } else {
-            i++;
         }
+        tbody.appendChild(tr);
     }
 }
 /***********************************************PRODUCT FILTER VNT_PRODS*********************************************/
 //--------read vnt_prods
-let vnt_prods;
-let filterVnt_prods;
+let vnt_prods = [];
+let filterVnt_prods = [];
 function readvnt_prods() {
     new Promise((resolve, reject) => {
         let formData = new FormData();
@@ -449,7 +438,6 @@ formDates.addEventListener('submit', (e) => {
     });
     filterMostVnt();
 });
-
 const tableMostProd = document.getElementById('tableMostProd');
 const closeTableMostProd = document.getElementById('closeTableMostProd');
 function openTableMostProd() {
@@ -459,7 +447,18 @@ closeTableMostProd.addEventListener('click', () => {
     tableMostProd.classList.remove('modal__show');
 })
 let productsSold = [];
+/*************  ✨ Codeium Command ⭐  *************/
+/**
+ * Filtra los productos vendidos y los ordena por cantidad de productos vendidos.
+ * @return {void}
+ */
+/******  e7f6d88c-300c-405b-9e8b-e4fcd97f6d01  *******/
 function filterMostVnt() {
+    let numberMoths = document.getElementById('numberMoths').value;
+    let daysLate = document.getElementById('daysLate').value;
+    let mothsReplacement = document.getElementById('mothsReplacement').value;
+
+
     const productosVendidos = Object.values(filteredProducts).reduce((acc, producto) => {
         const nombreProducto = producto.codigo_vtpd;
         if (acc[nombreProducto]) {
@@ -476,10 +475,11 @@ function filterMostVnt() {
     }, []);
 
     productsSold = Object.values(productosVendidos).sort((a, b) => b.cantidad_vtpd - a.cantidad_vtpd);
-
+    console.log(mothsReplacement + ' ' + daysLate + ' ' + numberMoths);
     productsSold.forEach(proforma => {
         const encontrado = inventories.find(inventario => inventario.codigo_prod === proforma.codigo_vtpd);
-        const reponer = Math.ceil(proforma.cantidad_vtpd / 5) * 2 - encontrado.cantidad_inv;
+        const consumoMensual = Math.ceil(proforma.cantidad_vtpd / numberMoths);
+        const reponer = consumoMensual * mothsReplacement + (consumoMensual / 30) * daysLate - encontrado.cantidad_inv;
         proforma.reponer = reponer;
     });
 

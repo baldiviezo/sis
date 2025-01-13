@@ -28,13 +28,14 @@
 				<img src="../imagenes/inventario.svg" id="openProdVnt" title="Productos comprados">
 			</div>
 			<div class="combo__search">
-				<div>
+				<div class="filter__search">
+					<h3>Filtrar por:</h3>
 					<select id="selectSearchVnt" class="select">
-						<option value="todas">Buscar por</option>
-						<option value="fecha_ne">Fecha nota entrega</option>
-						<option value="fecha_vnt">Fecha factura</option>
-						<option value="factura_vnt">Factura</option>
+						<option value="todas">Todo</option>
+						<option value="fecha_ne">Fecha de nota entrega</option>
+						<option value="fecha_vnt">Fecha de facturacion</option>
 						<option value="nombre_emp">Empresa</option>
+						<option value="factura_vnt">N° Factura</option>
 					</select>
 				</div>
 				<div class="table__search">
@@ -96,19 +97,20 @@
 					</div>
 					<img src="../imagenes/excel.svg" id="excelProdVnt" title="Imprimir a excel">
 					<div class="combo__search">
-						<div>
+						<div class="filter__search">
+							<h3>Filtrar por:</h3>
 							<select id="selectSearchProdVnt" class="select">
-								<option value="todas">Buscar por todo</option>
-								<option value="numero_prof">Por proforma</option>
-								<option value="encargado">Por encargado</option>
-								<option value="nombre_emp">Por empresa</option>
-								<option value="cliente">Por cliente</option>
-								<option value="codigo_vtpd">Por codigo producto</option>
-								<option value="nombre_prod">Por descripción</option>
-								<option value="factura_vnt">Por Factura</option>
-								<option value="cantidad_vtpd">Por cantidad producto</option>
-								<option value="fecha_ne">Por fecha NE</option>
-								<option value="fecha_vnt">Por fecha de facturacion</option>
+								<option value="todas">Todo</option>
+								<option value="numero_prof">N° Proforma</option>
+								<option value="fecha_ne">Fecha Nota entrega</option>
+								<option value="fecha_vnt">Fecha de facturacion</option>
+								<option value="encargado">Encargado</option>
+								<option value="nombre_emp">Empresa</option>
+								<option value="cliente">Cliente</option>
+								<option value="codigo_vtpd">Codigo producto</option>
+								<option value="nombre_prod">Descripción</option>
+								<option value="cantidad_vtpd">Cantidad producto</option>
+								<option value="factura_vnt">N° Factura</option>
 							</select>
 						</div>
 						<div class="table__search">
@@ -178,9 +180,11 @@
 					<form class="fechas" id="formDates">
 						<label class="fecha__label">Fecha inicial:</label>
 						<input type="date" id="startingDate" min="2024-07-01" value="2024-07-01" class="fecha__input">
-					  
 						<label class="fecha__label">Fecha final:</label>
 						<input type="date" id="endDate" class="fecha__input">
+						<input type="number" id="numberMoths" min="1" value="1">
+						<input type="number" id="daysLate" min="0" value="6">
+						<input type="number" id="mothsReplacement" min="1" value="1">
 						<button type="submit" class="fecha__button">Filtrar</button>
 					  </form>
 				</section>

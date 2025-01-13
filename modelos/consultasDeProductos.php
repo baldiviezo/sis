@@ -89,7 +89,13 @@ class consultas {
 					$resultado = $conexion->query($consulta);
 					$numeroFilas2 = $resultado->num_rows;
 					if ($numeroFilas2 > 0) {
-						echo "El codigo ya existe";
+						$producto = $resultado->fetch_assoc();
+						$id_prod = $producto['id_prod'];
+						if ($this->id == $id_prod) {
+							$this->update();
+						}else{
+							echo "El codigo ya existe";
+						}
 					}else{
 						$this->update();
 					}
@@ -97,7 +103,7 @@ class consultas {
 					$this->update();
 				}
 			}else{
-				echo json_encode("El codigo ya existe");
+				echo "El codigo ya existe";
 			}
 		}else{
 			if ($this->marca == 15){
@@ -105,7 +111,11 @@ class consultas {
 				$resultado = $conexion->query($consulta);
 				$numeroFilas2 = $resultado->num_rows;
 				if ($numeroFilas2 > 0) {
-					echo "El codigo ya existe";
+					if ($this->id == $producto['id_prod']) {
+						$this->update();
+					}else{
+						echo "El codigo ya existe";
+					}
 				}else{
 					$this->update();
 				}
