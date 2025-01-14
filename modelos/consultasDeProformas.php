@@ -55,10 +55,10 @@ class consultas{
 	//-------Create a proforma
 	public function createProforma(){
 		include 'conexion.php';
-		$consulta = "SELECT MAX(numero_prof) as numero_prof_max FROM proforma ";
+		$consulta = "SELECT numero_prof FROM proforma ORDER BY id_prof DESC LIMIT 1";
     	$resultado = $conexion->query($consulta);
-    	$numero_prof = $resultado->fetch_assoc();
-    	$nuevo_numero_prof = ($numero_prof['numero_prof_max'] == null) ? 1 : $numero_prof['numero_prof_max'] + 1;
+		$numero_prof = $resultado->fetch_assoc();
+		$nuevo_numero_prof = ($numero_prof['numero_prof'] == null) ? 1 : $numero_prof['numero_prof'] + 1;
 		$consulta = "INSERT INTO proforma (numero_prof, fecha_prof, fk_id_clte_prof, fk_id_usua_prof, cond_pago_prof, tpo_entrega_prof, tpo_valido_prof, descuento_prof, total_prof, moneda_prof, observacion_prof, tipo_cambio_prof, estado_prof) VALUES ('$nuevo_numero_prof' ,'$this->fecha', '$this->cliente' , '$this->encargado', '$this->condicionesDePago', '$this->tiempoDeEntrega', '$this->tiempoValido', '$this->descuento', '$this->total', '$this->moneda', '$this->observacion', '$this->tipo_cambio_prof', 'pendiente')";
 		$resultado = $conexion->query($consulta);
 		$consulta = "SELECT MAX(id_prof) as id_prof_max FROM proforma ";

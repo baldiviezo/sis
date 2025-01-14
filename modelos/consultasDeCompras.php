@@ -43,10 +43,10 @@ class Consultas{
 	//------Create compra
 	public function createBuy($productos){
         include 'conexion.php';
-		$consulta = "SELECT MAX(numero_cmp) as numero_cmp_max FROM compra";
+		$consulta = "SELECT numero_cmp FROM compra ORDER BY id_cmp DESC LIMIT 1";
     	$resultado = $conexion->query($consulta);
-    	$numero_cmp = $resultado->fetch_assoc();
-		$nuevo_numero_cmp = ($numero_cmp['numero_cmp_max'] == null) ? 1 : $numero_cmp['numero_cmp_max'] + 1;
+		$numero_cmp = $resultado->fetch_assoc();
+		$nuevo_numero_cmp = ($numero_cmp['numero_cmp'] == null) ? 1 : $numero_cmp['numero_cmp'] + 1;
 		$consulta = "INSERT INTO compra (numero_cmp, fecha_cmp, fk_id_prov_cmp, fk_id_usua_cmp, total_cmp, forma_pago_cmp, tpo_entrega_cmp, estado_cmp, moneda_cmp, tipo_cambio_cmp, descuento_cmp, observacion_cmp) VALUES ('$nuevo_numero_cmp', '$this->fecha_cmp', '$this->fk_id_prov_cmp', '$this->encargado', '$this->total_cmp', '$this->forma_pago_cmp', '$this->tpo_entrega_cmp', '0', 'Bs', '$this->tipo_cambio_cmp', '$this->descuento_cmp', '$this->observacion_cmp')";
 		$resultado = $conexion->query($consulta);
 		if ($resultado) {

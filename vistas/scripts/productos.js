@@ -173,9 +173,7 @@ function tableProducts(page) {
                     td.innerText = i;
                     tr.appendChild(td);
                     i++;
-                } else if (valor == 'codigo_smc_prod') {
-                } else if (valor == 'id_mrc') {
-                } else if (valor == 'id_ctgr') {
+                } else if (valor == 'codigo_smc_prod' || valor == 'id_mrc' || valor == 'id_ctgr' || valor == 'catalogo_prod') {
                 } else if (valor == 'imagen_prod') {
                     let img = document.createElement('img');
                     img.classList.add('tbody__img');
@@ -190,6 +188,7 @@ function tableProducts(page) {
             let td = document.createElement('td');
             if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
                 td.innerHTML = `
+            <a href='${filterProducts[product]['catalogo_prod']}' target='_blank'><img src='../imagenes/pdf.svg' title='Catálogo'></a>
             <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)' title='Editar producto'>
             <img src='../imagenes/trash.svg' onclick='deleteProduct(this.parentNode.parentNode)' title='Eliminar Producto'>`;
             } else {

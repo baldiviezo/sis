@@ -10,6 +10,7 @@ class consultas {
 		$this->nombre = trim($conexion->real_escape_string($_POST['nombre_prodR']));
 		$this->descripcion = trim($conexion->real_escape_string($_POST['descripcion_prodR']));
 		$this->imagen = trim($conexion->real_escape_string($_FILES['imagen_prodR']['name']));
+		$this->catalogo_prod = trim($conexion->real_escape_string($_POST['catalogo_prodR']));
 	}
 	public function asignarValoresM(){
 		include 'conexion.php';
@@ -21,6 +22,7 @@ class consultas {
 		$this->descripcion = trim($conexion->real_escape_string($_POST['descripcion_prodM']));
 		$this->nombre = trim($conexion->real_escape_string($_POST['nombre_prodM']));
 		$this->imagen = trim($conexion->real_escape_string($_FILES['imagen_prodM']['name']));
+		$this->catalogo_prod = trim($conexion->real_escape_string($_POST['catalogo_prodM']));
 	}
 	//-------------------------------CRUD PRODUCTS--------------------------------
 	//-------Leer productos
@@ -31,7 +33,7 @@ class consultas {
 		$productos =  array();
 		while ($fila = $resultado->fetch_assoc()){
 			$description = $fila['descripcion_prod'];
-			$datos = array ( 'id_prod'=>$fila['id_prod'], 'id_mrc'=>$fila['id_mrc'], 'marca_prod'=>$fila['nombre_mrc'], 'id_ctgr'=>$fila['id_ctgr'], 'categoria_prod'=>$fila['nombre_ctgr'], 'codigo_smc_prod'=>$fila['codigo_smc_prod'], 'codigo_prod'=>$fila['codigo_prod'], 'nombre_prod'=>$fila['nombre_prod'], 'descripcion_prod'=>$description,  'imagen_prod'=>$fila['imagen_prod']);
+			$datos = array ( 'id_prod'=>$fila['id_prod'], 'id_mrc'=>$fila['id_mrc'], 'marca_prod'=>$fila['nombre_mrc'], 'id_ctgr'=>$fila['id_ctgr'], 'categoria_prod'=>$fila['nombre_ctgr'], 'codigo_smc_prod'=>$fila['codigo_smc_prod'], 'codigo_prod'=>$fila['codigo_prod'], 'nombre_prod'=>$fila['nombre_prod'], 'descripcion_prod'=>$description,  'imagen_prod'=>$fila['imagen_prod'], 'catalogo_prod'=>$fila['catalogo_prod']);
 			$productos['id_prod_'.$fila['id_prod']] = $datos;
 		}
 		echo json_encode($productos, JSON_UNESCAPED_UNICODE);
@@ -63,7 +65,7 @@ class consultas {
 		include 'conexion.php';
 		$fecha = new DateTime();
 		$nombreImagen=($this->imagen!="")?$fecha->getTimestamp()."_".$this->imagen:"imagen.jpg";
-		$consulta = "INSERT INTO producto (codigo_prod, codigo_smc_prod, fk_id_mrc_prod, fk_id_ctgr_prod, nombre_prod, descripcion_prod, imagen_prod) VALUES ('$this->codigo', '$this->codigo_smc_prod', '$this->marca', '$this->categoria', '$this->nombre','$this->descripcion', '$nombreImagen')";
+		$consulta = "INSERT INTO producto (codigo_prod, codigo_smc_prod, fk_id_mrc_prod, fk_id_ctgr_prod, nombre_prod, descripcion_prod, imagen_prod, catalogo_prod) VALUES ('$this->codigo', '$this->codigo_smc_prod', '$this->marca', '$this->categoria', '$this->nombre','$this->descripcion', '$nombreImagen', '$this->catalogo_prod')";
 		$resultado = $conexion->query($consulta);
 		if($resultado){
 			$imagenTemporal = $_FILES['imagen_prodR']['tmp_name'];
@@ -126,7 +128,7 @@ class consultas {
 	}
 	public function update(){
 		include 'conexion.php';
-		$consulta = "UPDATE producto set codigo_prod='$this->codigo', codigo_smc_prod='$this->codigo_smc_prod', fk_id_mrc_prod='$this->marca', fk_id_ctgr_prod='$this->categoria', descripcion_prod='$this->descripcion', nombre_prod='$this->nombre' WHERE id_prod='$this->id'";
+		$consulta = "UPDATE producto set codigo_prod='$this->codigo', codigo_smc_prod='$this->codigo_smc_prod', fk_id_mrc_prod='$this->marca', fk_id_ctgr_prod='$this->categoria', descripcion_prod='$this->descripcion', nombre_prod='$this->nombre', catalogo_prod='$this->catalogo_prod' WHERE id_prod='$this->id'";
 		$resultado = $conexion->query($consulta);
 		if($this->imagen != "" && $resultado){
 			//borrar la anterior imagen

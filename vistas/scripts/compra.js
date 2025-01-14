@@ -1342,9 +1342,7 @@ function tableProductsMW(page) {
                     td.innerText = i;
                     tr.appendChild(td);
                     i++;
-                } else if (valor == 'codigo_smc_prod') {
-                } else if (valor == 'id_mrc') {
-                } else if (valor == 'id_ctgr') {
+                } else if (valor == 'codigo_smc_prod' || valor == 'id_mrc' || valor == 'id_ctgr' || valor == 'catalogo_prod') {
                 } else if (valor == 'imagen_prod') {
                     let img = document.createElement('img');
                     img.classList.add('tbody__img');

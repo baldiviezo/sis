@@ -683,17 +683,17 @@
 				<div class="modalP__inputs--container">
 					<div class="modalP__inputs">
 						<div class="modalP__group">
-							<label for="codigo_prodR" class="modalP__label">Codigo:</label>	
-							<input type="text" name="codigo_prodR"  placeholder=" " class="modalP__input">
+							<label for="codigo_prodR" class="modalP__label">Codigo:</label>
+							<input type="text" name="codigo_prodR" placeholder=" " class="modalP__input">
 						</div>
 						<div class="modalP__group" id="divCodigoSMCR" hidden="true">
-							<label for="codigo_smc_prodR" class="modalP__label">Codigo SMC:</label>	
-							<input type="text" name="codigo_smc_prodR"  placeholder=" " class="modalP__input">
+							<label for="codigo_smc_prodR" class="modalP__label">Codigo SMC:</label>
+							<input type="text" name="codigo_smc_prodR" placeholder=" " class="modalP__input">
 						</div>
 					</div>
 					<div class="modalP__group--select">
 						<label class="modalP__label">Marca:</label>
-						<select name="marca_prodR" id="marca_prodR"  class="select__marca"></select>
+						<select name="marca_prodR" id="marca_prodR" class="select__marca"></select>
 					</div>
 					<div class="modalP__group--select">
 						<label class="modalP__label">Categoria:</label>
@@ -703,19 +703,23 @@
 					</div>
 					<label class="modalP__label">Descripcion corta:</label>
 					<div class="modalP__textarea">
-						<textarea name="nombre_prodR" placeholder="Escriba la descripción corta aquí..."></textarea>	
+						<textarea name="nombre_prodR" placeholder="Escriba la descripción corta aquí..."></textarea>
 					</div>
 					<label class="modalP__label">Descripción:</label>
 					<div class="modalP__textarea">
-						<textarea name="descripcion_prodR" placeholder="Escriba la descripción aquí..."></textarea>	
+						<textarea name="descripcion_prodR" placeholder="Escriba la descripción aquí..."></textarea>
 					</div>
 				</div>
-				<div class="drop__areaR" >
+				<div class="modalP__inputs">
+					<label for="catalogo_prodR" class="modalP__label">Link del catalogo:</label>
+					<input type="text" name="catalogo_prodR" placeholder=" " class="modalP__input">
+				</div>
+				<div class="drop__areaR">
 					<h2>Arrastra y suelta la imagen</h2>
 					<span>O</span>
 					<button>Selecciona una imagen</button>
 					<!--multiplece para que acepte multiples archivos-->
-					<input type="file"  name="imagen_prodR" id="imagen_prodR" hidden>
+					<input type="file" name="imagen_prodR" id="imagen_prodR" hidden>
 				</div>
 				<input type="submit" value="Registrar" class="modalP__submit">
 			</form>
@@ -736,8 +740,8 @@
 							<input type="text" name="codigo_prodM" placeholder=" " class="modalP__input">
 						</div>
 						<div class="modalP__group" id="divCodigoSMCM" hidden="true">
-							<label for="codigo_smc_prodM" class="modalP__label">Codigo SMC:</label>	
-							<input type="text" name="codigo_smc_prodM"  placeholder=" " class="modalP__input">
+							<label for="codigo_smc_prodM" class="modalP__label">Codigo SMC:</label>
+							<input type="text" name="codigo_smc_prodM" placeholder=" " class="modalP__input">
 						</div>
 					</div>
 					<div class="modalP__group--select">
@@ -752,22 +756,26 @@
 					</div>
 					<label class="modalP__label">Descripcion corta:</label>
 					<div class="modalP__textarea">
-						<textarea name="nombre_prodM" placeholder="Escriba la descripción corta aquí..."></textarea>	
+						<textarea name="nombre_prodM" placeholder="Escriba la descripción corta aquí..."></textarea>
 					</div>
 					<label class="modalP__label">Descripción:</label>
 					<div class="modalP__textarea">
-						<textarea name="descripcion_prodM" placeholder="Escriba la descripción aquí..."></textarea>	
+						<textarea name="descripcion_prodM" placeholder="Escriba la descripción aquí..."></textarea>
 					</div>
 				</div>
-				<div class="drop__areaM" >
+				<div class="modalP__inputs">
+					<label for="catalogo_prodM" class="modalP__label">Link del catalogo:</label>
+					<input type="text" name="catalogo_prodM" placeholder=" " class="modalP__input">
+				</div>
+				<div class="drop__areaM">
 					<h2>Arrastra y suelta la imagen</h2>
 					<span>O</span>
 					<button>Selecciona una imagen</button>
 					<!--multiplece para que acepte multiples archivos-->
-					<input type="file"  name="imagen_prodM" id="imagen_prodM" hidden>
+					<input type="file" name="imagen_prodM" id="imagen_prodM" hidden>
 				</div>
 				<input type="submit" value="Guardar" class="modalP__submit">
-			</form>	
+			</form>
 		</div>
 	</section>
 	<!--Tabla modal de productos comprados-->

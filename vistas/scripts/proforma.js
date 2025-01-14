@@ -266,8 +266,8 @@ function cartProduct(id_prod) {
         </div>
         <p class="cart-item__codigo">${product['codigo_prod']}</p>
         <input type="number" value="1" min="1" onChange="changeQuantity(this.parentNode)" class="cart-item__cantidad">
-        <input type="number" value="${cost_uni}" onChange="changeQuantity(this.parentNode)" class="cart-item__costUnit">
-        <input type="number" value="${cost_uni}" class="cart-item__costTotal" readonly>
+        <input type="number" value="${Math.round(cost_uni*1.1)}" onChange="changeQuantity(this.parentNode)" class="cart-item__costUnit">
+        <input type="number" value="${Math.round(cost_uni*1.1)}" class="cart-item__costTotal" readonly>
         <img src="../imagenes/trash.svg" onClick="removeCardFromCart(this.parentNode)" class='icon__CRUD'>
         <h3 hidden>${product['nombre_prod']}</h3>
         <h3 hidden>${product['descripcion_prod']}</h3>`;
@@ -1011,7 +1011,7 @@ function cartProduct_pfpd(product, action) {
     let cost_uni = undefined;
     let cantidad_prod = undefined;
     if (action == 'new') {
-        cost_uni = inventory ? inventory['cost_uni_inv'] : 0;
+        cost_uni = inventory ? Math.round(inventory['cost_uni_inv'] * 1.1) : 0;
         cantidad_prod = 1;
     } else if (action == 'read') {
         cost_uni = product['cost_uni_pfpd'];
@@ -2218,9 +2218,7 @@ function tableProductsMW(page) {
                     td.innerText = i;
                     tr.appendChild(td);
                     i++;
-                } else if (valor == 'codigo_smc_prod') {
-                } else if (valor == 'id_mrc') {
-                } else if (valor == 'id_ctgr') {
+                } else if (valor == 'codigo_smc_prod' || valor == 'id_mrc' || valor == 'id_ctgr' || valor == 'catalogo_prod') {
                 } else if (valor == 'imagen_prod') {
                     let img = document.createElement('img');
                     img.classList.add('tbody__img');
