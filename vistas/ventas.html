@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,6 +15,7 @@
 	<link rel="stylesheet" type="text/css" href="../css/userModal.css">
 	<link rel="stylesheet" href="../css/venta.css">
 </head>
+
 <body class="body">
 	<header class="header">
 		<nav class="header__nav header__container">
@@ -44,11 +46,15 @@
 				</div>
 			</div>
 		</section>
-		<div class="showPage" id="showPageVenta"><h2></h2></div>
+		<div class="showPage" id="showPageVenta">
+			<h2></h2>
+		</div>
 		<div class="container__page">
 			<div class="paginacion">
 				<!--Envoltura-->
-				<div class="wrapper" id="wrapperVenta"><ul></ul></div>
+				<div class="wrapper" id="wrapperVenta">
+					<ul></ul>
+				</div>
 			</div>
 			<div>
 				<select id="selectNumberVnt" class="select__number">
@@ -65,15 +71,39 @@
 				<thead>
 					<tr>
 						<th>N°</th>
-						<th><div class="tbody__head--venta">N° Venta<img src="../imagenes/sortA_Z.svg" name="numero_prof"  class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="numero_prof" class="icon__CRUD"></div></th>
-						<th><div class="tbody__head--venta">Fecha NE<img src="../imagenes/sortA_Z.svg" name="fecha_ne" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_ne" class="icon__CRUD"></div></th>
-						<th><div class="tbody__head--venta">Fecha Fact.<img src="../imagenes/sortA_Z.svg" name="fecha_vnt" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_vnt" class="icon__CRUD"></div></th>
+						<th>
+							<div class="tbody__head--venta">N° Venta<img src="../imagenes/sortA_Z.svg"
+									name="numero_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+									name="numero_prof" class="icon__CRUD"></div>
+						</th>
+						<th>
+							<div class="tbody__head--venta">Fecha NE<img src="../imagenes/sortA_Z.svg" name="fecha_ne"
+									class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_ne"
+									class="icon__CRUD"></div>
+						</th>
+						<th>
+							<div class="tbody__head--venta">Fecha Fact.<img src="../imagenes/sortA_Z.svg"
+									name="fecha_vnt" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+									name="fecha_vnt" class="icon__CRUD"></div>
+						</th>
 						<th>Encargado</th>
-						<th><div class="tbody__head--venta">Empresa <img src="../imagenes/sortA_Z.svg" name="nombre_emp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_emp" class="icon__CRUD"></div></th>
+						<th>
+							<div class="tbody__head--venta">Empresa <img src="../imagenes/sortA_Z.svg" name="nombre_emp"
+									class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_emp"
+									class="icon__CRUD"></div>
+						</th>
 						<th>Cliente</th>
 						<th>Segun orden</th>
-						<th><div class="tbody__head--venta">Factura <img src="../imagenes/sortA_Z.svg" name="factura_vnt" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="factura_vnt" class="icon__CRUD"></div></th>
-						<th><div class ="tbody__head--venta">Total <img src="../imagenes/sortA_Z.svg" name="total_vnt" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="total_vnt" class="icon__CRUD"></div></th>
+						<th>
+							<div class="tbody__head--venta">Factura <img src="../imagenes/sortA_Z.svg"
+									name="factura_vnt" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+									name="factura_vnt" class="icon__CRUD"></div>
+						</th>
+						<th>
+							<div class="tbody__head--venta">Total <img src="../imagenes/sortA_Z.svg" name="total_vnt"
+									class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="total_vnt"
+									class="icon__CRUD"></div>
+						</th>
 						<th>Observaciones</th>
 						<!--<th>Acciones</th>-->
 					</tr>
@@ -178,10 +208,13 @@
 				</div>
 				<section class="table__header">
 					<form class="fechas" id="formDates">
-						<label class="fecha__label">Fecha inicial:</label>
-						<input type="date" id="startingDate" min="2024-07-01" value="2024-07-01" class="fecha__input">
-						<label class="fecha__label">Fecha final:</label>
-						<input type="date" id="endDate" class="fecha__input">
+						<div>
+							<label class="fecha__label">Fecha inicial:</label>
+							<input type="date" id="startingDate" min="2024-07-01" value="2024-07-01"
+								class="fecha__input">
+							<label class="fecha__label">Fecha final:</label>
+							<input type="date" id="endDate" class="fecha__input">
+						</div>
 						<div class="ecuacion">
 							<div class="ecuacion__title1">Consumo promedio mensual</div>
 							<div class="ecuacion__title2">=</div>
@@ -197,14 +230,16 @@
 							<div class="ecuacion__title12">Consumo promedio mensual</div>
 							<div class="ecuacion__title13">*</div>
 							<div class="ecuacion__title8">30 [dias]</div>
-							<input type="number" id="daysLate" min="0" value="6" class="ecuacion__input">
+							<input type="number" id="daysLate" min="0" value="5" class="ecuacion__input">
 							<input type="number" id="mothsReplacement" min="1" value="1" class="ecuacion__input">
 							<div class="ecuacion__title14">[dias]</div>
 							<div class="ecuacion__title15">-</div>
 							<div class="ecuacion__title16">Inventario actual</div>
 						</div>
 						<button type="submit" class="fecha__button">Filtrar</button>
-					  </form>
+						<img src="../imagenes/excel.svg" title="Imprimir a excel" id="excelProdReponer"
+							class="button__excel">
+					</form>
 				</section>
 				<div class="showPage" id="showPageMostProd">
 					<h2></h2>
@@ -230,10 +265,29 @@
 						<thead>
 							<tr>
 								<th>N°</th>
-								<th><div class="tbody__head--MP">Codigo<img src="../imagenes/sortA_Z.svg" name="codigo_vtpd"  class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="codigo_vtpd" class="icon__CRUD"></div></th>
-								<th><div class="tbody__head--MP">Cantidad<img src="../imagenes/sortA_Z.svg" name="cantidad_vtpd"  class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="cantidad_vtpd" class="icon__CRUD"></div></th>
-								<th><div class="tbody__head--MP">Costo Total<img src="../imagenes/sortA_Z.svg" name="costoTotal"  class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="costoTotal" class="icon__CRUD"></div></th>
-								<th><div class="tbody__head--MP">Reponer<img src="../imagenes/sortA_Z.svg" name="reponer"  class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="reponer" class="icon__CRUD"></div></th>
+								<th>
+									<div class="tbody__head--MP">Codigo<img src="../imagenes/sortA_Z.svg"
+											name="codigo_vtpd" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="codigo_vtpd" class="icon__CRUD"></div>
+								</th>
+								<th>
+									<div class="tbody__head--MP">Cantidad<img src="../imagenes/sortA_Z.svg"
+											name="cantidad_vtpd" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="cantidad_vtpd" class="icon__CRUD"></div>
+								</th>
+								<th>
+									<div class="tbody__head--MP">Costo Total<img src="../imagenes/sortA_Z.svg"
+											name="costoTotal" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="costoTotal" class="icon__CRUD"></div>
+								</th>
+								<th>
+									<div>Stock</div>
+								</th>
+								<th>
+									<div class="tbody__head--MP">Reponer<img src="../imagenes/sortA_Z.svg"
+											name="reponer" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="reponer" class="icon__CRUD"></div>
+								</th>
 							</tr>
 						</thead>
 						<tbody id="tbodyMostProd">
@@ -274,4 +328,5 @@
 	<script src="scripts/filesaver.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.2/xlsx.full.min.js"></script>
 </body>
+
 </html>

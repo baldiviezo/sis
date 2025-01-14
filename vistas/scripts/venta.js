@@ -467,16 +467,14 @@ function filterMostVnt() {
         }
         return acc;
     }, []);
-
     productsSold = Object.values(productosVendidos).sort((a, b) => b.cantidad_vtpd - a.cantidad_vtpd);
-    productsSold.forEach(proforma => {
-        const encontrado = inventories.find(inventario => inventario.codigo_prod === proforma.codigo_vtpd);
-        const consumoMensual = proforma.cantidad_vtpd / numberMoths;
+    productsSold.forEach(product => {
+        const encontrado = inventories.find(inventario => inventario.codigo_prod === product.codigo_vtpd);
+        product.cantidad_inv = encontrado.cantidad_inv;
+        const consumoMensual = product.cantidad_vtpd / numberMoths;
         const reponer = Math.ceil(consumoMensual * mothsReplacement + (consumoMensual / 30) * daysLate - encontrado.cantidad_inv);
-        proforma.reponer = reponer;
+        product.reponer = reponer;
     });
-
-
     paginacionMostProd(productsSold.length, 1);
 }
 //------Proformas por pagina
@@ -605,4 +603,9 @@ function mostrarAlerta(message) {
 }
 botonAceptar.addEventListener('click', (e) => {
     modalAlerta.classList.remove('modal__show');
+});
+/*******************************************importa en excel**************************************************/
+const excelProdReponer = document.getElementById('excelProdReponer');
+excelProdReponer.addEventListener('click', () => {
+    downloadAsExcel(productsSold);
 });
