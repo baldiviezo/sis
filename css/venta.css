@@ -1,3 +1,9 @@
+.fechas{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
 .fecha__button{
     background: #225c74;
 	color: #fff;
@@ -20,4 +26,147 @@
     border: #225c74 2px solid;
     border-radius: .5rem;
     padding: .2rem .2rem;
+}
+/*Ecuacuon de cantidad a reponer*/
+.ecuacion{
+    font-family: 'Bricolage Grotesque', sans-serif;
+    position: relative;
+    height: 3rem;
+    width: 62rem;
+    margin: 0 2rem;
+}
+.ecuacion__input{
+    border: none;
+    width: 3rem;
+}
+.ecuacion__title1{
+    position: absolute;
+    width: 5.5rem;
+    height: 3rem;
+}
+.ecuacion__title2{
+    position: absolute;
+    width: .5rem;
+    height: 1rem;
+    left: 5rem;
+    top: 1.2rem;
+    font-weight: bold;
+}
+.ecuacion__title3{
+    position: absolute;
+    width: 11.5rem;
+    height: 1rem;
+    left: 6rem;
+    top: .8rem;
+    border-bottom: 1px solid #000;
+}
+.ecuacion__title4{
+    position: absolute;
+    width: 4.8rem;
+    height: 3rem;
+    left: 25rem;
+    top: .5rem;
+}
+.ecuacion__title5{
+    position: absolute;
+    width: .5rem;
+    height: 1rem;
+    left: 29.8rem;
+    top: 1.2rem;
+    font-weight: bold;
+}
+.ecuacion__title6{
+    position: absolute;
+    width: 4.8rem;
+    height: 3rem;
+    left: 31rem;
+}
+.ecuacion__title7{
+    position: absolute;
+    width: .5rem;
+    height: 1rem;
+    left: 35.7rem;
+    top: 1.3rem;
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+.ecuacion__title8{
+    position: absolute;
+    left: 50rem;
+    top: 1.8rem;
+    border-top: 1px solid #000;
+    width: 4.7rem;
+}
+.ecuacion__title9{
+    position: absolute;
+    left: 12.5rem;
+    top: 2rem;
+}
+.ecuacion__title10{
+    position: absolute;
+    left: 39.5rem;
+    top: 1.2rem;
+}
+.ecuacion__title11{
+    position: absolute;
+    width: .5rem;
+    height: 1rem;
+    left: 43.5rem;
+    top: 1.2rem;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+.ecuacion__title12{
+    position: absolute;
+    width: 4.8rem;
+    height: 3rem;
+    left: 44.3rem;
+}
+.ecuacion__title13{
+    position: absolute;
+    width: .5rem;
+    height: 1rem;
+    left: 49rem;
+    top: 1.3rem;
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+#numberMoths{
+    background-color: antiquewhite;
+    position: absolute;
+    left: 9.5rem;
+    top: 1.8rem;
+}
+#mothsReplacement{
+    background-color: antiquewhite;
+    position: absolute;
+    left: 36.5rem;
+    top: 1.1rem;
+}
+#daysLate{
+    background-color: antiquewhite;
+    position: absolute;
+    left: 50rem;
+    top: .3rem;
+}
+.ecuacion__title14{
+    position: absolute;
+    left: 53rem;
+    top: .4rem;
+}
+.ecuacion__title15{
+    position: absolute;
+    width: .5rem;
+    height: 1rem;
+    left: 55.5rem;
+    top: 1.2rem;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+.ecuacion__title16{
+    position: absolute;
+    width: 4.8rem;
+    height: 3rem;
+    left: 56.5rem;
+    top: .7rem;
 }

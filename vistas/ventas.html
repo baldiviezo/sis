@@ -182,9 +182,27 @@
 						<input type="date" id="startingDate" min="2024-07-01" value="2024-07-01" class="fecha__input">
 						<label class="fecha__label">Fecha final:</label>
 						<input type="date" id="endDate" class="fecha__input">
-						<input type="number" id="numberMoths" min="1" value="1">
-						<input type="number" id="daysLate" min="0" value="6">
-						<input type="number" id="mothsReplacement" min="1" value="1">
+						<div class="ecuacion">
+							<div class="ecuacion__title1">Consumo promedio mensual</div>
+							<div class="ecuacion__title2">=</div>
+							<div class="ecuacion__title3">Total vendido en n meses</div>
+							<input type="number" id="numberMoths" min="1" value="1" class="ecuacion__input">
+							<div class="ecuacion__title9">[Mes/es]</div>
+							<div class="ecuacion__title4">Cantidad a reponer</div>
+							<div class="ecuacion__title5">=</div>
+							<div class="ecuacion__title6">Consumo promedio mensual</div>
+							<div class="ecuacion__title7">*</div>
+							<div class="ecuacion__title10">[Mes/es]</div>
+							<div class="ecuacion__title11">+</div>
+							<div class="ecuacion__title12">Consumo promedio mensual</div>
+							<div class="ecuacion__title13">*</div>
+							<div class="ecuacion__title8">30 [dias]</div>
+							<input type="number" id="daysLate" min="0" value="6" class="ecuacion__input">
+							<input type="number" id="mothsReplacement" min="1" value="1" class="ecuacion__input">
+							<div class="ecuacion__title14">[dias]</div>
+							<div class="ecuacion__title15">-</div>
+							<div class="ecuacion__title16">Inventario actual</div>
+						</div>
 						<button type="submit" class="fecha__button">Filtrar</button>
 					  </form>
 				</section>

@@ -18,7 +18,7 @@ async function init() {
     if (requestProf == false) {
         requestProf = true;
         preloader.classList.add('modal__show');
-        Promise.all([readProducts(), readProformas(), readMdfProforma(), readProf_prods(), readmProf_prods(), readCustomers(), readEnterprises(), readInventories(), readAllMarcas(), readAllCategorias()]).then(() => {
+        Promise.all([readProducts(), readProformas(), readMdfProforma(), readProf_prods(), readmProf_prods(), readCustomers(), readEnterprises(), readInventories(), readAllMarcas(), readAllCategorias(), readPrices()]).then(() => {
             preloader.classList.remove('modal__show');
             requestProf = false;
         })
@@ -2827,3 +2827,28 @@ marca_prodM.addEventListener('change', () => {
         divCodigoSMCM.setAttribute('hidden', '');
     }
 });
+/******************************************TABLE LIST PRICE******************************************/
+const tablePriceList = document.getElementById('tablePriceList');
+const closetablePriceList = document.getElementById('closetablePriceList');
+const tbodyPriceList = document.getElementById('tbodyPriceList');
+closetablePriceList.addEventListener('click', closePriceList);
+function openPriceList(){
+    tablePriceList.classList.add('modal__show');
+}
+function closePriceList(){
+    tablePriceList.classList.remove('modal__show');
+}
+//-----read prices
+let prices = [];
+let filterPrices = [];
+async function readPrices() {
+    let formData = new FormData();
+    formData.append('readPrices', '');
+    fetch('../controladores/proforma.php', {
+        method: "POST",
+        body: formData
+    }).then(response => response.json()).then(data => {
+        prices = Object.values(data);
+        console.log(prices);
+    }).catch(err => console.log(err));    
+}

@@ -31,6 +31,7 @@
 					<img src="../imagenes/folder.svg" onclick="openTableProfMW()" class="img__folder" title="Proformas">
 					<img src="../imagenes/registrar.svg" onclick="openProductsRMW()" class="img__folder"
 						title="Registrar producto">
+					<img src="../imagenes/dollarCircle.svg" onclick="openPriceList()" class="img__folder">
 				</div>
 				<section class="select__search">
 					<div>
@@ -1133,6 +1134,34 @@
 				</div>
 				<input type="submit" value="Guardar" class="modalP__submit">
 			</form>	
+		</div>
+	</section>
+	<!--Modal table of list prices-->
+	<section id="tablePriceList" class="modalTable">
+		<div class="modalTable__container">
+			<div class="table">
+				<div class="table__title">
+					<h1><img src="../imagenes/proforma.svg"></h1>
+					<img src="../imagenes/salir.svg" id="closetablePriceList" class="button__close">
+				</div>
+				<section class="table__body">
+					<table>
+						<thead>
+							<tr>
+								<th>N°</th>
+								<th>Codigo</th>
+								<th>Precio de lista</th>
+								<th>Precio de venta</th>
+							</tr>
+						</thead>
+						<tbody id="tbodyPriceList">
+							<tr>
+								<td>VACIO!</td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+			</div>
 		</div>
 	</section>
 	<!--Modal preloader-->

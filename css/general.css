@@ -23,10 +23,15 @@ y por ultimo llamamos a la fuente
 @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;500;600;700&display=swap');
 /*tipo de letra para login*/
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+/*Descargar tipo de letra Bricolage Grotesque*/
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@300;400;500;600;700,800&display=swap');
+
 
 /*Para el cuerpo del login*/
 body {
 	font-family: 'Roboto', sans-serif;
+	
+	
 	/*background-image:  radial-gradient(#b96bad 0.5px, transparent 0.5px), radial-gradient(#b96bad 0.5px, #e5e5f7 0.5px);*/
 	/*background-image: linear-gradient(to top, #1F8068 0%, #1F8068 1%, #225c74 100%);*/
 }

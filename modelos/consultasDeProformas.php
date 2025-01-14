@@ -220,5 +220,17 @@ class consultas{
 	public function addZerosGo($numero) {
 		return str_pad($numero, 4, "0", STR_PAD_LEFT);
 	}
+	/*****************************read price list */
+	//-------Read Prices
+	public function readPrices(){
+		include 'conexion.php';
+		$consulta = "SELECT * FROM lista_precios";
+		$resultado = $conexion->query($consulta);
+		$prices = array();
+		while ($fila = $resultado->fetch_assoc()){
+			$prices[] = $fila;
+		}
+		echo json_encode($prices, JSON_UNESCAPED_UNICODE);
+	}
 }
 ?>

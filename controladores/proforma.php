@@ -46,4 +46,9 @@ if (isset($_POST['deletemProforma'])) {
 	$deletemProforma = new consultas;
 	$deletemProforma->deletemProforma($_POST['deletemProforma']);
 }
+//------------------------------------------READ PRICES
+if (isset($_POST['readPrices'])) {
+	$readPrices = new consultas;
+	$readPrices->readPrices();
+}
 ?>

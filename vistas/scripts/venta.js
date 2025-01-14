@@ -447,12 +447,6 @@ closeTableMostProd.addEventListener('click', () => {
     tableMostProd.classList.remove('modal__show');
 })
 let productsSold = [];
-/*************  ✨ Codeium Command ⭐  *************/
-/**
- * Filtra los productos vendidos y los ordena por cantidad de productos vendidos.
- * @return {void}
- */
-/******  e7f6d88c-300c-405b-9e8b-e4fcd97f6d01  *******/
 function filterMostVnt() {
     let numberMoths = document.getElementById('numberMoths').value;
     let daysLate = document.getElementById('daysLate').value;
@@ -475,11 +469,10 @@ function filterMostVnt() {
     }, []);
 
     productsSold = Object.values(productosVendidos).sort((a, b) => b.cantidad_vtpd - a.cantidad_vtpd);
-    console.log(mothsReplacement + ' ' + daysLate + ' ' + numberMoths);
     productsSold.forEach(proforma => {
         const encontrado = inventories.find(inventario => inventario.codigo_prod === proforma.codigo_vtpd);
-        const consumoMensual = Math.ceil(proforma.cantidad_vtpd / numberMoths);
-        const reponer = consumoMensual * mothsReplacement + (consumoMensual / 30) * daysLate - encontrado.cantidad_inv;
+        const consumoMensual = proforma.cantidad_vtpd / numberMoths;
+        const reponer = Math.ceil(consumoMensual * mothsReplacement + (consumoMensual / 30) * daysLate - encontrado.cantidad_inv);
         proforma.reponer = reponer;
     });
 
