@@ -645,6 +645,19 @@ button:hover{
 	padding-bottom: 2rem;
 	font-size: 1rem;
 }
+/***********************************PRICE LIST*****************************************/
+#tablePriceList .modalTable__container{
+	/*como su padre tiene flexbox se puede usar el margin auto*/
+	display: grid;/*activa el overlay*/
+	width: 50%;
+	max-width: 50rem;
+	height: 90%;
+	margin: auto;	
+	font-family: 'Roboto', sans-serif;
+	overflow: hidden;
+	background-color: #fff;
+	border-radius: .5rem;
+}
 /*------------------------------------------------------------------------------------------*/
 /* responsive */
 @media (max-width:800px){

@@ -1141,8 +1141,36 @@
 		<div class="modalTable__container">
 			<div class="table">
 				<div class="table__title">
-					<h1><img src="../imagenes/proforma.svg"></h1>
+					<h1><img src="../imagenes/proforma.svg">Lista de precios</h1>
 					<img src="../imagenes/salir.svg" id="closetablePriceList" class="button__close">
+				</div>
+				<section class="table__header">
+					<div></div>
+					<div class="combo__search">
+						<div class="table__search">
+							<input type="search" id="inputSearchPriceList" placeholder="Buscar...">
+							<img src="../imagenes/search.png">
+						</div>
+					</div>
+				</section>
+				<div class="showPage" id="showPagePriceList">
+					<h2></h2>
+				</div>
+				<div class="container__page">
+					<div class="paginacion">
+						<div class="wrapper" id="wrapperPriceList">
+							<ul></ul>
+						</div>
+					</div>
+					<div>
+						<select id="selectNumberPriceList" class="select__number">
+							<option value="2">2</option>
+							<option value="4">4</option>
+							<option value="6">6</option>
+							<option value="10">10 </option>
+							<option value="20">20</option>
+						</select>
+					</div>
 				</div>
 				<section class="table__body">
 					<table>

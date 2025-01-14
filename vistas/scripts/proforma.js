@@ -2849,6 +2849,90 @@ async function readPrices() {
         body: formData
     }).then(response => response.json()).then(data => {
         prices = Object.values(data);
-        console.log(prices);
+        filterPrices = prices;
+        paginacionPriceList(filterPrices.length, 1);
     }).catch(err => console.log(err));    
+}
+//------buscar por input
+const inputSearchPriceList = document.getElementById("inputSearchPriceList");
+inputSearchPriceList.addEventListener("keyup", searchPriceList);
+//------Proformas por pagina
+const selectNumberPriceList = document.getElementById('selectNumberPriceList');
+selectNumberPriceList.selectedIndex = 3;
+selectNumberPriceList.addEventListener('change', function () {
+    paginacionPriceList(filterPrices.length, 1);
+});
+//------buscar por:
+function searchPriceList() {
+    const busqueda = inputSearchPriceList.value.toLowerCase().trim();
+    filterPrices = prices.filter(price => {
+        return (
+            price.modelo.toLowerCase().includes(busqueda)
+        );
+    });
+    paginacionPriceList(filterPrices.length, 1);
+}
+//------PaginacionPriceList
+function paginacionPriceList(allProducts, page) {
+    let numberProducts = Number(selectNumberPriceList.value);
+    let allPages = Math.ceil(allProducts / numberProducts);
+    let ul = document.querySelector('#wrapperPriceList ul');
+    let li = '';
+    let beforePages = page - 1;
+    let afterPages = page + 1;
+    let liActive;
+    if (page > 1) {
+        li += `<li class="btn" onclick="paginacionPriceList(${allProducts}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
+    }
+    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
+        if (pageLength > allPages) {
+            continue;
+        }
+        if (pageLength == 0) {
+            pageLength = pageLength + 1;
+        }
+        if (page == pageLength) {
+            liActive = 'active';
+        } else {
+            liActive = '';
+        }
+        li += `<li class="numb ${liActive}" onclick="paginacionPriceList(${allProducts}, ${pageLength})"><span>${pageLength}</span></li>`;
+    }
+    if (page < allPages) {
+        li += `<li class="btn" onclick="paginacionPriceList(${allProducts}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
+    }
+    ul.innerHTML = li;
+    let h2 = document.querySelector('#showPagePriceList h2');
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${allProducts} Productos`;
+    tablePrices(page);
+}
+//--------Tabla de proforma
+function tablePrices(page) {
+    const tbody = document.getElementById('tbodyPriceList');
+    const inicio = (page - 1) * Number(selectNumberPriceList.value);
+    const final = inicio + Number(selectNumberPriceList.value);
+    const product = filterPrices.slice(inicio, final);
+    tbody.innerHTML = '';
+    product.forEach((prod, index) => {
+        const tr = document.createElement('tr');
+
+        const tdNumero = document.createElement('td');
+        tdNumero.innerText = index + 1;
+        tr.appendChild(tdNumero);
+
+        const modelo = document.createElement('td');
+        modelo.innerText = prod.modelo;
+        tr.appendChild(modelo);
+
+        const precioLista = document.createElement('td');
+        precioLista.innerText = Math.round(prod.precio);
+        tr.appendChild(precioLista);
+
+        const precioVenta = document.createElement('td');
+        precioVenta.innerText = Math.round(prod.precio * 1.1);
+        precioVenta.setAttribute('style', 'background-color:rgba(6, 245, 38, 0.41)');
+        tr.appendChild(precioVenta);
+
+        tbody.appendChild(tr);
+    });
 }
