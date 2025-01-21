@@ -1376,6 +1376,7 @@ function sendProduct(tr) {
             let cart__items = '';
             let i = 0;
             if (formBuy == 'R') {
+                
                 cart__items = document.querySelectorAll(`#cmp_prod${formBuy}MW div.modal__body div.cart__item`);
                 if (cart__items.length > 0) {
                     cart__items.forEach(prod => {
@@ -1386,6 +1387,7 @@ function sendProduct(tr) {
                     })
                 }
             } else if (formBuy != 'R') {
+                /*
                 cart__items = document.querySelectorAll(`#productBuyMW div.modal__body div.cart__item`);
                 if (cart__items.length > 0) {
                     cart__items.forEach(prod => {
@@ -1394,7 +1396,7 @@ function sendProduct(tr) {
                             i++;
                         }
                     })
-                }
+                }*/
             }
             if (i == 0) {
                 let inventario = inventories.find(inventory => inventory.fk_id_prod_inv == filterProductsMW[product]['id_prod']);
@@ -1646,7 +1648,6 @@ function createProduct() {
         } else if (categoria_prodR.value == "todasLasCategorias") {
             mostrarAlerta("Debe seleccionar una categoria");
         } else {
-            productsRMW.classList.remove('modal__show');
             let form = document.getElementById("formProductsR");
             let formData = new FormData(form);
             formData.append('createProduct', '');
@@ -1655,14 +1656,19 @@ function createProduct() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
+                requestProducts = false;
                 preloader.classList.remove('modal__show');
-                rqstBuy = false;
                 if (data == "El codigo ya existe") {
                     mostrarAlerta(data);
+                } else if (data == "El codigo SMC ya existe"){
+                    mostrarAlerta(data);
                 } else {
-                    mostrarAlerta("El producto fue creado con éxito");
-                    readProducts();
-                    cleanUpProductFormR();
+                    readProducts().then(() => {
+                        mostrarAlerta("El producto fue creado con éxito");
+                        productsRMW.classList.remove('modal__show');
+                        divCodigoSMCR.setAttribute('hidden', '');
+                        form.reset();
+                    })
                 }
             }).catch(err => {
                 rqstBuy = false;
@@ -1720,17 +1726,15 @@ function updateProduct() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
+                preloader.classList.remove('modal__show');
+                requestProducts = false;
                 if (data == "El codigo ya existe") {
-                    readProducts().then(() => {
-                        preloader.classList.remove('modal__show');
-                        rqstBuy = false;
-                        mostrarAlerta(data);
-                    })
-                }else {
+                    mostrarAlerta(data);
+                } else if (data == 'El codigo SMC ya existe'){
+                    mostrarAlerta(data);
+                } else {
                     readProducts().then(() => {
                         productsMMW.classList.remove('modal__show');
-                        preloader.classList.remove('modal__show');
-                        rqstBuy = false;
                         mostrarAlerta(data);
                     })
                 }
@@ -1940,7 +1944,7 @@ function searchProdOC() {
                         filterCmp_prods[proforma] = cmp_prods[proforma];
                         break;
                     }
-                } else if (valor == 'nombre_empp' || valor == 'nombre_emp' || valor == 'nombre_mrc' || valor == 'nombre_ctgr' || valor == 'codigo_prod' || valor == 'descripcion_cppd' || valor == 'cantidad_cppd' || valor == 'cost_uni_cppd' || valor == 'descuento_cmp' || valor == 'fecha_cmp' || valor == 'fecha_entrega_cmp') {
+                } else if (valor == 'nombre_empp' || valor == 'nombre_emp' || valor == 'nombre_mrc' || valor == 'nombre_ctgr' || valor == 'codigo_prod' || valor == 'descripcion_cppd' || valor == 'cantidad_cppd' || valor == 'cost_uni_cppd' || valor == 'descuento_cmp' || valor == 'fecha_cmp' || valor == 'fecha_entrega_cmp' || valor == 'factura_cppd') {
                     if (cmp_prods[proforma][valor].toString().toLowerCase().indexOf(inputSearchProdOC.value.toLowerCase()) >= 0) {
                         filterCmp_prods[proforma] = cmp_prods[proforma];
                         break;

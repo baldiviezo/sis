@@ -48,13 +48,17 @@ class consultas {
 			echo "El codigo ya existe";	
 		}else{
 			if ($this->marca == 15){
-				$consulta = "SELECT * FROM producto WHERE codigo_smc_prod='$this->codigo_smc_prod'";
-				$resultado = $conexion->query($consulta);
-				$numeroFilas2 = $resultado->num_rows;
-				if ($numeroFilas2 > 0) {
-					echo "El codigo ya existe";
-				}else{
+				if ($this->codigo_smc_prod == "") {
 					$this->registrar2();
+				}else{
+					$consulta = "SELECT * FROM producto WHERE codigo_smc_prod='$this->codigo_smc_prod'";
+					$resultado = $conexion->query($consulta);
+					$numeroFilas2 = $resultado->num_rows;
+					if ($numeroFilas2 > 0) {	
+						echo "El codigo SMC ya existe";
+					}else{
+						$this->registrar2();
+					}
 				}
 			}else{
 				$this->registrar2();
@@ -86,23 +90,27 @@ class consultas {
 			$producto = $resultado->fetch_assoc();
 			$id_prod = $producto['id_prod'];
 			if($id_prod == $this->id){
-				if ($this->marca == 15){
-					$consulta = "SELECT * FROM producto WHERE codigo_smc_prod='$this->codigo_smc_prod'";
-					$resultado = $conexion->query($consulta);
-					$numeroFilas2 = $resultado->num_rows;
-					if ($numeroFilas2 > 0) {
-						$producto = $resultado->fetch_assoc();
-						$id_prod = $producto['id_prod'];
-						if ($this->id == $id_prod) {
-							$this->update();
+				if ($this->codigo_smc_prod == "") {
+					$this->update();
+				}else{
+					if ($this->marca == 15){
+						$consulta = "SELECT * FROM producto WHERE codigo_smc_prod='$this->codigo_smc_prod'";
+						$resultado = $conexion->query($consulta);
+						$numeroFilas2 = $resultado->num_rows;
+						if ($numeroFilas2 > 0) {
+							$producto = $resultado->fetch_assoc();
+							$id_prod = $producto['id_prod'];
+							if ($this->id == $id_prod) {
+								$this->update();
+							}else{
+								echo "El codigo SMC ya existe";
+							}
 						}else{
-							echo "El codigo ya existe";
+							$this->update();
 						}
 					}else{
 						$this->update();
 					}
-				}else{
-					$this->update();
 				}
 			}else{
 				echo "El codigo ya existe";
@@ -117,7 +125,7 @@ class consultas {
 					if ($this->id == $producto['id_prod']) {
 						$this->update();
 					}else{
-						echo "El codigo ya existe";
+						echo "El codigo SMC ya existe";
 					}
 				}else{
 					$this->update();

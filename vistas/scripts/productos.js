@@ -227,14 +227,16 @@ async function createProduct() {
                 body: formData
             }).then(response => response.text()).then(data => {
                 requestProducts = false;
+                preloader.classList.remove('modal__show');
                 if (data == "El codigo ya existe") {
                     mostrarAlerta(data);
-                    preloader.classList.remove('modal__show');
+                } else if (data == "El codigo SMC ya existe"){
+                    mostrarAlerta(data);
                 } else {
                     readProducts().then(() => {
                         mostrarAlerta("El producto fue creado con éxito");
                         productsRMW.classList.remove('modal__show');
-                        preloader.classList.remove('modal__show');
+                        divCodigoSMCR.setAttribute('hidden', '');
                         form.reset();
                     })
                 }
@@ -294,17 +296,15 @@ async function updateProduct() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
+                preloader.classList.remove('modal__show');
+                requestProducts = false;
                 if (data == "El codigo ya existe") {
-                    readProducts().then(() => {
-                        preloader.classList.remove('modal__show');
-                        requestProducts = false;
-                        mostrarAlerta(data);
-                    })
+                    mostrarAlerta(data);
+                } else if (data == 'El codigo SMC ya existe'){
+                    mostrarAlerta(data);
                 } else {
                     readProducts().then(() => {
                         productsMMW.classList.remove('modal__show');
-                        preloader.classList.remove('modal__show');
-                        requestProducts = false;
                         mostrarAlerta(data);
                     })
                 }

@@ -2276,7 +2276,6 @@ async function createProduct() {
     } else {
         if (requestProf == false) {
             requestProf = true;
-            productsRMW.classList.remove('modal__show');
             let form = document.getElementById("formProductsR");
             let formData = new FormData(form);
             formData.append('createProduct', '');
@@ -2285,16 +2284,19 @@ async function createProduct() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                requestProf = false;
+                requestProducts = false;
+                preloader.classList.remove('modal__show');
                 if (data == "El codigo ya existe") {
-                    preloader.classList.remove('modal__show');
+                    mostrarAlerta(data);
+                } else if (data == "El codigo SMC ya existe"){
                     mostrarAlerta(data);
                 } else {
                     readProducts().then(() => {
-                        preloader.classList.remove('modal__show');
-                        form.reset();
                         mostrarAlerta("El producto fue creado con éxito");
-                    });
+                        productsRMW.classList.remove('modal__show');
+                        divCodigoSMCR.setAttribute('hidden', '');
+                        form.reset();
+                    })
                 }
             }).catch(err => {
                 requestProf = false;
@@ -2352,17 +2354,15 @@ async function updateProduct() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
+                preloader.classList.remove('modal__show');
+                requestProducts = false;
                 if (data == "El codigo ya existe") {
-                    readProducts().then(() => {
-                        preloader.classList.remove('modal__show');
-                        requestProf = false;
-                        mostrarAlerta(data);
-                    })
-                }else {
+                    mostrarAlerta(data);
+                } else if (data == 'El codigo SMC ya existe'){
+                    mostrarAlerta(data);
+                } else {
                     readProducts().then(() => {
                         productsMMW.classList.remove('modal__show');
-                        preloader.classList.remove('modal__show');
-                        requestProf = false;
                         mostrarAlerta(data);
                     })
                 }

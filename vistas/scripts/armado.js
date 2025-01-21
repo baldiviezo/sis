@@ -810,7 +810,6 @@ async function createProduct() {
     } else {
         if (!rqstArmed) {
             rqstArmed = true;
-            productsRMW.classList.remove('modal__show');
             let form = document.getElementById("formProductsR");
             let formData = new FormData(form);
             formData.append('createProduct', '');
@@ -819,15 +818,18 @@ async function createProduct() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                rqstArmed = false;
+                requestProducts = false;
+                preloader.classList.remove('modal__show');
                 if (data == "El codigo ya existe") {
-                    preloader.classList.remove('modal__show');
+                    mostrarAlerta(data);
+                } else if (data == "El codigo SMC ya existe"){
                     mostrarAlerta(data);
                 } else {
                     readProducts().then(() => {
-                        cleanUpProductFormR();
                         mostrarAlerta("El producto fue creado con éxito");
-                        preloader.classList.remove('modal__show');
+                        productsRMW.classList.remove('modal__show');
+                        divCodigoSMCR.setAttribute('hidden', '');
+                        form.reset();
                     })
                 }
             }).catch(err => console.log(err));
