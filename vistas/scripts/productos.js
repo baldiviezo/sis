@@ -186,15 +186,19 @@ function tableProducts(page) {
                 }
             }
             let td = document.createElement('td');
-            if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
-                td.innerHTML = `
-            <a href='${filterProducts[product]['catalogo_prod']}' target='_blank'><img src='../imagenes/pdf.svg' title='Catálogo'></a>
-            <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)' title='Editar producto'>
-            <img src='../imagenes/trash.svg' onclick='deleteProduct(this.parentNode.parentNode)' title='Eliminar Producto'>`;
-            } else {
-                td.innerHTML = `
-            <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)' title='Editar Producto'>`;
+            let html = '';
+            if (filterProducts[product]['catalogo_prod'] != '') {
+                html += `<a href='${filterProducts[product]['catalogo_prod']}' target='_blank'><img src='../imagenes/pdf.svg' title='Catálogo'></a>`;
             }
+            if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
+                html += `
+                <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)' title='Editar producto'>
+                <img src='../imagenes/trash.svg' onclick='deleteProduct(this.parentNode.parentNode)' title='Eliminar Producto'>`;
+            } else {
+                html += `
+                <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)' title='Editar Producto'>`;
+            }
+            td.innerHTML = html;
             tr.appendChild(td);
             tbody.appendChild(tr);
         } else {
@@ -254,7 +258,7 @@ function readProduct(tr) {
                     if (filterProducts[product]['id_mrc'] == '15') {
                         divCodigoSMCM.removeAttribute('hidden');
                         document.getElementsByName(valor + 'M')[0].value = filterProducts[product][valor];
-                    } 
+                    }
                 } else if (valor == 'id_ctgr') {
                 } else if (valor == 'id_mrc') {
                 } else if (valor == 'marca_prod') {
@@ -296,7 +300,7 @@ async function updateProduct() {
                         requestProducts = false;
                         mostrarAlerta(data);
                     })
-                }else {
+                } else {
                     readProducts().then(() => {
                         productsMMW.classList.remove('modal__show');
                         preloader.classList.remove('modal__show');

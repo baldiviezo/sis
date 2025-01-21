@@ -113,6 +113,7 @@ class consultas {
 				$resultado = $conexion->query($consulta);
 				$numeroFilas2 = $resultado->num_rows;
 				if ($numeroFilas2 > 0) {
+					$producto = $resultado->fetch_assoc();
 					if ($this->id == $producto['id_prod']) {
 						$this->update();
 					}else{

@@ -568,30 +568,28 @@ function selectStateBuys() {
 let orderBuys = document.querySelectorAll('.tbody__head--buy');
 orderBuys.forEach(div => {
     div.children[0].addEventListener('click', function () {
-        let array = Object.entries(filterBuys).sort((a, b) => {
-            let first = a[1][div.children[0].name];
-            let second = b[1][div.children[0].name];
+        filterBuys.sort((a, b) => {
+            let first = a[div.children[0].name];
+            let second = b[div.children[0].name];
             if (typeof first === 'number' && typeof second === 'number') {
                 return first - second;
             } else {
                 return String(first).localeCompare(String(second));
             }
         });
-        filterBuys = Object.fromEntries(array);
-        filterByUserBuys(Object.values(filterBuys).length, 1);
+        filterByUserBuys(filterBuys.length, 1);
     });
     div.children[1].addEventListener('click', function () {
-        let array = Object.entries(filterBuys).sort((a, b) => {
-            let first = a[1][div.children[0].name];
-            let second = b[1][div.children[0].name];
+        filterBuys.sort((a, b) => {
+            let first = a[div.children[0].name];
+            let second = b[div.children[0].name];
             if (typeof first === 'number' && typeof second === 'number') {
                 return second - first;
             } else {
                 return String(second).localeCompare(String(first));
             }
         });
-        filterBuys = Object.fromEntries(array);
-        filterByUserBuys(Object.values(filterBuys).length, 1);
+        filterByUserBuys(filterBuys.length, 1);
     });
 });
 //------Filtar por rol
@@ -643,6 +641,12 @@ function paginacionBuy(allBuys, page) {
 }
 //------Crear la tabla
 function tableBuys(page) {
+    const totalBuy = document.getElementById('totalBuy');
+    let total = 0;
+    for (let buy in filterBuys) {
+        total += Number(filterBuys[buy]['total_cmp']);
+    }
+    totalBuy.innerText = `Total: ${total.toFixed(2)} Bs`;
     let tbody = document.getElementById('tbodyBuy');
     inicio = (page - 1) * Number(selectNumberBuy.value);
     final = inicio + Number(selectNumberBuy.value);

@@ -148,6 +148,12 @@ function paginationSales(allVentas, page) {
 }
 //------Crear la tabla
 function tableSales(page) {
+    const totalVentas = document.getElementById('totalVentas');
+    let total = 0;
+    for (let venta in filterSales) {
+        total += Number(filterSales[venta]['total_vnt']);
+    }
+    totalVentas.innerHTML = `Total: ${total.toFixed(2)} Bs`;
     let tbody = document.getElementById('tbodyVenta');
     let pageItems = filterSales.slice((page - 1) * Number(selectNumberVnt.value), page * Number(selectNumberVnt.value));
     tbody.innerHTML = '';
