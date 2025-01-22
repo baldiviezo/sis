@@ -499,69 +499,42 @@ inputSerchBuy.addEventListener("keyup", searchBuys);
 const selectNumberBuy = document.getElementById('selectNumberBuy');
 selectNumberBuy.selectedIndex = 3;
 selectNumberBuy.addEventListener('change', function () {
-    filterByUserBuys(Object.values(filterBuys).length, 1);
+    filterByUserBuys(filterBuys.length, 1);
 });
 //-------Estado de compra
 const selectStateBuy = document.getElementById('selectStateBuy');
 selectStateBuy.addEventListener('change', searchBuys);
 //------buscar por:
 function searchBuys() {
-    filterBuys = {};
-    for (let buy in buys) {
-        for (let valor in buys[buy]) {
-            if (selectSearchBuy.value == 'todas') {
-                if (valor == 'numero_cmp') {
-                    if (buys[buy][valor].toLowerCase().indexOf(inputSerchBuy.value.toLowerCase()) >= 0) {
-                        filterBuys[buy] = buys[buy];
-                        break;
-                    }
-                } else if (valor == 'nombre_usua') {
-                    if ((buys[buy][valor] + ' ' + buys[buy]['apellido_usua']).toLowerCase().indexOf(inputSerchBuy.value.toLowerCase()) >= 0) {
-                        filterBuys[buy] = buys[buy];
-                        break;
-                    }
-                } else if (valor == 'nombre_prov') {
-                    if ((buys[buy][valor] + ' ' + buys[buy]['apellido_prov']).toLowerCase().indexOf(inputSerchBuy.value.toLowerCase()) >= 0) {
-                        filterBuys[buy] = buys[buy];
-                        break;
-                    }
-                } else if (valor == 'fecha_cmp' || valor == 'nombre_empp') {
-                    if (buys[buy][valor].toLowerCase().indexOf(inputSerchBuy.value.toLowerCase()) >= 0) {
-                        filterBuys[buy] = buys[buy];
-                        break;
-                    }
-                }
-            } else {
-                if (valor == selectSearchBuy.value) {
-                    if (buys[buy][valor].toLowerCase().indexOf(inputSerchBuy.value.toLowerCase()) >= 0) {
-                        filterBuys[buy] = buys[buy];
-                        break;
-                    }
-                }
-            }
-
-
-
+    const busqueda = inputSerchBuy.value.toLowerCase().trim();
+    const valor = selectSearchBuy.value.toLowerCase().trim();
+    filterBuys = buys.filter(buy => {
+        if (valor == 'todas') {
+            return (
+                buy.numero_cmp.toLowerCase().includes(busqueda) ||
+                (buy.nombre_usua + ' ' + buy.apellido_usua).toLowerCase().includes(busqueda) ||
+                (buy.nombre_prov + ' ' + buy.apellido_prov).toLowerCase().includes(busqueda) ||
+                buy.fecha_cmp.toLowerCase().includes(busqueda) ||
+                buy.nombre_empp.toLowerCase().includes(busqueda) ||
+                buy.total_cmp.toString().includes(busqueda)
+            )
+        } if (valor === 'total_cmp') {
+            return buy[valor].toString().includes(busqueda);
+        } else if (valor === 'nombre_usua') {
+            return (buy[valor]+ ' ' + buy.apellido_usua).toLowerCase().includes(busqueda);
+        } else {
+            return buy[valor].toLowerCase().includes(busqueda);
         }
-    }
+    });
     selectStateBuys();
 }
 //estado de la compra
 function selectStateBuys() {
     if (selectStateBuy.value == 'todasLasCompras') {
-        filterByUserBuys(Object.values(filterBuys).length, 1);
+        filterByUserBuys(filterBuys.length, 1);
     } else {
-        for (let buy in filterBuys) {
-            for (let valor in filterBuys[buy]) {
-                if (valor == 'estado_cmp') {
-                    if (filterBuys[buy][valor] != selectStateBuy.value) {
-                        delete filterBuys[buy];
-                        break;
-                    }
-                }
-            }
-        }
-        filterByUserBuys(Object.values(filterBuys).length, 1);
+        filterBuys = filterBuys.filter(buy => buy.estado_cmp == selectStateBuy.value);
+        filterByUserBuys(filterBuys.length, 1);
     }
 }
 //------Ordenar tabla descendente ascendente
@@ -597,14 +570,10 @@ function filterByUserBuys(length, page) {
     if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
         paginacionBuy(length, page);
     } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
-        for (let buy in filterBuys) {
-            if (filterBuys[buy]['fk_id_usua_cmp'] != localStorage.getItem('id_usua')) {
-                delete filterBuys[buy];
-            }
-        }
-        paginacionBuy(length, page);
+        filterBuys = filterBuys.filter(buy => buy.fk_id_usua_cmp == localStorage.getItem('id_usua'));
+        paginacionBuy(filterBuys.length, page);
     }
-}
+}   
 //------PaginacionBuy
 function paginacionBuy(allBuys, page) {
     let numberCustomers = Number(selectNumberBuy.value);
@@ -933,7 +902,6 @@ async function readCmp_prods() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            console.log(data);
             cmp_prods = Object.values(data);
             filterCmp_prods = cmp_prods;
             paginacionProdOC(cmp_prods.length, 1);
@@ -1208,7 +1176,7 @@ inputSearchProdMW.addEventListener("keyup", searchProductsMW);
 const selectNumberProdMW = document.getElementById('selectNumberProdMW');
 selectNumberProdMW.selectedIndex = 3;
 selectNumberProdMW.addEventListener('change', function () {
-    paginacionProductMW(Object.values(filterProductsMW).length, 1);
+    paginacionProductMW(filterProductsMW.length, 1);
 });
 //-------Marca y categoria
 const selectMarcaProdMW = document.getElementById('selectMarcaProdMW');
@@ -1217,80 +1185,50 @@ const selectCategoriaProdMW = document.getElementById('selectCategoriaProdMW');
 selectCategoriaProdMW.addEventListener('change', searchProductsMW);
 //------buscar por:
 function searchProductsMW() {
-    filterProductsMW = {};
-    for (let product in products) {
-        for (let valor in products[product]) {
-            if (selectSearchProdMW.value == 'todas') {
-                if (valor == 'codigo_prod' || valor == 'nombre_prod' || valor == 'descripcion_prod') {
-                    if (products[product][valor].toLowerCase().indexOf(inputSearchProdMW.value.toLowerCase()) >= 0) {
-                        filterProductsMW[product] = products[product];
-                        break;
-                    }
-                }
-            } else {
-                if (valor == selectSearchProdMW.value) {
-                    if (products[product][valor].toLowerCase().indexOf(inputSearchProdMW.value.toLowerCase()) >= 0) {
-                        filterProductsMW[product] = products[product];
-                        break;
-                    }
-                }
-            }
+    const valor = selectSearchProdMW.value;
+    const busqueda = inputSearchProdMW.value.toLowerCase().trim();
+    filterProductsMW = products.filter(product => {
+        if (valor === 'todas') {
+            return (
+                product.codigo_prod.toLowerCase().includes(busqueda) ||
+                product.nombre_prod.toLowerCase().includes(busqueda) ||
+                product.descripcion_prod.toLowerCase().includes(busqueda)
+            );
+        } else {
+            return product[valor].toLowerCase().includes(busqueda);
         }
-    }
+    });
     selectProductsMW();
 }
 //------buscar por marca y categoria:
 function selectProductsMW() {
     if (selectMarcaProdMW.value == 'todasLasMarcas' && selectCategoriaProdMW.value == 'todasLasCategorias') {
-        paginacionProductMW(Object.values(filterProductsMW).length, 1);
+        paginacionProductMW(filterProductsMW.length, 1);
     } else {
-        for (let product in filterProductsMW) {
-            for (let valor in filterProductsMW[product]) {
-                if (selectMarcaProdMW.value == 'todasLasMarcas') {
-                    if (filterProductsMW[product]['id_ctgr'] != selectCategoriaProdMW.value) {
-                        delete filterProductsMW[product];
-                        break;
-                    }
-                } else if (selectCategoriaProdMW.value == 'todasLasCategorias') {
-                    if (filterProductsMW[product]['id_mrc'] != selectMarcaProdMW.value) {
-                        delete filterProductsMW[product];
-                        break;
-                    }
-                } else {
-                    if (filterProductsMW[product]['id_ctgr'] != selectCategoriaProdMW.value || filterProductsMW[product]['id_mrc'] != selectMarcaProdMW.value) {
-                        delete filterProductsMW[product];
-                        break;
-                    }
-                }
+        filterProductsMW = filterProductsMW.filter(product => {
+            if (selectMarcaProdMW.value == 'todasLasMarcas') {
+                return product['id_ctgr'] == selectCategoriaProdMW.value;
+            } else if (selectCategoriaProdMW.value == 'todasLasCategorias') {
+                return product['id_mrc'] == selectMarcaProdMW.value;
+            } else {
+                return product['id_ctgr'] == selectCategoriaProdMW.value && product['id_mrc'] == selectMarcaProdMW.value;
             }
-        }
-        paginacionProductMW(Object.values(filterProductsMW).length, 1);
+        });
+        paginacionProductMW(filterProductsMW.length, 1);
     }
 }
 //------Ordenar tabla descendente ascendente
 let orderProducts = document.querySelectorAll('.tbody__head--ProdMW');
 orderProducts.forEach(div => {
     div.children[0].addEventListener('click', function () {
-        let array = Object.entries(filterProductsMW).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
-            if (first < second) { return -1 }
-            if (first > second) { return 1 }
-            return 0;
-        })
-        filterProductsMW = Object.fromEntries(array);
-        paginacionProductMW(Object.values(filterProductsMW).length, 1);
+        const valor = div.children[0].name;
+        filterProductsMW.sort((a, b) => a[valor].localeCompare(b[valor]));
+        paginacionProductMW(filterProductsMW.length, 1);
     });
     div.children[1].addEventListener('click', function () {
-        let array = Object.entries(filterProductsMW).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
-            if (first > second) { return -1 }
-            if (first < second) { return 1 }
-            return 0;
-        })
-        filterProductsMW = Object.fromEntries(array);
-        paginacionProductMW(Object.values(filterProductsMW).length, 1);
+        const valor = div.children[0].name;
+        filterProductsMW.sort((a, b) => b[valor].localeCompare(a[valor]));
+        paginacionProductMW(filterProductsMW.length, 1);
     });
 })
 //------PaginacionProductMW
@@ -1377,7 +1315,7 @@ function sendProduct(tr) {
             let cart__items = '';
             let i = 0;
             if (formBuy == 'R') {
-                
+
                 cart__items = document.querySelectorAll(`#cmp_prod${formBuy}MW div.modal__body div.cart__item`);
                 if (cart__items.length > 0) {
                     cart__items.forEach(prod => {
@@ -1661,7 +1599,7 @@ function createProduct() {
                 preloader.classList.remove('modal__show');
                 if (data == "El codigo ya existe") {
                     mostrarAlerta(data);
-                } else if (data == "El codigo SMC ya existe"){
+                } else if (data == "El codigo SMC ya existe") {
                     mostrarAlerta(data);
                 } else {
                     readProducts().then(() => {
@@ -1691,7 +1629,7 @@ function readProduct(tr) {
                     if (filterProductsMW[product]['id_mrc'] == '15') {
                         divCodigoSMCM.removeAttribute('hidden');
                         document.getElementsByName(valor + 'M')[0].value = filterProductsMW[product][valor];
-                    } 
+                    }
                 } else if (valor == 'id_ctgr') {
                 } else if (valor == 'id_mrc') {
                 } else if (valor == 'marca_prod') {
@@ -1731,7 +1669,7 @@ function updateProduct() {
                 requestProducts = false;
                 if (data == "El codigo ya existe") {
                     mostrarAlerta(data);
-                } else if (data == 'El codigo SMC ya existe'){
+                } else if (data == 'El codigo SMC ya existe') {
                     mostrarAlerta(data);
                 } else {
                     readProducts().then(() => {
@@ -1956,49 +1894,38 @@ const selectStateProdOC = document.getElementById('selectStateProdOC');
 selectStateProdOC.addEventListener('change', searchProdOC);
 function selectStateProductOC() {
     if (selectStateProdOC.value == 'todasLasOC') {
-        paginacionProdOC(Object.values(filterCmp_prods).length, 1);
+        paginacionProdOC(filterCmp_prods.length, 1);
     } else {
-        for (let proforma in filterCmp_prods) {
-            for (let valor in filterCmp_prods[proforma]) {
-                if (valor == 'estado_cmp') {
-                    if (filterCmp_prods[proforma][valor] != selectStateProdOC.value) {
-                        delete filterCmp_prods[proforma];
-                        break;
-                    }
-                }
-            }
-        }
-        paginacionProdOC(Object.values(filterCmp_prods).length, 1);
+        filterCmp_prods = filterCmp_prods.filter(proforma => proforma.estado_cmp == selectStateProdOC.value);
+        paginacionProdOC(filterCmp_prods.length, 1);
     }
 }
 //------Ordenar tabla descendente ascendente
-let orderProforma = document.querySelectorAll('.tbody__head--proforma');
+let orderProforma = document.querySelectorAll('.tbody__head--fbuy');
 orderProforma.forEach(div => {
     div.children[0].addEventListener('click', function () {
-        let array = Object.entries(filterCmp_prods).sort((a, b) => {
-            let first = a[1][div.children[0].name];
-            let second = b[1][div.children[0].name];
+        filterCmp_prods.sort((a, b) => {
+            let first = a[div.children[0].name];
+            let second = b[div.children[0].name];
             if (typeof first === 'number' && typeof second === 'number') {
                 return first - second;
             } else {
                 return String(first).localeCompare(String(second));
             }
         });
-        filterCmp_prods = Object.fromEntries(array);
-        paginacionProdOC(Object.values(filterCmp_prods).length, 1);
+        paginacionProdOC(filterCmp_prods.length, 1);
     });
     div.children[1].addEventListener('click', function () {
-        let array = Object.entries(filterCmp_prods).sort((a, b) => {
-            let first = a[1][div.children[0].name];
-            let second = b[1][div.children[0].name];
+        filterCmp_prods.sort((a, b) => {
+            let first = a[div.children[0].name];
+            let second = b[div.children[0].name];
             if (typeof first === 'number' && typeof second === 'number') {
                 return second - first;
             } else {
                 return String(second).localeCompare(String(first));
             }
         });
-        filterCmp_prods = Object.fromEntries(array);
-        paginacionProdOC(Object.values(filterCmp_prods).length, 1);
+        paginacionProdOC(filterCmp_prods.length, 1);
     });
 });
 //------PaginacionProdOC

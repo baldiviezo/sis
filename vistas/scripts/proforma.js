@@ -2109,7 +2109,7 @@ inputSearchProdMW.addEventListener("keyup", searchProductsMW);
 const selectNumberProdMW = document.getElementById('selectNumberProdMW');
 selectNumberProdMW.selectedIndex = 3;
 selectNumberProdMW.addEventListener('change', function () {
-    paginacionProductMW(Object.values(filterProductsMW).length, 1);
+    paginacionProductMW(filterProductsMW.length, 1);
 });
 //-------Marca y categoria
 const selectMarcaProdMW = document.getElementById('selectMarcaProdMW');
@@ -2120,7 +2120,7 @@ selectCategoriaProdMW.addEventListener('change', searchProductsMW);
 function searchProductsMW() {
     const valor = selectSearchProdMW.value;
     const busqueda = inputSearchProdMW.value.toLowerCase().trim();
-    filterProductsMW = Object.values(products).filter(product => {
+    filterProductsMW = products.filter(product => {
         if (valor === 'todas') {
             return (
                 product.codigo_prod.toLowerCase().includes(busqueda) ||

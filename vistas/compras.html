@@ -40,15 +40,15 @@
 				</div>
 			</section>
 			<div class="combo__search">
-				<div>
+				<div class="filter__search">
+					<h3>Filtrar por:</h3>
 					<select id="selectSearchBuy" class="select">
-						<option value="todas">Buscar por todo</option>
-						<option value="numero_cmp">Por orden de compra</option>
-						<option value="fecha_cmp">Por fecha</option>
-						<option value="numero_cmp">Por encargado</option>
-						<option value="nombre_empp">Por empresa</option>
-						<option value="factura_cmp">Por factura</option>
-						<option value="factura_cmp">Por fecha de facturación</option>
+						<option value="todas">Todo</option>
+						<option value="numero_cmp">Orden de compra</option>
+						<option value="fecha_cmp">Fecha de OC</option>
+						<option value="nombre_usua">Encargado</option>
+						<option value="nombre_empp">Empresa</option>
+						<option value="total_cmp">Total de la OC</option>
 					</select>
 				</div>
 				<div class="table__search">
@@ -78,7 +78,7 @@
 				<thead>
 					<tr>
 						<th>N°</th>
-						<th><div class="tbody__head--buy">OC SMS<img src="../imagenes/sortA_Z.svg" name="id_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="id_cmp" class="icon__CRUD"></div></th>
+						<th><div class="tbody__head--buy">OC SMS<img src="../imagenes/sortA_Z.svg" name="numero_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="numero_cmp" class="icon__CRUD"></div></th>
 						<th><div class="tbody__head--buy">Fecha<img src="../imagenes/sortA_Z.svg" name="fecha_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_cmp" class="icon__CRUD"></div></th>
 						<th>Encargado</th>
 						<th><div class="tbody__head--buy">Empresa<img src="../imagenes/sortA_Z.svg" name="nombre_empp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_empp" class="icon__CRUD"></div></th>
@@ -842,17 +842,17 @@
 						<thead>
 							<tr>
 								<th>N°</th>
-								<th>OC SMS</th>
-								<th>Fecha OC</th>
-								<th>Fecha entrega</th>
+								<th><div class="tbody__head--fbuy">OC SMS<img src="../imagenes/sortA_Z.svg" name="numero_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="numero_cmp" class="icon__CRUD"></div></th>
+								<th><div class="tbody__head--fbuy">Fecha OC<img src="../imagenes/sortA_Z.svg" name="fecha_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_cmp" class="icon__CRUD"></div></th>
+								<th><div class="tbody__head--fbuy">Fecha entrega<img src="../imagenes/sortA_Z.svg" name="fecha_entrega_cppd" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_entrega_cppd" class="icon__CRUD"></div></th>
 								<th>Encargado</th>
 								<th>Empresa</th>
 								<th>Marca</th>
 								<th>Categoria</th>
-								<th>Codigo</th>
+								<th><div class="tbody__head--fbuy">Codigo<img src="../imagenes/sortA_Z.svg" name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="codigo_prod" class="icon__CRUD"></div></th>
 								<th>Descripcion</th>
-								<th>N° Factura</th>
-								<th>cantidad</th>
+								<th><div class="tbody__head--fbuy">N° Factura<img src="../imagenes/sortA_Z.svg" name="factura_cppd" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="factura_cppd" class="icon__CRUD"></div></th>
+								<th><div class="tbody__head--fbuy">Cantidad<img src="../imagenes/sortA_Z.svg" name="cantidad_cppd" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="cantidad_cppd" class="icon__CRUD"></div></th>
 								<th>Cost uni.</th>
 								<th>Subtotal</th>
 								<th>Descuento</th>

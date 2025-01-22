@@ -38,6 +38,7 @@ async function readSales() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
+            console.log(data)
             sales = Object.values(data);
             filterSales = sales;
             paginationSales(sales.length, 1);
@@ -79,6 +80,13 @@ function searchSales() {
         }
     });
     paginationSales(filterSales.length, 1);
+}
+//-----Seleccionar el Año
+const selectDateVnt = document.getElementById('selectDateVnt');
+selectYearVnt();
+function selectYearVnt() {
+    const anios = Array.from(new Set(sales.map(sale => new Date(sale.fecha_vnt).getFullYear())));
+    console.log(anios);
 }
 //------Ordenar tabla descendente ascendente
 let orderSales = document.querySelectorAll('.tbody__head--venta');
