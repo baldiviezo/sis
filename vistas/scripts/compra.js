@@ -933,6 +933,7 @@ async function readCmp_prods() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
+            console.log(data);
             cmp_prods = Object.values(data);
             filterCmp_prods = cmp_prods;
             paginacionProdOC(cmp_prods.length, 1);
@@ -1930,44 +1931,25 @@ selectNumberProdOC.addEventListener('change', function () {
 });
 //------buscar por:
 function searchProdOC() {
-    filterCmp_prods = {};
-    for (let proforma in cmp_prods) {
-        for (let valor in cmp_prods[proforma]) {
-            if (selectSearchProdOC.value == 'todas') {
-                if (valor == 'numero_cmp') {
-                    if (cmp_prods[proforma][valor].toString().toLowerCase().indexOf(inputSearchProdOC.value.toLowerCase()) >= 0) {
-                        filterCmp_prods[proforma] = cmp_prods[proforma];
-                        break;
-                    }
-                } else if (valor == 'nombre_usua') {
-                    if ((cmp_prods[proforma][valor] + ' ' + cmp_prods[proforma]['apellido_usua']).toLowerCase().indexOf(inputSearchProdOC.value.toLowerCase()) >= 0) {
-                        filterCmp_prods[proforma] = cmp_prods[proforma];
-                        break;
-                    }
-                } else if (valor == 'nombre_empp' || valor == 'nombre_emp' || valor == 'nombre_mrc' || valor == 'nombre_ctgr' || valor == 'codigo_prod' || valor == 'descripcion_cppd' || valor == 'cantidad_cppd' || valor == 'cost_uni_cppd' || valor == 'descuento_cmp' || valor == 'fecha_cmp' || valor == 'fecha_entrega_cmp' || valor == 'factura_cppd') {
-                    if (cmp_prods[proforma][valor].toString().toLowerCase().indexOf(inputSearchProdOC.value.toLowerCase()) >= 0) {
-                        filterCmp_prods[proforma] = cmp_prods[proforma];
-                        break;
-                    }
-                }
-            } else if (selectSearchProdOC.value == 'encargado') {
-                if (valor == 'nombre_usua') {
-                    if ((cmp_prods[proforma][valor] + ' ' + cmp_prods[proforma]['apellido_usua']).toLowerCase().indexOf(inputSearchProdOC.value.toLowerCase()) >= 0) {
-                        filterCmp_prods[proforma] = cmp_prods[proforma];
-                        break;
-                    }
-                }
-            } else {
-                if (valor == selectSearchProdOC.value) {
-                    if (cmp_prods[proforma][valor].toString().toLowerCase().indexOf(inputSearchProdOC.value.toLowerCase()) >= 0) {
-                        filterCmp_prods[proforma] = cmp_prods[proforma];
-                        break;
-                    }
-                }
-            }
+    const busqueda = inputSearchProdOC.value.toLowerCase().trim();
+    const valor = selectSearchProdOC.value.toLowerCase().trim();
+    filterCmp_prods = cmp_prods.filter(cmp_prod => {
+        if (valor == 'todas') {
+            return (
+                cmp_prod.numero_cmp.toLowerCase().includes(busqueda) ||
+                cmp_prod.fecha_cmp.toLowerCase().includes(busqueda) ||
+                cmp_prod.fecha_entrega_cppd.toLowerCase().includes(busqueda) ||
+                (cmp_prod.nombre_usua + ' ' + cmp_prod.apellido_usua).toLowerCase().includes(busqueda) ||
+                cmp_prod.nombre_empp.toLowerCase().includes(busqueda) ||
+                cmp_prod.codigo_prod.toLowerCase().includes(busqueda) ||
+                cmp_prod.descripcion_cppd.toLowerCase().includes(busqueda) ||
+                cmp_prod.factura_cppd.toLowerCase().includes(busqueda)
+            )
+        } else {
+            return cmp_prod[valor].toLowerCase().includes(busqueda);
         }
-    }
-    selectStateProductOC();
+    });
+    paginacionProdOC(filterCmp_prods.length, 1);
 }
 //-------Estado de cmp_prods
 const selectStateProdOC = document.getElementById('selectStateProdOC');
