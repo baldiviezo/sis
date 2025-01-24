@@ -38,8 +38,8 @@ async function readSales() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            console.log(data)
             sales = Object.values(data);
+            selectYearVnt();
             filterSales = sales;
             paginationSales(sales.length, 1);
             resolve();
@@ -83,10 +83,28 @@ function searchSales() {
 }
 //-----Seleccionar el Año
 const selectDateVnt = document.getElementById('selectDateVnt');
-selectYearVnt();
+selectDateVnt.addEventListener('change', selectchangeYear);
 function selectYearVnt() {
-    const anios = Array.from(new Set(sales.map(sale => new Date(sale.fecha_vnt).getFullYear())));
-    console.log(anios);
+    const anios = Array.from(new Set(sales.map(sale => sale.fecha_vnt.split('-')[0])));
+    selectDateVnt.innerHTML = '';
+    let optionFirst = document.createElement('option');
+    optionFirst.value = 'todas';
+    optionFirst.innerText = 'Todos los años';
+    selectDateVnt.appendChild(optionFirst);
+    for (let i = 0; i < anios.length; i++) {
+        let option = document.createElement('option');
+        option.value = anios[i];
+        option.innerText = anios[i];
+        selectDateVnt.appendChild(option);
+    }
+}
+function selectchangeYear() {
+    if (selectDateVnt.value === 'todas') {
+        filterSales = sales;
+    } else {
+        filterSales = sales.filter(sale => sale.fecha_vnt.split('-')[0] === selectDateVnt.value);
+    }
+    paginationSales(filterSales.length, 1);
 }
 //------Ordenar tabla descendente ascendente
 let orderSales = document.querySelectorAll('.tbody__head--venta');

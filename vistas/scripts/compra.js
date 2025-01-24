@@ -483,6 +483,7 @@ async function readBuys() {
             body: formData
         }).then(response => response.json()).then(data => {
             buys = Object.values(data);
+            createSelectDateBuy();
             filterBuys = buys;
             filterByUserBuys(buys.length, 1);
             resolve();
@@ -501,9 +502,6 @@ selectNumberBuy.selectedIndex = 3;
 selectNumberBuy.addEventListener('change', function () {
     filterByUserBuys(filterBuys.length, 1);
 });
-//-------Estado de compra
-const selectStateBuy = document.getElementById('selectStateBuy');
-selectStateBuy.addEventListener('change', searchBuys);
 //------buscar por:
 function searchBuys() {
     const busqueda = inputSerchBuy.value.toLowerCase().trim();
@@ -528,14 +526,56 @@ function searchBuys() {
     });
     selectStateBuys();
 }
+function createSelectDateBuy() {
+    const anios = Array.from(new Set(buys.map(buy => buy.fecha_cmp.split('-')[0])));
+    selectDateBuy.innerHTML = '';
+    let optionFirst = document.createElement('option');
+    optionFirst.value = 'todas';
+    optionFirst.innerText = 'Todos los años';
+    selectDateBuy.appendChild(optionFirst);
+    for (let anio of anios) {
+        const option = document.createElement('option');
+        option.value = anio;
+        option.textContent = anio;
+        selectDateBuy.appendChild(option);
+    }
+}
+//------Seleccionar el año
+const selectDateBuy = document.getElementById('selectDateBuy');
+selectDateBuy.addEventListener('change', selectChangeYear);
+function selectChangeYear(){
+    if (selectDateBuy.value == 'todas') {
+        filterBuys = buys;
+    } else {
+        filterBuys = buys.filter(buy => buy.fecha_cmp.split('-')[0] == selectDateBuy.value);
+    }
+    filterBuys = filterBuys.filter(buy => {
+        if (selectStateBuy.value == 'todasLasCompras') {
+            return true;
+        } else {
+            return buy.estado_cmp == selectStateBuy.value;
+        }
+    });
+    filterByUserBuys(filterBuys.length, 1);
+}
+//-------Estado de compra
+const selectStateBuy = document.getElementById('selectStateBuy');
+selectStateBuy.addEventListener('change', searchBuys);
 //estado de la compra
 function selectStateBuys() {
     if (selectStateBuy.value == 'todasLasCompras') {
-        filterByUserBuys(filterBuys.length, 1);
+        filterBuys = filterBuys;
     } else {
         filterBuys = filterBuys.filter(buy => buy.estado_cmp == selectStateBuy.value);
-        filterByUserBuys(filterBuys.length, 1);
     }
+    filterBuys = filterBuys.filter(buy => {
+        if (selectDateBuy.value == 'todas') {
+            return true;
+        } else {
+            return buy.fecha_cmp.split('-')[0] == selectDateBuy.value;
+        }
+    });
+    filterByUserBuys(filterBuys.length, 1);
 }
 //------Ordenar tabla descendente ascendente
 let orderBuys = document.querySelectorAll('.tbody__head--buy');

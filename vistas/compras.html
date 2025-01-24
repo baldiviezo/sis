@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,7 +16,8 @@
 	<link rel="stylesheet" type="text/css" href="../css/productModal.css">
 	<link rel="stylesheet" type="text/css" href="../css/userModal.css">
 </head>
-<body class="body" >
+
+<body class="body">
 	<header class="header">
 		<nav class="header__nav header__container">
 		</nav>
@@ -31,13 +33,12 @@
 				<img src="../imagenes/inventario.svg" id="openProdOC" title="Productos comprados">
 			</div>
 			<section class="select__search">
-				<div>
-					<select id="selectStateBuy" class="select__number">
-						<option value="todasLasCompras">Todas las compras</option>
-						<option value="0">Compras pendientes</option>
-						<option value="1">Compras recibidas</option>
-					</select>
-				</div>
+				<select id="selectDateBuy" class="select"></select>
+				<select id="selectStateBuy" class="select">
+					<option value="todasLasCompras">Todas las compras</option>
+					<option value="0">Compras pendientes</option>
+					<option value="1">Compras recibidas</option>
+				</select>
 			</section>
 			<div class="combo__search">
 				<div class="filter__search">
@@ -57,11 +58,15 @@
 				</div>
 			</div>
 		</section>
-		<div class="showPage" id="showPageBuy"><h2></h2></div>
+		<div class="showPage" id="showPageBuy">
+			<h2></h2>
+		</div>
 		<div class="container__page">
 			<div class="paginacion">
 				<!--Envoltura-->
-				<div class="wrapper" id="wrapperBuy"><ul></ul></div>
+				<div class="wrapper" id="wrapperBuy">
+					<ul></ul>
+				</div>
 			</div>
 			<div>
 				<select id="selectNumberBuy" class="select__number">
@@ -78,12 +83,28 @@
 				<thead>
 					<tr>
 						<th>N°</th>
-						<th><div class="tbody__head--buy">OC SMS<img src="../imagenes/sortA_Z.svg" name="numero_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="numero_cmp" class="icon__CRUD"></div></th>
-						<th><div class="tbody__head--buy">Fecha<img src="../imagenes/sortA_Z.svg" name="fecha_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_cmp" class="icon__CRUD"></div></th>
+						<th>
+							<div class="tbody__head--buy">OC SMS<img src="../imagenes/sortA_Z.svg" name="numero_cmp"
+									class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="numero_cmp"
+									class="icon__CRUD"></div>
+						</th>
+						<th>
+							<div class="tbody__head--buy">Fecha<img src="../imagenes/sortA_Z.svg" name="fecha_cmp"
+									class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_cmp"
+									class="icon__CRUD"></div>
+						</th>
 						<th>Encargado</th>
-						<th><div class="tbody__head--buy">Empresa<img src="../imagenes/sortA_Z.svg" name="nombre_empp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_empp" class="icon__CRUD"></div></th>
+						<th>
+							<div class="tbody__head--buy">Empresa<img src="../imagenes/sortA_Z.svg" name="nombre_empp"
+									class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_empp"
+									class="icon__CRUD"></div>
+						</th>
 						<th>Proveedor</th>
-						<th><div class="tbody__head--buy">Total<img src="../imagenes/sortA_Z.svg" name="total_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="total_cmp" class="icon__CRUD"></div></th>
+						<th>
+							<div class="tbody__head--buy">Total<img src="../imagenes/sortA_Z.svg" name="total_cmp"
+									class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="total_cmp"
+									class="icon__CRUD"></div>
+						</th>
 						<th>Forma de pago</th>
 						<th>Tiempo de entrega</th>
 						<th>Observacion</th>
@@ -104,38 +125,45 @@
 			<form id="formBuyR" class="form">
 				<div class="form__container">
 					<div class="form__group">
-						<input type="text" name="fecha_cmpR"  placeholder=" " class="form__input" readonly>
+						<input type="text" name="fecha_cmpR" placeholder=" " class="form__input" readonly>
 						<label for="fecha_cmpR" class="form__label">Fecha:</label>
 					</div>
 					<label class="form__label--only">Empresa:</label>
 					<div class="form__group--select">
 						<select id="selectEnterpriseR" name="fk_id_emp_clteR"></select>
-						<img src="../imagenes/search.svg" onclick="openEnterpriseSMW('R')" class="icon__CRUD" title="Buscar empresa">
-						<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()" class="icon__CRUD" title="Registrar empresa">
-						<img src="../imagenes/edit.svg" onclick="readEnterprise('R')" class="icon__CRUD" title="Editar empresa">
-						<img src="../imagenes/trash.svg" onclick="deleteEnterprise('R')" class="icon__CRUD" title="Eliminar empresa">
+						<img src="../imagenes/search.svg" onclick="openEnterpriseSMW('R')" class="icon__CRUD"
+							title="Buscar empresa">
+						<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()" class="icon__CRUD"
+							title="Registrar empresa">
+						<img src="../imagenes/edit.svg" onclick="readEnterprise('R')" class="icon__CRUD"
+							title="Editar empresa">
+						<img src="../imagenes/trash.svg" onclick="deleteEnterprise('R')" class="icon__CRUD"
+							title="Eliminar empresa">
 					</div>
 					<label class="form__label--only">Proveedor:</label>
 					<div class="form__group--select">
 						<select id="selectSupplierR" name="fk_id_prov_cmpR"></select>
-						<img src="../imagenes/registrar.svg" onclick="openSupplierRMW()" class="icon__CRUD" title="Registrar proveedor">
-						<img src="../imagenes/edit.svg" onclick="readSupplier('R')" class="icon__CRUD" title="Editar proveedor">
-						<img src="../imagenes/trash.svg" onclick="deleteSupplier('R')" class="icon__CRUD" title="Eliminar proveedor">
+						<img src="../imagenes/registrar.svg" onclick="openSupplierRMW()" class="icon__CRUD"
+							title="Registrar proveedor">
+						<img src="../imagenes/edit.svg" onclick="readSupplier('R')" class="icon__CRUD"
+							title="Editar proveedor">
+						<img src="../imagenes/trash.svg" onclick="deleteSupplier('R')" class="icon__CRUD"
+							title="Eliminar proveedor">
 					</div>
 					<div class="form__group">
-						<input type="text" name="descuento_cmpR"  placeholder=" " class="form__input">
+						<input type="text" name="descuento_cmpR" placeholder=" " class="form__input">
 						<label for="descuento_cmpR" class="form__label">Descuento:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="forma_pago_cmpR"  placeholder=" " class="form__input">
+						<input type="text" name="forma_pago_cmpR" placeholder=" " class="form__input">
 						<label for="forma_pago_cmpR" class="form__label">Forma de pago:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="tpo_entrega_cmpR"  placeholder=" " class="form__input">
+						<input type="text" name="tpo_entrega_cmpR" placeholder=" " class="form__input">
 						<label for="tpo_entrega_cmpR" class="form__label">Tiempo de entrega:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="tipo_cambio_cmpR"  placeholder=" " class="form__input">
+						<input type="text" name="tipo_cambio_cmpR" placeholder=" " class="form__input">
 						<label for="tipo_cambio_cmpR" class="form__label">Tipo de cambio:</label>
 					</div>
 					<input type="hidden" name="total_cmpR">
@@ -177,17 +205,17 @@
 			</div>
 			<div class="foot">
 				<div class="foot__left">
-                    <p id="subTotalCPRMW">Sub-Total (Bs):</p>
-                    <p id="descCPRMW">Desc. (Bs):</p>
-                    <p id="totalCPRMW">Total (Bs):</p>
-                </div>
+					<p id="subTotalCPRMW">Sub-Total (Bs):</p>
+					<p id="descCPRMW">Desc. (Bs):</p>
+					<p id="totalCPRMW">Total (Bs):</p>
+				</div>
 				<div class="foot__right">
-                    <div class="cart">
-                        <img src="../imagenes/carrito.svg">
-                        <p id="quantityCPRMW">0</p>
-                    </div>
+					<div class="cart">
+						<img src="../imagenes/carrito.svg">
+						<p id="quantityCPRMW">0</p>
+					</div>
 					<button onclick="createBuy()" class="form__submit">Registrar</button>
-                </div>
+				</div>
 			</div>
 		</div>
 	</section>
@@ -222,17 +250,18 @@
 			</div>
 			<div class="foot">
 				<div class="foot__left">
-                    <p id="subTotaladdBuyMW">Sub-Total (Bs):</p>
-                    <p id="descaddBuyMW">Desc. (Bs):</p>
-                    <p id="totaladdBuyMW">Total (Bs):</p>
-                </div>
+					<p id="subTotaladdBuyMW">Sub-Total (Bs):</p>
+					<p id="descaddBuyMW">Desc. (Bs):</p>
+					<p id="totaladdBuyMW">Total (Bs):</p>
+				</div>
 				<div class="foot__right">
-                    <div class="cart">
-                        <img src="../imagenes/carrito.svg">
-                        <p id="quantityaddBuyMW">0</p>
-                    </div>
-					<button onclick="changeStateBuy(this.parentNode.parentNode.parentNode.children[2])" class="form__submit">Registrar</button>
-                </div>
+					<div class="cart">
+						<img src="../imagenes/carrito.svg">
+						<p id="quantityaddBuyMW">0</p>
+					</div>
+					<button onclick="changeStateBuy(this.parentNode.parentNode.parentNode.children[2])"
+						class="form__submit">Registrar</button>
+				</div>
 			</div>
 		</div>
 	</section>
@@ -247,7 +276,7 @@
 				<div class="form__container">
 					<input type="hidden" name="id_cppd2">
 					<div class="form__group">
-						<input type="text" name="factura_cppd2"  placeholder=" " class="form__input">
+						<input type="text" name="factura_cppd2" placeholder=" " class="form__input">
 						<label for="factura_cppd2" class="form__label">Numero de factura:</label>
 					</div>
 					<input type="submit" value="Editar" class="form__submit">
@@ -268,7 +297,7 @@
 					<input type="hidden" name="fk_id_prod_cppd">
 					<input type="hidden" name="fk_id_cmp_cppd">
 					<div class="form__group">
-						<input type="text" name="fecha_entrega_cppd"  placeholder=" " class="form__input" readonly>
+						<input type="text" name="fecha_entrega_cppd" placeholder=" " class="form__input" readonly>
 						<label for="fecha_entrega_cppd" class="form__label">Fecha de entrega:</label>
 					</div>
 					<div class="form__group">
@@ -297,7 +326,7 @@
 		<div class="modal__container">
 			<div class="modal__header">
 				<h2 class="modal__title">Registrar Proveedor</h2>
-				<img src="../imagenes/salir.svg" id="closeSupplierRMW" class="button__close"> 
+				<img src="../imagenes/salir.svg" id="closeSupplierRMW" class="button__close">
 			</div>
 			<form id="formSupplierR" class="form">
 				<div class="form__container">
@@ -306,11 +335,11 @@
 						<select id="selectEnterpriseR2" name="fk_id_empp_provR"></select>
 					</div>
 					<div class="form__group">
-						<input type="text" name="nombre_provR"  placeholder=" " class="form__input">
+						<input type="text" name="nombre_provR" placeholder=" " class="form__input">
 						<label for="nombre_provR" class="form__label">Nombres:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="apellido_provR"  placeholder=" " class="form__input">
+						<input type="text" name="apellido_provR" placeholder=" " class="form__input">
 						<label for="apellido_provR" class="form__label">Apellidos:</label>
 					</div>
 					<div class="form__group">
@@ -338,14 +367,14 @@
 						<select id="selectEnterpriseM2" name="fk_id_empp_provM"></select>
 					</div>
 					<div class="form__group">
-						<input type="text" name="id_provM"  placeholder=" " class="form__input" hidden>
+						<input type="text" name="id_provM" placeholder=" " class="form__input" hidden>
 					</div>
 					<div class="form__group">
-						<input type="text" name="nombre_provM"  placeholder=" " class="form__input">
+						<input type="text" name="nombre_provM" placeholder=" " class="form__input">
 						<label for="nombre_provM" class="form__label">Nombres:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="apellido_provM"  placeholder=" " class="form__input">
+						<input type="text" name="apellido_provM" placeholder=" " class="form__input">
 						<label for="apellido_provM" class="form__label">Apellidos:</label>
 					</div>
 					<div class="form__group">
@@ -369,11 +398,11 @@
 			<form id="formEmpresaR" class="form">
 				<div class="form__container">
 					<div class="form__group">
-						<input type="text" name="sigla_emppR"  placeholder=" " class="form__input">
+						<input type="text" name="sigla_emppR" placeholder=" " class="form__input">
 						<label for="sigla_emppR" class="form__label">Sigla de la empresa:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="nombre_emppR"  placeholder=" " class="form__input">
+						<input type="text" name="nombre_emppR" placeholder=" " class="form__input">
 						<label for="nombre_emppR" class="form__label">Nombre de la empresa:</label>
 					</div>
 					<div class="form__group">
@@ -381,7 +410,7 @@
 						<label for="nit_emppR" class="form__label">NIT:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="descuento_emppR"  placeholder=" " class="form__input">
+						<input type="text" name="descuento_emppR" placeholder=" " class="form__input">
 						<label for="descuento_emppR" class="form__label">Descuento:</label>
 					</div>
 					<div class="form__group">
@@ -389,7 +418,7 @@
 						<label for="direccion_emppR" class="form__label">Direccion:</label>
 					</div>
 					<div class="form__group">
-					<!--la clase form__input se esta utilizando para realizar una funcionalidad del sistema (clpFormREnterprise())-->
+						<!--la clase form__input se esta utilizando para realizar una funcionalidad del sistema (clpFormREnterprise())-->
 						<input type="text" name="telefono_emppR" placeholder=" " class="form__input">
 						<label for="telefono_emppR" class="form__label">Telefono:</label>
 					</div>
@@ -410,13 +439,13 @@
 				<div class="form__container">
 					<!--Guardamos el id de la empresa para luego encotrarla en la base de datos-->
 					<!--la clase form__input se esta utilizando para realizar una funcionalidad del sistema (readEnterprises())-->
-					<input type="text" name="id_emppM"  placeholder=" " class="form__input" hidden>
+					<input type="text" name="id_emppM" placeholder=" " class="form__input" hidden>
 					<div class="form__group">
-						<input type="text" name="sigla_emppM"  placeholder=" " class="form__input">
+						<input type="text" name="sigla_emppM" placeholder=" " class="form__input">
 						<label for="sigla_emppM" class="form__label">Sigla de la empresa:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="nombre_emppM"  placeholder=" " class="form__input">
+						<input type="text" name="nombre_emppM" placeholder=" " class="form__input">
 						<label for="nombre_emppM" class="form__label">Nombre de la empresa:</label>
 					</div>
 					<div class="form__group">
@@ -428,7 +457,7 @@
 						<label for="descuento_emppM" class="form__label">Descuento:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="direccion_emppM"  placeholder=" " class="form__input">
+						<input type="text" name="direccion_emppM" placeholder=" " class="form__input">
 						<label for="direccion_emppM" class="form__label">Direccion:</label>
 					</div>
 					<div class="form__group">
@@ -571,7 +600,8 @@
 								<th>N°</th>
 								<th>
 									<div class="tbody__head--ProdMW">Marca <img src="../imagenes/sortA_Z.svg"
-											name="marca_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="marca_prod" class="icon__CRUD">
+											name="marca_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="marca_prod" class="icon__CRUD">
 									</div>
 								</th>
 								<th>
@@ -581,12 +611,14 @@
 								</th>
 								<th>
 									<div class="tbody__head--ProdMW">Codigo <img src="../imagenes/sortA_Z.svg"
-											name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="codigo_prod" class="icon__CRUD">
+											name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="codigo_prod" class="icon__CRUD">
 									</div>
 								</th>
 								<th>
 									<div class="tbody__head--ProdMW">Nombre <img src="../imagenes/sortA_Z.svg"
-											name="nombre_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_prod" class="icon__CRUD">
+											name="nombre_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="nombre_prod" class="icon__CRUD">
 									</div>
 								</th>
 								<th>Descripcion</th>
@@ -617,11 +649,11 @@
 						<img src="../imagenes/trash.svg" onclick="deleteProduct('R')">
 					</div>
 					<div class="form__group">
-						<input type="text" name="cantidad_invR"  placeholder=" " class="form__input">
+						<input type="text" name="cantidad_invR" placeholder=" " class="form__input">
 						<label for="cantidad_invR" class="form__label">Cantidad:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="cost_uni_invR"  placeholder=" " class="form__input">
+						<input type="text" name="cost_uni_invR" placeholder=" " class="form__input">
 						<label for="cost_uni_invR" class="form__label">Costo unitario:</label>
 					</div>
 					<div class="form__group">
@@ -643,22 +675,22 @@
 			</div>
 			<form id="formInventarioM" class="form">
 				<div class="form__container">
-					<input type="label" name="id_invM"  placeholder=" " class="form__input" hidden>
+					<input type="label" name="id_invM" placeholder=" " class="form__input" hidden>
 					<div>
-					<div>
-						<select id="selectProductM" name="fk_id_prod_invM"></select>
-						<img src="../imagenes/search.svg">
-						<img src="../imagenes/registrar.svg" onclick="openProductsRMW()">
-						<img src="../imagenes/edit.svg" onclick="readProduct('M')">
-						<img src="../imagenes/trash.svg" onclick="deleteProduct('M')">
-					</div>
+						<div>
+							<select id="selectProductM" name="fk_id_prod_invM"></select>
+							<img src="../imagenes/search.svg">
+							<img src="../imagenes/registrar.svg" onclick="openProductsRMW()">
+							<img src="../imagenes/edit.svg" onclick="readProduct('M')">
+							<img src="../imagenes/trash.svg" onclick="deleteProduct('M')">
+						</div>
 					</div>
 					<div class="form__group">
-						<input type="text" name="cantidad_invM"  placeholder=" " class="form__input">
+						<input type="text" name="cantidad_invM" placeholder=" " class="form__input">
 						<label for="cantidad_invM" class="form__label">Cantidad:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="cost_uni_invM"  placeholder=" " class="form__input">
+						<input type="text" name="cost_uni_invM" placeholder=" " class="form__input">
 						<label for="cost_uni_invM" class="form__label">Costo unitario:</label>
 					</div>
 					<div class="form__group">
@@ -842,17 +874,42 @@
 						<thead>
 							<tr>
 								<th>N°</th>
-								<th><div class="tbody__head--fbuy">OC SMS<img src="../imagenes/sortA_Z.svg" name="numero_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="numero_cmp" class="icon__CRUD"></div></th>
-								<th><div class="tbody__head--fbuy">Fecha OC<img src="../imagenes/sortA_Z.svg" name="fecha_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_cmp" class="icon__CRUD"></div></th>
-								<th><div class="tbody__head--fbuy">Fecha entrega<img src="../imagenes/sortA_Z.svg" name="fecha_entrega_cppd" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_entrega_cppd" class="icon__CRUD"></div></th>
+								<th>
+									<div class="tbody__head--fbuy">OC SMS<img src="../imagenes/sortA_Z.svg"
+											name="numero_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="numero_cmp" class="icon__CRUD"></div>
+								</th>
+								<th>
+									<div class="tbody__head--fbuy">Fecha OC<img src="../imagenes/sortA_Z.svg"
+											name="fecha_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="fecha_cmp" class="icon__CRUD"></div>
+								</th>
+								<th>
+									<div class="tbody__head--fbuy">Fecha entrega<img src="../imagenes/sortA_Z.svg"
+											name="fecha_entrega_cppd" class="icon__CRUD"><img
+											src="../imagenes/sortZ_A.svg" name="fecha_entrega_cppd" class="icon__CRUD">
+									</div>
+								</th>
 								<th>Encargado</th>
 								<th>Empresa</th>
 								<th>Marca</th>
 								<th>Categoria</th>
-								<th><div class="tbody__head--fbuy">Codigo<img src="../imagenes/sortA_Z.svg" name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="codigo_prod" class="icon__CRUD"></div></th>
+								<th>
+									<div class="tbody__head--fbuy">Codigo<img src="../imagenes/sortA_Z.svg"
+											name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="codigo_prod" class="icon__CRUD"></div>
+								</th>
 								<th>Descripcion</th>
-								<th><div class="tbody__head--fbuy">N° Factura<img src="../imagenes/sortA_Z.svg" name="factura_cppd" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="factura_cppd" class="icon__CRUD"></div></th>
-								<th><div class="tbody__head--fbuy">Cantidad<img src="../imagenes/sortA_Z.svg" name="cantidad_cppd" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="cantidad_cppd" class="icon__CRUD"></div></th>
+								<th>
+									<div class="tbody__head--fbuy">N° Factura<img src="../imagenes/sortA_Z.svg"
+											name="factura_cppd" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="factura_cppd" class="icon__CRUD"></div>
+								</th>
+								<th>
+									<div class="tbody__head--fbuy">Cantidad<img src="../imagenes/sortA_Z.svg"
+											name="cantidad_cppd" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="cantidad_cppd" class="icon__CRUD"></div>
+								</th>
 								<th>Cost uni.</th>
 								<th>Subtotal</th>
 								<th>Descuento</th>
@@ -895,4 +952,5 @@
 	<script src="scripts/header.js"></script>
 	<script src="scripts/compra.js"></script>
 </body>
+
 </html>
