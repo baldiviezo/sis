@@ -944,6 +944,7 @@ async function readCmp_prods() {
         }).then(response => response.json()).then(data => {
             cmp_prods = Object.values(data);
             filterCmp_prods = cmp_prods;
+            createSelectDateProcOC()
             paginacionProdOC(cmp_prods.length, 1);
             resolve();
         }).catch(err => console.log(err));
@@ -1905,7 +1906,7 @@ inputSearchProdOC.addEventListener("keyup", searchProdOC);
 const selectNumberProdOC = document.getElementById('selectNumberProdOC');
 selectNumberProdOC.selectedIndex = 3;
 selectNumberProdOC.addEventListener('change', function () {
-    paginacionProdOC(Object.values(filterCmp_prods).length, 1);
+    paginacionProdOC(filterCmp_prods.length, 1);
 });
 //------buscar por:
 function searchProdOC() {
@@ -1929,16 +1930,55 @@ function searchProdOC() {
     });
     paginacionProdOC(filterCmp_prods.length, 1);
 }
+function createSelectDateProcOC() {
+    const anios = Array.from(new Set(filterCmp_prods.map(buy => buy.fecha_cmp.split('-')[0])));
+    selectDateProdOC.innerHTML = '';
+    let optionFirst = document.createElement('option');
+    optionFirst.value = 'todas';
+    optionFirst.innerText = 'Todos los años';
+    selectDateProdOC.appendChild(optionFirst);
+    for (let anio of anios) {
+        const option = document.createElement('option');
+        option.value = anio;
+        option.textContent = anio;
+        selectDateProdOC.appendChild(option);
+    }
+}
+//------Seleccionar el año
+const selectDateProdOC = document.getElementById('selectDateProdOC');
+selectDateProdOC.addEventListener('change', selectChangeYearProd);
+function selectChangeYearProd(){
+    if (selectDateProdOC.value == 'todas') {
+        filterCmp_prods = cmp_prods;
+    } else {
+        filterCmp_prods = cmp_prods.filter(buy => buy.fecha_entrega_cppd.split('-')[0] == selectDateProdOC.value);
+    }
+    filterCmp_prods = filterCmp_prods.filter(buy => {
+        if (selectStateProdOC.value == 'todasLasOC') {
+            return true;
+        } else {
+            return buy.estado_cppd == selectStateProdOC.value;
+        }
+    });
+    paginacionProdOC(filterCmp_prods.length, 1);
+}
 //-------Estado de cmp_prods
 const selectStateProdOC = document.getElementById('selectStateProdOC');
-selectStateProdOC.addEventListener('change', searchProdOC);
+selectStateProdOC.addEventListener('change', selectStateProductOC);
 function selectStateProductOC() {
     if (selectStateProdOC.value == 'todasLasOC') {
-        paginacionProdOC(filterCmp_prods.length, 1);
+        filterCmp_prods = cmp_prods;
     } else {
-        filterCmp_prods = filterCmp_prods.filter(proforma => proforma.estado_cmp == selectStateProdOC.value);
-        paginacionProdOC(filterCmp_prods.length, 1);
+        filterCmp_prods = cmp_prods.filter(buy => buy.estado_cppd == selectStateProdOC.value);
     }
+    filterCmp_prods = filterCmp_prods.filter(buy => {
+        if (selectDateProdOC.value == 'todas') {
+            return true;
+        } else {
+            return buy.fecha_entrega_cppd.split('-')[0] == selectDateProdOC.value;
+        }
+    });
+    paginacionProdOC(filterCmp_prods.length, 1);
 }
 //------Ordenar tabla descendente ascendente
 let orderProforma = document.querySelectorAll('.tbody__head--fbuy');
