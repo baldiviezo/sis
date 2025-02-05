@@ -1957,7 +1957,7 @@ function selectChangeYearProd() {
     if (selectDateProdOC.value == 'todas') {
         filterCmp_prods = cmp_prods;
     } else {
-        filterCmp_prods = cmp_prods.filter(buy => buy.fecha_entrega_cppd.split('-')[0] == selectDateProdOC.value);
+        filterCmp_prods = cmp_prods.filter(buy => buy.fecha_factura_cppd.split('-')[0] == selectDateProdOC.value);
     }
     filterCmp_prods = filterCmp_prods.filter(buy => {
         if (selectStateProdOC.value == 'todasLasOC') {
@@ -1981,7 +1981,7 @@ function selectStateProductOC() {
         if (selectDateProdOC.value == 'todas') {
             return true;
         } else {
-            return buy.fecha_entrega_cppd.split('-')[0] == selectDateProdOC.value;
+            return buy.fecha_factura_cppd.split('-')[0] == selectDateProdOC.value;
         }
     });
     paginacionProdOC(filterCmp_prods.length, 1);
