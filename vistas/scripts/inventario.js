@@ -129,7 +129,6 @@ orderInventories.forEach(div => {
 function paginacionInventory(allInventories, page) {
     const totalStock = document.querySelector('#totalStock');
     let stock = 0;
-    console.log(filterInventories);
     for (let inventory in filterInventories) {
         stock += Number(filterInventories[inventory].cantidad_inv)*Number(filterInventories[inventory].cost_uni_inv)*.65;
     }

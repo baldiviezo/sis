@@ -145,7 +145,7 @@ class Consultas{
 		$resultado = $conexion->query($consulta);
 		$filas = array();
 		while ($fila = $resultado->fetch_assoc()){
-			$row = array('id_cppd'=>$fila['id_cppd'], 'fk_id_cmp_cppd'=>$fila['fk_id_cmp_cppd'], 'numero_cmp'=>'OC-SMS'.substr($fila['fecha_cmp'],2,2).'-'.$this->addZerosGo($fila['numero_cmp']), 'fecha_cmp'=>$fila['fecha_cmp'], 'fecha_entrega_cppd'=>$fila['fecha_entrega_cppd'], 'nombre_usua'=>$fila['nombre_usua'], 'apellido_usua'=>$fila['apellido_usua'], 'nombre_empp'=>$fila['nombre_empp'], 'nombre_mrc'=>$fila['nombre_mrc'], 'nombre_ctgr'=>$fila['nombre_ctgr'], 'fk_id_prod_cppd'=>$fila['fk_id_prod_cppd'], 'codigo_prod'=>$fila['codigo_prod'], 'imagen_prod'=>$fila['imagen_prod'], 'descripcion_cppd'=>$fila['descripcion_cppd'], 'factura_cppd'=>$fila['factura_cppd'], 'cantidad_cppd'=>intval($fila['cantidad_cppd']), 'cost_uni_cppd'=>doubleval($fila['cost_uni_cppd']), 'estado_cppd'=>$fila['estado_cppd'],   'descuento_cmp'=>floatval($fila['descuento_cmp']), 'estado_cmp'=>$fila['estado_cmp']);
+			$row = array('id_cppd'=>$fila['id_cppd'], 'fk_id_cmp_cppd'=>$fila['fk_id_cmp_cppd'], 'numero_cmp'=>'OC-SMS'.substr($fila['fecha_cmp'],2,2).'-'.$this->addZerosGo($fila['numero_cmp']), 'fecha_cmp'=>$fila['fecha_cmp'], 'fecha_factura_cppd'=>$fila['fecha_factura_cppd'], 'fecha_entrega_cppd'=>$fila['fecha_entrega_cppd'],  'nombre_usua'=>$fila['nombre_usua'], 'apellido_usua'=>$fila['apellido_usua'], 'nombre_empp'=>$fila['nombre_empp'], 'nombre_mrc'=>$fila['nombre_mrc'], 'nombre_ctgr'=>$fila['nombre_ctgr'], 'fk_id_prod_cppd'=>$fila['fk_id_prod_cppd'], 'codigo_prod'=>$fila['codigo_prod'], 'imagen_prod'=>$fila['imagen_prod'], 'descripcion_cppd'=>$fila['descripcion_cppd'], 'factura_cppd'=>$fila['factura_cppd'], 'cantidad_cppd'=>intval($fila['cantidad_cppd']), 'cost_uni_cppd'=>doubleval($fila['cost_uni_cppd']), 'estado_cppd'=>$fila['estado_cppd'],   'descuento_cmp'=>floatval($fila['descuento_cmp']), 'estado_cmp'=>$fila['estado_cmp']);
 			$filas[$fila['id_cppd'].'_cppd'] = $row;
 		}
 		echo json_encode($filas, JSON_UNESCAPED_UNICODE);
@@ -186,6 +186,7 @@ class Consultas{
 		$cost_uni_cppd = doubleval($_POST['cost_uni_cppd']);
 		$factura_cppd = $_POST['factura_cppd'];
 		$fecha_entrega_cppd = $_POST['fecha_entrega_cppd'];
+		$fecha_factura_cppd = $_POST['fecha_factura_cppd'];
 		$fk_id_cmp_cppd = $_POST['fk_id_cmp_cppd'];
 		//optener cantidad y cost unitario del producto
 		$consulta = "SELECT * FROM cmp_prod WHERE id_cppd = '$id_cppd'";
@@ -204,7 +205,7 @@ class Consultas{
 			$consulta = "UPDATE compra set total_cmp = total_cmp + '$diferencia' WHERE id_cmp = '$fk_id_cmp_cppd'";
 			$resultado = $conexion->query($consulta);
 			if ($resultado) {
-				$consulta = "UPDATE cmp_prod set cantidad_cppd = '$cantidad_cppd', cost_uni_cppd = '$cost_uni_cppd', factura_cppd = '$factura_cppd', fecha_entrega_cppd = '$fecha_entrega_cppd', estado_cppd = 'RECIBIDO' WHERE id_cppd = '$id_cppd'";
+				$consulta = "UPDATE cmp_prod set cantidad_cppd = '$cantidad_cppd', cost_uni_cppd = '$cost_uni_cppd', factura_cppd = '$factura_cppd', fecha_entrega_cppd = '$fecha_entrega_cppd',  fecha_factura_cppd = '$fecha_factura_cppd', estado_cppd = 'RECIBIDO' WHERE id_cppd = '$id_cppd'";
 				$resultado = $conexion->query($consulta);
 				if ($resultado) {
 					$consulta = "UPDATE inventario set cantidad_inv = cantidad_inv + '$cantidad_cppd' WHERE fk_id_prod_inv = '$fk_id_prod_cppd'";
@@ -231,8 +232,10 @@ class Consultas{
 	public function editFactura(){
 		$id_cppd = $_POST['id_cppd2'];
 		$factura_cppd = $_POST['factura_cppd2'];
+		$fecha_entrega_cppd = $_POST['fecha_entrega_cppd2'];
+		$fecha_factura_cppd = $_POST['fecha_factura_cppd2'];
 		include 'conexion.php';
-		$consulta = "UPDATE cmp_prod set factura_cppd = '$factura_cppd' WHERE id_cppd = '$id_cppd'";
+		$consulta = "UPDATE cmp_prod set factura_cppd = '$factura_cppd', fecha_entrega_cppd = '$fecha_entrega_cppd', fecha_factura_cppd = '$fecha_factura_cppd' WHERE id_cppd = '$id_cppd'";
 		$resultado = $conexion->query($consulta);
 		if ($resultado) {
 			//obtener fk_id_cmp_cppd

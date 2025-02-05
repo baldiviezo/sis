@@ -74,6 +74,7 @@ function searchCustomers() {
         if (valor === 'todas') {
             return (
                 customer.nit_clte.toLowerCase().includes(busqueda) ||
+                customer.nombre_emp.toLowerCase().includes(busqueda) ||
                 customer.nombre_clte.toLowerCase().includes(busqueda) ||
                 customer.email_clte.toLowerCase().includes(busqueda) ||
                 customer.direccion_clte.toLowerCase().includes(busqueda) ||

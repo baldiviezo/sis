@@ -246,7 +246,7 @@
 	height: 0.5rem;
 }
 #root::-webkit-scrollbar-thumb{
-	border-radius: .5rem;
+	border-radius: 1rem;
 	background-color: #0004;
 	visibility: hidden;
 }

@@ -519,7 +519,7 @@ function searchBuys() {
         } if (valor === 'total_cmp') {
             return buy[valor].toString().includes(busqueda);
         } else if (valor === 'nombre_usua') {
-            return (buy[valor]+ ' ' + buy.apellido_usua).toLowerCase().includes(busqueda);
+            return (buy[valor] + ' ' + buy.apellido_usua).toLowerCase().includes(busqueda);
         } else {
             return buy[valor].toLowerCase().includes(busqueda);
         }
@@ -543,7 +543,7 @@ function createSelectDateBuy() {
 //------Seleccionar el año
 const selectDateBuy = document.getElementById('selectDateBuy');
 selectDateBuy.addEventListener('change', selectChangeYear);
-function selectChangeYear(){
+function selectChangeYear() {
     if (selectDateBuy.value == 'todas') {
         filterBuys = buys;
     } else {
@@ -613,7 +613,7 @@ function filterByUserBuys(length, page) {
         filterBuys = filterBuys.filter(buy => buy.fk_id_usua_cmp == localStorage.getItem('id_usua'));
         paginacionBuy(filterBuys.length, page);
     }
-}   
+}
 //------PaginacionBuy
 function paginacionBuy(allBuys, page) {
     let numberCustomers = Number(selectNumberBuy.value);
@@ -989,7 +989,7 @@ async function updateCmp_prod() {
             preloader.classList.add('modal__show');
             let formData = new FormData(formAddBuy);
             formData.append('addBuyToInventory', '');
-            formData.set("fecha_entrega_cppd", `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`);
+            //formData.set("fecha_entrega_cppd", `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`);
             fetch('../controladores/compras.php', {
                 method: "POST",
                 body: formData
@@ -1109,6 +1109,7 @@ function openProductBuyMW(row) {
     document.getElementsByName('fk_id_prod_cppd')[0].value = row.children[1].value;
     document.getElementsByName('fk_id_cmp_cppd')[0].value = row.children[2].value;
     document.getElementsByName('fecha_entrega_cppd')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
+    document.getElementsByName('fecha_factura_cppd')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
     document.getElementsByName('codigo_cppd')[0].value = row.children[5].innerText;
     document.getElementsByName('cantidad_cppd')[0].value = row.children[7].value;
     document.getElementsByName('cost_uni_cppd')[0].value = row.children[8].value + ' Bs';
@@ -1149,6 +1150,10 @@ closeEditFactura.addEventListener('click', (e) => {
 function openEditFactura(id_cppd) {
     editFactura.classList.add('modal__show');
     document.getElementsByName('id_cppd2')[0].value = id_cppd;
+    const editProd = cmp_prods.find(cmp_prod => cmp_prod.id_cppd == id_cppd);
+    document.getElementsByName('fecha_entrega_cppd2')[0].value = editProd.fecha_entrega_cppd;
+    document.getElementsByName('fecha_factura_cppd2')[0].value = editProd.fecha_factura_cppd;
+    document.getElementsByName('factura_cppd2')[0].value = editProd.factura_cppd;
 }
 const formEditFactura = document.getElementById('formEditFactura');
 formEditFactura.addEventListener('submit', editFacturaCompra)
@@ -1917,6 +1922,7 @@ function searchProdOC() {
             return (
                 cmp_prod.numero_cmp.toLowerCase().includes(busqueda) ||
                 cmp_prod.fecha_cmp.toLowerCase().includes(busqueda) ||
+                cmp_prod.fecha_factura_cppd.toLowerCase().includes(busqueda) ||
                 cmp_prod.fecha_entrega_cppd.toLowerCase().includes(busqueda) ||
                 (cmp_prod.nombre_usua + ' ' + cmp_prod.apellido_usua).toLowerCase().includes(busqueda) ||
                 cmp_prod.nombre_empp.toLowerCase().includes(busqueda) ||
@@ -1928,7 +1934,7 @@ function searchProdOC() {
             return cmp_prod[valor].toLowerCase().includes(busqueda);
         }
     });
-    paginacionProdOC(filterCmp_prods.length, 1);
+    selectStateProductOC();
 }
 function createSelectDateProcOC() {
     const anios = Array.from(new Set(filterCmp_prods.map(buy => buy.fecha_cmp.split('-')[0])));
@@ -1947,7 +1953,7 @@ function createSelectDateProcOC() {
 //------Seleccionar el año
 const selectDateProdOC = document.getElementById('selectDateProdOC');
 selectDateProdOC.addEventListener('change', selectChangeYearProd);
-function selectChangeYearProd(){
+function selectChangeYearProd() {
     if (selectDateProdOC.value == 'todas') {
         filterCmp_prods = cmp_prods;
     } else {
@@ -1967,9 +1973,9 @@ const selectStateProdOC = document.getElementById('selectStateProdOC');
 selectStateProdOC.addEventListener('change', selectStateProductOC);
 function selectStateProductOC() {
     if (selectStateProdOC.value == 'todasLasOC') {
-        filterCmp_prods = cmp_prods;
+        filterCmp_prods = filterCmp_prods;
     } else {
-        filterCmp_prods = cmp_prods.filter(buy => buy.estado_cppd == selectStateProdOC.value);
+        filterCmp_prods = filterCmp_prods.filter(buy => buy.estado_cppd == selectStateProdOC.value);
     }
     filterCmp_prods = filterCmp_prods.filter(buy => {
         if (selectDateProdOC.value == 'todas') {
@@ -2055,38 +2061,34 @@ function tableCmpProds(page) {
     final = inicio + Number(selectNumberProdOC.value);
     i = 1;
     tbody.innerHTML = '';
-    for (let proforma in filterCmp_prods) {
+    for (let cmp_prod in filterCmp_prods) {
         if (i > inicio && i <= final) {
             let tr = document.createElement('tr');
-            for (let valor in filterCmp_prods[proforma]) {
+            for (let valor in filterCmp_prods[cmp_prod]) {
                 let td = document.createElement('td');
                 if (valor == 'id_cppd') {
                     td = document.createElement('td');
                     td.innerText = i;
                     tr.appendChild(td);
                     i++;
-                } else if (valor == 'nombre_usua') {
-                    td.innerText = filterCmp_prods[proforma][valor] + ' ' + filterCmp_prods[proforma]['apellido_usua'];
-                    tr.appendChild(td);
                 } else if (valor == 'cost_uni_cppd') {
-                    td.innerText = filterCmp_prods[proforma][valor].toFixed(2) + ' Bs';
+                    td.innerText = filterCmp_prods[cmp_prod][valor].toFixed(2) + ' Bs';
                     tr.appendChild(td);
                     let td2 = document.createElement('td');
-                    let subTotal = filterCmp_prods[proforma]['cost_uni_cppd'] * filterCmp_prods[proforma]['cantidad_cppd'];
+                    let subTotal = filterCmp_prods[cmp_prod]['cost_uni_cppd'] * filterCmp_prods[cmp_prod]['cantidad_cppd'];
                     td2.innerText = subTotal.toFixed(2) + ' Bs';
                     tr.appendChild(td2);
-
                 } else if (valor == 'descuento_cmp') {
-                    let desc = filterCmp_prods[proforma][valor] * filterCmp_prods[proforma]['cost_uni_cppd'] * filterCmp_prods[proforma]['cantidad_cppd'] / 100;
-                    td.innerText = desc.toFixed(2) + ' Bs' + ' (' + filterCmp_prods[proforma][valor] + '%)';
+                    let desc = filterCmp_prods[cmp_prod][valor] * filterCmp_prods[cmp_prod]['cost_uni_cppd'] * filterCmp_prods[cmp_prod]['cantidad_cppd'] / 100;
+                    td.innerText = desc.toFixed(2) + ' Bs' + ' (' + filterCmp_prods[cmp_prod][valor] + '%)';
                     tr.appendChild(td);
                     let td2 = document.createElement('td');
-                    let total = filterCmp_prods[proforma]['cantidad_cppd'] * filterCmp_prods[proforma]['cost_uni_cppd'] * (100 - filterCmp_prods[proforma]['descuento_cmp']) / 100;
+                    let total = filterCmp_prods[cmp_prod]['cantidad_cppd'] * filterCmp_prods[cmp_prod]['cost_uni_cppd'] * (100 - filterCmp_prods[cmp_prod]['descuento_cmp']) / 100;
                     td2.innerText = total.toFixed(2) + ' Bs';
                     tr.appendChild(td2);
-                } else if (valor == 'fk_id_cmp_cppd' || valor == 'apellido_usua' || valor == 'fk_id_prod_cppd' || valor == 'imagen_prod' || valor == 'estado_cmp' || valor == 'estado_cppd') {
+                } else if (valor == 'fk_id_cmp_cppd' || valor == 'apellido_usua' || valor == 'fk_id_prod_cppd' || valor == 'imagen_prod' || valor == 'estado_cmp' || valor == 'estado_cppd' || valor == 'nombre_usua' || valor == 'nombre_empp') {
                 } else {
-                    td.innerText = filterCmp_prods[proforma][valor];
+                    td.innerText = filterCmp_prods[cmp_prod][valor];
                     tr.appendChild(td);
                 }
             }
