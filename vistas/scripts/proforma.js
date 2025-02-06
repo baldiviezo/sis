@@ -266,8 +266,8 @@ function cartProduct(id_prod) {
         </div>
         <p class="cart-item__codigo">${product['codigo_prod']}</p>
         <input type="number" value="1" min="1" onChange="changeQuantity(this.parentNode)" class="cart-item__cantidad">
-        <input type="number" value="${Math.round(cost_uni*1.1)}" onChange="changeQuantity(this.parentNode)" class="cart-item__costUnit">
-        <input type="number" value="${Math.round(cost_uni*1.1)}" class="cart-item__costTotal" readonly>
+        <input type="number" value="${Math.round(cost_uni * 1.1)}" onChange="changeQuantity(this.parentNode)" class="cart-item__costUnit">
+        <input type="number" value="${Math.round(cost_uni * 1.1)}" class="cart-item__costTotal" readonly>
         <img src="../imagenes/trash.svg" onClick="removeCardFromCart(this.parentNode)" class='icon__CRUD'>
         <h3 hidden>${product['nombre_prod']}</h3>
         <h3 hidden>${product['descripcion_prod']}</h3>`;
@@ -326,15 +326,16 @@ async function readProformas() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
+            createYearProforma();
             if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
                 proformas = Object.values(data);
-                filterProformas = proformas;
-                resolve();
             } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
                 proformas = Object.values(data).filter(proforma => proforma.fk_id_usua_prof === localStorage.getItem('id_usua'));
-                filterProformas = proformas;
-                resolve();
             }
+            filterProformas = proformas;
+            console.log(proformas);
+            resolve();
+            createYearProforma();
             paginacionProforma(proformas.length, 1);
         }).catch(err => console.log(err));
     })
@@ -378,14 +379,31 @@ function searchProforma() {
     });
     selectStateProformas();
 }
+function createYearProforma() {
+    const anios = Array.from(new Set(proformas.map(proforma => proforma.fecha_prof.split('-')[0])));
+    selectYearProf.innerHTML = '';
+    let optionFirst = document.createElement('option');
+    optionFirst.value = 'todas';
+    optionFirst.innerText = 'Todos los años';
+    selectYearProf.appendChild(optionFirst);
+    for (let anio of anios) {
+        const option = document.createElement('option');
+        option.value = anio;
+        option.textContent = anio;
+        selectYearProf.appendChild(option);
+    }
+}
+//------seleccionar el año
+const selectYearProf = document.getElementById('selectYearProf');
+selectYearProf.addEventListener('change', searchProforma);
 //------buscar por marca y categoria:
 function selectStateProformas() {
-    if (selectStateProf.value == 'todasLasProformas') {
-        paginacionProforma(filterProformas.length, 1);
-    } else {
-        filterProformas = filterProformas.filter(proforma => proforma.estado_prof === selectStateProf.value);
-        paginacionProforma(filterProformas.length, 1);
-    }
+    filterProformas = filterProformas.filter(proforma => {
+        const estado = selectStateProf.value === 'todasLasProformas' ? true : proforma.estado_prof === selectStateProf.value;
+        const fecha = selectYearProf.value === 'todas' ? true : proforma.fecha_prof.split('-')[0] === selectYearProf.value;
+        return estado && fecha;
+    });
+    paginacionProforma(filterProformas.length, 1);
 }
 //------Ordenar tabla descendente ascendente
 let orderProforma = document.querySelectorAll('.tbody__head--proforma');
@@ -963,10 +981,22 @@ async function readProf_prods() {
             body: formData
         }).then(response => response.json()).then(data => {
             prof_prods = Object.values(data);
+            console.log(prof_prods);
             resolve();
         }).catch(err => console.log(err));
     })
 }
+
+//------open and clode modal prof_prod
+const tablePPMW = document.querySelector('#tablePPMW');
+const openTablePPMW = document.querySelector('#openTablePPMW');
+const closeTablePPMW = document.querySelector('#closeTablePPMW');
+openTablePPMW.addEventListener('click', () => {
+    tablePPMW.classList.add('modal__show');
+});
+closeTablePPMW.addEventListener('click', () => {
+    tablePPMW.classList.remove('modal__show');
+})
 let mProf_prods = [];
 async function readmProf_prods() {
     return new Promise((resolve, reject) => {
@@ -2288,7 +2318,7 @@ async function createProduct() {
                 preloader.classList.remove('modal__show');
                 if (data == "El codigo ya existe") {
                     mostrarAlerta(data);
-                } else if (data == "El codigo SMC ya existe"){
+                } else if (data == "El codigo SMC ya existe") {
                     mostrarAlerta(data);
                 } else {
                     readProducts().then(() => {
@@ -2318,7 +2348,7 @@ function readProduct(tr) {
                     if (filterProducts[product]['id_mrc'] == '15') {
                         divCodigoSMCM.removeAttribute('hidden');
                         document.getElementsByName(valor + 'M')[0].value = filterProducts[product][valor];
-                    } 
+                    }
                 } else if (valor == 'id_ctgr') {
                 } else if (valor == 'id_mrc') {
                 } else if (valor == 'marca_prod') {
@@ -2358,7 +2388,7 @@ async function updateProduct() {
                 requestProducts = false;
                 if (data == "El codigo ya existe") {
                     mostrarAlerta(data);
-                } else if (data == 'El codigo SMC ya existe'){
+                } else if (data == 'El codigo SMC ya existe') {
                     mostrarAlerta(data);
                 } else {
                     readProducts().then(() => {
@@ -2830,10 +2860,10 @@ const tablePriceList = document.getElementById('tablePriceList');
 const closetablePriceList = document.getElementById('closetablePriceList');
 const tbodyPriceList = document.getElementById('tbodyPriceList');
 closetablePriceList.addEventListener('click', closePriceList);
-function openPriceList(){
+function openPriceList() {
     tablePriceList.classList.add('modal__show');
 }
-function closePriceList(){
+function closePriceList() {
     tablePriceList.classList.remove('modal__show');
 }
 //-----read prices
@@ -2849,7 +2879,7 @@ async function readPrices() {
         prices = Object.values(data);
         filterPrices = prices;
         paginacionPriceList(filterPrices.length, 1);
-    }).catch(err => console.log(err));    
+    }).catch(err => console.log(err));
 }
 //------buscar por input
 const inputSearchPriceList = document.getElementById("inputSearchPriceList");

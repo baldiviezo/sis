@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,6 +16,7 @@
 	<link rel="stylesheet" type="text/css" href="../css/productModal.css">
 	<link rel="stylesheet" type="text/css" href="../css/userModal.css">
 </head>
+
 <body class="body__proforma">
 	<header class="header">
 		<nav class="header__nav header__container">
@@ -141,14 +143,15 @@
 					<img src="../imagenes/salir.svg" id="closeTableProfMW" class="button__close">
 				</div>
 				<section class="table__header">
+					<img src="../imagenes/inventario.svg"  id="openTablePPMW" class="icon__CRUD" title="Productos de la proforma">
 					<section class="select__search">
-						<div>
-							<select id="selectStateProf" class="select__number">
-								<option value="todasLasProformas">Todas las proformas</option>
-								<option value="pendiente">Proformas pendientes</option>
-								<option value="vendido">Proformas vendidas</option>
-							</select>
-						</div>
+						<select id="selectYearProf" class="select__number">
+						</select>
+						<select id="selectStateProf" class="select__number">
+							<option value="todasLasProformas">Todas las proformas</option>
+							<option value="pendiente">Proformas pendientes</option>
+							<option value="vendido">Proformas vendidas</option>
+						</select>
 					</section>
 					<div class="combo__search">
 						<div>
@@ -227,6 +230,122 @@
 			</div>
 		</div>
 	</section>
+	<!--Table Prof_prod-->
+	<section id="tablePPMW" class="modalTable">
+		<div class="modalTable__container">
+			<div class="table">
+				<div class="table__title">
+					<h1><img src="../imagenes/producto.svg">Productos</h1>
+					<img src="../imagenes/salir.svg" id="closeTablePPMW" class="button__close">
+				</div>
+				<section class="table__header">
+					<section class="select__search">
+						<select id="selectDateProdOC" class="select"></select>
+						<select id="selectStateProdOC" class="select__number">
+							<option value="todasLasOC">Todas las Proformas</option>
+							<option value="PENDIENTE">Proformas pendientes</option>
+							<option value="RECIBIDO">Proformas recibidas</option>
+						</select>
+					</section>
+					<div class="combo__search">
+						<div class="filter__search">
+							<h3>Filtrar por:</h3>
+							<select id="selectSearchProdOC" class="select">
+								<option value="todas">Todo</option>
+								<option value="numero_prof">N° Proforma</option>
+								<option value="fecha_factura_cppd">Fecha de factura</option>
+								<option value="fecha_entrega_cppd">Fecha de entrega</option>
+								<option value="encargado">Encargado</option>
+								<option value="nombre_empp">Empresa</option>
+								<option value="codigo_prod">Codigo producto</option>
+								<option value="descripcion_cppd">Descripción</option>
+								<option value="factura_cppd">N° Factura</option>
+							</select>
+						</div>
+						<div class="table__search">
+							<input type="search" id="inputSearchProdOC" placeholder="Buscar...">
+							<img src="../imagenes/search.png">
+						</div>
+					</div>
+				</section>
+				<div class="showPage" id="showPageProf">
+					<h2></h2>
+				</div>
+				<div class="container__page">
+					<div class="paginacion">
+						<div class="wrapper" id="wrapperProf">
+							<ul></ul>
+						</div>
+					</div>
+					<div>
+						<select id="selectNumberProdOC" class="select__number">
+							<option value="2">2</option>
+							<option value="4">4</option>
+							<option value="6">6</option>
+							<option value="10">10 </option>
+							<option value="20">20</option>
+						</select>
+					</div>
+				</div>
+				<section class="table__body">
+					<table>
+						<thead>
+							<tr>
+								<th>N°</th>
+								<th>
+									<div class="tbody__head--fbuy">OC SMS<img src="../imagenes/sortA_Z.svg"
+											name="numero_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="numero_cmp" class="icon__CRUD"></div>
+								</th>
+								<th>
+									<div class="tbody__head--fbuy">Fecha OC<img src="../imagenes/sortA_Z.svg"
+											name="fecha_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="fecha_cmp" class="icon__CRUD"></div>
+								</th>
+								<th>
+									<div class="tbody__head--fbuy">Fecha factura<img src="../imagenes/sortA_Z.svg"
+											name="fecha_factura_cppd" class="icon__CRUD"><img
+											src="../imagenes/sortZ_A.svg" name="fecha_factura_cppd" class="icon__CRUD">
+									</div>
+								</th>
+								<th>
+									<div class="tbody__head--fbuy">Fecha entrega<img src="../imagenes/sortA_Z.svg"
+											name="fecha_entrega_cppd" class="icon__CRUD"><img
+											src="../imagenes/sortZ_A.svg" name="fecha_entrega_cppd" class="icon__CRUD">
+									</div>
+								</th>
+								<th>Marca</th>
+								<th>Categoria</th>
+								<th>
+									<div class="tbody__head--fbuy">Codigo<img src="../imagenes/sortA_Z.svg"
+											name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="codigo_prod" class="icon__CRUD"></div>
+								</th>
+								<th>Descripcion</th>
+								<th>
+									<div class="tbody__head--fbuy">N° Factura<img src="../imagenes/sortA_Z.svg"
+											name="factura_cppd" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="factura_cppd" class="icon__CRUD"></div>
+								</th>
+								<th>
+									<div class="tbody__head--fbuy">Cantidad<img src="../imagenes/sortA_Z.svg"
+											name="cantidad_cppd" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="cantidad_cppd" class="icon__CRUD"></div>
+								</th>
+								<th>Cost uni.</th>
+								<th>Subtotal</th>
+								<th>Descuento</th>
+								<th>Total</th>
+							</tr>
+						</thead>
+						<tbody id="tbodyProdOC">
+						</tbody>
+					</table>
+				</section>
+			</div>
+		</div>
+	</section>
+	
 	<!--Tabla de proformas modificadas-->
 	<section id="tablemProfMW" class="modalTable">
 		<div class="modalTable__container">
