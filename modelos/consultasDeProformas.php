@@ -150,11 +150,17 @@ class consultas{
 	//-------Read Prof_prods
 	public function readProf_prods(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM prof_prod";
+		$consulta = "SELECT * FROM prof_prod INNER JOIN proforma ON prof_prod.fk_id_prof_pfpd = proforma.id_prof INNER JOIN cliente ON proforma.fk_id_clte_prof = cliente.id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = empresa.id_emp INNER JOIN producto ON prof_prod.fk_id_prod_pfpd = producto.id_prod INNER JOIN categoria ON producto.fk_id_ctgr_prod = categoria.id_ctgr INNER JOIN marca ON producto.fk_id_mrc_prod = marca.id_mrc ORDER BY id_prof DESC";
 		$resultado = $conexion->query($consulta);
 		$proformas =  array();
 		while ($fila = $resultado->fetch_assoc()){
-			$datos = array ('fk_id_prof_pfpd'=>$fila['fk_id_prof_pfpd'], 'fk_id_prod_pfpd'=>$fila['fk_id_prod_pfpd'], 'cantidad_pfpd'=>$fila['cantidad_pfpd'], 'cost_uni_pfpd'=>$fila['cost_uni_pfpd']);
+			$_numero_prof = '';
+			if ($fila['nombre_emp'] == 'Ninguna'){
+				$_numero_prof = strtoupper('SMS'.substr($fila['fecha_prof'],2,2).'-'.$this->addZerosGo($fila['numero_prof']).'-'.explode(" ",$fila['apellido_clte'])[0]);
+			}else{
+				$_numero_prof = strtoupper('SMS'.substr($fila['fecha_prof'],2,2).'-'.$this->addZerosGo($fila['numero_prof']).'-'.$sigla_emp = $fila['sigla_emp']);
+			}
+			$datos = array ('id_pfpd'=>$fila['id_pfpd'], 'fk_id_prof_pfpd'=>$fila['fk_id_prof_pfpd'], 'fk_id_prod_pfpd'=>$fila['fk_id_prod_pfpd'], 'numero_prof'=>$_numero_prof, 'fecha_prof'=>$fila['fecha_prof'], 'fecha_ne_prof'=>$fila['fecha_ne_prof'], 'fecha_factura_prof'=>$fila['fecha_factura_prof'], 'nombre_mrc'=>$fila['nombre_mrc'], 'nombre_ctgr'=>$fila['nombre_ctgr'], 'codigo_prod'=>$fila['codigo_prod'], 'factura_prof'=>intval($fila['factura_prof']), 'cantidad_pfpd'=>intval($fila['cantidad_pfpd']), 'cost_uni_pfpd'=>doubleval($fila['cost_uni_pfpd']), 'descuento_prof'=>$fila['descuento_prof'], 'estado_pfpd'=>$fila['estado_pfpd']);
 			$proformas[$fila['id_pfpd'].'_id_pfpd'] = $datos;
 		}
 		echo json_encode($proformas, JSON_UNESCAPED_UNICODE);

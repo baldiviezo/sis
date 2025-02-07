@@ -911,7 +911,7 @@ closeProductBuyMW.addEventListener('click', (e) => {
 //------------------------------------------CRUD COMPRAS--------------------------------------------------
 //--------read Cmp_prods
 let cmp_prods = [];
-let filterCmp_prods;
+let filterCmp_prods = [];
 async function readCmp_prods() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();

@@ -333,7 +333,6 @@ async function readProformas() {
                 proformas = Object.values(data).filter(proforma => proforma.fk_id_usua_prof === localStorage.getItem('id_usua'));
             }
             filterProformas = proformas;
-            console.log(proformas);
             resolve();
             createYearProforma();
             paginacionProforma(proformas.length, 1);
@@ -381,6 +380,8 @@ function searchProforma() {
 }
 function createYearProforma() {
     const anios = Array.from(new Set(proformas.map(proforma => proforma.fecha_prof.split('-')[0])));
+
+    // Crear opciones para selectYearProf
     selectYearProf.innerHTML = '';
     let optionFirst = document.createElement('option');
     optionFirst.value = 'todas';
@@ -391,6 +392,19 @@ function createYearProforma() {
         option.value = anio;
         option.textContent = anio;
         selectYearProf.appendChild(option);
+    }
+
+    // Crear opciones para selectYearPfPd
+    selectYearPfPd.innerHTML = '';
+    optionFirst = document.createElement('option');
+    optionFirst.value = 'todas';
+    optionFirst.innerText = 'Todos los años';
+    selectYearPfPd.appendChild(optionFirst);
+    for (let anio of anios) {
+        const option = document.createElement('option');
+        option.value = anio;
+        option.textContent = anio;
+        selectYearPfPd.appendChild(option);
     }
 }
 //------seleccionar el año
@@ -972,6 +986,7 @@ function showPDF(prof_mprof_ne, pf_pd, pdf) {
 }
 //------------------------------------------------CRUD PROF_PROD------------------------------------------------------------
 let prof_prods = [];
+filterProf_prods = [];
 async function readProf_prods() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
@@ -981,10 +996,170 @@ async function readProf_prods() {
             body: formData
         }).then(response => response.json()).then(data => {
             prof_prods = Object.values(data);
-            console.log(prof_prods);
+            filterProf_prods = prof_prods;
+            paginacionPfPd(filterProf_prods.length, 1);
             resolve();
         }).catch(err => console.log(err));
     })
+}
+//------------------------------------------------------TABLE PRODUCT FILTER-----------------------------------------------------
+//------Select utilizado para buscar por columnas
+const selectSearchPfPd = document.getElementById('selectSearchPfPd');
+selectSearchPfPd.addEventListener('change', searchPfPd);
+//------buscar por input
+const inputSearchPfPd = document.getElementById("inputSearchPfPd");
+inputSearchPfPd.addEventListener("keyup", searchPfPd);
+//------Proformas por pagina
+const selectNumberPfPd = document.getElementById('selectNumberPfPd');
+selectNumberPfPd.selectedIndex = 3;
+selectNumberPfPd.addEventListener('change', function () {
+    paginacionPfPd(filterProf_prods.length, 1);
+});
+//------buscar por:
+function searchPfPd() {
+    const busqueda = inputSearchPfPd.value.toLowerCase().trim();
+    const valor = selectSearchPfPd.value.toLowerCase().trim();
+    filterProf_prods = prof_prods.filter(cmp_prod => {
+        if (valor == 'todas') {
+            return (
+                cmp_prod.numero_prof.toLowerCase().includes(busqueda) ||
+                cmp_prod.fecha_prof.toLowerCase().includes(busqueda) ||
+                cmp_prod.fecha_ne_prof.toLowerCase().includes(busqueda) ||
+                cmp_prod.fecha_factura_prof.toLowerCase().includes(busqueda) ||
+                cmp_prod.codigo_prod.toLowerCase().includes(busqueda) ||
+                cmp_prod.factura_prof.toLowerCase().includes(busqueda)
+            )
+        } else {
+            return cmp_prod[valor].toLowerCase().includes(busqueda);
+        }
+    });
+    selectStateProductOC();
+}
+//------Seleccionar el año
+const selectYearPfPd = document.getElementById('selectYearPfPd');
+selectYearPfPd.addEventListener('change', searchPfPd);
+//-------Estado de prof_prods
+const selectStatePfPd = document.getElementById('selectStatePfPd');
+selectStatePfPd.addEventListener('change', searchPfPd);
+function selectStateProductOC() {
+    filterProf_prods = filterProf_prods.filter(buy => {
+        const estado = selectStatePfPd.value === 'todasLasProf' ? true : buy.estado_pfpd === selectStatePfPd.value;
+        const fecha = selectYearPfPd.value === 'todas' ? true : buy.fecha_factura_prof.split('-')[0] === selectYearPfPd.value;
+        return estado && fecha;
+    });
+    paginacionPfPd(filterProf_prods.length, 1);
+}
+//------Ordenar tabla descendente ascendente
+let orderPfPd = document.querySelectorAll('.tbody__head--PfPd');
+orderPfPd.forEach(div => {
+    div.children[0].addEventListener('click', function () {
+        filterProf_prods.sort((a, b) => {
+            let first = a[div.children[0].name];
+            let second = b[div.children[0].name];
+            if (typeof first === 'number' && typeof second === 'number') {
+                return first - second;
+            } else {
+                return String(first).localeCompare(String(second));
+            }
+        });
+        paginacionPfPd(filterProf_prods.length, 1);
+    });
+    div.children[1].addEventListener('click', function () {
+        filterProf_prods.sort((a, b) => {
+            let first = a[div.children[0].name];
+            let second = b[div.children[0].name];
+            if (typeof first === 'number' && typeof second === 'number') {
+                return second - first;
+            } else {
+                return String(second).localeCompare(String(first));
+            }
+        });
+        paginacionPfPd(filterProf_prods.length, 1);
+    });
+});
+//------paginacionPfPd
+function paginacionPfPd(allProducts, page) {
+    let totalPfPd = document.getElementById('totalPfPd');
+    let total = 0;
+    for (let prof_prods in filterProf_prods) {
+        total += filterProf_prods[prof_prods]['cantidad_pfpd'] * filterProf_prods[prof_prods]['cost_uni_pfpd'] * (100 - filterProf_prods[prof_prods]['descuento_prof']) / 100;
+    }
+    totalPfPd.innerHTML = total.toFixed(2) + ' Bs';
+    let numberProducts = Number(selectNumberPfPd.value);
+    let allPages = Math.ceil(allProducts / numberProducts);
+    let ul = document.querySelector('#wrapperPfPd ul');
+    let li = '';
+    let beforePages = page - 1;
+    let afterPages = page + 1;
+    let liActive;
+    if (page > 1) {
+        li += `<li class="btn" onclick="paginacionPfPd(${allProducts}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
+    }
+    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
+        if (pageLength > allPages) {
+            continue;
+        }
+        if (pageLength == 0) {
+            pageLength = pageLength + 1;
+        }
+        if (page == pageLength) {
+            liActive = 'active';
+        } else {
+            liActive = '';
+        }
+        li += `<li class="numb ${liActive}" onclick="paginacionPfPd(${allProducts}, ${pageLength})"><span>${pageLength}</span></li>`;
+    }
+    if (page < allPages) {
+        li += `<li class="btn" onclick="paginacionPfPd(${allProducts}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
+    }
+    ul.innerHTML = li;
+    let h2 = document.querySelector('#showPagePfPd h2');
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${allProducts} Productos`;
+    tablePdPf(page);
+}
+//--------Tabla de prof_prods
+function tablePdPf(page) {
+    let tbody = document.getElementById('tbodyPfPd');
+    inicio = (page - 1) * Number(selectNumberPfPd.value);
+    final = inicio + Number(selectNumberPfPd.value);
+    i = 1;
+    tbody.innerHTML = '';
+    for (let cmp_prod in filterProf_prods) {
+        if (i > inicio && i <= final) {
+            let tr = document.createElement('tr');
+            for (let valor in filterProf_prods[cmp_prod]) {
+                let td = document.createElement('td');
+                if (valor == 'id_pfpd') {
+                    td = document.createElement('td');
+                    td.innerText = i;
+                    tr.appendChild(td);
+                    i++;
+                } else if (valor == 'cost_uni_pfpd') {
+                    td.innerText = filterProf_prods[cmp_prod][valor].toFixed(2) + ' Bs';
+                    tr.appendChild(td);
+                    let td2 = document.createElement('td');
+                    let subTotal = filterProf_prods[cmp_prod]['cost_uni_pfpd'] * filterProf_prods[cmp_prod]['cantidad_pfpd'];
+                    td2.innerText = subTotal.toFixed(2) + ' Bs';
+                    tr.appendChild(td2);
+                } else if (valor == 'descuento_prof') {
+                    let desc = filterProf_prods[cmp_prod][valor] * filterProf_prods[cmp_prod]['cost_uni_pfpd'] * filterProf_prods[cmp_prod]['cantidad_pfpd'] / 100;
+                    td.innerText = desc.toFixed(2) + ' Bs' + ' (' + filterProf_prods[cmp_prod][valor] + '%)';
+                    tr.appendChild(td);
+                    let td2 = document.createElement('td');
+                    let total = filterProf_prods[cmp_prod]['cantidad_pfpd'] * filterProf_prods[cmp_prod]['cost_uni_pfpd'] * (100 - filterProf_prods[cmp_prod]['descuento_prof']) / 100;
+                    td2.innerText = total.toFixed(2) + ' Bs';
+                    tr.appendChild(td2);
+                } else if (valor == 'fk_id_prof_pfpd' || valor == 'fk_id_prod_pfpd' || valor == 'estado_pfpd') {
+                } else {
+                    td.innerText = filterProf_prods[cmp_prod][valor];
+                    tr.appendChild(td);
+                }
+            }
+            tbody.appendChild(tr);
+        } else {
+            i++;
+        }
+    }
 }
 
 //------open and clode modal prof_prod
