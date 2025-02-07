@@ -249,6 +249,11 @@ function cartProduct(id_prod) {
     const product = filterProducts.find(product => product['id_prod'] == id_prod);
     if (product) {
         const inventory = inventories.find(inventory => inventory['fk_id_prod_inv'] == id_prod);
+/*
+        cost_uni2 = prices.find(price => price['modelo'] == product['codigo_prod']);
+        console.log(cost_uni2)
+
+*/
         if (inventory) {
             cantidad_inv = inventory['cantidad_inv'];
             cost_uni = inventory['cost_uni_inv'];
@@ -366,14 +371,15 @@ function searchProforma() {
                 proforma.nombre_emp.toLowerCase().includes(busqueda) ||
                 (proforma.nombre_usua + ' ' + proforma.apellido_usua).toLowerCase().includes(busqueda) ||
                 (proforma.apellido_clte + ' ' + proforma.nombre_clte).toLowerCase().includes(busqueda) ||
-                proforma.total_prof.toLowerCase().includes(busqueda)
+                proforma.fecha_factura_prof.toLowerCase().includes(busqueda) ||
+                String(proforma.factura_prof).toLowerCase().includes(busqueda)
             );
         } else if (valor === 'encargado') {
             return (proforma.nombre_usua + ' ' + proforma.apellido_usua).toLowerCase().includes(busqueda);
         } else if (valor === 'cliente') {
             return (proforma.apellido_clte + ' ' + proforma.nombre_clte).toLowerCase().includes(busqueda);
         } else {
-            return proforma[valor].toString().toLowerCase().includes(busqueda);
+            return String(proforma[valor]).toLowerCase().includes(busqueda);
         }
     });
     selectStateProformas();
@@ -519,17 +525,21 @@ function tableProformas(page) {
         tdCliente.innerText = proforma.apellido_clte + ' ' + proforma.nombre_clte;
         tr.appendChild(tdCliente);
 
-        const tdDescuento = document.createElement('td');
-        tdDescuento.innerText = proforma.descuento_prof;
-        tr.appendChild(tdDescuento);
+        const tdFechaFactura = document.createElement('td');
+        tdFechaFactura.innerText = proforma.fecha_factura_prof;
+        tr.appendChild(tdFechaFactura);
+
+        const tdFactura = document.createElement('td');
+        tdFactura.innerText = proforma.factura_prof;
+        tr.appendChild(tdFactura);
 
         const tdTotal = document.createElement('td');
         tdTotal.innerText = proforma.total_prof + ' ' + proforma.moneda_prof;
         tr.appendChild(tdTotal);
 
-        const tdValido = document.createElement('td');
-        tdValido.innerText = proforma.tpo_valido_prof;
-        tr.appendChild(tdValido);
+        const tdDetalle = document.createElement('td');
+        tdDetalle.innerText = proforma.detalle_prof;
+        tr.appendChild(tdDetalle);
 
         const tdAcciones = document.createElement('td');
         const fragment = document.createDocumentFragment();
@@ -606,7 +616,6 @@ async function createProforma() {
             let form = document.getElementById("formProformaR");
             let moneda = selectMoneyCart.value;
             let formData = new FormData(form);
-            formData.set("fecha_profR", `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`);
             formData.set("total_profR", Number(document.getElementById('totalProf').innerHTML.split(' ')[1]));
             formData.append('createProforma', productos);
             formData.append('moneda_profR', moneda);
@@ -695,7 +704,6 @@ async function updateProforma() {
             let productos = JSON.stringify(array); //string json
             let form = document.getElementById('formProformaM');
             let formData = new FormData(form);
-            formData.set("fecha_profM", `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`);
             formData.set("total_profM", Number(document.getElementById('totalProf').innerHTML.split(' ')[1]));
             formData.append('updateProforma', productos);
             formData.append('id_usua', localStorage.getItem('id_usua'));
@@ -1027,10 +1035,10 @@ function searchPfPd() {
                 cmp_prod.fecha_ne_prof.toLowerCase().includes(busqueda) ||
                 cmp_prod.fecha_factura_prof.toLowerCase().includes(busqueda) ||
                 cmp_prod.codigo_prod.toLowerCase().includes(busqueda) ||
-                cmp_prod.factura_prof.toLowerCase().includes(busqueda)
+                String(cmp_prod.factura_prof).includes(busqueda)
             )
         } else {
-            return cmp_prod[valor].toLowerCase().includes(busqueda);
+            return String(cmp_prod[valor]).toLowerCase().includes(busqueda);
         }
     });
     selectStateProductOC();
@@ -1373,7 +1381,7 @@ closePreviewProducts.addEventListener('click', () => {
 const productsSold = document.querySelector('#productsSold');
 const closeProductsSold = document.querySelector('#closeProductsSold');
 function openPreviwProductsSold() {
-    const id_prof = document.getElementById('fk_id_prof_ne').value;
+    const id_prof = document.getElementById('id_prof').value;
     const prof_prodsFiltered = prof_prods.filter(prof_prod => prof_prod['fk_id_prof_pfpd'] === id_prof);
     const inventoriesMap = new Map(inventories.map(inventory => [inventory['fk_id_prod_inv'], inventory]));
     const productsMap = new Map(products.map(product => [product['id_prod'], product]));
@@ -1459,7 +1467,6 @@ async function createNotaEntrega() {
                 productsSold.classList.remove('modal__show');
                 const form = document.getElementById('formNotaEntregaR');
                 let formData = new FormData(form);
-                formData.set("fecha_ne", `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`);
                 formData.append('createNotaEntrega', '');
                 formData.append('arrayObjetos', JSON.stringify(arrayObjetos));
                 formData.append('id_usua', localStorage.getItem('id_usua'));
@@ -1486,8 +1493,9 @@ async function createNotaEntrega() {
 const closeNotaEntregaRMW = document.getElementById('closeNotaEntregaRMW');
 const notaEntregaRMW = document.getElementById('notaEntregaRMW');
 function openNotaEntregaRMW(tr) {
-    document.getElementsByName('fecha_ne')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
-    document.getElementById('fk_id_prof_ne').value = tr.children[0].innerText;
+    document.getElementById('fecha_ne_prof').value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
+    document.getElementById('fecha_factura_prof').value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
+    document.getElementById('id_prof').value = tr.children[0].innerText;
     document.getElementById('descuento_prof').value = tr.children[7].innerText;
     document.getElementById('numero_prof').value = tr.children[2].innerText;
     notaEntregaRMW.classList.add('modal__show');

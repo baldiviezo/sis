@@ -47,7 +47,7 @@ class consultas{
 			}else{
 				$_prof_mprof_ne = strtoupper('SMS'.substr($fila['fecha_prof'],2,2).'-'.$this->addZerosGo($fila['numero_prof']).'-'.$sigla_emp = $fila['sigla_emp']);
 			}
-			$datos = array ('id_prof'=>$fila['id_prof'], 'numero_prof'=>$_prof_mprof_ne, 'fecha_prof'=>$fila['fecha_prof'], 'fk_id_usua_prof'=>$fila['fk_id_usua_prof'], 'nombre_usua'=>$fila['nombre_usua'], 'apellido_usua'=>$fila['apellido_usua'], 'email_usua'=>$fila['email_usua'], 'celular_usua'=>$fila['celular_usua'], 'id_emp'=>$fila['id_emp'], 'nombre_emp'=>$fila['nombre_emp'], 'sigla_emp'=>$fila['sigla_emp'], 'direccion_emp'=>$fila['direccion_emp'], 'telefono_emp'=>$fila['telefono_emp'], 'fk_id_clte_prof'=>$fila['fk_id_clte_prof'], 'nombre_clte'=>$fila['nombre_clte'], 'apellido_clte'=>$fila['apellido_clte'], 'celular_clte'=>$fila['celular_clte'], 'descuento_prof'=>$fila['descuento_prof'], 'total_prof'=>$fila['total_prof'], 'tpo_valido_prof'=>$fila['tpo_valido_prof'], 'cond_pago_prof'=>$fila['cond_pago_prof'], 'tpo_entrega_prof'=>$fila['tpo_entrega_prof'], 'observacion_prof'=>$fila['observacion_prof'],  'moneda_prof'=>$fila['moneda_prof'], 'tipo_cambio_prof'=>$fila['tipo_cambio_prof'], 'estado_prof'=>$fila['estado_prof']);
+			$datos = array ('id_prof'=>$fila['id_prof'], 'numero_prof'=>$_prof_mprof_ne, 'fecha_prof'=>$fila['fecha_prof'], 'fk_id_usua_prof'=>$fila['fk_id_usua_prof'], 'nombre_usua'=>$fila['nombre_usua'], 'apellido_usua'=>$fila['apellido_usua'], 'email_usua'=>$fila['email_usua'], 'celular_usua'=>$fila['celular_usua'], 'id_emp'=>$fila['id_emp'], 'nombre_emp'=>$fila['nombre_emp'], 'sigla_emp'=>$fila['sigla_emp'], 'direccion_emp'=>$fila['direccion_emp'], 'telefono_emp'=>$fila['telefono_emp'], 'fk_id_clte_prof'=>$fila['fk_id_clte_prof'], 'nombre_clte'=>$fila['nombre_clte'], 'apellido_clte'=>$fila['apellido_clte'], 'fecha_factura_prof'=>$fila['fecha_factura_prof'], 'factura_prof'=>intval($fila['factura_prof']), 'celular_clte'=>$fila['celular_clte'], 'descuento_prof'=>$fila['descuento_prof'], 'total_prof'=>doubleval($fila['total_prof']), 'tpo_valido_prof'=>$fila['tpo_valido_prof'], 'cond_pago_prof'=>$fila['cond_pago_prof'], 'tpo_entrega_prof'=>$fila['tpo_entrega_prof'], 'observacion_prof'=>$fila['observacion_prof'],  'moneda_prof'=>$fila['moneda_prof'], 'tipo_cambio_prof'=>$fila['tipo_cambio_prof'], 'estado_prof'=>$fila['estado_prof'], 'detalle_prof'=>$fila['detalle_prof']);
 			$proformas[$fila['id_prof'].'_id_prof'] = $datos;
 		}
 		echo json_encode($proformas, JSON_UNESCAPED_UNICODE);
@@ -184,7 +184,7 @@ class consultas{
     		$id_prod = $celda['id_prod'];
     		$cantidad = $celda['cantidad'];
     		$costoUnitario = $celda['costoUnitario'];
-    		$consulta2 = "INSERT INTO  prof_prod (fk_id_prof_pfpd, fk_id_prod_pfpd, cantidad_pfpd, cost_uni_pfpd) VALUES ('$this->nProforma','$id_prod','$cantidad','$costoUnitario')";
+    		$consulta2 = "INSERT INTO  prof_prod (fk_id_prof_pfpd, fk_id_prod_pfpd, cantidad_pfpd, cost_uni_pfpd, estado_pfpd) VALUES ('$this->nProforma','$id_prod','$cantidad','$costoUnitario', 'pendiente')";	
 			$resultado2 = $conexion->query($consulta2);
 		}
 	}

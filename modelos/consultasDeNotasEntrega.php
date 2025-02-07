@@ -4,10 +4,19 @@ class consultas{
 		//protegemos al servidor de los valores que el usuario esta introduciendo
 		include 'conexion.php';
 		$this->id_usua = trim($conexion->real_escape_string($_POST['id_usua']));
-		$this->id_prof = trim($conexion->real_escape_string($_POST['fk_id_prof_ne']));
+		$this->id_prof = trim($conexion->real_escape_string($_POST['id_prof']));
+
+		$this->fecha_ne_prof = trim($conexion->real_escape_string($_POST['fecha_ne_prof']));
+		$this->fecha_factura_prof = trim($conexion->real_escape_string($_POST['fecha_factura_prof']));
+		$this->orden_compra_prof = trim($conexion->real_escape_string($_POST['orden_compra_prof']));
+		$this->factura_prof = trim($conexion->real_escape_string($_POST['factura_prof']));
+		$this->detalle_prof = trim($conexion->real_escape_string($_POST['detalle_prof']));
+
+
+		/*
 		$this->fecha_ne = trim($conexion->real_escape_string($_POST['fecha_ne']));
 		$this->orden = trim($conexion->real_escape_string($_POST['orden_ne']));
-		$this->observacion = trim($conexion->real_escape_string($_POST['observacion_ne']));
+		$this->observacion = trim($conexion->real_escape_string($_POST['observacion_ne']));*/
 	}
 	//-------Leer notas de entrega
 	public function readNotasEntrega(){
@@ -58,15 +67,17 @@ class consultas{
 			//-------Comprobar  que lo productos existan en el inventario
 			if (count($arrayObjetos) == $i) {
 				//-----Cambiar el estado de la proforma
-				$this->proformaStatus();
-				//-----Registrar la nota de entrega
-				$consulta = "INSERT INTO nota_entrega (fk_id_prof_ne, fk_id_usua_ne, fecha_ne, orden_ne, observacion_ne, estado_ne) VALUES ('$this->id_prof', '$this->id_usua', '$this->fecha_ne', '$this->orden' , '$this->observacion', 'pendiente')";
+				$consulta = "UPDATE proforma set estado_prof='vendido', fecha_ne_prof = '$this->fecha_ne_prof', orden_compra_prof = '$this->orden_compra_prof', fecha_factura_prof = '$this->fecha_factura_prof', factura_prof = '$this->factura_prof', detalle_prof = '$this->detalle_prof' WHERE id_prof = '$this->id_prof'";
 				$resultado = $conexion->query($consulta);
+
+				//-----Registrar la nota de entrega
+				/*$consulta = "INSERT INTO nota_entrega (fk_id_prof_ne, fk_id_usua_ne, fecha_ne, orden_ne, observacion_ne, estado_ne) VALUES ('$this->id_prof', '$this->id_usua', '$this->fecha_ne', '$this->orden' , '$this->observacion', 'pendiente')";
+				$resultado = $conexion->query($consulta);*/
 				//-----Obtener el ultimo id_ne de la tabla nota_entrega
-				$consulta = "SELECT * FROM nota_entrega ORDER BY id_ne DESC LIMIT 1";
+				/*$consulta = "SELECT * FROM nota_entrega ORDER BY id_ne DESC LIMIT 1";
 				$resultado = $conexion->query($consulta);
 				$notaEntrega = $resultado->fetch_assoc();
-				$this->id_ne = $notaEntrega['id_ne'];
+				$this->id_ne = $notaEntrega['id_ne'];*/
 
 				//-----Descontar del inventario
 				foreach ($arrayObjetos as $valor) {
@@ -81,14 +92,18 @@ class consultas{
 					$resultado3 = $conexion->query($consulta3);
 
 
+					//-----Cambiar el estado estado_cppd
+					$consulta = "UPDATE proforma set estado_prof='vendido' WHERE id_prof = '$this->id_prof'";
+					$resultado = $conexion->query($consulta);
+
 					//-----Registrar el producto vendido en la tabla nte_inv
-					$id_inv = $valor['id_inv'];
+					/*$id_inv = $valor['id_inv'];
 					$codigo_neiv =	$valor['codigo_neiv'];
 					$cantidad_neiv =	$valor['cantidad_neiv'];
 					$cost_uni_neiv = $valor['cost_uni_neiv'];
 
 					$consulta = "INSERT INTO nte_inv (fk_id_ne_neiv, fk_id_inv_neiv, cantidad_neiv, codigo_neiv, cost_uni_neiv) VALUES ('$this->id_ne', '$id_inv', '$cantidad_neiv', '$codigo_neiv', '$cost_uni_neiv')";
-					$resultado = $conexion->query($consulta);
+					$resultado = $conexion->query($consulta);*/
 				}
 				echo "La nota de entrega se registro correctamente";
 			}else{
@@ -143,12 +158,6 @@ class consultas{
 			$resultado = $conexion->query($consulta);
 		}
 		echo 'Nota de entrega eliminada correctamente';
-	}
-	//--------------------------------------------Estado de proforma---------------------------------
-	public function proformaStatus(){
-		include 'conexion.php';
-		$consulta = "UPDATE proforma set estado_prof='vendido' WHERE id_prof = '$this->id_prof'";
-		$resultado = $conexion->query($consulta);
 	}
 	public function addZerosGo($numero) {
 		return str_pad($numero, 4, "0", STR_PAD_LEFT);

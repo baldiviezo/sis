@@ -157,11 +157,13 @@
 						<div>
 							<select id="selectSearchProf" class="select">
 								<option value="todas">Buscar por todo</option>
-								<option value="numero_prof">Por proforma</option>
-								<option value="fecha_prof">Por fecha</option>
-								<option value="encargado">Por encargado</option>
-								<option value="nombre_emp">Por empresa</option>
-								<option value="cliente">Por cliente</option>
+								<option value="numero_prof">N° Proforma</option>
+								<option value="fecha_prof">Fecha proforma</option>
+								<option value="fecha_factura_prof">Fecha factura</option>
+								<option value="encargado">Encargado</option>
+								<option value="nombre_emp">Empresa</option>
+								<option value="cliente">Cliente</option>
+								<option value="factura_prof">Factura</option>
 							</select>
 						</div>
 						<div class="table__search">
@@ -202,7 +204,7 @@
 									</div>
 								</th>
 								<th>
-									<div class="tbody__head--proforma">Fecha <img src="../imagenes/sortA_Z.svg"
+									<div class="tbody__head--proforma">Fecha Proforma<img src="../imagenes/sortA_Z.svg"
 											name="fecha_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
 											name="fecha_prof" class="icon__CRUD">
 									</div>
@@ -215,11 +217,25 @@
 									</div>
 								</th>
 								<th>Cliente</th>
-								<th>Desc. (%)</th>
-								<th>Total</th>
-								<!--<th>Condicion de pago</th>
-								<th>Tiempo de entrega</th>-->
-								<th>Valido</th>
+								<th>
+									<div class="tbody__head--proforma">Fecha Factura<img src="../imagenes/sortA_Z.svg"
+											name="fecha_factura_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="fecha_factura_prof" class="icon__CRUD">
+									</div>
+								</th>
+								<th>
+									<div class="tbody__head--proforma">Factura<img src="../imagenes/sortA_Z.svg"
+											name="factura_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="factura_prof" class="icon__CRUD">
+									</div>
+								</th>
+								<th>
+									<div class="tbody__head--proforma">Total<img src="../imagenes/sortA_Z.svg"
+											name="total_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="total_prof" class="icon__CRUD">
+									</div>
+								</th>
+								<th>Detalles</th>
 								<th>Acciones</th>
 							</tr>
 						</thead>
@@ -385,23 +401,31 @@
 			</div>
 			<form id="formNotaEntregaR" class="form">
 				<div class="form__container">
-					<input type="hidden" id="fk_id_prof_ne" name="fk_id_prof_ne" placeholder=" " class="form__input">
+					<input type="hidden" id="id_prof" name="id_prof" placeholder=" " class="form__input">
 					<input type="hidden" id="descuento_prof">
 					<div class="form__group">
-						<input type="text" name="fecha_ne" placeholder=" " class="form__input" readonly>
-						<label for="fecha_ne" class="form__label">Fecha:</label>
+						<input type="date" name="fecha_ne_prof" id="fecha_ne_prof" placeholder=" " class="form__input">
+						<label for="fecha_ne_prof" class="form__label">Fecha nota de entrega:</label>
+					</div>
+					<div class="form__group">
+						<input type="date" name="fecha_factura_prof" id="fecha_factura_prof" placeholder=" " class="form__input">
+						<label for="fecha_factura_prof" class="form__label">Fecha de factura:</label>
 					</div>
 					<div class="form__group">
 						<input type="text" id="numero_prof" placeholder=" " class="form__input" readonly>
 						<label class="form__label">Proforma:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="orden_ne" placeholder=" " class="form__input">
-						<label for="orden_ne" class="form__label">Según Orden/Invit:</label>
+						<input type="text" name="orden_compra_prof" placeholder=" " class="form__input">
+						<label for="orden_compra_prof" class="form__label">Según Orden/Invit:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="observacion_ne" placeholder=" " class="form__input">
-						<label for="observacion_ne" class="form__label">Observaciones:</label>
+						<input type="number" name="factura_prof" placeholder=" " class="form__input">
+						<label for="factura_prof" class="form__label">Factura:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="detalle_prof" placeholder=" " class="form__input">
+						<label for="detalle_prof" class="form__label">Detalles:</label>
 					</div>
 				</div>
 			</form>
