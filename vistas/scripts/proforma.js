@@ -4,11 +4,11 @@ if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol
     document.getElementsByName('nombre_clteM')[0].setAttribute('readonly', 'readonly');
     document.getElementsByName('apellido_clteM')[0].setAttribute('readonly', 'readonly');
 } else if (localStorage.getItem('rol_usua') == 'Administrador') {
-    document.querySelector('#formProformaR .form__group--select').children[4].removeAttribute('hidden');
-    document.querySelectorAll('#formProformaR .form__group--select')[1].children[3].removeAttribute('hidden');
+    //document.querySelector('#formProformaR .form__group--select').children[4].removeAttribute('hidden');
+    //document.querySelectorAll('#formProformaR .form__group--select')[1].children[3].removeAttribute('hidden');
 } else if (localStorage.getItem('rol_usua') == 'Gerente general') {
-    document.querySelector('#formProformaR .form__group--select').children[4].removeAttribute('hidden');
-    document.querySelectorAll('#formProformaR .form__group--select')[1].children[4].removeAttribute('hidden');
+    //document.querySelector('#formProformaR .form__group--select').children[4].removeAttribute('hidden');
+    //document.querySelectorAll('#formProformaR .form__group--select')[1].children[4].removeAttribute('hidden');
 }
 //-----------------------------------------PRE LOADER---------------------------------------------
 const preloader = document.getElementById('preloader');
@@ -249,10 +249,9 @@ function cartProduct(id_prod) {
     const product = filterProducts.find(product => product['id_prod'] == id_prod);
     if (product) {
         const inventory = inventories.find(inventory => inventory['fk_id_prod_inv'] == id_prod);
-/*
+        /*
         cost_uni2 = prices.find(price => price['modelo'] == product['codigo_prod']);
         console.log(cost_uni2)
-
 */
         if (inventory) {
             cantidad_inv = inventory['cantidad_inv'];
@@ -420,7 +419,7 @@ selectYearProf.addEventListener('change', searchProforma);
 function selectStateProformas() {
     filterProformas = filterProformas.filter(proforma => {
         const estado = selectStateProf.value === 'todasLasProformas' ? true : proforma.estado_prof === selectStateProf.value;
-        const fecha = selectYearProf.value === 'todas' ? true : proforma.fecha_prof.split('-')[0] === selectYearProf.value;
+        const fecha = selectYearProf.value === 'todas' ? true : proforma.fecha_factura_prof.split('-')[0] === selectYearProf.value;
         return estado && fecha;
     });
     paginacionProforma(filterProformas.length, 1);
@@ -489,6 +488,10 @@ function paginacionProforma(allProducts, page) {
 }
 //--------Tabla de proforma
 function tableProformas(page) {
+    const totalProfMW = document.getElementById('totalProfMW');
+    const total = filterProformas.reduce((acc, current) => acc + current.total_prof, 0);
+    totalProfMW.innerText = `Total: ${total.toFixed(2)} Bs`;
+
     const tbody = document.getElementById('tbodyProforma');
     const inicio = (page - 1) * Number(selectNumberProf.value);
     const final = inicio + Number(selectNumberProf.value);
@@ -652,18 +655,14 @@ function readProforma(tr) {
                 if (valor == 'fecha_prof') {
                     document.getElementsByName('fecha_profM')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
                 } else if (valor == 'id_emp') {
-                    selectEnterpriseM.innerHTML = '';
-                    let option = document.createElement('option');
-                    option.value = filterProformas[proforma][valor];
-                    option.innerText = filterProformas[proforma]['nombre_emp'];
-                    selectEnterpriseM.appendChild(option);
+                    selectEnterpriseM.value = filterProformas[proforma][valor];
                 } else if (valor == 'fk_id_clte_prof') {
                     selectCustomerM.innerHTML = '';
                     let option = document.createElement('option');
                     option.value = filterProformas[proforma][valor];
                     option.innerText = filterProformas[proforma]['nombre_clte'] + ' ' + filterProformas[proforma]['apellido_clte'];
                     selectCustomerM.appendChild(option);
-                } else if (valor == 'silga_emp' || valor == 'nombre_emp' || valor == 'nombre_clte' || valor == 'fk_id_usua_prof' || valor == 'apellido_clte' || valor == 'nombre_usua' || valor == 'apellido_usua' || valor == 'email_usua' || valor == 'celular_usua' || valor == 'estado_prof' || valor == 'telefono_emp' || valor == 'direccion_emp') {
+                } else if (valor == 'silga_emp' || valor == 'nombre_emp' || valor == 'nombre_clte' || valor == 'fk_id_usua_prof' || valor == 'apellido_clte' || valor == 'nombre_usua' || valor == 'apellido_usua' || valor == 'email_usua' || valor == 'celular_usua' || valor == 'estado_prof' || valor == 'telefono_emp' || valor == 'direccion_emp' || valor == 'fecha_ne_prof' || valor == 'orden_compra_prof' || valor == 'fecha_factura_prof' || valor == 'factura_prof' || valor == 'detalle_prof') {
                 } else if (valor == 'tipo_cambio_prof') {
                     if (filterProformas[proforma]['moneda_prof'] == '$') {
                         document.getElementsByName(valor + 'M')[0].parentNode.classList.remove('hide');
@@ -739,7 +738,7 @@ async function deleteProforma(tr) {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                readProformas().then(() => {
+                Promise.all([readProformas(), readProf_prods()]).then(() => {
                     requestProf = false;
                     preloader.classList.remove('modal__show');
                     mostrarAlerta(data);
@@ -761,11 +760,12 @@ const proformaMMW = document.getElementById('proformaMMW');
 openProformaRMW.addEventListener('click', () => {
     document.getElementsByName('fecha_profR')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
     formProformas = 'R';
-    if (findOutCartItem() == '') {
+    proformaRMW.classList.add('modal__show');
+    /*if (findOutCartItem() == '') {
         proformaRMW.classList.add('modal__show');
     } else {
         mostrarAlerta(findOutCartItem());
-    }
+    }*/
 });
 closeProformaRMW.addEventListener('click', (e) => {
     proformaRMW.classList.remove('modal__show');
@@ -791,7 +791,7 @@ function findOutCartItem() {
     let errorMessage = '';
     cartItem.forEach(cart => {
         if (!isInteger(cart.children[4].value)) {
-            errorMessage += `El precio unitario del producto "${cart.children[3].innerText}" no es un valor entero\n`;
+            errorMessage += `La cantidad de "${cart.children[3].innerText}" no es un valor entero\n`;
         }
     });
     return errorMessage;
@@ -1504,12 +1504,10 @@ closeNotaEntregaRMW.addEventListener('click', (e) => {
     notaEntregaRMW.classList.remove('modal__show');
 });
 //---------------------------------------------------------------CLIENTES----------------------------------------------
-let selectCustomerR = document.getElementsByName('fk_id_clte_profR')[0];
-let selectCustomerM = document.getElementsByName('fk_id_clte_profM')[0];
+let selectCustomerR = document.getElementById('selectCustomerR');
+let selectCustomerM = document.getElementById('selectCustomerM');
 let customers = [];
-let sortCustomers = [];
-let chooseCustomer = [];
-let filterChooseClte = [];
+let filterCustomers = [];
 let indexCustomer = 0;
 let formCustomer;
 async function readCustomers() {
@@ -1521,15 +1519,11 @@ async function readCustomers() {
             body: formData
         }).then(response => response.json()).then(data => {
             customers = Object.values(data);
-            sortCustomers = [...customers].sort((a, b) => {
-                const apellidoCompare = a.apellido_clte.localeCompare(b.apellido_clte);
-                return apellidoCompare !== 0 ? apellidoCompare : a.nombre_clte.localeCompare(b.nombre_clte);
-            });
-            fillSelectClte(selectCustomerR, indexCustomer);
+            filterCustomers = customers;
+            //fillSelectClte(selectCustomerR, indexCustomer);
             resolve();
         }).catch(err => console.log(err));
     })
-
 }
 //---------------------------------------------TABLA MODAL CUSTOMER---------------------------------
 //------Select utilizado para buscar por columnas
@@ -1542,13 +1536,13 @@ inputSearchClteSMW.addEventListener("keyup", searchCustomersSMW);
 const selectNumberClteSMW = document.getElementById('selectNumberClteSMW');
 selectNumberClteSMW.selectedIndex = 3;
 selectNumberClteSMW.addEventListener('change', function () {
-    paginacionCustomerMW(Object.values(filterEnterprises).length, 1);
+    paginacionCustomerMW(filterCustomers.length, 1);
 });
 //------buscar por:
 function searchCustomersSMW() {
     const busqueda = inputSearchClteSMW.value.toLowerCase();
     const valor = selectSearchClteSMW.value.toLowerCase().trim();
-    filterChooseClte = chooseCustomer.filter(customer => {
+    filterCustomers = filterCustomers.filter(customer => {
         if (valor === 'todas') {
             return (
                 customer.nit_clte.toLowerCase().includes(busqueda) ||
@@ -1564,7 +1558,7 @@ function searchCustomersSMW() {
             return customer[valor].toLowerCase().includes(busqueda);
         }
     });
-    paginacionCustomerMW(filterChooseClte.length, 1);
+    paginacionCustomerMW(filterCustomers.length, 1);
 }
 //------PaginacionCustomer
 function paginacionCustomerMW(allEnterprises, page) {
@@ -1607,13 +1601,13 @@ function tableCustomersMW(page) {
     final = inicio + Number(selectNumberClteSMW.value);
     i = 1;
     tbody.innerHTML = '';
-    for (let enterprise in filterChooseClte) {
+    for (let enterprise in filterCustomers) {
         if (i > inicio && i <= final) {
             let tr = document.createElement('tr');
-            for (let valor in filterChooseClte[enterprise]) {
+            for (let valor in filterCustomers[enterprise]) {
                 let td = document.createElement('td');
                 if (valor == 'id_clte') {
-                    td.innerText = filterChooseClte[enterprise][valor];
+                    td.innerText = filterCustomers[enterprise][valor];
                     td.setAttribute('hidden', '');
                     tr.appendChild(td);
                     td = document.createElement('td');
@@ -1621,25 +1615,25 @@ function tableCustomersMW(page) {
                     tr.appendChild(td);
                     i++;
                 } else if (valor == 'nombre_clte') {
-                    td.innerText = filterChooseClte[enterprise]['apellido_clte'] + ' ' + filterChooseClte[enterprise][valor];
+                    td.innerText = filterCustomers[enterprise]['apellido_clte'] + ' ' + filterCustomers[enterprise][valor];
                     tr.appendChild(td);
                 } else if (valor == 'apellido_clte' || valor == 'sigla_emp' || valor == 'nit_emp' || valor == 'fk_id_emp_clte' || valor == 'precio_emp') {
                 } else if (valor == 'nit_clte') {
-                    if (filterChooseClte[enterprise][valor] == '0') {
+                    if (filterCustomers[enterprise][valor] == '0') {
                         td.innerText = '';
                     } else {
-                        td.innerText = filterChooseClte[enterprise][valor];
+                        td.innerText = filterCustomers[enterprise][valor];
                     }
                     tr.appendChild(td);
                 } else if (valor == 'celular_clte') {
-                    if (filterChooseClte[enterprise][valor] == '0') {
+                    if (filterCustomers[enterprise][valor] == '0') {
                         td.innerText = '';
                     } else {
-                        td.innerText = filterChooseClte[enterprise][valor];
+                        td.innerText = filterCustomers[enterprise][valor];
                     }
                     tr.appendChild(td);
                 } else {
-                    td.innerText = filterChooseClte[enterprise][valor];
+                    td.innerText = filterCustomers[enterprise][valor];
                     tr.appendChild(td);
                 }
             }
@@ -1668,6 +1662,21 @@ closeCustomerSMW.addEventListener('click', () => {
     customerSMW.classList.remove('modal__show');
 });
 //<<-----------------------------------------CRUD CUSTOMER  ----------------------------------------->>
+//------Read a Customer
+function readCustomer(tr) {
+    formCustomer = 'M';
+    selectCreateCustomer();
+    let id_clte = tr.children[0].value;
+    const customer = filterCustomers.find(customer => customer.id_clte == id_clte);
+    if (customer) {
+        for (const valor in customer) {
+            if (valor !== 'nombre_emp' && valor !== 'fk_id_emp_clte') {
+                document.getElementsByName(valor + 'M')[0].value = customer[valor];
+            }
+        }
+    }
+    customersMMW.classList.add('modal__show');
+}
 //------Create a customer
 const formClienteR = document.getElementById('formClienteR');
 formClienteR.addEventListener('submit', createCustomer);
@@ -1685,8 +1694,8 @@ async function createCustomer() {
         }).then(response => response.text()).then(data => {
             readCustomers().then(() => {
                 requestProf = false;
-                indexCustomer = -1;
                 formClienteR.reset();
+                fillSelectClte(selectCustomerR, indexCustomer);
                 preloader.classList.remove('modal__show');
                 mostrarAlerta(data);
             });
@@ -1696,21 +1705,6 @@ async function createCustomer() {
         });
     }
 }
-//------Read a Customer
-function readCustomer(tr) {
-    formCustomer = 'M';
-    selectCreateCustomer();
-    let id_clte = tr.children[0].value;
-    const customer = sortCustomers.find(customer => customer.id_clte == id_clte);
-    if (customer) {
-        for (const valor in customer) {
-            if (valor !== 'nombre_emp' && valor !== 'fk_id_emp_clte') {
-                document.getElementsByName(valor + 'M')[0].value = customer[valor];
-            }
-        }
-    }
-    customersMMW.classList.add('modal__show');
-}
 //------Update a Customer
 const formClienteM = document.getElementById('formClienteM');
 formClienteM.addEventListener('submit', updateCustomer);
@@ -1718,6 +1712,7 @@ async function updateCustomer() {
     event.preventDefault();
     if (requestProf == false) {
         requestProf = true;
+        indexCustomer = selectCustomerR.value;
         customersMMW.classList.remove('modal__show');
         let formData = new FormData(formClienteM);
         formData.append('updateCustomer', '');
@@ -1728,7 +1723,9 @@ async function updateCustomer() {
         }).then(response => response.text()).then(data => {
             readCustomers().then(() => {
                 requestProf = false;
-                indexCustomer = selectCustomerR.value;
+                formClienteM.reset();
+                fillSelectClte(selectCustomerR, indexCustomer);
+                selectCustomerR.value = indexCustomer;
                 preloader.classList.remove('modal__show');
                 mostrarAlerta(data);
             })
@@ -1804,7 +1801,6 @@ selectEnterpriseR.addEventListener('change', function () {
 });
 let enterprises = [];
 let filterEnterprises = [];
-let sortEnterprises = [];
 let indexEnterprise = 0;
 async function readEnterprises() {
     return new Promise((resolve, reject) => {
@@ -1816,9 +1812,9 @@ async function readEnterprises() {
         }).then(response => response.json()).then(data => {
             enterprises = Object.values(data);
             filterEnterprises = enterprises;
-            sortEnterprises = [...enterprises].sort((a, b) => a.nombre_emp.localeCompare(b.nombre_emp));
             paginacionEnterpriseMW(enterprises.length, 1);
             fillSelectEmp(selectEnterpriseR, indexEnterprise);
+            fillSelectEmp(selectEnterpriseM, indexEnterprise);
             resolve();
         }).catch(err => console.log(err));
     })
@@ -1834,7 +1830,7 @@ inputSearchEmpMW.addEventListener("keyup", searchEnterprisesMW);
 const selectNumberEmpMW = document.getElementById('selectNumberEmpMW');
 selectNumberEmpMW.selectedIndex = 3;
 selectNumberEmpMW.addEventListener('change', function () {
-    paginacionEnterpriseMW(Object.values(filterEnterprises).length, 1);
+    paginacionEnterpriseMW(filterEnterprises.length, 1);
 });
 //------buscar por:
 function searchEnterprisesMW() {
@@ -1958,47 +1954,31 @@ function sendEnterprise(tr) {
 }
 function fillSelectEmp(select, index) {
     select.innerHTML = '';
-    for (let enterprise in sortEnterprises) {
+    for (let enterprise in filterEnterprises) {
         let option = document.createElement('option');
-        option.value = sortEnterprises[enterprise]['id_emp'];
-        option.innerText = sortEnterprises[enterprise]['nombre_emp'];
+        option.value = filterEnterprises[enterprise]['id_emp'];
+        option.innerText = filterEnterprises[enterprise]['nombre_emp'];
         select.appendChild(option);
-    }
-    if (index > 0) {
-        select.value = index
-    } else if (index == -1) {
-        const maxIdEmp = Math.max(...sortEnterprises.map(enterprise => enterprise.id_emp));
-        select.value = maxIdEmp;
     }
     fillSelectClte(selectCustomerR, indexCustomer);
 }
 function fillSelectClte(select, index) {
-    let id_emp = selectEnterpriseR.value;
+    const id_emp = selectEnterpriseR.value;
     select.innerHTML = '';
-    chooseCustomer = [];
-    for (let customer in sortCustomers) {
-        if (sortCustomers[customer]['fk_id_emp_clte'] == id_emp) {
-            let option = document.createElement('option');
-            option.value = sortCustomers[customer]['id_clte'];
-            option.innerText = sortCustomers[customer]['apellido_clte'] + ' ' + sortCustomers[customer]['nombre_clte'];
-            select.appendChild(option);
-            if (sortCustomers[customer]['nombre_clte'] != '' && sortCustomers[customer]['nombre_clte'] != '') {
-                chooseCustomer.push(sortCustomers[customer]);
-            }
-        }
-    }
-    filterChooseClte = chooseCustomer;
-    paginacionCustomerMW(chooseCustomer.length, 1);
-    if (index > 0) {
-        select.value = index
-    } else if (index == -1) {
-        const maxIdClte = Math.max(...sortCustomers.map(customer => customer.id_clte));
-        select.value = maxIdClte;
-    }
-    for (let enterprise in enterprises) {
-        if (enterprises[enterprise]['id_emp'] == id_emp) {
-            document.getElementsByName('descuento_profR')[0].value = enterprises[enterprise]['precio_emp'];
-        }
+    filterCustomers = customers.filter(customer => customer.fk_id_emp_clte === id_emp);
+
+    const options = filterCustomers.map(customer => {
+        const option = document.createElement('option');
+        option.value = customer.id_clte;
+        option.innerText = `${customer.apellido_clte} ${customer.nombre_clte}`;
+        select.appendChild(option);
+    });
+
+    paginacionCustomerMW(filterCustomers.length, 1);
+
+    const enterprise = enterprises.find(enterprise => enterprise.id_emp === id_emp);
+    if (enterprise) {
+        document.getElementsByName('descuento_profR')[0].value = enterprise.precio_emp;
     }
 }
 //----------------------------------ventana modal EnterpriseSMW-------------------------------------------
@@ -2012,6 +1992,19 @@ closeEnterpriseSMW.addEventListener('click', () => {
     enterpriseSMW.classList.remove('modal__show');
 });
 //<<---------------------------CRUD EMPRESA------------------------------->>
+//------Leer una empresa
+function readEnterprise(div) {
+    let id_emp = div.children[0].value;
+    for (let enterprise in enterprises) {
+        if (enterprises[enterprise]['id_emp'] == id_emp) {
+            for (let valor in enterprises[enterprise]) {
+                document.getElementsByName(valor + 'M')[0].value = enterprises[enterprise][valor];
+            }
+            break;
+        }
+    }
+    enterprisesMMW.classList.add('modal__show');
+}
 //------Craer una empresa
 const formEmpresaR = document.getElementById('formEmpresaR');
 formEmpresaR.addEventListener('submit', createEnterprise);
@@ -2029,7 +2022,6 @@ async function createEnterprise() {
         }).then(response => response.text()).then(data => {
             Promise.all([readCustomers(), readEnterprises()]).then(() => {
                 requestProf = false;
-                indexEnterprise = -1;
                 formEmpresaR.reset();
                 mostrarAlerta(data);
                 preloader.classList.remove('modal__show');
@@ -2040,19 +2032,6 @@ async function createEnterprise() {
         });
     }
 }
-//------Leer una empresa
-function readEnterprise(div) {
-    let id_emp = div.children[0].value;
-    for (let enterprise in enterprises) {
-        if (enterprises[enterprise]['id_emp'] == id_emp) {
-            for (let valor in enterprises[enterprise]) {
-                document.getElementsByName(valor + 'M')[0].value = enterprises[enterprise][valor];
-            }
-            break;
-        }
-    }
-    enterprisesMMW.classList.add('modal__show');
-}
 //------Actualizar una empresa
 let formEmpresaM = document.getElementById('formEmpresaM');
 formEmpresaM.addEventListener('submit', updateEnterprise);
@@ -2060,6 +2039,7 @@ async function updateEnterprise() {
     event.preventDefault();
     if (requestProf == false) {
         requestProf = true;
+        indexEnterprise = selectEnterpriseR.value;
         enterprisesMMW.classList.remove('modal__show');
         let formData = new FormData(formEmpresaM);
         formData.append('updateEnterprise', '');
@@ -2070,8 +2050,8 @@ async function updateEnterprise() {
         }).then(response => response.text()).then(data => {
             readEnterprises().then(() => {
                 requestProf = false;
-                indexEnterprise = document.getElementsByName('fk_id_emp_clteR')[0].value;
                 mostrarAlerta(data);
+                selectEnterpriseR.value= indexEnterprise;
                 preloader.classList.remove('modal__show');
             })
         }).catch(err => {

@@ -66,18 +66,12 @@ class consultas{
 			}
 			//-------Comprobar  que lo productos existan en el inventario
 			if (count($arrayObjetos) == $i) {
+				//-----Cambiar el estado estado_pfpd
+				$consulta = "UPDATE prof_prod set estado_pfpd='vendido' WHERE fk_id_prof_pfpd = '$this->id_prof'";
+				$resultado = $conexion->query($consulta);
 				//-----Cambiar el estado de la proforma
 				$consulta = "UPDATE proforma set estado_prof='vendido', fecha_ne_prof = '$this->fecha_ne_prof', orden_compra_prof = '$this->orden_compra_prof', fecha_factura_prof = '$this->fecha_factura_prof', factura_prof = '$this->factura_prof', detalle_prof = '$this->detalle_prof' WHERE id_prof = '$this->id_prof'";
 				$resultado = $conexion->query($consulta);
-
-				//-----Registrar la nota de entrega
-				/*$consulta = "INSERT INTO nota_entrega (fk_id_prof_ne, fk_id_usua_ne, fecha_ne, orden_ne, observacion_ne, estado_ne) VALUES ('$this->id_prof', '$this->id_usua', '$this->fecha_ne', '$this->orden' , '$this->observacion', 'pendiente')";
-				$resultado = $conexion->query($consulta);*/
-				//-----Obtener el ultimo id_ne de la tabla nota_entrega
-				/*$consulta = "SELECT * FROM nota_entrega ORDER BY id_ne DESC LIMIT 1";
-				$resultado = $conexion->query($consulta);
-				$notaEntrega = $resultado->fetch_assoc();
-				$this->id_ne = $notaEntrega['id_ne'];*/
 
 				//-----Descontar del inventario
 				foreach ($arrayObjetos as $valor) {
@@ -90,20 +84,6 @@ class consultas{
 					$cantidad_inv = $cantidad_inv - $cantidad_neiv;
 					$consulta3 = "UPDATE inventario set cantidad_inv='$cantidad_inv' WHERE id_inv='$id_inv'";
 					$resultado3 = $conexion->query($consulta3);
-
-
-					//-----Cambiar el estado estado_cppd
-					$consulta = "UPDATE proforma set estado_prof='vendido' WHERE id_prof = '$this->id_prof'";
-					$resultado = $conexion->query($consulta);
-
-					//-----Registrar el producto vendido en la tabla nte_inv
-					/*$id_inv = $valor['id_inv'];
-					$codigo_neiv =	$valor['codigo_neiv'];
-					$cantidad_neiv =	$valor['cantidad_neiv'];
-					$cost_uni_neiv = $valor['cost_uni_neiv'];
-
-					$consulta = "INSERT INTO nte_inv (fk_id_ne_neiv, fk_id_inv_neiv, cantidad_neiv, codigo_neiv, cost_uni_neiv) VALUES ('$this->id_ne', '$id_inv', '$cantidad_neiv', '$codigo_neiv', '$cost_uni_neiv')";
-					$resultado = $conexion->query($consulta);*/
 				}
 				echo "La nota de entrega se registro correctamente";
 			}else{

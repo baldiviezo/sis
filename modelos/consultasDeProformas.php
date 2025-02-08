@@ -53,7 +53,7 @@ class consultas{
 		echo json_encode($proformas, JSON_UNESCAPED_UNICODE);
 	}
 	//-------Create a proforma
-	public function createProforma(){
+	public function createProforma($productos){
 		include 'conexion.php';
 		$consulta = "SELECT numero_prof FROM proforma ORDER BY id_prof DESC LIMIT 1";
     	$resultado = $conexion->query($consulta);
@@ -64,7 +64,15 @@ class consultas{
 		$consulta = "SELECT MAX(id_prof) as id_prof_max FROM proforma ";
     	$resultado = $conexion->query($consulta);
     	$id_prof = $resultado->fetch_assoc();
-    	$this->nProforma = $id_prof['id_prof_max'];
+		$numero_prof = $id_prof['id_prof_max'];
+		$productos = json_decode($productos,true);
+		foreach($productos as $celda){
+    		$id_prod = $celda['id_prod'];
+    		$cantidad = $celda['cantidad'];
+    		$costoUnitario = $celda['costoUnitario'];
+    		$consulta2 = "INSERT INTO  prof_prod (fk_id_prof_pfpd, fk_id_prod_pfpd, cantidad_pfpd, cost_uni_pfpd, estado_pfpd) VALUES ('$numero_prof','$id_prod','$cantidad','$costoUnitario', 'pendiente')";	
+			$resultado2 = $conexion->query($consulta2);
+		}
 		echo "Proforma creada exitosamente";
 	}
 	//-------Update a proforma
@@ -179,14 +187,7 @@ class consultas{
 	//-------Create Prof_prod
 	public function createProf_prod($productos){
 		include 'conexion.php';
-		$productos = json_decode($productos,true);
-		foreach($productos as $celda){
-    		$id_prod = $celda['id_prod'];
-    		$cantidad = $celda['cantidad'];
-    		$costoUnitario = $celda['costoUnitario'];
-    		$consulta2 = "INSERT INTO  prof_prod (fk_id_prof_pfpd, fk_id_prod_pfpd, cantidad_pfpd, cost_uni_pfpd, estado_pfpd) VALUES ('$this->nProforma','$id_prod','$cantidad','$costoUnitario', 'pendiente')";	
-			$resultado2 = $conexion->query($consulta2);
-		}
+		
 	}
 	//-----------------------------------------------CRUD MDF_PROFORMA------------------------------
 	public function read_mdf_Proforma(){

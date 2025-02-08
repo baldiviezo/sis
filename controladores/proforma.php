@@ -11,8 +11,7 @@ if (isset($_POST['createProforma'])&&isset($_POST['id_usua'])) {
 	session_start();
 	$createProforma = new Consultas;
 	$createProforma->asignarValores($_POST['id_usua']);
-	$createProforma->createProforma();
-	$createProforma->createProf_prod($_POST['createProforma']);
+	$createProforma->createProforma($_POST['createProforma']);
 }
 //-------Update a proforma
 if (isset($_POST['updateProforma'])&&isset($_POST['id_usua'])) {

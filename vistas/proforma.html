@@ -143,6 +143,7 @@
 					<img src="../imagenes/salir.svg" id="closeTableProfMW" class="button__close">
 				</div>
 				<section class="table__header">
+					<h1 id="totalProfMW">Total:</h1>
 					<img src="../imagenes/inventario.svg"  id="openTablePPMW" class="icon__CRUD" title="Productos de la proforma">
 					<section class="select__search">
 						<select id="selectYearProf" class="select__number">
@@ -482,30 +483,30 @@
 				<form id="formProformaR">
 					<div class="form__container">
 						<div class="form__group">
-							<input type="text" name="fecha_profR" placeholder=" " class="form__input" readonly>
+							<input type="date" name="fecha_profR" placeholder=" " class="form__input">
 							<label for="fecha_profR" class="form__label">Fecha:</label>
 						</div>
 						<label class="form__label--only">Empresa:</label>
 						<div class="form__group--select">
-							<select name="fk_id_emp_clteR"></select>
+							<select name="fk_id_emp_clteR" id="fk_id_emp_clteR"></select>
 							<img src="../imagenes/search.svg" onclick="openEnterpriseSMW()" class="icon__CRUD"
 								title="Buscar empresa">
 							<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()" class="icon__CRUD"
 								title="Registrar empresa">
-							<img src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)" class="icon__CRUD"
-								title="Editar empresa">
+							<!--<img src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)" class="icon__CRUD"
+								title="Editar empresa">-->
 							<img src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)"
 								class="icon__CRUD" title="Eliminar empresa" hidden>
 						</div>
 						<label class="form__label--only">Cliente:</label>
 						<div class="form__group--select">
-							<select name="fk_id_clte_profR"></select>
+							<select name="fk_id_clte_profR" id="selectCustomerR"></select>
 							<img src="../imagenes/search.svg" onclick="openCustomersSMW('R')" class="icon__CRUD"
 								title="Buscar cliente">
 							<img src="../imagenes/registrar.svg" onclick="openCustomersRMW()" class="icon__CRUD"
 								title="Registrar cliente">
-							<img src="../imagenes/edit.svg" onclick="readCustomer(this.parentNode)" class="icon__CRUD"
-								title="Editar cliente">
+							<!--<img src="../imagenes/edit.svg" onclick="readCustomer(this.parentNode)" class="icon__CRUD"
+								title="Editar cliente">-->
 							<img src="../imagenes/trash.svg" onclick="deleteCustomer(this.parentNode)"
 								class="icon__CRUD" title="Eliminar cliente" hidden>
 						</div>
@@ -554,16 +555,18 @@
 						<label class="form__label--only">Empresa:</label>
 						<div class="form__group--select">
 							<select name="fk_id_emp_clteM"></select>
-							<!--<img src="../imagenes/search.svg" onclick="openEnterpriseSMW('M')">
+							<img src="../imagenes/search.svg" onclick="openEnterpriseSMW('M')">
 							<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()">
-							<img src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)">
+							<!--<img src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)">
 							<img src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)">-->
 						</div>
 						<label class="form__label--only">Cliente:</label>
 						<div class="form__group--select">
-							<select name="fk_id_clte_profM"></select>
-							<!--<img src="../imagenes/registrar.svg" onclick="openCustomersRMW()">
-							<img src="../imagenes/edit.svg" onclick="readCustomers('M')">
+							<select name="fk_id_clte_profM" id="selectCustomerM"></select>
+							<img src="../imagenes/search.svg" onclick="openCustomersSMW('R')" class="icon__CRUD"
+								title="Buscar cliente">
+							<img src="../imagenes/registrar.svg" onclick="openCustomersRMW()" class="icon__CRUD" title="Registrar cliente">
+							<!--<img src="../imagenes/edit.svg" onclick="readCustomers('M')">
 							<img src="../imagenes/trash.svg" onclick="deleteCustomers('M')">-->
 						</div>
 						<div class="form__group">
@@ -682,11 +685,11 @@
 			<form id="formClienteR" class="form">
 				<div class="form__container">
 					<div class="form__group">
-						<input type="text" name="nombre_clteR" placeholder=" " class="form__input">
+						<input type="text" name="nombre_clteR" placeholder=" " class="form__input" required>
 						<label for="nombre_clteR" class="form__label">Nombres:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="apellido_clteR" placeholder=" " class="form__input">
+						<input type="text" name="apellido_clteR" placeholder=" " class="form__input" required>
 						<label for="apellido_clteR" class="form__label">Apellidos:</label>
 					</div>
 					<label class="form__label--only">Empresa:</label>
@@ -727,11 +730,11 @@
 					<!--Para guadar el id del cliente a modificar-->
 					<input type="text" name="id_clteM" placeholder=" " class="form__input" hidden>
 					<div class="form__group">
-						<input type="text" name="nombre_clteM" placeholder=" " class="form__input">
+						<input type="text" name="nombre_clteM" placeholder=" " class="form__input" required>
 						<label for="nombre_clteM" class="form__label">Nombres:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="apellido_clteM" placeholder=" " class="form__input">
+						<input type="text" name="apellido_clteM" placeholder=" " class="form__input" required>
 						<label for="apellido_clteM" class="form__label">Apellidos:</label>
 					</div>
 					<label class="form__label--only">Empresa:</label>
@@ -776,7 +779,7 @@
 						<label for="nombre_empR" class="form__label">Nombre de la empresa:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="sigla_empR" placeholder=" " class="form__input">
+						<input type="text" name="sigla_empR" placeholder=" " class="form__input" required>
 						<label for="sigla_empR" class="form__label">Sigla de la empresa:</label>
 					</div>
 					<div class="form__group">
@@ -785,7 +788,7 @@
 					</div>
 					<div class="form__group">
 						<input type="text" name="precio_empR" placeholder=" " class="form__input">
-						<label for="precio_empR" class="form__label">Precio:</label>
+						<label for="precio_empR" class="form__label">Descuento:</label>
 					</div>
 					<div class="form__group">
 						<input type="text" name="direccion_empR" placeholder=" " class="form__input">
@@ -829,7 +832,7 @@
 					</div>
 					<div class="form__group">
 						<input type="text" name="precio_empM" placeholder=" " class="form__input">
-						<label for="precio_empM" class="form__label">Precio:</label>
+						<label for="precio_empM" class="form__label">Descuento:</label>
 					</div>
 					<div class="form__group">
 						<input type="text" name="direccion_empM" placeholder=" " class="form__input">
@@ -860,7 +863,7 @@
 						<div>
 							<select id="selectSearchEmpMW" class="select">
 								<option value="todas">Buscar por</option>
-								<option value="nombre_emp">Nombre</option>
+								<option value="nombre_emp">Empresa</option>
 							</select>
 						</div>
 						<div class="table__search">

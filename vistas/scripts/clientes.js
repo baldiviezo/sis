@@ -45,7 +45,7 @@ async function readCustomers() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            customers = Object.values(data).filter(customer => customer.nombre_clte !== '' && customer.apellido_clte !== '');
+            customers = Object.values(data).filter(customer => customer.nombre_clte !== '' || customer.apellido_clte !== '');
             filterCustomers = customers;
             paginacionCustomer(customers.length, 1);
             resolve();
@@ -73,13 +73,12 @@ function searchCustomers() {
     filterCustomers = customers.filter(customer => {
         if (valor === 'todas') {
             return (
+                (customer.apellido_clte + ' ' + customer.nombre_clte).toLowerCase().includes(busqueda) ||
                 customer.nit_clte.toLowerCase().includes(busqueda) ||
-                customer.nombre_emp.toLowerCase().includes(busqueda) ||
-                customer.nombre_clte.toLowerCase().includes(busqueda) ||
                 customer.email_clte.toLowerCase().includes(busqueda) ||
-                customer.direccion_clte.toLowerCase().includes(busqueda) ||
-                customer.celular_clte.toLowerCase().includes(busqueda) ||
-                (customer.apellido_clte + ' ' + customer.nombre_clte).toLowerCase().includes(busqueda)
+                customer.nombre_emp.toLowerCase().includes(busqueda) ||
+                customer.sigla_emp.toLowerCase().includes(busqueda) ||
+                customer.nit_emp.toLowerCase().includes(busqueda) 
             );
         } else if (valor === 'cliente') {
             return (customer.apellido_clte + ' ' + customer.nombre_clte).toLowerCase().includes(busqueda);
