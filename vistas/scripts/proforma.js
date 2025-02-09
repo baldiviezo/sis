@@ -18,7 +18,18 @@ async function init() {
     if (requestProf == false) {
         requestProf = true;
         preloader.classList.add('modal__show');
-        Promise.all([readProducts(), readProformas(), readMdfProforma(), readProf_prods(), readmProf_prods(), readCustomers(), readEnterprises(), readInventories(), readAllMarcas(), readAllCategorias(), readPrices()]).then(() => {
+        Promise.all([
+            readProducts(),
+            readProformas(),
+            readMdfProforma(),
+            readProf_prods(),
+            readmProf_prods(),
+            readCustomers().then(() => readEnterprises()),
+            readInventories(),
+            readAllMarcas(),
+            readAllCategorias(),
+            readPrices()
+        ]).then(() => {
             preloader.classList.remove('modal__show');
             requestProf = false;
         })
@@ -657,11 +668,8 @@ function readProforma(tr) {
                 } else if (valor == 'id_emp') {
                     selectEnterpriseM.value = filterProformas[proforma][valor];
                 } else if (valor == 'fk_id_clte_prof') {
-                    selectCustomerM.innerHTML = '';
-                    let option = document.createElement('option');
-                    option.value = filterProformas[proforma][valor];
-                    option.innerText = filterProformas[proforma]['nombre_clte'] + ' ' + filterProformas[proforma]['apellido_clte'];
-                    selectCustomerM.appendChild(option);
+                    fillSelectClte(selectCustomerM, 0);
+                    selectCustomerM.value = filterProformas[proforma][valor];
                 } else if (valor == 'silga_emp' || valor == 'nombre_emp' || valor == 'nombre_clte' || valor == 'fk_id_usua_prof' || valor == 'apellido_clte' || valor == 'nombre_usua' || valor == 'apellido_usua' || valor == 'email_usua' || valor == 'celular_usua' || valor == 'estado_prof' || valor == 'telefono_emp' || valor == 'direccion_emp' || valor == 'fecha_ne_prof' || valor == 'orden_compra_prof' || valor == 'fecha_factura_prof' || valor == 'factura_prof' || valor == 'detalle_prof') {
                 } else if (valor == 'tipo_cambio_prof') {
                     if (filterProformas[proforma]['moneda_prof'] == '$') {
@@ -699,7 +707,6 @@ async function updateProforma() {
                 valor['costoUnitario'] = product.children[5].value;
                 array.push(valor);
             });
-            console.log(array)
             let productos = JSON.stringify(array); //string json
             let form = document.getElementById('formProformaM');
             let formData = new FormData(form);
@@ -1520,7 +1527,6 @@ async function readCustomers() {
         }).then(response => response.json()).then(data => {
             customers = Object.values(data);
             filterCustomers = customers;
-            //fillSelectClte(selectCustomerR, indexCustomer);
             resolve();
         }).catch(err => console.log(err));
     })
@@ -1695,7 +1701,11 @@ async function createCustomer() {
             readCustomers().then(() => {
                 requestProf = false;
                 formClienteR.reset();
-                fillSelectClte(selectCustomerR, indexCustomer);
+                if (formProformas == 'R') {
+                    fillSelectClte(selectCustomerR, indexCustomer);
+                } else if (formProformas == 'M') {
+                    fillSelectClte(selectCustomerM, indexCustomer);
+                }
                 preloader.classList.remove('modal__show');
                 mostrarAlerta(data);
             });
@@ -1763,18 +1773,16 @@ async function deleteCustomer(tr) {
 }
 //------Empresa de cliente
 function selectCreateCustomer() {
-    let selectEmp2 = document.getElementById('fk_id_emp_clte' + formCustomer + '2');
+    const selectEmp2 = document.getElementById('fk_id_emp_clte' + formCustomer + '2');
     selectEmp2.innerHTML = '';
-    let option2 = document.createElement('option');
-    option2.value = selectEnterpriseR.value;
-    let options = selectEnterpriseR.querySelectorAll('option');
-    let valor;
-    options.forEach(option => {
-        if (selectEnterpriseR.value == option.value) {
-            valor = option.innerText;
-        }
-    })
+    const option2 = document.createElement('option');
+
+    const selectEnterprise = formProformas === 'R' ? selectEnterpriseR : selectEnterpriseM;
+    const valor = selectEnterprise.options[selectEnterprise.selectedIndex].text;
+
+    option2.value = selectEnterprise.value;
     option2.innerText = valor;
+
     selectEmp2.appendChild(option2);
 }
 //<<-------------------------------------------MODAL CLIENTE---------------------------------------->>
@@ -1949,8 +1957,13 @@ function tableEnterprisesMW(page) {
 function sendEnterprise(tr) {
     enterpriseSMW.classList.remove('modal__show');
     let id_emp = tr.children[0].innerText;
-    selectEnterpriseR.value = id_emp;
-    fillSelectClte(selectCustomerR, indexCustomer);
+    if (formProformas == 'R') {
+        selectEnterpriseR.value = id_emp;
+        fillSelectClte(selectCustomerR, indexCustomer);
+    } else if (formProformas == 'M') {
+        selectEnterpriseM.value = id_emp;
+        fillSelectClte(selectCustomerM, indexCustomer);
+    }
 }
 function fillSelectEmp(select, index) {
     select.innerHTML = '';
@@ -1961,9 +1974,10 @@ function fillSelectEmp(select, index) {
         select.appendChild(option);
     }
     fillSelectClte(selectCustomerR, indexCustomer);
+    fillSelectClte(selectCustomerM, indexCustomer);
 }
 function fillSelectClte(select, index) {
-    const id_emp = selectEnterpriseR.value;
+    const id_emp = formProformas == 'R' ? selectEnterpriseR.value : selectEnterpriseM.value;
     select.innerHTML = '';
     filterCustomers = customers.filter(customer => customer.fk_id_emp_clte === id_emp);
 
@@ -1978,7 +1992,11 @@ function fillSelectClte(select, index) {
 
     const enterprise = enterprises.find(enterprise => enterprise.id_emp === id_emp);
     if (enterprise) {
-        document.getElementsByName('descuento_profR')[0].value = enterprise.precio_emp;
+        if (formProformas == 'R') {
+            document.getElementsByName('descuento_profR')[0].value = enterprise.precio_emp;
+        } else if (formProformas == 'M') {
+            document.getElementsByName('descuento_profM')[0].value = enterprise.precio_emp;
+        }
     }
 }
 //----------------------------------ventana modal EnterpriseSMW-------------------------------------------
@@ -2020,7 +2038,9 @@ async function createEnterprise() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            Promise.all([readCustomers(), readEnterprises()]).then(() => {
+            readCustomers().then(() => {
+                return readEnterprises();
+            }).then(() => {
                 requestProf = false;
                 formEmpresaR.reset();
                 mostrarAlerta(data);
@@ -2051,7 +2071,7 @@ async function updateEnterprise() {
             readEnterprises().then(() => {
                 requestProf = false;
                 mostrarAlerta(data);
-                selectEnterpriseR.value= indexEnterprise;
+                selectEnterpriseR.value = indexEnterprise;
                 preloader.classList.remove('modal__show');
             })
         }).catch(err => {
