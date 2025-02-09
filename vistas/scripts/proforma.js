@@ -259,18 +259,13 @@ function cartProduct(id_prod) {
     let cost_uni = undefined;
     const product = filterProducts.find(product => product['id_prod'] == id_prod);
     if (product) {
-        const inventory = inventories.find(inventory => inventory['fk_id_prod_inv'] == id_prod);
-        /*
-        cost_uni2 = prices.find(price => price['modelo'] == product['codigo_prod']);
-        console.log(cost_uni2)
-*/
-        if (inventory) {
-            cantidad_inv = inventory['cantidad_inv'];
-            cost_uni = inventory['cost_uni_inv'];
-        } else {
-            cantidad_inv = 0;
-            cost_uni = 0;
-        }
+
+        const cost_uni2 = prices.find(price => price.modelo === product.codigo_prod);
+        const inventory = inventories.find(inventory => inventory.fk_id_prod_inv === id_prod);
+
+        const cantidad_inv = inventory ? inventory.cantidad_inv : 0;
+        const cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio) * 1.1) : (inventory ? Math.round(inventory.cost_uni_inv * 1.1) : 0);
+
         const card = document.createElement('div');
         card.classList.add('cart-item');
         const html = `
@@ -281,8 +276,8 @@ function cartProduct(id_prod) {
         </div>
         <p class="cart-item__codigo">${product['codigo_prod']}</p>
         <input type="number" value="1" min="1" onChange="changeQuantity(this.parentNode)" class="cart-item__cantidad">
-        <input type="number" value="${Math.round(cost_uni * 1.1)}" onChange="changeQuantity(this.parentNode)" class="cart-item__costUnit">
-        <input type="number" value="${Math.round(cost_uni * 1.1)}" class="cart-item__costTotal" readonly>
+        <input type="number" value="${cost_uni}" onChange="changeQuantity(this.parentNode)" class="cart-item__costUnit">
+        <input type="number" value="${cost_uni}" class="cart-item__costTotal" readonly>
         <img src="../imagenes/trash.svg" onClick="removeCardFromCart(this.parentNode)" class='icon__CRUD'>
         <h3 hidden>${product['nombre_prod']}</h3>
         <h3 hidden>${product['descripcion_prod']}</h3>`;
