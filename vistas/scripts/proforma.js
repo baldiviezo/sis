@@ -425,7 +425,7 @@ selectYearProf.addEventListener('change', searchProforma);
 function selectStateProformas() {
     filterProformas = filterProformas.filter(proforma => {
         const estado = selectStateProf.value === 'todasLasProformas' ? true : proforma.estado_prof === selectStateProf.value;
-        const fecha = selectYearProf.value === 'todas' ? true : proforma.fecha_factura_prof.split('-')[0] === selectYearProf.value;
+        const fecha = selectYearProf.value === 'todas' ? true : proforma.fecha_prof.split('-')[0] === selectYearProf.value;
         return estado && fecha;
     });
     paginacionProforma(filterProformas.length, 1);
@@ -1054,7 +1054,7 @@ selectStatePfPd.addEventListener('change', searchPfPd);
 function selectStateProductOC() {
     filterProf_prods = filterProf_prods.filter(buy => {
         const estado = selectStatePfPd.value === 'todasLasProf' ? true : buy.estado_pfpd === selectStatePfPd.value;
-        const fecha = selectYearPfPd.value === 'todas' ? true : buy.fecha_factura_prof.split('-')[0] === selectYearPfPd.value;
+        const fecha = selectYearPfPd.value === 'todas' ? true : buy.fecha_prof.split('-')[0] === selectYearPfPd.value;
         return estado && fecha;
     });
     paginacionPfPd(filterProf_prods.length, 1);
@@ -1510,6 +1510,7 @@ let selectCustomerR = document.getElementById('selectCustomerR');
 let selectCustomerM = document.getElementById('selectCustomerM');
 let customers = [];
 let filterCustomers = [];
+let chooseCustomers = [];
 let indexCustomer = 0;
 let formCustomer;
 async function readCustomers() {
@@ -1543,7 +1544,7 @@ selectNumberClteSMW.addEventListener('change', function () {
 function searchCustomersSMW() {
     const busqueda = inputSearchClteSMW.value.toLowerCase();
     const valor = selectSearchClteSMW.value.toLowerCase().trim();
-    filterCustomers = filterCustomers.filter(customer => {
+    filterCustomers = chooseCustomers.filter(customer => {
         if (valor === 'todas') {
             return (
                 customer.nit_clte.toLowerCase().includes(busqueda) ||
@@ -1975,6 +1976,7 @@ function fillSelectClte(select, index) {
     const id_emp = formProformas == 'R' ? selectEnterpriseR.value : selectEnterpriseM.value;
     select.innerHTML = '';
     filterCustomers = customers.filter(customer => customer.fk_id_emp_clte === id_emp);
+    chooseCustomers = filterCustomers;
 
     const options = filterCustomers.map(customer => {
         const option = document.createElement('option');

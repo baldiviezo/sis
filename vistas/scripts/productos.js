@@ -227,17 +227,20 @@ async function createProduct() {
                 body: formData
             }).then(response => response.text()).then(data => {
                 requestProducts = false;
-                preloader.classList.remove('modal__show');
+                
                 if (data == "El codigo ya existe") {
                     mostrarAlerta(data);
+                    preloader.classList.remove('modal__show');
                 } else if (data == "El codigo SMC ya existe"){
                     mostrarAlerta(data);
+                    preloader.classList.remove('modal__show');
                 } else {
                     readProducts().then(() => {
                         mostrarAlerta("El producto fue creado con éxito");
                         productsRMW.classList.remove('modal__show');
-                        divCodigoSMCR.setAttribute('hidden', '');
+                        divCodigoSMCR.setAttribute('hidden', '');                        
                         form.reset();
+                        preloader.classList.remove('modal__show');
                     })
                 }
             }).catch(err => {
@@ -296,16 +299,18 @@ async function updateProduct() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                preloader.classList.remove('modal__show');
                 requestProducts = false;
                 if (data == "El codigo ya existe") {
                     mostrarAlerta(data);
+                    preloader.classList.remove('modal__show');
                 } else if (data == 'El codigo SMC ya existe'){
                     mostrarAlerta(data);
+                    preloader.classList.remove('modal__show');
                 } else {
                     readProducts().then(() => {
                         productsMMW.classList.remove('modal__show');
                         mostrarAlerta(data);
+                        preloader.classList.remove('modal__show');
                     })
                 }
             }).catch(err => {
