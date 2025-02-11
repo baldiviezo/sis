@@ -4,12 +4,16 @@ class Consultas{
     public function asignarValores(){
 		//protegemos al servidor de los valores que el usuario esta introduciendo
 		include 'conexion.php';
-		$this->id_ne = $conexion->real_escape_string($_POST['id_neR']);
-		$this->id_clte = $conexion->real_escape_string($_POST['id_clteR']);
-		$this->fecha_vnt = $conexion->real_escape_string($_POST['fecha_vntR']);//para volverlo en integer
-        $this->factura_vnt = $conexion->real_escape_string($_POST['factura_vntR']);
-        $this->fk_id_prof_vnt = $conexion->real_escape_string($_POST['id_profR']);
-		$this->descripcion_vnt = $conexion->real_escape_string($_POST['descripcion_vntR']);
+		$this->id_ne = $conexion->real_escape_string($_POST['id_ne']);
+		$this->id_usua = $conexion->real_escape_string($_POST['id_usua']);
+		$this->fecha_vnt = $conexion->real_escape_string($_POST['fecha_vnt']);
+		$this->ciudad_vnt = $conexion->real_escape_string($_POST['ciudad_vnt']);
+		$this->tipo_pago_vnt = $conexion->real_escape_string($_POST['tipo_pago_vnt']);
+		$this->tiempo_credito_vnt = $conexion->real_escape_string($_POST['tiempo_credito_vnt']);
+		$this->estado_factura_vnt = $conexion->real_escape_string($_POST['estado_factura_vnt']);
+		$this->fecha_factura_vnt = $conexion->real_escape_string($_POST['fecha_factura_vnt']);
+        $this->factura_vnt = $conexion->real_escape_string($_POST['factura_vnt']);
+		$this->observacion_vnt = $conexion->real_escape_string($_POST['observacion_vnt']);
 	}
 	public function asignarValoresM(){
 		//protegemos al servidor de los valores que el usuario esta introduciendo
@@ -39,35 +43,25 @@ class Consultas{
 	}
 	//-----Create venta
 	public function createSale(){
-		$id_ne = $_POST['createSale'];
-		$products = $_POST['prodCart'];
-		$fecha_vnt = $_POST['fecha_vnt'];
-		$total_vnt = $_POST['total_vnt'];
-		$id_usua = $_POST['id_usua'];
-		$factura_vnt = $_POST['factura_vnt'];
-		$observacion_vnt = $_POST['observacion_vnt'];
 		include 'conexion.php';
+		$products = $_POST['prodCart'];
 		//-----Comprobar que la factura no exista
-		$consulta = "SELECT * FROM venta WHERE factura_vnt = '$factura_vnt'";
+		$consulta = "SELECT * FROM venta WHERE factura_vnt = '$this->factura_vnt'";
 		$resultado = $conexion->query($consulta);
 		$numeroClientes = $resultado->num_rows;
 		if($numeroClientes > 0){
-			if($factura_vnt == 'S/F'){
-				$this->addProduct($id_ne, $products, $fecha_vnt, $total_vnt, $id_usua, $factura_vnt, $observacion_vnt);
-			}else{
-				echo "La factura ya existe";
-				exit();
-			}
+			echo "La factura ya existe";
+			exit();
 		} else {
-			$this->addProduct($id_ne, $products, $fecha_vnt, $total_vnt, $id_usua, $factura_vnt, $observacion_vnt);
+			$this->addProduct($products);
 		}
 	}
-	public function addProduct($id_ne, $products, $fecha_vnt, $total_vnt, $id_usua, $factura_vnt, $observacion_vnt){
+	public function addProduct($products){
 		include 'conexion.php';
-		$consulta = "UPDATE nota_entrega set estado_ne='vendido' WHERE id_ne = '$id_ne'";
+		$consulta = "UPDATE nota_entrega set estado_ne='vendido' WHERE id_ne = '$this->id_ne'";
 		$resultado = $conexion->query($consulta);
 		if($resultado){
-			$consulta = "INSERT INTO venta (fecha_vnt, factura_vnt, total_vnt, fk_id_ne_vnt, fk_id_usua_vnt, observacion_vnt, estado_vnt) VALUES ('$fecha_vnt' , '$factura_vnt', '$total_vnt', '$id_ne', '$id_usua', '$observacion_vnt', 'FACTURADO')"; 
+			$consulta = "INSERT INTO venta (ciudad_vnt, fecha_vnt, estado_factura_vnt, fecha_factura_vnt, factura_vnt, fk_id_ne_vnt, fk_id_usua_vnt, tipo_pago_vnt, tiempo_credito_vnt,  observacion_vnt, estado_vnt) VALUES ('$this->ciudad_vnt', '$this->fecha_vnt', '$this->estado_factura_vnt', '$this->fecha_factura_vnt', '$this->factura_vnt', '$this->id_ne', '$this->id_usua', '$this->tipo_pago_vnt', '$this->tiempo_credito_vnt', '$this->observacion_vnt', 'FACTURADO')"; 
 			$resultado = $conexion->query($consulta);
 			if($resultado){
 				$consulta = "SELECT MAX(id_vnt) as id_vnt_max FROM venta";
@@ -76,7 +70,7 @@ class Consultas{
 				$id_vnt = $id_vnt['id_vnt_max'];
 				$productos = json_decode($products,true);
 				foreach($productos as $celda){
-					$id_prod = $celda['fk_id_prod_inv'];
+					$id_prod = $celda['fk_id_prod_pfpd'];
 					$codigo_vtpd = $celda['codigo_prod'];
 					$cantidad_vtpd = $celda['cantidad_pfpd'];
 					$cost_uni_vtpd = $celda['cost_uni_pfpd'];

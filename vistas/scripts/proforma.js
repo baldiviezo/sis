@@ -375,16 +375,14 @@ function searchProforma() {
                 proforma.fecha_prof.toLowerCase().includes(busqueda) ||
                 proforma.nombre_emp.toLowerCase().includes(busqueda) ||
                 (proforma.nombre_usua + ' ' + proforma.apellido_usua).toLowerCase().includes(busqueda) ||
-                (proforma.apellido_clte + ' ' + proforma.nombre_clte).toLowerCase().includes(busqueda) ||
-                proforma.fecha_factura_prof.toLowerCase().includes(busqueda) ||
-                String(proforma.factura_prof).toLowerCase().includes(busqueda)
+                (proforma.apellido_clte + ' ' + proforma.nombre_clte).toLowerCase().includes(busqueda)
             );
         } else if (valor === 'encargado') {
             return (proforma.nombre_usua + ' ' + proforma.apellido_usua).toLowerCase().includes(busqueda);
         } else if (valor === 'cliente') {
             return (proforma.apellido_clte + ' ' + proforma.nombre_clte).toLowerCase().includes(busqueda);
         } else {
-            return String(proforma[valor]).toLowerCase().includes(busqueda);
+            return proforma[valor].toLowerCase().includes(busqueda);
         }
     });
     selectStateProformas();
@@ -534,21 +532,9 @@ function tableProformas(page) {
         tdCliente.innerText = proforma.apellido_clte + ' ' + proforma.nombre_clte;
         tr.appendChild(tdCliente);
 
-        const tdFechaFactura = document.createElement('td');
-        tdFechaFactura.innerText = proforma.fecha_factura_prof;
-        tr.appendChild(tdFechaFactura);
-
-        const tdFactura = document.createElement('td');
-        tdFactura.innerText = proforma.factura_prof;
-        tr.appendChild(tdFactura);
-
         const tdTotal = document.createElement('td');
         tdTotal.innerText = proforma.total_prof + ' ' + proforma.moneda_prof;
         tr.appendChild(tdTotal);
-
-        const tdDetalle = document.createElement('td');
-        tdDetalle.innerText = proforma.detalle_prof;
-        tr.appendChild(tdDetalle);
 
         const tdAcciones = document.createElement('td');
         const fragment = document.createDocumentFragment();
@@ -1034,13 +1020,10 @@ function searchPfPd() {
             return (
                 cmp_prod.numero_prof.toLowerCase().includes(busqueda) ||
                 cmp_prod.fecha_prof.toLowerCase().includes(busqueda) ||
-                cmp_prod.fecha_ne_prof.toLowerCase().includes(busqueda) ||
-                cmp_prod.fecha_factura_prof.toLowerCase().includes(busqueda) ||
-                cmp_prod.codigo_prod.toLowerCase().includes(busqueda) ||
-                String(cmp_prod.factura_prof).includes(busqueda)
+                cmp_prod.codigo_prod.toLowerCase().includes(busqueda) 
             )
         } else {
-            return String(cmp_prod[valor]).toLowerCase().includes(busqueda);
+            return cmp_prod[valor].toLowerCase().includes(busqueda);
         }
     });
     selectStateProductOC();

@@ -9,7 +9,7 @@ if (isset($_POST['readSales'])) {
 //------Registrar inventario
 if (isset($_POST['createSale'])) {
 	$createSale = new Consultas;
-	//$createSale->asignarValores();
+	$createSale->asignarValores();
 	$createSale->createSale();
 }
 //------------------------------------------------VNT-PROD------------------------------------------------

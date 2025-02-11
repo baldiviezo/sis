@@ -165,6 +165,19 @@
 	transform: translateY(10px);
 	transition: transform .5s, color .3s;
 }
+/*Nota de entrega*/
+.form__Select{
+	border-color: #225c74;
+	border-radius: .4rem;
+	color: #225c74;
+	cursor: pointer;
+}
+.form__label--only{
+	text-align: left;
+	color: #225c74;
+	
+}
+/************************/
 /*inventario */
 .form__label--only{
 	display: flex;

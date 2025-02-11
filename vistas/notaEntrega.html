@@ -1,38 +1,41 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<script src="scripts/sesionIniciada.js"></script>
-	<title>Nota de entrega</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="scripts/sesionIniciada.js"></script>
+    <title>Nota de entrega</title>
     <link rel="icon" href="../imagenes/icono.ico">
-	<link rel="stylesheet" type="text/css" href="../css/general.css">
-	<link rel="stylesheet" type="text/css" href="../css/encabezamiento.css">
-	<link rel="stylesheet" type="text/css" href="../css/paginacion.css">
-	<link rel="stylesheet" type="text/css" href="../css/buttonCRUD.css">
-	<link rel="stylesheet" type="text/css" href="../css/table.css">
-	<link rel="stylesheet" type="text/css" href="../css/productModal.css">
-	<link rel="stylesheet" type="text/css" href="../css/userModal.css">
+    <link rel="stylesheet" type="text/css" href="../css/general.css">
+    <link rel="stylesheet" type="text/css" href="../css/encabezamiento.css">
+    <link rel="stylesheet" type="text/css" href="../css/paginacion.css">
+    <link rel="stylesheet" type="text/css" href="../css/buttonCRUD.css">
+    <link rel="stylesheet" type="text/css" href="../css/table.css">
+    <link rel="stylesheet" type="text/css" href="../css/productModal.css">
+    <link rel="stylesheet" type="text/css" href="../css/userModal.css">
     <link rel="stylesheet" href="../css/notaEntrega.css">
 </head>
+
 <body class="body">
-	<header class="header">
-		<nav class="header__nav header__container">
-		</nav>
-	</header>
+    <header class="header">
+        <nav class="header__nav header__container">
+        </nav>
+    </header>
     <main class="table">
-		<div class="table__title">
+        <div class="table__title">
             <h1>Nota de Entrega</h1>
         </div>
         <section class="table__header">
+            <h1 id="totalNE">Total:</h1>
             <section class="select__search">
-                <div>
-                    <select id="selectStateNe" class="select__number" hidden>
-                        <option value="notasEntrega">Notas de entrega</option>
-                        <option value="pendiente">No facturados</option>
-                        <option value="vendido">Facturados</option>
-                    </select>
-                </div>
+                <select id="selectYearNE" class="select__number">
+                </select>
+                <select id="selectStateNe" class="select__number" hidden>
+                    <option value="notasEntrega">Notas de entrega</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="vendido">Vendido</option>
+                </select>
             </section>
             <div class="combo__search">
                 <div>
@@ -52,11 +55,15 @@
                 </div>
             </div>
         </section>
-        <div class="showPage" id="showPageNE"><h2></h2></div>
+        <div class="showPage" id="showPageNE">
+            <h2></h2>
+        </div>
         <div class="container__page">
             <div class="paginacion">
                 <!--Envoltura-->
-                <div class="wrapper" id="wrapperNE"><ul></ul></div>
+                <div class="wrapper" id="wrapperNE">
+                    <ul></ul>
+                </div>
             </div>
             <div>
                 <select id="selectNumberNe" class="select__number">
@@ -73,13 +80,30 @@
                 <thead>
                     <tr>
                         <th>N°</th>
-                        <th><div class="tbody__head--ne">Proforma <img src="../imagenes/sortA_Z.svg" name="id_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="id_prof" class="icon__CRUD"></div></th>
-                        <th><div class="tbody__head--ne">Fecha PROF<img src="../imagenes/sortA_Z.svg" name="fecha_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_prof" class="icon__CRUD"></div></th>
-                        <th><div class="tbody__head--ne">Fecha NE <img src="../imagenes/sortA_Z.svg" name="fecha_ne" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_ne" class="icon__CRUD"></div></th>
+                        <th>
+                            <div class="tbody__head--ne">Proforma <img src="../imagenes/sortA_Z.svg" name="numero_prof"
+                                    class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="numero_prof"
+                                    class="icon__CRUD"></div>
+                        </th>
+                        <th>
+                            <div class="tbody__head--ne">Fecha PROF<img src="../imagenes/sortA_Z.svg" name="fecha_prof"
+                                    class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_prof"
+                                    class="icon__CRUD"></div>
+                        </th>
+                        <th>
+                            <div class="tbody__head--ne">Fecha NE <img src="../imagenes/sortA_Z.svg" name="fecha_ne"
+                                    class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_ne"
+                                    class="icon__CRUD"></div>
+                        </th>
                         <th>Encargado</th>
-                        <th><div class="tbody__head--ne">Empresa <img src="../imagenes/sortA_Z.svg" name="nombre_emp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_emp" class="icon__CRUD"></div></th>
+                        <th>
+                            <div class="tbody__head--ne">Empresa <img src="../imagenes/sortA_Z.svg" name="nombre_emp"
+                                    class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_emp"
+                                    class="icon__CRUD"></div>
+                        </th>
                         <th>Cliente</th>
                         <th>Según Orden/Invit</th>
+                        <th>Total</th>
                         <th>Observaciones</th>
                         <th>Acciones</th>
                     </tr>
@@ -87,7 +111,7 @@
                 <tbody id="tbodyNE"></tbody>
             </table>
         </section>
-	</main>
+    </main>
     <!--Ventana modal para registrar venta-->
     <section id="saleRMW" class="modal">
         <div class="modal__container">
@@ -102,12 +126,45 @@
                     <input type="text" name="total_vnt" placeholder=" " class="form__input" hidden>
                     <input type="text" name="descuento_prof" placeholder=" " class="form__input" hidden>
                     <div class="form__group">
-                        <input type="text" name="fecha_vnt"  placeholder=" " class="form__input" readonly>
-                        <label for="fecha_vnt" class="form__label">Fecha:</label>
+                        <input type="date" name="fecha_vnt" placeholder=" " class="form__input">
+                        <label for="fecha_vnt" class="form__label">Fecha de venta:</label>
                     </div>
-                    <div class="form__group">
-                        <input type="text" name="factura_vnt"  placeholder=" " class="form__input">
-                        <label for="factura_vnt" class="form__label">Factura:</label>
+                    <label class="form__label--only">Ciuda de venta:</label>
+                    <select name="ciudad_vnt" class="form__Select">
+                        <option value="La Paz">La Paz</option>
+                        <option value="Oruro">Oruro</option>
+                        <option value="Potosi">Potosi</option>
+                        <option value="Cochabamba">Cochabamba</option>
+                        <option value="Santa Cruz">Santa Cruz</option>
+                        <option value="Beni">Beni</option>
+                        <option value="Pando">Pando</option>
+                        <option value="Tarija">Tarija</option>
+                        <option value="Chuquisaca">Chuquisaca</option>
+                    </select>
+                    <label class="form__label--only">Tipo de Pago:</label>
+                    <select name="tipo_pago_vnt" id="tipo_pago_vnt" class="form__Select">
+                        <option value="QR">QR</option>
+                        <option value="EF">EFECTIVO</option>
+                        <option value="TR">TRANSFERENCIA</option>
+                        <option value="CR">CREDITO</option>
+                        <option value="DE">DEPOSITO</option>
+                    </select>
+                    <div class="form__group" id="tiempo_credito_vnt" hidden>
+                        <input type="number" name="tiempo_credito_vnt" placeholder=" " class="form__input">
+                        <label for="tiempo_credito_vnt" class="form__label">Tiempo del credito en dias:</label>
+                    </div>
+                    <label class="form__label--only">Factura:</label>
+                    <select name="estado_factura_vnt" id="estado_factura_vnt" class="form__Select">
+                        <option value="1">Con factura</option>
+                        <option value="0">Sin factura</option>
+                    </select>
+                    <div class="form__group" id="fecha_factura_vnt" >
+                        <input type="date" name="fecha_factura_vnt" placeholder=" " class="form__input">
+                        <label for="fecha_factura_vnt" class="form__label">Fecha de factura:</label>
+                    </div>
+                    <div class="form__group" id="factura_vnt" >
+                        <input type="number" name="factura_vnt" placeholder=" " class="form__input">
+                        <label for="factura_vnt" class="form__label">Numero de factura:</label>
                     </div>
                     <div class="form__group">
                         <input type="text" name="observacion_vnt" placeholder=" " class="form__input">
@@ -129,7 +186,7 @@
                 <div class="form__container">
                     <input type="text" name="fk_id_ne_dvl" placeholder=" " class="form__input" hidden>
                     <div class="form__group">
-                        <input type="text" name="motivo_dvl"  placeholder=" " class="form__input">
+                        <input type="text" name="motivo_dvl" placeholder=" " class="form__input">
                         <label for="motivo_dvl" class="form__label">Motivo:</label>
                     </div>
                     <input type="submit" class="form__submit" value="Devolución">
@@ -140,69 +197,70 @@
     <!--Modal of product of a BuyR -->
     <section id="vnt_prodRMW" class="modal">
         <div class="modalPdpf__container">
-			<div class="modalPdpf__header">
-				<h2 class="modal__title">Productos</h2>
-				<img src="../imagenes/salir.svg" id="closeVnt_prodRMW" class="button__close">
-			</div>
-			<div class="modalPdpf__body">
-				<table>
-					<thead>
-						<tr>
-							<td>cant. inv.</td>
-							<td>Img.</td>
-							<td>Codigo</td>
-							<td>Cant.</td>
-							<td>Cost Uni.</td>
-							<td>Cost Total</td>
-						</tr>
-					</thead>
-				</table>
-			</div>
-			<div id="cartsProductsSold" class="modal__body">
-			</div>
-			<div class="foot">
+            <div class="modalPdpf__header">
+                <h2 class="modal__title">Productos</h2>
+                <img src="../imagenes/salir.svg" id="closeVnt_prodRMW" class="button__close">
+            </div>
+            <div class="modalPdpf__body">
+                <table>
+                    <thead>
+                        <tr>
+                            <td>cant. inv.</td>
+                            <td>Img.</td>
+                            <td>Codigo</td>
+                            <td>Cant.</td>
+                            <td>Cost Uni.</td>
+                            <td>Cost Total</td>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div id="cartsProductsSold" class="modal__body">
+            </div>
+            <div class="foot">
                 <div class="foot__left">
                     <p id="subTotal">Sub-Total (Bs)</p>
                     <p id="desc">Desc. (Bs)</p>
                     <p id="total">Total (Bs)</p>
                 </div>
-				<div class="foot__right">
+                <div class="foot__right">
                     <div class="cart">
                         <img src="../imagenes/carrito.svg">
                         <p id="quantity">0</p>
                     </div>
                     <button class="button--sell" onclick="createSale()">FACTURAR</button>
                 </div>
-			</div>
-		</div>
+            </div>
+        </div>
     </section>
     <!--Modal preloader-->
-	<section id="preloader" class="preloader">
-		<div class="modal__loader">
-			<div class="lds-spinner">
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-			</div>
-		</div>
-	</section>
+    <section id="preloader" class="preloader">
+        <div class="modal__loader">
+            <div class="lds-spinner">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+    </section>
     <!--Alerta-->
-	<div id="alerta" class="container__alert">
-		<div class="alert">
-			<p id="mensaje-alerta"></p>
-			<button id="botonAceptar">Aceptar</button>
-		</div>
-	</div>
-	<script src="scripts/header.js"></script>
-	<script src="scripts/notaEntrega.js"></script>
+    <div id="alerta" class="container__alert">
+        <div class="alert">
+            <p id="mensaje-alerta"></p>
+            <button id="botonAceptar">Aceptar</button>
+        </div>
+    </div>
+    <script src="scripts/header.js"></script>
+    <script src="scripts/notaEntrega.js"></script>
 </body>
+
 </html>
