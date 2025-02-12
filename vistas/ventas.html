@@ -32,7 +32,16 @@
 			</div>
 			<section class="select__search">
 				<div>
+					<label>Fecha de venta:</label>
 					<select id="selectDateVnt" class="select__number"></select>
+				</div>
+				<div>
+					<label>Estado venta:</label>
+					<select id="stateFactured" class="select__number">
+						<option value="todas">Todo</option>
+						<option value="1">Con factura</option>
+						<option value="0">Sin factura</option>
+					</select>
 				</div>
 			</section>
 			<div class="combo__search">
@@ -40,10 +49,17 @@
 					<h3>Filtrar por:</h3>
 					<select id="selectSearchVnt" class="select">
 						<option value="todas">Todo</option>
-						<option value="fecha_ne">Fecha de nota entrega</option>
-						<option value="fecha_vnt">Fecha de facturacion</option>
+						<option value="numero_prof">Proforma</option>
+						<option value="fecha_ne">Fecha de NE</option>
+						<option value="fecha_vnt">Fecha de venta</option>
+						<option value="fecha_factura_vnt">Fecha de factura</option>
 						<option value="nombre_emp">Empresa</option>
+						<option value="cliente_clte">Cliente</option>
 						<option value="factura_vnt">N° Factura</option>
+						<option value="ciudad_vnt">Ciudad</option>
+						<option value="tipo_pago_vnt">Metodo de pago</option>
+						<option value="encargado">Encargado</option>
+						<option value="orden_ne">Orden compra</option>
 					</select>
 				</div>
 				<div class="table__search">
@@ -78,39 +94,42 @@
 					<tr>
 						<th>N°</th>
 						<th>
-							<div class="tbody__head--venta">N° Venta<img src="../imagenes/sortA_Z.svg"
+							<div class="tbody__head--venta">Proforma<img src="../imagenes/sortA_Z.svg"
 									name="numero_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
 									name="numero_prof" class="icon__CRUD"></div>
 						</th>
+						<th>Cliente</th>
 						<th>
 							<div class="tbody__head--venta">Fecha NE<img src="../imagenes/sortA_Z.svg" name="fecha_ne"
 									class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_ne"
 									class="icon__CRUD"></div>
 						</th>
 						<th>
-							<div class="tbody__head--venta">Fecha Fact.<img src="../imagenes/sortA_Z.svg"
+							<div class="tbody__head--venta">Fecha Venta <img src="../imagenes/sortA_Z.svg"
 									name="fecha_vnt" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
 									name="fecha_vnt" class="icon__CRUD"></div>
 						</th>
+						<th>
+							<div class="tbody__head--venta">Orden compra<img src="../imagenes/sortA_Z.svg"
+									name="total_vnt" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+									name="total_vnt" class="icon__CRUD"></div>
+						</th>
+						<th>Total</th>
 						<th>Encargado</th>
+						<th>Ciudad</th>
+						<th>Metodo pago</th>
 						<th>
-							<div class="tbody__head--venta">Empresa <img src="../imagenes/sortA_Z.svg" name="nombre_emp"
-									class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_emp"
-									class="icon__CRUD"></div>
-						</th>
-						<th>Cliente</th>
-						<th>Segun orden</th>
-						<th>
-							<div class="tbody__head--venta">Factura <img src="../imagenes/sortA_Z.svg"
-									name="factura_vnt" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-									name="factura_vnt" class="icon__CRUD"></div>
+							<div class="tbody__head--venta">Fecha factura<img src="../imagenes/sortA_Z.svg"
+									name="fecha_factura_vnt" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+									name="fecha_factura_vnt" class="icon__CRUD"></div>
 						</th>
 						<th>
-							<div class="tbody__head--venta">Total <img src="../imagenes/sortA_Z.svg" name="total_vnt"
-									class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="total_vnt"
+							<div class="tbody__head--venta">Factura<img src="../imagenes/sortA_Z.svg" name="factura_vnt"
+									class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="factura_vnt"
 									class="icon__CRUD"></div>
 						</th>
 						<th>Observaciones</th>
+
 						<!--<th>Acciones</th>-->
 					</tr>
 				</thead>

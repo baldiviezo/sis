@@ -45,7 +45,6 @@ async function readNotasEntrega() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            console.log(data)
             if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
                 notasEntrega = Object.values(data);
                 filterNotasEntrega = notasEntrega;

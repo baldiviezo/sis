@@ -29,13 +29,19 @@
         <section class="table__header">
             <h1 id="totalNE">Total:</h1>
             <section class="select__search">
-                <select id="selectYearNE" class="select__number">
-                </select>
-                <select id="selectStateNe" class="select__number" hidden>
-                    <option value="notasEntrega">Notas de entrega</option>
-                    <option value="pendiente">Pendiente</option>
-                    <option value="vendido">Vendido</option>
-                </select>
+                <div>
+                    <label>Fecha Nota Entraga:</label>
+                    <select id="selectYearNE" class="select__number">
+                    </select>
+                </div>
+                <div>
+                    <label>Estado nota entrega:</label>
+                    <select id="selectStateNe" class="select__number" hidden>
+                        <option value="notasEntrega">Notas de entrega</option>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="vendido">Vendido</option>
+                    </select>
+                </div>
             </section>
             <div class="combo__search">
                 <div>

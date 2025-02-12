@@ -68,22 +68,25 @@ function searchSales() {
                 sale.numero_prof.toLowerCase().includes(busqueda) ||
                 sale.fecha_ne.includes(busqueda) ||
                 sale.fecha_vnt.toLowerCase().includes(busqueda) ||
-                (sale.nombre_usua + ' ' + sale.apellido_usua).toLowerCase().includes(busqueda) ||
+                sale.encargado.toLowerCase().includes(busqueda) ||
                 sale.nombre_emp.toLowerCase().includes(busqueda) ||
                 sale.cliente_clte.toLowerCase().includes(busqueda) ||
                 sale.orden_ne.toLowerCase().includes(busqueda) ||
                 sale.factura_vnt.toLowerCase().includes(busqueda) ||
-                sale.total_vnt.toLowerCase().includes(busqueda)
+                sale.tipo_pago_vnt.toLowerCase().includes(busqueda) ||
+                sale.ciudad_vnt.toLowerCase().includes(busqueda)
             );
         } else {
             return sale[valor].toLowerCase().includes(busqueda);
         }
     });
-    paginationSales(filterSales.length, 1);
+    selectchangeYear()
 }
 //-----Seleccionar el Año
 const selectDateVnt = document.getElementById('selectDateVnt');
-selectDateVnt.addEventListener('change', selectchangeYear);
+selectDateVnt.addEventListener('change', searchSales);
+const stateFactured = document.getElementById('stateFactured');
+stateFactured.addEventListener('click', searchSales);
 function selectYearVnt() {
     const anios = Array.from(new Set(sales.map(sale => sale.fecha_vnt.split('-')[0])));
     selectDateVnt.innerHTML = '';
@@ -99,11 +102,11 @@ function selectYearVnt() {
     }
 }
 function selectchangeYear() {
-    if (selectDateVnt.value === 'todas') {
-        filterSales = sales;
-    } else {
-        filterSales = sales.filter(sale => sale.fecha_vnt.split('-')[0] === selectDateVnt.value);
-    }
+    filterSales = filterSales.filter(buy => {
+        const estado = stateFactured.value === 'todas' ? true : buy.estado_factura_vnt === stateFactured.value;
+        const fecha = selectDateVnt.value === 'todas' ? true : buy.fecha_vnt.split('-')[0] === selectDateVnt.value;
+        return estado && fecha;
+    });
     paginationSales(filterSales.length, 1);
 }
 //------Ordenar tabla descendente ascendente
@@ -111,29 +114,28 @@ let orderSales = document.querySelectorAll('.tbody__head--venta');
 orderSales.forEach(div => {
     div.children[0].addEventListener('click', function () {
         filterSales.sort((a, b) => {
-            if (div.children[0].name === 'factura_vnt' || div.children[0].name == 'total_vnt') {
-                return a[div.children[0].name] - b[div.children[0].name];
+            let first = a[div.children[0].name].toLowerCase();
+            let second = b[div.children[0].name].toLowerCase();
+            if (typeof first === 'number' && typeof second === 'number') {
+                return first - second;
             } else {
-                let first = a[div.children[0].name].toLowerCase();
-                let second = b[div.children[0].name].toLowerCase();
-                if (first < second) { return -1 }
-                if (first > second) { return 1 }
-                return 0;
+                return String(first).localeCompare(String(second));
             }
+
         })
         paginationSales(filterSales.length, 1);
     });
     div.children[1].addEventListener('click', function () {
         filterSales.sort((a, b) => {
-            if (div.children[0].name === 'factura_vnt' || div.children[0].name == 'total_vnt') {
-                return b[div.children[0].name] - a[div.children[0].name];
+
+            let first = a[div.children[0].name].toLowerCase();
+            let second = b[div.children[0].name].toLowerCase();
+            if (typeof first === 'number' && typeof second === 'number') {
+                return second - first;
             } else {
-                let first = a[div.children[0].name].toLowerCase();
-                let second = b[div.children[0].name].toLowerCase();
-                if (first > second) { return -1 }
-                if (first < second) { return 1 }
-                return 0;
+                return String(second).localeCompare(String(first));
             }
+
         })
         paginationSales(filterSales.length, 1);
     });
@@ -177,7 +179,7 @@ function tableSales(page) {
     const totalVentas = document.getElementById('totalVentas');
     let total = 0;
     for (let venta in filterSales) {
-        total += Number(filterSales[venta]['total_vnt']);
+        total += Number(filterSales[venta]['total_prof']);
     }
     totalVentas.innerHTML = `Total: ${total.toFixed(2)} Bs`;
     let tbody = document.getElementById('tbodyVenta');
@@ -191,13 +193,18 @@ function tableSales(page) {
             if (propiedad === 'id_vnt') {
                 td.innerText = i + 1;
                 tr.appendChild(td);
-            } else if (propiedad === 'nombre_usua') {
-                td.innerText = sale[propiedad] + ' ' + sale['apellido_usua'];
-                tr.appendChild(td);
+            } else if (propiedad === 'nombre_emp') {
+                if (sale[propiedad] === 'Ninguna') {
+                    td.innerText = sale['cliente_clte'];
+                    tr.appendChild(td);
+                } else {
+                    td.innerText = sale[propiedad];
+                    tr.appendChild(td);
+                }
             } else if (propiedad === 'total_vnt') {
                 td.innerText = Number(sale[propiedad]).toFixed(2) + ' Bs';
                 tr.appendChild(td);
-            } else if (propiedad === 'apellido_usua') {
+            } else if (propiedad === 'apellido_usua' || propiedad === 'cliente_clte' || propiedad === 'estado_factura_vnt') {
             } else {
                 td.innerText = sale[propiedad];
                 tr.appendChild(td);
