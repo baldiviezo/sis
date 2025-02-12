@@ -146,18 +146,25 @@
 					<h1 id="totalProfMW">Total:</h1>
 					<img src="../imagenes/inventario.svg"  id="openTablePPMW" class="icon__CRUD" title="Productos de la proforma">
 					<section class="select__search">
-						<select id="selectYearProf" class="select__number">
-						</select>
-						<select id="selectStateProf" class="select__number">
-							<option value="todasLasProformas">Todas las proformas</option>
-							<option value="pendiente">Proformas pendientes</option>
-							<option value="vendido">Proformas vendidas</option>
-						</select>
+						<div>
+							<label>Fecha proforma:</label>
+							<select id="selectYearProf" class="select__number">
+							</select>
+						</div>
+						<div>
+							<label>Estado proforma:</label>
+							<select id="selectStateProf" class="select__number">
+								<option value="todasLasProformas">Todas las proformas</option>
+								<option value="pendiente">Proformas pendientes</option>
+								<option value="vendido">Proformas vendidas</option>
+							</select>
+						</div>
 					</section>
 					<div class="combo__search">
-						<div>
+						<div class="filter__search">
+							<h3>Filtrar por:</h3>
 							<select id="selectSearchProf" class="select">
-								<option value="todas">Buscar por todo</option>
+								<option value="todas">Todo</option>
 								<option value="numero_prof">N° Proforma</option>
 								<option value="fecha_prof">Fecha proforma</option>
 								<option value="encargado">Encargado</option>
@@ -243,12 +250,18 @@
 				<section class="table__header">
 					<h1 id="totalPfPd">TOTAL:</h1>
 					<section class="select__search">
-						<select id="selectYearPfPd" class="select"></select>
-						<select id="selectStatePfPd" class="select__number">
-							<option value="todasLasProf">Todos los productos</option>
-							<option value="pendiente">Producto pendientes</option>
-							<option value="vendido">Productos vendidos</option>
-						</select>
+						<div>
+							<label>Fecha proforma:</label>
+							<select id="selectYearPfPd" class="select"></select>
+						</div>
+						<div>
+							<label>Estado producto:</label>
+							<select id="selectStatePfPd" class="select__number">
+								<option value="todasLasProf">Todos los productos</option>
+								<option value="pendiente">Producto pendientes</option>
+								<option value="vendido">Productos vendidos</option>
+							</select>
+						</div>
 					</section>
 					<div class="combo__search">
 						<div class="filter__search">
@@ -371,28 +384,20 @@
 					<input type="hidden" id="id_prof" name="id_prof" placeholder=" " class="form__input">
 					<input type="hidden" id="descuento_prof">
 					<div class="form__group">
-						<input type="date" name="fecha_ne_prof" id="fecha_ne_prof" placeholder=" " class="form__input">
-						<label for="fecha_ne_prof" class="form__label">Fecha nota de entrega:</label>
-					</div>
-					<div class="form__group">
-						<input type="date" name="fecha_factura_prof" id="fecha_factura_prof" placeholder=" " class="form__input">
-						<label for="fecha_factura_prof" class="form__label">Fecha de factura:</label>
+						<input type="date" name="fecha_ne" id="fecha_ne" placeholder=" " class="form__input">
+						<label for="fecha_ne" class="form__label">Fecha nota de entrega:</label>
 					</div>
 					<div class="form__group">
 						<input type="text" id="numero_prof" placeholder=" " class="form__input" readonly>
 						<label class="form__label">Proforma:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="orden_compra_prof" placeholder=" " class="form__input">
-						<label for="orden_compra_prof" class="form__label">Según Orden/Invit:</label>
+						<input type="text" name="orden_ne" placeholder=" " class="form__input">
+						<label for="orden_ne" class="form__label">Según Orden/Invit:</label>
 					</div>
 					<div class="form__group">
-						<input type="number" name="factura_prof" placeholder=" " class="form__input">
-						<label for="factura_prof" class="form__label">Factura:</label>
-					</div>
-					<div class="form__group">
-						<input type="text" name="detalle_prof" placeholder=" " class="form__input">
-						<label for="detalle_prof" class="form__label">Detalles:</label>
+						<input type="text" name="observacion_ne" placeholder=" " class="form__input">
+						<label for="observacion_ne" class="form__label">Observacion:</label>
 					</div>
 				</div>
 			</form>

@@ -651,7 +651,7 @@ function readProforma(tr) {
                 } else if (valor == 'fk_id_clte_prof') {
                     fillSelectClte(selectCustomerM, 0);
                     selectCustomerM.value = filterProformas[proforma][valor];
-                } else if (valor == 'silga_emp' || valor == 'nombre_emp' || valor == 'nombre_clte' || valor == 'fk_id_usua_prof' || valor == 'apellido_clte' || valor == 'nombre_usua' || valor == 'apellido_usua' || valor == 'email_usua' || valor == 'celular_usua' || valor == 'estado_prof' || valor == 'telefono_emp' || valor == 'direccion_emp' || valor == 'fecha_ne_prof' || valor == 'orden_compra_prof' || valor == 'fecha_factura_prof' || valor == 'factura_prof' || valor == 'detalle_prof') {
+                } else if (valor == 'silga_emp' || valor == 'nombre_emp' || valor == 'nombre_clte' || valor == 'fk_id_usua_prof' || valor == 'apellido_clte' || valor == 'nombre_usua' || valor == 'apellido_usua' || valor == 'email_usua' || valor == 'celular_usua' ||  valor == 'factura_prof') {
                 } else if (valor == 'tipo_cambio_prof') {
                     if (filterProformas[proforma]['moneda_prof'] == '$') {
                         document.getElementsByName(valor + 'M')[0].parentNode.classList.remove('hide');
@@ -1460,7 +1460,7 @@ async function createNotaEntrega() {
                     method: "POST",
                     body: formData
                 }).then(response => response.text()).then(data => {
-                    Promise.all([readProformas(), readInventories()]).then(() => {
+                    Promise.all([readProformas(), readProf_prods(), readInventories()]).then(() => {
                         requestProf = false;
                         mostrarAlerta(data);
                         form.reset();
@@ -1478,10 +1478,9 @@ async function createNotaEntrega() {
 const closeNotaEntregaRMW = document.getElementById('closeNotaEntregaRMW');
 const notaEntregaRMW = document.getElementById('notaEntregaRMW');
 function openNotaEntregaRMW(tr) {
-    document.getElementById('fecha_ne_prof').value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
-    document.getElementById('fecha_factura_prof').value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
+    document.getElementById('fecha_ne').value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
     document.getElementById('id_prof').value = tr.children[0].innerText;
-    document.getElementById('descuento_prof').value = tr.children[7].innerText;
+    document.getElementById('descuento_prof').value = filterProformas.find(proforma => proforma['id_prof'] == tr.children[0].innerText)['descuento_prof'];
     document.getElementById('numero_prof').value = tr.children[2].innerText;
     notaEntregaRMW.classList.add('modal__show');
 }

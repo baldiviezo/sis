@@ -5,18 +5,9 @@ class consultas{
 		include 'conexion.php';
 		$this->id_usua = trim($conexion->real_escape_string($_POST['id_usua']));
 		$this->id_prof = trim($conexion->real_escape_string($_POST['id_prof']));
-
-		$this->fecha_ne_prof = trim($conexion->real_escape_string($_POST['fecha_ne_prof']));
-		$this->fecha_factura_prof = trim($conexion->real_escape_string($_POST['fecha_factura_prof']));
-		$this->orden_compra_prof = trim($conexion->real_escape_string($_POST['orden_compra_prof']));
-		$this->factura_prof = trim($conexion->real_escape_string($_POST['factura_prof']));
-		$this->detalle_prof = trim($conexion->real_escape_string($_POST['detalle_prof']));
-
-
-		/*
 		$this->fecha_ne = trim($conexion->real_escape_string($_POST['fecha_ne']));
-		$this->orden = trim($conexion->real_escape_string($_POST['orden_ne']));
-		$this->observacion = trim($conexion->real_escape_string($_POST['observacion_ne']));*/
+		$this->orden_ne = trim($conexion->real_escape_string($_POST['orden_ne']));
+		$this->observacion_ne = trim($conexion->real_escape_string($_POST['observacion_ne']));
 	}
 	//-------Leer notas de entrega
 	public function readNotasEntrega(){
@@ -69,23 +60,28 @@ class consultas{
 				//-----Cambiar el estado estado_pfpd
 				$consulta = "UPDATE prof_prod set estado_pfpd='vendido' WHERE fk_id_prof_pfpd = '$this->id_prof'";
 				$resultado = $conexion->query($consulta);
+				//-----Cambiar el estado estado_Prof
+				$consulta = "UPDATE proforma set estado_prof='vendido' WHERE id_prof = '$this->id_prof'";
+				$resultado = $conexion->query($consulta);
 				//-----Cambiar el estado de la proforma
-				$consulta = "UPDATE proforma set estado_prof='vendido', fecha_ne_prof = '$this->fecha_ne_prof', orden_compra_prof = '$this->orden_compra_prof', fecha_factura_prof = '$this->fecha_factura_prof', factura_prof = '$this->factura_prof', detalle_prof = '$this->detalle_prof' WHERE id_prof = '$this->id_prof'";
+				$consulta = "INSERT INTO nota_entrega (fk_id_prof_ne, fk_id_usua_ne, fecha_ne, orden_ne, observacion_ne, estado_ne) VALUES ('$this->id_prof', '$this->id_usua', '$this->fecha_ne', '$this->orden_ne', '$this->observacion_ne', 'pendiente')";
 				$resultado = $conexion->query($consulta);
 
 				//-----Descontar del inventario
-				foreach ($arrayObjetos as $valor) {
-					$id_inv = $valor['id_inv'];
-					$cantidad_neiv=	$valor['cantidad_neiv'];
-					$consulta2 = "SELECT * FROM inventario WHERE id_inv = '$id_inv'";
-					$resultado2 = $conexion->query($consulta2);
-					$inventario = $resultado2->fetch_assoc();
-					$cantidad_inv = $inventario['cantidad_inv'];
-					$cantidad_inv = $cantidad_inv - $cantidad_neiv;
-					$consulta3 = "UPDATE inventario set cantidad_inv='$cantidad_inv' WHERE id_inv='$id_inv'";
-					$resultado3 = $conexion->query($consulta3);
+				if ($resultado) {
+					foreach ($arrayObjetos as $valor) {
+						$id_inv = $valor['id_inv'];
+						$cantidad_neiv=	$valor['cantidad_neiv'];
+						$consulta2 = "SELECT * FROM inventario WHERE id_inv = '$id_inv'";
+						$resultado2 = $conexion->query($consulta2);
+						$inventario = $resultado2->fetch_assoc();
+						$cantidad_inv = $inventario['cantidad_inv'];
+						$cantidad_inv = $cantidad_inv - $cantidad_neiv;
+						$consulta3 = "UPDATE inventario set cantidad_inv='$cantidad_inv' WHERE id_inv='$id_inv'";
+						$resultado3 = $conexion->query($consulta3);
+					}
+					echo "La nota de entrega se registro correctamente";
 				}
-				echo "La nota de entrega se registro correctamente";
 			}else{
 				echo "La nota de entrega no se pudo registrar, los productos no existen o no hay suficientes en el inventario";
 			}
