@@ -29,6 +29,7 @@
 			<h1 id="totalVentas">Total:</h1>
 			<div>
 				<img src="../imagenes/inventario.svg" id="openProdVnt" title="Productos comprados">
+				<img src="../imagenes/excel.svg" id="excelVnt" title="Imprimir a excel">
 			</div>
 			<section class="select__search">
 				<div>
@@ -145,8 +146,22 @@
 					<h1 id="totalProdVnt">TOTAL:</h1>
 					<div>
 						<img src="../imagenes/trophy.svg" onclick="openTableMostProd()" title="Productos mas vendidos">
+						<img src="../imagenes/excel.svg" id="excelProdVnt" title="Imprimir a excel">
 					</div>
-					<img src="../imagenes/excel.svg" id="excelProdVnt" title="Imprimir a excel">
+					<section class="select__search">
+						<div>
+							<label>Fecha de venta:</label>
+							<select id="selectDateVntProd" class="select__number"></select>
+						</div>
+						<div>
+							<label>Estado venta:</label>
+							<select id="stateFacturedProd" class="select__number">
+								<option value="todas">Todo</option>
+								<option value="1">Con factura</option>
+								<option value="0">Sin factura</option>
+							</select>
+						</div>
+					</section>
 					<div class="combo__search">
 						<div class="filter__search">
 							<h3>Filtrar por:</h3>

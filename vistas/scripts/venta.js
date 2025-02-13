@@ -72,12 +72,12 @@ function searchSales() {
                 sale.nombre_emp.toLowerCase().includes(busqueda) ||
                 sale.cliente_clte.toLowerCase().includes(busqueda) ||
                 sale.orden_ne.toLowerCase().includes(busqueda) ||
-                sale.factura_vnt.toLowerCase().includes(busqueda) ||
+                String(sale.total_vnt).toLowerCase().includes(busqueda) ||
                 sale.tipo_pago_vnt.toLowerCase().includes(busqueda) ||
                 sale.ciudad_vnt.toLowerCase().includes(busqueda)
             );
         } else {
-            return sale[valor].toLowerCase().includes(busqueda);
+            return String(sale[valor]).toLowerCase().includes(busqueda);
         }
     });
     selectchangeYear()
@@ -99,6 +99,18 @@ function selectYearVnt() {
         option.value = anios[i];
         option.innerText = anios[i];
         selectDateVnt.appendChild(option);
+    }
+
+    selectDateVntProd.innerHTML = '';
+    optionFirst = document.createElement('option');
+    optionFirst.value = 'todas';
+    optionFirst.innerText = 'Todos los años';
+    selectDateVntProd.appendChild(optionFirst);
+    for (let i = 0; i < anios.length; i++) {
+        let option = document.createElement('option');
+        option.value = anios[i];
+        option.innerText = anios[i];
+        selectDateVntProd.appendChild(option);
     }
 }
 function selectchangeYear() {
@@ -275,6 +287,19 @@ function searchProdVnt() {
             return proforma[valor].toString().toLowerCase().includes(busqueda);
         }
     });
+    selectchangeYearProd();
+}
+//------select
+const selectDateVntProd = document.getElementById('selectDateVntProd');
+selectDateVntProd.addEventListener('change', searchProdVnt);
+const stateFacturedProd = document.getElementById('stateFacturedProd');
+stateFacturedProd.addEventListener('click', searchProdVnt);
+function selectchangeYearProd() {
+    filterVnt_prods = filterVnt_prods.filter(buy => {
+        const estado = stateFacturedProd.value === 'todas' ? true : buy.estado_factura_vnt === stateFacturedProd.value;
+        const fecha = selectDateVntProd.value === 'todas' ? true : buy.fecha_vnt.split('-')[0] === selectDateVntProd.value;
+        return estado && fecha;
+    });
     paginacionProdVnt(filterVnt_prods.length, 1);
 }
 //------Ordenar tabla descendente ascendente
@@ -384,7 +409,7 @@ function tableVntProds(page) {
                     let total = filterVnt_prods[proforma]['cantidad_vtpd'] * filterVnt_prods[proforma]['cost_uni_vtpd'] * (100 - filterVnt_prods[proforma]['descuento_prof']) / 100;
                     td2.innerText = total.toFixed(2) + ' Bs';
                     tr.appendChild(td2);
-                } else if (valor == 'apellido_usua' || valor == 'apellido_clte' || valor == 'fk_id_prod_vtpd' || valor == 'imagen_prod' || valor == 'estado_ne' || valor == 'codigo_smc_prod' || valor == 'cost_uni_inv') {
+                } else if (valor == 'apellido_usua' || valor == 'apellido_clte' || valor == 'fk_id_prod_vtpd' || valor == 'imagen_prod' || valor == 'estado_ne' || valor == 'codigo_smc_prod' || valor == 'cost_uni_inv' || valor == 'estado_factura_vnt') {
                 } else {
                     td.innerText = filterVnt_prods[proforma][valor];
                     tr.appendChild(td);
@@ -647,4 +672,29 @@ botonAceptar.addEventListener('click', (e) => {
 const excelProdReponer = document.getElementById('excelProdReponer');
 excelProdReponer.addEventListener('click', () => {
     downloadAsExcel(productsSold);
+});
+//***************************reporte de ventas mestros*****************************************************/
+const excelVnt = document.getElementById('excelVnt');
+excelVnt.addEventListener('click', () => {
+    const sortedSales = filterSales.sort((a, b) => {
+        if (a.factura_vnt === 0 && b.factura_vnt !== 0) {
+            return 1;
+        } else if (a.factura_vnt !== 0 && b.factura_vnt === 0) {
+            return -1;
+        } else {
+            return a.factura_vnt - b.factura_vnt;
+        }
+    });
+    const nuevaVariable = sortedSales.map((sale) => ({
+        ITEM: sale.factura_vnt,
+        CLIENTE: sale.nombre_emp === 'Ninguna' ? sale.cliente_clte : sale.nombre_emp,
+        FECHA: sale.fecha_vnt,
+        OC: sale.orden_ne,
+        MONTO: sale.total_prof,
+        VENTA: sale.encargado,
+        CIUDAD: sale.ciudad_vnt,
+        PAGO: sale.tipo_pago_vnt,
+        OBSERVACIONES: sale.observacion_vnt
+    }));
+    downloadAsExcel(nuevaVariable);
 });
