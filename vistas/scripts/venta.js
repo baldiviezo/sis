@@ -114,12 +114,12 @@ let orderSales = document.querySelectorAll('.tbody__head--venta');
 orderSales.forEach(div => {
     div.children[0].addEventListener('click', function () {
         filterSales.sort((a, b) => {
-            let first = a[div.children[0].name].toLowerCase();
-            let second = b[div.children[0].name].toLowerCase();
+            let first = a[div.children[0].name];
+            let second = b[div.children[0].name];
             if (typeof first === 'number' && typeof second === 'number') {
                 return first - second;
             } else {
-                return String(first).localeCompare(String(second));
+                return first.toLowerCase().localeCompare(second.toLowerCase());
             }
 
         })
@@ -128,12 +128,12 @@ orderSales.forEach(div => {
     div.children[1].addEventListener('click', function () {
         filterSales.sort((a, b) => {
 
-            let first = a[div.children[0].name].toLowerCase();
-            let second = b[div.children[0].name].toLowerCase();
+            let first = a[div.children[0].name];
+            let second = b[div.children[0].name];
             if (typeof first === 'number' && typeof second === 'number') {
                 return second - first;
             } else {
-                return String(second).localeCompare(String(first));
+                return second.toLowerCase().localeCompare(first.toLowerCase());
             }
 
         })

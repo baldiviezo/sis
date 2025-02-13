@@ -28,13 +28,13 @@ class Consultas{
 	//-----read ventas
 	public function readSales(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM venta INNER JOIN nota_entrega ON venta.fk_id_ne_vnt = id_ne INNER JOIN proforma ON nota_entrega.fk_id_prof_ne = id_prof INNER JOIN cliente ON proforma.fk_id_clte_prof = id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = id_emp INNER JOIN usuario ON venta.fk_id_usua_vnt = id_usua WHERE venta.estado_vnt = 'FACTURADO' ORDER BY fecha_vnt DESC";
+		$consulta = "SELECT * FROM venta INNER JOIN nota_entrega ON venta.fk_id_ne_vnt = id_ne INNER JOIN proforma ON nota_entrega.fk_id_prof_ne = id_prof INNER JOIN cliente ON proforma.fk_id_clte_prof = id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = id_emp INNER JOIN usuario ON venta.fk_id_usua_vnt = id_usua WHERE venta.estado_vnt = 'FACTURADO' ORDER BY id_vnt DESC";
 		$resultado = $conexion->query($consulta);
 		$numeroClientes = $resultado->num_rows;
 		$clientes =  array();
 		if($numeroClientes > 0){
 			while ($fila = $resultado->fetch_assoc()){
-				$datos = array ('id_vnt'=>$fila['id_vnt'], 'numero_prof'=>'NE-SMS'.substr($fila['fecha_ne'],2,2).'-'.$this->addZerosGo($fila['numero_prof']), 'nombre_emp'=>$fila['nombre_emp'], 'cliente_clte'=>$fila['nombre_clte'].' '.$fila['apellido_clte'], 'fecha_ne'=>$fila['fecha_ne'], 'fecha_vnt'=>$fila['fecha_vnt'], 'orden_ne'=>$fila['orden_ne'], 'total_prof'=>$fila['total_prof'], 'encargado'=>$fila['nombre_usua'].' '.$fila['apellido_usua'], 'ciudad_vnt'=>$fila['ciudad_vnt'], 'tipo_pago_vnt'=>$fila['tipo_pago_vnt'], 'estado_factura_vnt'=>$fila['estado_factura_vnt'], 'fecha_factura_vnt'=>$fila['fecha_factura_vnt'], 'factura_vnt'=>$fila['factura_vnt'], 'observacion_vnt'=>$fila['observacion_vnt']);
+				$datos = array ('id_vnt'=>intval($fila['id_vnt']), 'numero_prof'=>'NE-SMS'.substr($fila['fecha_ne'],2,2).'-'.$this->addZerosGo($fila['numero_prof']), 'nombre_emp'=>$fila['nombre_emp'], 'cliente_clte'=>$fila['nombre_clte'].' '.$fila['apellido_clte'], 'fecha_ne'=>$fila['fecha_ne'], 'fecha_vnt'=>$fila['fecha_vnt'], 'orden_ne'=>$fila['orden_ne'], 'total_prof'=>$fila['total_prof'], 'encargado'=>$fila['nombre_usua'].' '.$fila['apellido_usua'], 'ciudad_vnt'=>$fila['ciudad_vnt'], 'tipo_pago_vnt'=>$fila['tipo_pago_vnt'], 'estado_factura_vnt'=>$fila['estado_factura_vnt'], 'fecha_factura_vnt'=>$fila['fecha_factura_vnt'], 'factura_vnt'=>intval($fila['factura_vnt']), 'observacion_vnt'=>$fila['observacion_vnt']);
 				$clientes[$fila['id_vnt'].'_id_vnt'] = $datos;
 			}
 			$json = json_encode($clientes, JSON_UNESCAPED_UNICODE);
@@ -46,12 +46,16 @@ class Consultas{
 		include 'conexion.php';
 		$products = $_POST['prodCart'];
 		//-----Comprobar que la factura no exista
-		$consulta = "SELECT * FROM venta WHERE factura_vnt = '$this->factura_vnt'";
-		$resultado = $conexion->query($consulta);
-		$numeroClientes = $resultado->num_rows;
-		if($numeroClientes > 0){
-			echo "La factura ya existe";
-			exit();
+		if ($this->estado_factura_vnt == '1'){
+			$consulta = "SELECT * FROM venta WHERE factura_vnt = '$this->factura_vnt'";
+			$resultado = $conexion->query($consulta);
+			$numeroClientes = $resultado->num_rows;
+			if($numeroClientes > 0){
+				echo "La factura ya existe";
+				exit();
+			} else {
+				$this->addProduct($products);
+			}
 		} else {
 			$this->addProduct($products);
 		}
