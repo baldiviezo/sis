@@ -336,6 +336,7 @@ async function readProformas() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
+            console.log(data)
             createYearProforma();
             if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
                 proformas = Object.values(data);
@@ -651,7 +652,7 @@ function readProforma(tr) {
                 } else if (valor == 'fk_id_clte_prof') {
                     fillSelectClte(selectCustomerM, 0);
                     selectCustomerM.value = filterProformas[proforma][valor];
-                } else if (valor == 'silga_emp' || valor == 'nombre_emp' || valor == 'nombre_clte' || valor == 'fk_id_usua_prof' || valor == 'apellido_clte' || valor == 'nombre_usua' || valor == 'apellido_usua' || valor == 'email_usua' || valor == 'celular_usua' ||  valor == 'factura_prof') {
+                } else if (valor == 'silga_emp' || valor == 'nombre_emp' || valor == 'nombre_clte' || valor == 'fk_id_usua_prof' || valor == 'apellido_clte' || valor == 'nombre_usua' || valor == 'celular_clte' || valor == 'apellido_usua' || valor == 'email_usua' || valor == 'celular_usua' ||  valor == 'factura_prof' || valor == 'direccion_emp' || valor == 'estado_prof') {
                 } else if (valor == 'tipo_cambio_prof') {
                     if (filterProformas[proforma]['moneda_prof'] == '$') {
                         document.getElementsByName(valor + 'M')[0].parentNode.classList.remove('hide');
