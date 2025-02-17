@@ -33,12 +33,18 @@
 				<img src="../imagenes/inventario.svg" id="openProdOC" title="Productos comprados">
 			</div>
 			<section class="select__search">
-				<select id="selectDateBuy" class="select"></select>
-				<select id="selectStateBuy" class="select">
-					<option value="todasLasCompras">Todas las compras</option>
-					<option value="0">Compras pendientes</option>
-					<option value="1">Compras recibidas</option>
-				</select>
+				<div>
+					<label>Fecha compra:</label>
+					<select id="selectDateBuy" class="select"></select>
+				</div>
+				<div>
+					<label>Estado compra:</label>
+					<select id="selectStateBuy" class="select">
+						<option value="todasLasCompras">Todas las compras</option>
+						<option value="0">Compras pendientes</option>
+						<option value="1">Compras recibidas</option>
+					</select>
+				</div>
 			</section>
 			<div class="combo__search">
 				<div class="filter__search">

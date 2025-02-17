@@ -87,6 +87,8 @@ const selectDateVnt = document.getElementById('selectDateVnt');
 selectDateVnt.addEventListener('change', searchSales);
 const stateFactured = document.getElementById('stateFactured');
 stateFactured.addEventListener('click', searchSales);
+const selectMonthVnt = document.getElementById('selectMonthVnt');
+selectMonthVnt.addEventListener('change', searchSales);
 function selectYearVnt() {
     const anios = Array.from(new Set(sales.map(sale => sale.fecha_vnt.split('-')[0])));
     selectDateVnt.innerHTML = '';
@@ -117,7 +119,8 @@ function selectchangeYear() {
     filterSales = filterSales.filter(buy => {
         const estado = stateFactured.value === 'todas' ? true : buy.estado_factura_vnt === stateFactured.value;
         const fecha = selectDateVnt.value === 'todas' ? true : buy.fecha_vnt.split('-')[0] === selectDateVnt.value;
-        return estado && fecha;
+        const mes = selectMonthVnt.value === 'todas' ? true : buy.fecha_vnt.split('-')[1] === selectMonthVnt.value;
+        return estado && fecha && mes;
     });
     paginationSales(filterSales.length, 1);
 }
@@ -690,11 +693,27 @@ excelVnt.addEventListener('click', () => {
         CLIENTE: sale.nombre_emp === 'Ninguna' ? sale.cliente_clte : sale.nombre_emp,
         FECHA: sale.fecha_vnt,
         OC: sale.orden_ne,
-        MONTO: sale.total_prof,
+        MONTO: Number(sale.total_prof),
         VENTA: sale.encargado,
         CIUDAD: sale.ciudad_vnt,
         PAGO: sale.tipo_pago_vnt,
         OBSERVACIONES: sale.observacion_vnt
     }));
-    downloadAsExcel(nuevaVariable);
+    // Crear un nuevo arrar que este el total vendido por un ecargado de todos los encargados
+    const totalVendido = sortedSales.reduce((acc, sale) => {
+        if (acc[sale.encargado]) {
+            acc[sale.encargado] += Number(sale.total_prof);
+        } else {
+            acc[sale.encargado] = Number(sale.total_prof);
+        }
+        return acc;
+    }, []);
+    // Crear un nuevo array que este el total vendido por un encargado de todos los encargados
+    const totalVendidoPorEncargado = Object.entries(totalVendido).map(([key, value]) => ({
+        ENCARGADO: key,
+        TOTAL: value
+    }));
+    //El array totalVendidoPorEncargado añadirlo al final del array nuevaVariable
+    const reporte = [...nuevaVariable, ...totalVendidoPorEncargado];
+    downloadAsExcel(reporte);
 });

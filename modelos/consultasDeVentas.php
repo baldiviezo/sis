@@ -5,7 +5,7 @@ class Consultas{
 		//protegemos al servidor de los valores que el usuario esta introduciendo
 		include 'conexion.php';
 		$this->id_ne = $conexion->real_escape_string($_POST['id_ne']);
-		$this->id_usua = $conexion->real_escape_string($_POST['id_usua']);
+		$this->id_usua = $conexion->real_escape_string($_POST['fk_id_usua_vnt']);
 		$this->fecha_vnt = $conexion->real_escape_string($_POST['fecha_vnt']);
 		$this->ciudad_vnt = $conexion->real_escape_string($_POST['ciudad_vnt']);
 		$this->tipo_pago_vnt = $conexion->real_escape_string($_POST['tipo_pago_vnt']);

@@ -28,7 +28,7 @@ async function init() {
     if (rqstNotaEntrega == false) {
         rqstNotaEntrega = true;
         preloader.classList.add('modal__show');
-        Promise.all([readNotasEntrega(), readProf_prods(), readProformas(), readProducts(), readInventories()]).then(() => {
+        Promise.all([readNotasEntrega(), readProf_prods(), readProformas(), readProducts(), readInventories(), readUsers()]).then(() => {
             rqstNotaEntrega = false;
             preloader.classList.remove('modal__show');
         });
@@ -480,7 +480,6 @@ function createSale() {
             let formData = new FormData(formsaleR);
             formData.append('createSale', '');
             formData.append('prodCart', JSON.stringify(prodCart));
-            formData.append('id_usua', localStorage.getItem('id_usua'));
             preloader.classList.add('modal__show');
             fetch('../controladores/ventas.php', {
                 method: "POST",
@@ -607,4 +606,32 @@ estado_factura_vnt.addEventListener('change', () => {
         document.getElementById('factura_vnt').setAttribute('hidden', '');
     }
 });
-   
+//usarios
+let usuarios = [];
+async function readUsers() {
+    return new Promise((resolve) => {
+        let formData = new FormData();
+        formData.append('readUsers', '');
+        fetch('../controladores/usuarios.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            usuarios = Object.values(data);
+            selectUser();
+            resolve();
+        }).catch(err => {
+            mostrarAlerta('Ocurrio un error al cargar la tabla de usuarios, cargue nuevamente la pagina');
+        });
+    });
+}
+const fk_id_usua_vnt = document.getElementById('fk_id_usua_vnt');
+function selectUser() {
+    //En fk_id_usua_vnt que es un select se le agrega los usuarios
+    fk_id_usua_vnt.innerHTML = '';
+    for (let clave in usuarios) {
+        let option = document.createElement('option');
+        option.value = usuarios[clave]['id_usua'];
+        option.innerText = usuarios[clave]['nombre_usua'] + ' ' + usuarios[clave]['apellido_usua'];
+        fk_id_usua_vnt.appendChild(option);
+    }
+}
