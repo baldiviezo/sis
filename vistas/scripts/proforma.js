@@ -336,7 +336,6 @@ async function readProformas() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            console.log(data)
             createYearProforma();
             if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
                 proformas = Object.values(data);
@@ -2477,8 +2476,7 @@ async function createProduct() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                requestProducts = false;
-                preloader.classList.remove('modal__show');
+                requestProf = false;
                 if (data == "El codigo ya existe") {
                     mostrarAlerta(data);
                 } else if (data == "El codigo SMC ya existe") {
@@ -2491,6 +2489,7 @@ async function createProduct() {
                         form.reset();
                     })
                 }
+                preloader.classList.remove('modal__show');
             }).catch(err => {
                 requestProf = false;
                 mostrarAlerta(err);
