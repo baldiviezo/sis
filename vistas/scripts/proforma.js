@@ -2527,7 +2527,6 @@ async function createProduct() {
                 body: formData
             }).then(response => response.text()).then(data => {
                 requestProf = false;
-                preloader.classList.remove('modal__show');
                 if (data == "El codigo ya existe") {
                     mostrarAlerta(data);
                 } else if (data == "El codigo SMC ya existe") {
@@ -2540,6 +2539,7 @@ async function createProduct() {
                         form.reset();
                     })
                 }
+                preloader.classList.remove('modal__show');
             }).catch(err => {
                 requestProf = false;
                 mostrarAlerta(err);
