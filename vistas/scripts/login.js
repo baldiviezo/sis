@@ -1,3 +1,4 @@
+const preloader = document.getElementById('preloader');
 //<<-------------------------------------MAXIMO DE CARACTERES--------------------------------------------->>
 setMaxInputLength();
 function setMaxInputLength() {
@@ -11,6 +12,7 @@ const form = document.querySelector('.form');
 form.addEventListener('submit', ()=>{
 	//Evitamos que se recargue la venta de iniciar sesion (Esto por q el boton esta dentro de un formulario)
 	event.preventDefault();
+	preloader.classList.add('modal__show');
 	//Creamos un objeto formData para guardar todos los datos del formulario
 	const formData = new FormData(form)
 	//realizamos un envio de informacion asincrona con el metodo POST
@@ -20,6 +22,7 @@ form.addEventListener('submit', ()=>{
 	//Si recivimos en text, es un json string
 	//si recibimos con json, es un objeto json
 	}).then(response => response.json()).then(data => {
+		preloader.classList.remove('modal__show');
 		//_self nos ayuda a remplazar la ventana actual, por la ventana que queremos abrir
 		if (data=="La contraseña es incorrecta"){
 			alert("La contraseña es incorrecta");

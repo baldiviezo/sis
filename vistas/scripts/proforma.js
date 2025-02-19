@@ -290,7 +290,7 @@ function cartProduct(id_prod) {
             setTimeout(() => item.classList.add("dragging"), 0);
         });
         item.addEventListener("dragend", () => item.classList.remove("dragging"));
-    });                                                                                                                                                                                                                                       
+    });
 
     cartItem.addEventListener("dragover", initSortableList);
     cartItem.addEventListener("dragenter", e => e.preventDefault());
@@ -622,15 +622,13 @@ async function createProforma() {
             proformaRMW.classList.remove('modal__show');
             previewProducts.classList.remove('modal__show');
             cartItem.innerHTML = '';
-            let array = [];
-            cart.forEach(product => {
-                let valor = {};
-                valor['id_prod'] = product.children[0].value;
-                valor['cantidad'] = product.children[4].value;
-                valor['costoUnitario'] = product.children[5].value;
-                array.push(valor);
-            });
-            let productos = JSON.stringify(array);
+            const productos = JSON.stringify(
+                Array.from(cart).map(product => ({
+                    id_prod: product.children[0].value,
+                    cantidad: product.children[4].value,
+                    costoUnitario: product.children[5].value
+                }))
+            );
             let form = document.getElementById("formProformaR");
             let moneda = selectMoneyCart.value;
             let formData = new FormData(form);
@@ -1014,7 +1012,7 @@ async function readProf_prods() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            prof_prods = Object.values(data);
+            prof_prods = Object.values(data);   
             filterProf_prods = prof_prods;
             paginacionPfPd(filterProf_prods.length, 1);
             resolve();
@@ -1266,7 +1264,7 @@ function cartProduct_pfpd(product, action) {
             setTimeout(() => item.classList.add("dragging"), 0);
         });
         item.addEventListener("dragend", () => item.classList.remove("dragging"));
-    });                                                                                                                                                                                                                                       
+    });
 
     modalProf_prod.addEventListener("dragover", initSortableListM);
     modalProf_prod.addEventListener("dragenter", e => e.preventDefault());

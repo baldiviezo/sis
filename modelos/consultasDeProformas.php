@@ -158,7 +158,7 @@ class consultas{
 	//-------Read Prof_prods
 	public function readProf_prods(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM prof_prod INNER JOIN proforma ON prof_prod.fk_id_prof_pfpd = proforma.id_prof INNER JOIN cliente ON proforma.fk_id_clte_prof = cliente.id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = empresa.id_emp INNER JOIN producto ON prof_prod.fk_id_prod_pfpd = producto.id_prod INNER JOIN categoria ON producto.fk_id_ctgr_prod = categoria.id_ctgr INNER JOIN marca ON producto.fk_id_mrc_prod = marca.id_mrc ORDER BY id_prof DESC";
+		$consulta = "SELECT * FROM prof_prod INNER JOIN proforma ON prof_prod.fk_id_prof_pfpd = proforma.id_prof INNER JOIN cliente ON proforma.fk_id_clte_prof = cliente.id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = empresa.id_emp INNER JOIN producto ON prof_prod.fk_id_prod_pfpd = producto.id_prod INNER JOIN categoria ON producto.fk_id_ctgr_prod = categoria.id_ctgr INNER JOIN marca ON producto.fk_id_mrc_prod = marca.id_mrc ORDER BY id_pfpd ASC";
 		$resultado = $conexion->query($consulta);
 		$proformas =  array();
 		while ($fila = $resultado->fetch_assoc()){

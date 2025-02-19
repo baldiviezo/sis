@@ -64,7 +64,6 @@ async function readUsers() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            console.log(data);
             usuarios = data;
             tableUsers();
             resolve();
