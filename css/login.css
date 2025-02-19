@@ -95,6 +95,10 @@ body{
 .form__input:focus ~ .form__line, .form__input:not(:placeholder-shown) ~ .form__line{
 	transform: scale(1);
 }
+.modal__show{
+	--opacity: 1;
+	--pointer: unset;
+}
 @media(max-width:425px){
 	.form__title{
 		font-size: 1.8rem;
