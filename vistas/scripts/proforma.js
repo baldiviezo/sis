@@ -255,8 +255,6 @@ function addCard(card) {
 }
 //------Cart
 function cartProduct(id_prod) {
-    let cantidad_inv = undefined;
-    let cost_uni = undefined;
     const product = filterProducts.find(product => product['id_prod'] == id_prod);
     if (product) {
 
@@ -268,6 +266,7 @@ function cartProduct(id_prod) {
 
         const card = document.createElement('div');
         card.classList.add('cart-item');
+        card.setAttribute('draggable', 'true');
         const html = `
         <input type="hidden" value="${product['id_prod']}">
         <p class="cart-item__cantInv">${cantidad_inv}</p>
@@ -284,6 +283,30 @@ function cartProduct(id_prod) {
         card.innerHTML = html;
         cartItem.appendChild(card);
     }
+    //Drang and drop
+    const items = cartItem.querySelectorAll(".cart-item");
+    items.forEach(item => {
+        item.addEventListener("dragstart", () => {
+            setTimeout(() => item.classList.add("dragging"), 0);
+        });
+        item.addEventListener("dragend", () => item.classList.remove("dragging"));
+    });                                                                                                                                                                                                                                       
+
+    cartItem.addEventListener("dragover", initSortableList);
+    cartItem.addEventListener("dragenter", e => e.preventDefault());
+}
+const initSortableList = (e) => {
+    e.preventDefault();
+    const draggingItem = document.querySelector(".dragging");
+
+    let siblings = [...cartItem.querySelectorAll(".cart-item:not(.dragging)")];
+
+    let nextSibling = siblings.find(sibling => {
+        const rect = sibling.getBoundingClientRect();
+        return e.clientY <= rect.top + rect.height / 2;
+    });
+
+    cartItem.insertBefore(draggingItem, nextSibling);
 }
 //------Eliminar cart
 function removeCardFromCart(cart) {
@@ -336,7 +359,6 @@ async function readProformas() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            console.log(data)
             createYearProforma();
             if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
                 proformas = Object.values(data);
@@ -652,7 +674,7 @@ function readProforma(tr) {
                 } else if (valor == 'fk_id_clte_prof') {
                     fillSelectClte(selectCustomerM, 0);
                     selectCustomerM.value = filterProformas[proforma][valor];
-                } else if (valor == 'silga_emp' || valor == 'nombre_emp' || valor == 'nombre_clte' || valor == 'fk_id_usua_prof' || valor == 'apellido_clte' || valor == 'nombre_usua' || valor == 'celular_clte' || valor == 'apellido_usua' || valor == 'email_usua' || valor == 'celular_usua' ||  valor == 'factura_prof' || valor == 'direccion_emp' || valor == 'estado_prof') {
+                } else if (valor == 'silga_emp' || valor == 'nombre_emp' || valor == 'nombre_clte' || valor == 'fk_id_usua_prof' || valor == 'apellido_clte' || valor == 'nombre_usua' || valor == 'celular_clte' || valor == 'apellido_usua' || valor == 'email_usua' || valor == 'celular_usua' || valor == 'factura_prof' || valor == 'direccion_emp' || valor == 'estado_prof') {
                 } else if (valor == 'tipo_cambio_prof') {
                     if (filterProformas[proforma]['moneda_prof'] == '$') {
                         document.getElementsByName(valor + 'M')[0].parentNode.classList.remove('hide');
@@ -1021,7 +1043,7 @@ function searchPfPd() {
             return (
                 cmp_prod.numero_prof.toLowerCase().includes(busqueda) ||
                 cmp_prod.fecha_prof.toLowerCase().includes(busqueda) ||
-                cmp_prod.codigo_prod.toLowerCase().includes(busqueda) 
+                cmp_prod.codigo_prod.toLowerCase().includes(busqueda)
             )
         } else {
             return cmp_prod[valor].toLowerCase().includes(busqueda);
@@ -1181,7 +1203,7 @@ async function readmProf_prods() {
     });
 }
 //------read prof_prod
-let modalProf_prod = document.querySelector('#prof_prodMW div.modal__body');
+let modalProf_prod = document.querySelector('#cartsProf_prodMW');
 function readProf_prod() {
     modalProf_prod.innerHTML = '';
     const id_prof = document.getElementsByName('id_profM')[0].value;
@@ -1218,6 +1240,7 @@ function cartProduct_pfpd(product, action) {
     }
     const item = document.createElement('div');
     item.classList.add('cart-item');
+    item.setAttribute('draggable', 'true');
     const html = `
         <input type="hidden" value="${product['id_prod']}">
         <p class="cart-item__cantInv">${cantidad_inv}</p>
@@ -1235,10 +1258,38 @@ function cartProduct_pfpd(product, action) {
     item.innerHTML = html;
     modalProf_prod.appendChild(item);
     totalPrice_pfpd();
+
+    //Drang and drop
+    const items = modalProf_prod.querySelectorAll(".cart-item");
+    items.forEach(item => {
+        item.addEventListener("dragstart", () => {
+            setTimeout(() => item.classList.add("dragging"), 0);
+        });
+        item.addEventListener("dragend", () => item.classList.remove("dragging"));
+    });                                                                                                                                                                                                                                       
+
+    modalProf_prod.addEventListener("dragover", initSortableListM);
+    modalProf_prod.addEventListener("dragenter", e => e.preventDefault());
+
 }
+const initSortableListM = (e) => {
+    e.preventDefault();
+    const draggingItem = document.querySelector(".dragging");
+
+    let siblings = [...modalProf_prod.querySelectorAll(".cart-item:not(.dragging)")];
+
+    let nextSibling = siblings.find(sibling => {
+        const rect = sibling.getBoundingClientRect();
+        return e.clientY <= rect.top + rect.height / 2;
+    });
+
+    modalProf_prod.insertBefore(draggingItem, nextSibling);
+}
+
+
 //-------Eliminar producto 
 function remove_pfpd(product) {
-    let listProducts = document.querySelector('#prof_prodMW div.modal__body');
+    let listProducts = document.querySelector('#cartsProf_prodMW');
     listProducts.removeChild(product);
     totalPrice_pfpd();
 }
@@ -1251,7 +1302,7 @@ function changeQuantity_pfpd(product) {
     totalPrice_pfpd();
 }
 function totalPrice_pfpd() {
-    let divs = document.querySelectorAll('#prof_prodMW div.modal__body div.cart-item');
+    let divs = document.querySelectorAll('#cartsProf_prodMW div.cart-item');
     let moneda = document.getElementsByName('moneda_profM')[0].value;
     let total = 0;
     divs.forEach(div => {
@@ -1297,7 +1348,7 @@ function getProducts() {
     if (formProformas === 'R') {
         return document.querySelectorAll('#cartItem .cart-item');
     } else if (formProformas === 'M') {
-        return document.querySelectorAll('#prof_prodMW div.modal__body .cart-item');
+        return document.querySelectorAll('#cartsProf_prodMW .cart-item');
     }
 }
 function getMoneda() {
@@ -2477,7 +2528,7 @@ async function createProduct() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                requestProducts = false;
+                requestProf = false;
                 preloader.classList.remove('modal__show');
                 if (data == "El codigo ya existe") {
                     mostrarAlerta(data);
@@ -2548,7 +2599,7 @@ async function updateProduct() {
                 body: formData
             }).then(response => response.text()).then(data => {
                 preloader.classList.remove('modal__show');
-                requestProducts = false;
+                requestProf = false;
                 if (data == "El codigo ya existe") {
                     mostrarAlerta(data);
                 } else if (data == 'El codigo SMC ya existe') {

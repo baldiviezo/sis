@@ -12,7 +12,7 @@ async function init() {
     if (rqstBuy == false) {
         preloader.classList.add('modal__show');
         rqstBuy = true;
-        Promise.all([readSuppliers(), readEnterprises(), readBuys(), readCmp_prods(), readProducts(), readAllMarcas(), readAllCategorias()], readInventories()).then(() => {
+        Promise.all([readSuppliers(), readEnterprises(), readBuys(), readCmp_prods(), readProducts(), readAllMarcas(), readAllCategorias()], readInventories(), readPrices()).then(() => {
             rqstBuy = false;
             preloader.classList.remove('modal__show');
         })
@@ -1382,6 +1382,10 @@ function sendProduct(tr) {
 }
 const cmpProdRMW = document.querySelector('#cmp_prodRMW div.modal__body');
 function cartProduct_cppdR(product) {
+    let row = prices.find(price => price.modelo == product['codigo_prod']);
+    if (row != undefined) {
+        product['cost_uni_inv'] = Math.round(Number(row.precio));;
+    }
     let item = document.createElement('div');
     item.classList.add('cart__item');
     let html =
@@ -1619,7 +1623,7 @@ function createProduct() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                requestProducts = false;
+                rqstBuy = false;
                 preloader.classList.remove('modal__show');
                 if (data == "El codigo ya existe") {
                     mostrarAlerta(data);
@@ -1690,7 +1694,7 @@ function updateProduct() {
                 body: formData
             }).then(response => response.text()).then(data => {
                 preloader.classList.remove('modal__show');
-                requestProducts = false;
+                rqstBuy = false;
                 if (data == "El codigo ya existe") {
                     mostrarAlerta(data);
                 } else if (data == 'El codigo SMC ya existe') {
@@ -2105,3 +2109,112 @@ marca_prodM.addEventListener('change', () => {
         divCodigoSMCM.setAttribute('hidden', '');
     }
 });
+/******************************************TABLE LIST PRICE******************************************/
+const tablePriceList = document.getElementById('tablePriceList');
+const closetablePriceList = document.getElementById('closetablePriceList');
+const tbodyPriceList = document.getElementById('tbodyPriceList');
+closetablePriceList.addEventListener('click', closePriceList);
+function openPriceList() {
+    tablePriceList.classList.add('modal__show');
+}
+function closePriceList() {
+    tablePriceList.classList.remove('modal__show');
+}
+//-----read prices
+let prices = [];
+let filterPrices = [];
+async function readPrices() {
+    let formData = new FormData();
+    formData.append('readPrices', '');
+    fetch('../controladores/proforma.php', {
+        method: "POST",
+        body: formData
+    }).then(response => response.json()).then(data => {
+        prices = Object.values(data);
+        filterPrices = prices;
+        paginacionPriceList(filterPrices.length, 1);
+    }).catch(err => console.log(err));
+}
+//------buscar por input
+const inputSearchPriceList = document.getElementById("inputSearchPriceList");
+inputSearchPriceList.addEventListener("keyup", searchPriceList);
+//------Proformas por pagina
+const selectNumberPriceList = document.getElementById('selectNumberPriceList');
+selectNumberPriceList.selectedIndex = 3;
+selectNumberPriceList.addEventListener('change', function () {
+    paginacionPriceList(filterPrices.length, 1);
+});
+//------buscar por:
+function searchPriceList() {
+    const busqueda = inputSearchPriceList.value.toLowerCase().trim();
+    filterPrices = prices.filter(price => {
+        return (
+            price.modelo.toLowerCase().includes(busqueda)
+        );
+    });
+    paginacionPriceList(filterPrices.length, 1);
+}
+//------PaginacionPriceList
+function paginacionPriceList(allProducts, page) {
+    let numberProducts = Number(selectNumberPriceList.value);
+    let allPages = Math.ceil(allProducts / numberProducts);
+    let ul = document.querySelector('#wrapperPriceList ul');
+    let li = '';
+    let beforePages = page - 1;
+    let afterPages = page + 1;
+    let liActive;
+    if (page > 1) {
+        li += `<li class="btn" onclick="paginacionPriceList(${allProducts}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
+    }
+    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
+        if (pageLength > allPages) {
+            continue;
+        }
+        if (pageLength == 0) {
+            pageLength = pageLength + 1;
+        }
+        if (page == pageLength) {
+            liActive = 'active';
+        } else {
+            liActive = '';
+        }
+        li += `<li class="numb ${liActive}" onclick="paginacionPriceList(${allProducts}, ${pageLength})"><span>${pageLength}</span></li>`;
+    }
+    if (page < allPages) {
+        li += `<li class="btn" onclick="paginacionPriceList(${allProducts}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
+    }
+    ul.innerHTML = li;
+    let h2 = document.querySelector('#showPagePriceList h2');
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${allProducts} Productos`;
+    tablePrices(page);
+}
+//--------Tabla de proforma
+function tablePrices(page) {
+    const tbody = document.getElementById('tbodyPriceList');
+    const inicio = (page - 1) * Number(selectNumberPriceList.value);
+    const final = inicio + Number(selectNumberPriceList.value);
+    const product = filterPrices.slice(inicio, final);
+    tbody.innerHTML = '';
+    product.forEach((prod, index) => {
+        const tr = document.createElement('tr');
+
+        const tdNumero = document.createElement('td');
+        tdNumero.innerText = index + 1;
+        tr.appendChild(tdNumero);
+
+        const modelo = document.createElement('td');
+        modelo.innerText = prod.modelo;
+        tr.appendChild(modelo);
+
+        const precioLista = document.createElement('td');
+        precioLista.innerText = Math.round(prod.precio);
+        tr.appendChild(precioLista);
+
+        const precioVenta = document.createElement('td');
+        precioVenta.innerText = Math.round(prod.precio * 1.1);
+        precioVenta.setAttribute('style', 'background-color:rgba(6, 245, 38, 0.41)');
+        tr.appendChild(precioVenta);
+
+        tbody.appendChild(tr);
+    });
+}

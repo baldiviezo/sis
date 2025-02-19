@@ -31,6 +31,7 @@
 			<div>
 				<img src="../imagenes/registrar.svg" id="openBuyRMW" title="Nueva orden de compra">
 				<img src="../imagenes/inventario.svg" id="openProdOC" title="Productos comprados">
+				<img src="../imagenes/dollarCircle.svg" onclick="openPriceList()" class="img__folder">
 			</div>
 			<section class="select__search">
 				<div>
@@ -939,6 +940,62 @@
 							</tr>
 						</thead>
 						<tbody id="tbodyProdOC">
+						</tbody>
+					</table>
+				</section>
+			</div>
+		</div>
+	</section>
+	<!--Modal table of list prices-->
+	<section id="tablePriceList" class="modalTable">
+		<div class="modalTable__container">
+			<div class="table">
+				<div class="table__title">
+					<h1><img src="../imagenes/proforma.svg">Lista de precios</h1>
+					<img src="../imagenes/salir.svg" id="closetablePriceList" class="button__close">
+				</div>
+				<section class="table__header">
+					<div></div>
+					<div class="combo__search">
+						<div class="table__search">
+							<input type="search" id="inputSearchPriceList" placeholder="Buscar...">
+							<img src="../imagenes/search.png">
+						</div>
+					</div>
+				</section>
+				<div class="showPage" id="showPagePriceList">
+					<h2></h2>
+				</div>
+				<div class="container__page">
+					<div class="paginacion">
+						<div class="wrapper" id="wrapperPriceList">
+							<ul></ul>
+						</div>
+					</div>
+					<div>
+						<select id="selectNumberPriceList" class="select__number">
+							<option value="2">2</option>
+							<option value="4">4</option>
+							<option value="6">6</option>
+							<option value="10">10 </option>
+							<option value="20">20</option>
+						</select>
+					</div>
+				</div>
+				<section class="table__body">
+					<table>
+						<thead>
+							<tr>
+								<th>N°</th>
+								<th>Codigo</th>
+								<th>P.L.</th>
+								<th>Precio de venta</th>
+							</tr>
+						</thead>
+						<tbody id="tbodyPriceList">
+							<tr>
+								<td>VACIO!</td>
+							</tr>
 						</tbody>
 					</table>
 				</section>

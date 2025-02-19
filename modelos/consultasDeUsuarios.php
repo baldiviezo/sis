@@ -15,7 +15,7 @@ class consultas {
 		$this->ci = $conexion->real_escape_string($_POST['ci_usuaM']);
 		$this->direccion = $conexion->real_escape_string($_POST['direccion_usuaM']);
 		$this->celular = $conexion->real_escape_string($_POST['celular_usuaM']);
-		$this->rol = ucwords($conexion->real_escape_string($_POST['rol_usuaM']));
+		$this->rol = $conexion->real_escape_string($_POST['rol_usuaM']);
 	}
 	public function asignarValoresRegistrar (){
 		include 'conexion.php';
@@ -27,7 +27,7 @@ class consultas {
 		$this->ci = $conexion->real_escape_string($_POST['ci_usua_R']);
 		$this->direccion = $conexion->real_escape_string($_POST['direccion_usua_R']);
 		$this->celular = $conexion->real_escape_string($_POST['celular_usua_R']);
-		$this->rol = ucwords($conexion->real_escape_string($_POST['rol_usua_R']));
+		$this->rol = $conexion->real_escape_string($_POST['rol_usua_R']);
 	}
 	//------Read users
 	function readUsers(){

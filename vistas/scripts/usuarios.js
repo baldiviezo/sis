@@ -9,6 +9,8 @@ if (localStorage.getItem('rol_usua') == 'Ingeniero') {
     document.querySelectorAll('.form__radio')[1].children[3].classList.add('hide');
     document.querySelectorAll('.form__radio')[1].children[4].classList.add('hide');
     document.querySelectorAll('.form__radio')[1].children[5].classList.add('hide');
+    document.querySelectorAll('.form__radio')[1].children[6].classList.add('hide');
+    document.querySelectorAll('.form__radio')[1].children[7].classList.add('hide');
 } else if (localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
     document.querySelector('.table__header').classList.add('hide');
     document.getElementsByName('email_usuaM')[0].setAttribute('readonly', 'readonly');
@@ -19,6 +21,8 @@ if (localStorage.getItem('rol_usua') == 'Ingeniero') {
     document.querySelectorAll('.form__radio')[1].children[1].classList.add('hide');
     document.querySelectorAll('.form__radio')[1].children[4].classList.add('hide');
     document.querySelectorAll('.form__radio')[1].children[5].classList.add('hide');
+    document.querySelectorAll('.form__radio')[1].children[6].classList.add('hide');
+    document.querySelectorAll('.form__radio')[1].children[7].classList.add('hide');
 } else if (localStorage.getItem('rol_usua') == 'Administrador') {
     document.getElementsByName('email_usuaM')[0].setAttribute('readonly', 'readonly');
     document.getElementsByName('nombre_usuaM')[0].setAttribute('readonly', 'readonly');
@@ -30,7 +34,9 @@ if (localStorage.getItem('rol_usua') == 'Ingeniero') {
     document.querySelectorAll('.form__radio')[1].children[1].classList.add('hide');
     document.querySelectorAll('.form__radio')[1].children[2].classList.add('hide');
     document.querySelectorAll('.form__radio')[1].children[3].classList.add('hide');
-}
+    document.querySelectorAll('.form__radio')[1].children[6].classList.add('hide');
+    document.querySelectorAll('.form__radio')[1].children[7].classList.add('hide');
+}   
 //----------------------------------------------BLOCK REQUEST WITH A FLAG AND PRELOADER----------------------------------------------
 let rqstUsua = false;
 const preloader = document.getElementById('preloader');
@@ -58,6 +64,7 @@ async function readUsers() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
+            console.log(data);
             usuarios = data;
             tableUsers();
             resolve();
@@ -203,7 +210,8 @@ function readUser(usuario) {
                         document.querySelectorAll('.form__radio')[1].classList.remove('hide');
                         document.getElementById('gteInv').checked = true;
                     } else if (usuarios[usuario][columna] == 'Gerente general') {
-                        document.querySelectorAll('.form__radio')[1].classList.add('hide');
+                        //document.querySelectorAll('.form__radio')[1].classList.add('hide');
+                        document.getElementById('gerG').checked = true;
                     }
                 } else if (columna == 'contraseña_usuaM') {
                     document.getElementsByName(columna)[0].value = '';
