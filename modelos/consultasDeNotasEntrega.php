@@ -12,7 +12,7 @@ class consultas{
 	//-------Leer notas de entrega
 	public function readNotasEntrega(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM nota_entrega INNER JOIN proforma ON nota_entrega.fk_id_prof_ne = id_prof INNER JOIN usuario ON nota_entrega.fk_id_usua_ne = id_usua INNER JOIN cliente ON proforma.fk_id_clte_prof = id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = id_emp ORDER BY id_ne DESC";
+		$consulta = "SELECT * FROM nota_entrega INNER JOIN proforma ON nota_entrega.fk_id_prof_ne = id_prof INNER JOIN usuario ON proforma.fk_id_usua_prof = id_usua INNER JOIN cliente ON proforma.fk_id_clte_prof = id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = id_emp ORDER BY id_ne DESC";
 		$resultado = $conexion->query($consulta);
 		$numeroNotaEntrega = $resultado->num_rows;
 		$notasEntrega =  array();
