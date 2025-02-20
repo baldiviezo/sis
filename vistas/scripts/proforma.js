@@ -1438,7 +1438,7 @@ closeProductsSold.addEventListener('click', (e) => {
     productsSold.classList.remove('modal__show');
 });
 function readProductsSold(products) {
-    const item = productsSold.querySelector('.modal__body');
+    const item = productsSold.querySelector('#cartsProductsSold');
     item.textContent = '';
     const cartTemplate = document.createElement('template');
     cartTemplate.innerHTML = `
