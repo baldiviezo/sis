@@ -45,7 +45,6 @@ async function readNotasEntrega() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            console.log(data)
             if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
                 notasEntrega = Object.values(data);
                 filterNotasEntrega = notasEntrega;
@@ -383,7 +382,7 @@ async function readProf_prods() {
     })
 }
 //-------------------------------------------------------PROFORMA----------------------------------------------------
-let proformas = {};  //base de datos de proformas
+let proformas = [];  //base de datos de proformas
 async function readProformas() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
@@ -392,7 +391,7 @@ async function readProformas() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            proformas = data;
+            proformas = Object.values(data);
             resolve();
         }).catch(err => console.log(err));
     });
@@ -422,7 +421,8 @@ function readSale(tr) {
     document.getElementsByName('fecha_vnt')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
     document.getElementsByName('id_ne')[0].value = id_ne;
     document.getElementsByName('id_prof')[0].value = id_prof;
-
+    let id_usua = proformas.find(proforma => proforma.id_prof == id_prof).fk_id_usua_prof;
+    document.getElementById('fk_id_usua_vnt').value = id_usua;
 }
 function openPreviwProductsSold() {
     const id_prof = document.getElementsByName('id_prof')[0].value;
