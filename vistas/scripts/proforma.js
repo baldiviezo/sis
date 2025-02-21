@@ -359,7 +359,6 @@ async function readProformas() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            createYearProforma();
             if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
                 proformas = Object.values(data);
             } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
@@ -442,12 +441,15 @@ function createYearProforma() {
 //------seleccionar el año
 const selectYearProf = document.getElementById('selectYearProf');
 selectYearProf.addEventListener('change', searchProforma);
+const selectMonthProf = document.getElementById('selectMonthProf');
+selectMonthProf.addEventListener('change', searchProforma);
 //------buscar por marca y categoria:
 function selectStateProformas() {
     filterProformas = filterProformas.filter(proforma => {
         const estado = selectStateProf.value === 'todasLasProformas' ? true : proforma.estado_prof === selectStateProf.value;
         const fecha = selectYearProf.value === 'todas' ? true : proforma.fecha_prof.split('-')[0] === selectYearProf.value;
-        return estado && fecha;
+        const mes = selectMonthProf.value === 'todas' ? true : proforma.fecha_prof.split('-')[1] === selectMonthProf.value;
+        return estado && fecha && mes;
     });
     paginacionProforma(filterProformas.length, 1);
 }
@@ -1055,11 +1057,14 @@ selectYearPfPd.addEventListener('change', searchPfPd);
 //-------Estado de prof_prods
 const selectStatePfPd = document.getElementById('selectStatePfPd');
 selectStatePfPd.addEventListener('change', searchPfPd);
+const selectMonthPfpd = document.getElementById('selectMonthPfpd');
+selectMonthPfpd.addEventListener('change', searchPfPd);
 function selectStateProductOC() {
-    filterProf_prods = filterProf_prods.filter(buy => {
-        const estado = selectStatePfPd.value === 'todasLasProf' ? true : buy.estado_pfpd === selectStatePfPd.value;
-        const fecha = selectYearPfPd.value === 'todas' ? true : buy.fecha_prof.split('-')[0] === selectYearPfPd.value;
-        return estado && fecha;
+    filterProf_prods = filterProf_prods.filter(profProd => {
+        const estado = selectStatePfPd.value === 'todasLasProf' ? true : profProd.estado_pfpd === selectStatePfPd.value;
+        const fecha = selectYearPfPd.value === 'todas' ? true : profProd.fecha_prof.split('-')[0] === selectYearPfPd.value;
+        const mes = selectMonthPfpd.value === 'todas' ? true : profProd.fecha_prof.split('-')[1] === selectMonthPfpd.value;
+        return estado && fecha && mes;
     });
     paginacionPfPd(filterProf_prods.length, 1);
 }
@@ -1175,7 +1180,6 @@ function tablePdPf(page) {
         }
     }
 }
-
 //------open and clode modal prof_prod
 const tablePPMW = document.querySelector('#tablePPMW');
 const openTablePPMW = document.querySelector('#openTablePPMW');
@@ -1225,12 +1229,13 @@ function readProf_prod() {
 }
 //--------Muestra la lista de los productos de la proforma
 function cartProduct_pfpd(product, action) {
-    const inventory = inventories.find(inv => inv['codigo_prod'] === product['codigo_prod']);
+    const inventory = inventories.find(inv => inv['fk_id_prod_inv'] === product['id_prod']);
     const cantidad_inv = inventory ? inventory['cantidad_inv'] : 0;
     let cost_uni = undefined;
     let cantidad_prod = undefined;
     if (action == 'new') {
-        cost_uni = inventory ? Math.round(inventory['cost_uni_inv'] * 1.1) : 0;
+        const cost_uni2 = prices.find(price => price.modelo === product['codigo_prod']);
+        cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio) * 1.1) : (inventory ? Math.round(inventory.cost_uni_inv * 1.1) : 0);
         cantidad_prod = 1;
     } else if (action == 'read') {
         cost_uni = product['cost_uni_pfpd'];
@@ -1283,8 +1288,6 @@ const initSortableListM = (e) => {
 
     modalProf_prod.insertBefore(draggingItem, nextSibling);
 }
-
-
 //-------Eliminar producto 
 function remove_pfpd(product) {
     let listProducts = document.querySelector('#cartsProf_prodMW');
