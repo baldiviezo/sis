@@ -47,7 +47,7 @@ class Consultas{
 		$products = $_POST['prodCart'];
 		//-----Comprobar que la factura no exista
 		if ($this->estado_factura_vnt == '1'){
-			$consulta = "SELECT * FROM venta WHERE factura_vnt = '$this->factura_vnt'";
+			$consulta = "SELECT * FROM venta WHERE factura_vnt = '$this->factura_vnt' AND YEAR(fecha_vnt) = YEAR(NOW())";
 			$resultado = $conexion->query($consulta);
 			$numeroClientes = $resultado->num_rows;
 			if($numeroClientes > 0){
