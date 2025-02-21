@@ -216,7 +216,7 @@ function tableSales(page) {
                     td.innerText = sale[propiedad];
                     tr.appendChild(td);
                 }
-            } else if (propiedad === 'total_vnt') {
+            } else if (propiedad === 'total_prof') {
                 td.innerText = Number(sale[propiedad]).toFixed(2) + ' Bs';
                 tr.appendChild(td);
             } else if (propiedad === 'apellido_usua' || propiedad === 'cliente_clte' || propiedad === 'estado_factura_vnt') {
