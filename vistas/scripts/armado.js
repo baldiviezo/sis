@@ -818,7 +818,7 @@ async function createProduct() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                requestProducts = false;
+                rqstArmed = false;
                 preloader.classList.remove('modal__show');
                 if (data == "El codigo ya existe") {
                     mostrarAlerta(data);
