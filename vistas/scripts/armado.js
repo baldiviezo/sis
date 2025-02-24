@@ -821,17 +821,19 @@ async function createProduct() {
                 rqstArmed = false;
                 if (data == "El codigo ya existe") {
                     mostrarAlerta(data);
+                    preloader.classList.remove('modal__show');
                 } else if (data == "El codigo SMC ya existe"){
                     mostrarAlerta(data);
+                    preloader.classList.remove('modal__show');
                 } else {
                     readProducts().then(() => {
                         mostrarAlerta("El producto fue creado con éxito");
                         productsRMW.classList.remove('modal__show');
                         divCodigoSMCR.setAttribute('hidden', '');
                         form.reset();
+                        preloader.classList.remove('modal__show');
                     })
                 }
-                preloader.classList.remove('modal__show');
             }).catch(err => console.log(err));
         }
     }
