@@ -571,7 +571,7 @@ function tableProformas(page) {
                 { src: '../imagenes/folder.svg', onclick: 'showMdfProforma(this.parentNode.parentNode.children[0].innerText)', title: 'Proformas anteriores' },
                 { src: '../imagenes/pdf.svg', onclick: 'selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")', title: 'Mostrar PDF' }
             ];
-        } else {
+        } else if (proforma.estado_prof == 'pendiente') {
             if (localStorage.getItem('rol_usua') == 'Administrador' || localStorage.getItem('rol_usua') == 'Gerente general') {
                 imgs = [
                     { src: '../imagenes/notaEntrega.svg', onclick: 'openNotaEntregaRMW(this.parentNode.parentNode)', title: 'Generar Nota de Entrega' },
@@ -588,6 +588,10 @@ function tableProformas(page) {
                     { src: '../imagenes/edit.svg', onclick: 'readProforma(this.parentNode.parentNode)', title: 'Editar Proforma' }
                 ];
             }
+        } else if (proforma.estado_prof == 'devolucion') {
+            imgs = [
+                { src: '../imagenes/pdf.svg', onclick: 'selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")', title: 'Mostrar PDF' }
+            ]
         }
 
         imgs.forEach((img) => {
@@ -1061,7 +1065,7 @@ const selectMonthPfpd = document.getElementById('selectMonthPfpd');
 selectMonthPfpd.addEventListener('change', searchPfPd);
 function selectStateProductOC() {
     filterProf_prods = filterProf_prods.filter(profProd => {
-        const estado = selectStatePfPd.value === 'todasLasProf' ? true : profProd.estado_pfpd === selectStatePfPd.value;
+        const estado = selectStatePfPd.value === 'todasLasProf' ? true : profProd.estado_prof === selectStatePfPd.value;
         const fecha = selectYearPfPd.value === 'todas' ? true : profProd.fecha_prof.split('-')[0] === selectYearPfPd.value;
         const mes = selectMonthPfpd.value === 'todas' ? true : profProd.fecha_prof.split('-')[1] === selectMonthPfpd.value;
         return estado && fecha && mes;
@@ -1168,7 +1172,7 @@ function tablePdPf(page) {
                     let total = filterProf_prods[cmp_prod]['cantidad_pfpd'] * filterProf_prods[cmp_prod]['cost_uni_pfpd'] * (100 - filterProf_prods[cmp_prod]['descuento_prof']) / 100;
                     td2.innerText = total.toFixed(2) + ' Bs';
                     tr.appendChild(td2);
-                } else if (valor == 'fk_id_prof_pfpd' || valor == 'fk_id_prod_pfpd' || valor == 'estado_pfpd') {
+                } else if (valor == 'fk_id_prof_pfpd' || valor == 'fk_id_prod_pfpd' || valor == 'estado_prof') {
                 } else {
                     td.innerText = filterProf_prods[cmp_prod][valor];
                     tr.appendChild(td);

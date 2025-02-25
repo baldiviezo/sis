@@ -279,7 +279,8 @@ function tableNotaEntrega(page) {
             }
         } else if (notaEntrega.estado_ne == 'DEVOLUCION') {
             imgs = [
-                { src: '../imagenes/annulled.svg', title: 'Nota de entrega anulada' }
+                { src: '../imagenes/annulled.svg', title: 'Nota de entrega anulada' },
+                { src: '../imagenes/pdf.svg', onclick: 'pdfNotaEntrega(this.parentNode.parentNode)', title: 'Descargar nota de entrega' }
             ];
         }
         imgs.forEach((img) => {

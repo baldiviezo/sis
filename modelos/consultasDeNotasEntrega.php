@@ -94,6 +94,9 @@ class consultas{
 		$motivo_dvl = trim($conexion->real_escape_string($_POST['motivo_dvl']));
 		$consulta = "UPDATE nota_entrega set estado_ne = 'DEVOLUCION' WHERE id_ne='$id_ne'";
 		$resultado = $conexion->query($consulta);
+		//cambiar el estado de la proforma
+		$consulta = "UPDATE proforma set estado_prof = 'devolucion' WHERE id_prof = (SELECT fk_id_prof_ne FROM nota_entrega WHERE id_ne = '$id_ne')";
+		$resultado = $conexion->query($consulta);
 		//Buscar si la nota de entrega fue facturada
 		$consulta = "SELECT * FROM venta WHERE fk_id_ne_vnt = '$id_ne'";
 		$resultado = $conexion->query($consulta);

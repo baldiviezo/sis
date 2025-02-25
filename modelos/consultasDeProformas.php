@@ -70,7 +70,7 @@ class consultas{
     		$id_prod = $celda['id_prod'];
     		$cantidad = $celda['cantidad'];
     		$costoUnitario = $celda['costoUnitario'];
-    		$consulta2 = "INSERT INTO  prof_prod (fk_id_prof_pfpd, fk_id_prod_pfpd, cantidad_pfpd, cost_uni_pfpd, estado_pfpd) VALUES ('$numero_prof','$id_prod','$cantidad','$costoUnitario', 'pendiente')";	
+    		$consulta2 = "INSERT INTO  prof_prod (fk_id_prof_pfpd, fk_id_prod_pfpd, cantidad_pfpd, cost_uni_pfpd) VALUES ('$numero_prof','$id_prod','$cantidad','$costoUnitario')";	
 			$resultado2 = $conexion->query($consulta2);
 		}
 		echo "Proforma creada exitosamente";
@@ -168,7 +168,7 @@ class consultas{
 			}else{
 				$_numero_prof = strtoupper('SMS'.substr($fila['fecha_prof'],2,2).'-'.$this->addZerosGo($fila['numero_prof']).'-'.$sigla_emp = $fila['sigla_emp']);
 			}
-			$datos = array ('id_pfpd'=>$fila['id_pfpd'], 'fk_id_prof_pfpd'=>$fila['fk_id_prof_pfpd'], 'fk_id_prod_pfpd'=>$fila['fk_id_prod_pfpd'], 'numero_prof'=>$_numero_prof, 'fecha_prof'=>$fila['fecha_prof'], 'nombre_mrc'=>$fila['nombre_mrc'], 'nombre_ctgr'=>$fila['nombre_ctgr'], 'codigo_prod'=>$fila['codigo_prod'], 'cantidad_pfpd'=>intval($fila['cantidad_pfpd']), 'cost_uni_pfpd'=>doubleval($fila['cost_uni_pfpd']), 'descuento_prof'=>$fila['descuento_prof'], 'estado_pfpd'=>$fila['estado_pfpd']);
+			$datos = array ('id_pfpd'=>$fila['id_pfpd'], 'fk_id_prof_pfpd'=>$fila['fk_id_prof_pfpd'], 'fk_id_prod_pfpd'=>$fila['fk_id_prod_pfpd'], 'numero_prof'=>$_numero_prof, 'fecha_prof'=>$fila['fecha_prof'], 'nombre_mrc'=>$fila['nombre_mrc'], 'nombre_ctgr'=>$fila['nombre_ctgr'], 'codigo_prod'=>$fila['codigo_prod'], 'cantidad_pfpd'=>intval($fila['cantidad_pfpd']), 'cost_uni_pfpd'=>doubleval($fila['cost_uni_pfpd']), 'descuento_prof'=>$fila['descuento_prof'], 'estado_prof'=>$fila['estado_prof']);
 			$proformas[$fila['id_pfpd'].'_id_pfpd'] = $datos;
 		}
 		echo json_encode($proformas, JSON_UNESCAPED_UNICODE);
