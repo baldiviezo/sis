@@ -2326,8 +2326,9 @@ function tableInventoriesMW(page) {
 }
 function sendInventory(tr) {
     let id_inv = tr.children[0].innerText;
-    const inventory = filterInventoriesMW.find(inv => inv['id_inv'] === id_inv);
+    let inventory = filterInventoriesMW.find(inv => inv['id_inv'] === id_inv);
     if (inventory) {
+        inventory.id_prod = inventory['fk_id_prod_inv'];
         let prof_prods = modalProf_prod.querySelectorAll('.cart-item');
         const codigo = inventory['codigo_prod'];
         const existe = Array.from(prof_prods).some(prod => prod.children[2].innerText === codigo);
