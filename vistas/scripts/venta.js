@@ -66,15 +66,15 @@ function searchSales() {
         if (valor === 'todas') {
             return (
                 sale.numero_prof.toLowerCase().includes(busqueda) ||
-                sale.fecha_ne.includes(busqueda) ||
-                sale.fecha_vnt.toLowerCase().includes(busqueda) ||
-                sale.encargado.toLowerCase().includes(busqueda) ||
                 sale.nombre_emp.toLowerCase().includes(busqueda) ||
                 sale.cliente_clte.toLowerCase().includes(busqueda) ||
+                sale.fecha_ne.includes(busqueda) ||
+                sale.fecha_vnt.toLowerCase().includes(busqueda) ||
                 sale.orden_ne.toLowerCase().includes(busqueda) ||
-                String(sale.total_vnt).toLowerCase().includes(busqueda) ||
+                sale.encargado.toLowerCase().includes(busqueda) ||
+                sale.ciudad_vnt.toLowerCase().includes(busqueda) ||
                 sale.tipo_pago_vnt.toLowerCase().includes(busqueda) ||
-                sale.ciudad_vnt.toLowerCase().includes(busqueda)
+                String(sale.factura_vnt).toLowerCase().includes(busqueda)
             );
         } else {
             return String(sale[valor]).toLowerCase().includes(busqueda);
