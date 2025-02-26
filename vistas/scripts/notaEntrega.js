@@ -1,9 +1,7 @@
 //--------------------------------------------Restricciones de usuario----------------------------------------------
 if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
 } else if (localStorage.getItem('rol_usua') == 'Administrador') {
-    document.getElementById('selectStateNe').removeAttribute('hidden');
 } else if (localStorage.getItem('rol_usua') == 'Gerente general') {
-    document.getElementById('selectStateNe').removeAttribute('hidden');
 }
 //----------------------------------------------------------FECHA----------------------------------------------------
 const date = new Date();
@@ -49,7 +47,7 @@ async function readNotasEntrega() {
                 notasEntrega = Object.values(data);
                 filterNotasEntrega = notasEntrega;
             } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
-                notasEntrega = Object.values(data).filter(notaEntrega => notaEntrega.fk_id_usua_ne === localStorage.getItem('id_usua'));
+                notasEntrega = Object.values(data).filter(notaEntrega => notaEntrega.fk_id_usua_prof === localStorage.getItem('id_usua'));
                 filterNotasEntrega = notasEntrega;
             }
             paginacionNotaEntrega(notasEntrega.length, 1);
@@ -118,12 +116,15 @@ function createYearNE() {
 //-------Estado de proforma
 const selectYearNE = document.getElementById('selectYearNE');
 selectYearNE.addEventListener('change', searchNotasEntrega);
+const selectMonthNE = document.getElementById('selectMonthNE');
+selectMonthNE.addEventListener('change', searchNotasEntrega);
 //------buscar por marca y categoria:
 function selectStateNotasEntrega() {
     filterNotasEntrega = filterNotasEntrega.filter(proforma => {
         const estado = selectStateNe.value === 'notasEntrega' ? true : proforma.estado_ne === selectStateNe.value;
         const fecha = selectYearNE.value === 'todas' ? true : proforma.fecha_ne.split('-')[0] === selectYearNE.value;
-        return estado && fecha;
+        const mes = selectMonthNE.value === 'todas' ? true : proforma.fecha_ne.split('-')[1] === selectMonthNE.value;
+        return estado && fecha && mes;
     });
     paginacionNotaEntrega(filterNotasEntrega.length, 1);
 }
@@ -274,7 +275,8 @@ function tableNotaEntrega(page) {
                 ];
             } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
                 imgs = [
-                    { src: '../imagenes/pdf.svg', onclick: 'pdfNotaEntrega(this.parentNode.parentNode)', title: 'Descargar nota de entrega' }
+                    { src: '../imagenes/pdf.svg', onclick: 'pdfNotaEntrega(this.parentNode.parentNode)', title: 'Descargar nota de entrega' },
+                    { src: '../imagenes/return.svg', onclick: 'openReturnMW(this.parentNode.parentNode)', title: 'Devolución de la nota de entrega' }
                 ];
             }
         } else if (notaEntrega.estado_ne == 'DEVOLUCION') {
