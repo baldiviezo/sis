@@ -546,12 +546,16 @@ selectDateBuy.addEventListener('change', searchBuys);
 //-------Estado de compra
 const selectStateBuy = document.getElementById('selectStateBuy');
 selectStateBuy.addEventListener('change', searchBuys);
+//------mes
+const selectMonthBuy = document.getElementById('selectMonthBuy');
+selectMonthBuy.addEventListener('change', searchBuys);
 //estado de la compra
 function selectStateBuys() {
     filterBuys = filterBuys.filter(buy => {
         const estado = selectStateBuy.value === 'todasLasCompras' ? true : buy.estado_cmp === selectStateBuy.value;
         const fecha = selectDateBuy.value === 'todas' ? true : buy.fecha_cmp.split('-')[0] === selectDateBuy.value;
-        return estado && fecha;
+        const mes = selectMonthBuy.value === 'todas' ? true : buy.fecha_cmp.split('-')[1] === selectMonthBuy.value;
+        return estado && fecha && mes;
     });
     filterByUserBuys(filterBuys.length, 1);
 }
@@ -1940,11 +1944,15 @@ selectDateProdOC.addEventListener('change', searchProdOC);
 //-------Estado de cmp_prods
 const selectStateProdOC = document.getElementById('selectStateProdOC');
 selectStateProdOC.addEventListener('change', searchProdOC);
+//------mes
+const selectMonthProdOC = document.getElementById('selectMonthProdOC');
+selectMonthProdOC.addEventListener('change', searchProdOC);
 function selectStateProductOC() {
     filterCmp_prods = filterCmp_prods.filter(buy => {
         const estado = selectStateProdOC.value === 'todasLasOC' ? true : buy.estado_cppd === selectStateProdOC.value;
         const fecha = selectDateProdOC.value === 'todas' ? true : buy.fecha_factura_cppd.split('-')[0] === selectDateProdOC.value;
-        return estado && fecha;
+        const mes = selectMonthProdOC.value === 'todas' ? true : buy.fecha_factura_cppd.split('-')[1] === selectMonthProdOC.value;
+        return estado && fecha && mes;
     });
     paginacionProdOC(filterCmp_prods.length, 1);
 }

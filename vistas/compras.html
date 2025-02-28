@@ -39,7 +39,25 @@
 					<select id="selectDateBuy" class="select"></select>
 				</div>
 				<div>
-					<label>Estado compra:</label>
+					<label>Mes:</label>
+					<select id="selectMonthBuy" class="select__number">
+						<option value="todas">Todo</option>
+						<option value="01">Enero</option>
+						<option value="02">Febrero</option>
+						<option value="03">Marzo</option>
+						<option value="04">Abril</option>
+						<option value="05">Mayo</option>
+						<option value="06">Junio</option>
+						<option value="07">Julio</option>
+						<option value="08">Agosto</option>
+						<option value="09">Septiembre</option>
+						<option value="10">Octubre</option>
+						<option value="11">Noviembre</option>
+						<option value="12">Diciembre</option>
+					</select>
+				</div>
+				<div>
+					<label>Recibido/ Pendiente:</label>
 					<select id="selectStateBuy" class="select">
 						<option value="todasLasCompras">Todas las compras</option>
 						<option value="0">Compras pendientes</option>
@@ -841,12 +859,36 @@
 				<section class="table__header">
 					<h1 id="totalProdOC">TOTAL:</h1>
 					<section class="select__search">
-						<select id="selectDateProdOC" class="select"></select>
-						<select id="selectStateProdOC" class="select__number">
-							<option value="todasLasOC">Todas las OC</option>
-							<option value="PENDIENTE">OC pendientes</option>
-							<option value="RECIBIDO">OC recibidas</option>
-						</select>
+						<div>
+							<label>Fecha factura:</label>
+							<select id="selectDateProdOC" class="select"></select>
+						</div>
+						<div>
+							<label>Mes:</label>
+							<select id="selectMonthProdOC" class="select__number">
+								<option value="todas">Todo</option>
+								<option value="01">Enero</option>
+								<option value="02">Febrero</option>
+								<option value="03">Marzo</option>
+								<option value="04">Abril</option>
+								<option value="05">Mayo</option>
+								<option value="06">Junio</option>
+								<option value="07">Julio</option>
+								<option value="08">Agosto</option>
+								<option value="09">Septiembre</option>
+								<option value="10">Octubre</option>
+								<option value="11">Noviembre</option>
+								<option value="12">Diciembre</option>
+							</select>
+						</div>
+						<div>
+							<label>Recibido/ Pendiente:</label>
+							<select id="selectStateProdOC" class="select__number">
+								<option value="todasLasOC">Todas las OC</option>
+								<option value="PENDIENTE">OC pendientes</option>
+								<option value="RECIBIDO">OC recibidas</option>
+							</select>
+						</div>
 					</section>
 					<div class="combo__search">
 						<div class="filter__search">
