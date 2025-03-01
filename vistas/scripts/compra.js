@@ -710,7 +710,8 @@ async function createBuy() {
                 'fk_id_prod_cppd': producto.children[0].value,
                 'descripcion_cppd': producto.children[2].value,
                 'cantidad_cppd': producto.children[3].value,
-                'cost_uni_cppd': producto.children[4].value
+                'cost_uni_cppd': producto.children[4].value,
+                'observacion_cppd': producto.children[6].value
             };
             array.push(object);
         });
@@ -943,6 +944,7 @@ async function createCmp_prod(row) {
             'descripcion_cppd': row.children[6].value,
             'cantidad_cppd': row.children[7].value,
             'cost_uni_cppd': row.children[8].value,
+            'observacion_cppd': row.children[9].value
         }
         let formData = new FormData();
         formData.append('createCmp_prod', JSON.stringify(object));
@@ -1035,7 +1037,8 @@ function showproductsAddBuyMW(id_cmp) {
             <input type="number" value = "${cmp_prods[cmp_prod]['cantidad_cppd']}" min="1" onChange="changeQuantityCPPD(this.parentNode, ${id_cmp})" class="cart__item--quantity">
             <input type="number" value = "${cmp_prods[cmp_prod]['cost_uni_cppd']}" onChange="changeQuantityCPPD(this.parentNode, ${id_cmp})" class="cart__item--costUnit">
             <input type="number" value = "${Number(cmp_prods[cmp_prod]['cost_uni_cppd'] * cmp_prods[cmp_prod]['cantidad_cppd']).toFixed(2)}" class="cart__item--costTotal" readonly>
-            <input type="number" value="${cmp_prods[cmp_prod]['factura_cppd']}" class="cart__item--factura" readonly>`;
+            <input type="number" value="${cmp_prods[cmp_prod]['factura_cppd']}" class="cart__item--factura" readonly>
+            <input type="text" value = "${cmp_prods[cmp_prod]['observacion_cppd']}" class="cart__item--observacion">`;
             if (cmp_prods[cmp_prod]['estado_cppd'] == 'PENDIENTE') {
                 let img = document.createElement('img');
                 img.classList.add('icon__CRUD');
@@ -1399,6 +1402,7 @@ function cartProduct_cppdR(product) {
         <input type="number" value = "1" min="1" onChange="changeQuantityCPPDR(this.parentNode)" class="cart__item--quantity">
         <input type="number" value = "${product['cost_uni_inv']}" onChange="changeQuantityCPPDR(this.parentNode)" class="cart__item--costUnit">
         <input type="number" value = "${product['cost_uni_inv']}" class="cart__item--costTotal" readonly>
+        <input type="text" class="cart__item--observacion">
         <img src="../imagenes/trash.svg" onClick="removeCartR(this.parentNode)" class='icon__CRUD'>`;
     item.innerHTML = html;
     cmpProdRMW.appendChild(item);

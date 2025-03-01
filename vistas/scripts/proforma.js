@@ -228,6 +228,15 @@ function showDetails(id_prod) {
         <h3>${cost_uni}</h3>
         <img src="../imagenes/edit.svg" onclick="readProduct(this.parentNode)" class="icon__CRUD">`;
     }
+    if (product['catalogo_prod'] != '') {
+        //Mostrar el link del catalogo
+        const aCopy = document.createElement('a');
+        aCopy.href = product['catalogo_prod'];
+        aCopy.target = '_blank';
+        aCopy.title = 'Catálogo';
+        aCopy.innerText = product['catalogo_prod'];
+        modal.appendChild(aCopy);
+    }
     modalCard.classList.add('modal__show');
 }
 //-------Modal de la card
