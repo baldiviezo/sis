@@ -681,14 +681,23 @@ button:hover {
 	margin: auto;
 	background-color: #d9d9d9;
 	max-width: 400px;
-	max-height: 90%;
+	height: 90%;
 	border-radius: .5rem;
 	overflow: hidden;
 }
 
 .modalCard__body {
+	height: 100%;
 	font-size: 1rem;
-	padding: .5rem;
+
+	display: grid;
+	grid-template-rows: 3rem 1fr 3rem;
+}
+
+.modalCard__footer{
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 .modalCard__head {
@@ -698,16 +707,35 @@ button:hover {
 	color: #fff
 }
 
+.modalCard--body{
+	overflow-y: auto;
+}
+
+.modalCard--body::-webkit-scrollbar {
+	width: 0.5rem;
+	height: 0.5rem;
+}
+
+.modalCard--body::-webkit-scrollbar-thumb {
+	border-radius: .5rem;
+	background-color: #0004;
+	visibility: hidden;
+}
+
+.modalCard--body:hover::-webkit-scrollbar-thumb {
+	visibility: visible;
+}
+
 .modalCard__body h4 {
-	color: #225c74;
+	color: #000;
 	align-items: center;
 	font-size: 1.2rem;
+	font-weight: bold;
 }
 
 .modalCard__body .modalCard__img {
 	display: block;
-	width: 100px;
-	height: 100px;
+	width: 100%;
 	margin: 0 auto;
 
 }
@@ -716,16 +744,16 @@ button:hover {
 	padding: .5rem 0;
 	text-align: center;
 	color: #000;
-	font-size: 1rem;
+	font-size: 1.3rem;
 }
 
 .modalCard__body p {
 	background-color: #fff;
 	padding: .2rem;
 	border-radius: .5rem;
-	border: #225c74 1px solid;
+	border: #000 1px solid;
 	overflow-y: auto;
-	max-height: 25rem;
+	height: auto;
 }
 
 .modalCard__body p::-webkit-scrollbar {

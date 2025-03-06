@@ -205,38 +205,35 @@ function cardProduct(page) {
 }
 //------------------------------------------------------MODAL DE UNA CARD-------------------------------------------------
 //-------Detalles de la card
+const modalCard__body = document.querySelector('.modalCard__body');
+
 function showDetails(id_prod) {
-    let modal = document.querySelector('.modalCard__body');
-    let cantidad_inv = 'Cantidad: Sin existencias';
-    let cost_uni = 'Costo: Sin existencias';
     const product = filterProducts.find(product => product['id_prod'] == id_prod);
-    if (product) {
-        const inventory = inventories.find(inventory => inventory['fk_id_prod_inv'] == id_prod);
-        if (inventory) {
-            cantidad_inv = `Existencias: ${inventory['cantidad_inv']}`;
-            cost_uni = `Costo: ${inventory['cost_uni_inv']} Bs`;
-        }
-        const descripcion = product['descripcion_prod'].replace(/\n/g, '<br>');
-        modal.innerHTML = `<div class="modalCard__head">
-        <h4>${product['nombre_prod']}</h4><img src="../imagenes/salir.svg" onclick='closeModalCard()' class="button__close">
-        </div>
-        <img src="../modelos/imagenes/${product['imagen_prod']}" class="modalCard__img">
-        <h5>${product['codigo_prod']}</h5>
+
+    const { nombre_prod, codigo_prod, imagen_prod, descripcion_prod, catalogo_prod } = product;
+    const cost_uni2 = prices.find(price => price.modelo === product.codigo_prod);
+    const inventory = inventories.find(inventory => inventory.fk_id_prod_inv === id_prod);
+    const cantidad_inv = inventory ? inventory.cantidad_inv : 0;
+    const cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio)) : (inventory ? Math.round(inventory.cost_uni_inv * 1.1) : 0);
+
+    modalCard__body.innerHTML = `
+      <div class="modalCard__head">
+        <h4>${nombre_prod}</h4>
+        <img src="../imagenes/salir.svg" onclick='closeModalCard()' class="button__close">
+      </div>
+      <div class="modalCard--body">
+        <h5>${codigo_prod}</h5>
+        <img src="../modelos/imagenes/${imagen_prod}" class="modalCard__img">
         <h4>Descripcion: </h4>
-        <p>${descripcion}</p>
-        <h6>${cantidad_inv}</h6>
-        <h3>${cost_uni}</h3>
-        <img src="../imagenes/edit.svg" onclick="readProduct(this.parentNode)" class="icon__CRUD">`;
-    }
-    if (product['catalogo_prod'] != '') {
-        //Mostrar el link del catalogo
-        const aCopy = document.createElement('a');
-        aCopy.href = product['catalogo_prod'];
-        aCopy.target = '_blank';
-        aCopy.title = 'Catálogo';
-        aCopy.innerText = product['catalogo_prod'];
-        modal.appendChild(aCopy);
-    }
+        <p>${descripcion_prod.replace(/\n/g, '<br>')}</p>
+        <h6>Cantidad: ${cantidad_inv}</h6>
+        <h3>Precio de lista: ${cost_uni} Bs</h3>
+      </div>
+      <div class="modalCard__footer">
+        <img src="../imagenes/edit.svg" onclick="readProduct(this.parentNode)" class="icon__CRUD">
+        <a href="${catalogo_prod}" target="_blank" title="Catálogo">${catalogo_prod}</a>
+      </div>
+    `;
     modalCard.classList.add('modal__show');
 }
 //-------Modal de la card
@@ -1027,7 +1024,7 @@ async function readProf_prods() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            prof_prods = Object.values(data);   
+            prof_prods = Object.values(data);
             filterProf_prods = prof_prods;
             paginacionPfPd(filterProf_prods.length, 1);
             resolve();
