@@ -944,7 +944,7 @@ async function createCmp_prod(row) {
             'descripcion_cppd': row.children[6].value,
             'cantidad_cppd': row.children[7].value,
             'cost_uni_cppd': row.children[8].value,
-            'observacion_cppd': row.children[9].value
+            'observacion_cppd': row.children[10].value
         }
         let formData = new FormData();
         formData.append('createCmp_prod', JSON.stringify(object));
@@ -1423,6 +1423,7 @@ function cartProduct_cppdM(product, id_cmp) {
             <input type="number" value = "1" min="1" onChange="changeQuantityCPPD(this.parentNode, ${id_cmp})" class="cart__item--quantity">
             <input type="number" value = "${product['cost_uni_inv']}" onChange="changeQuantityCPPD(this.parentNode, ${id_cmp})" class="cart__item--costUnit">
             <input type="number" value = "${product['cost_uni_inv']}" class="cart__item--costTotal" readonly>
+            <input type="text" class="cart__item--observacion">
             <img src="../imagenes/plus.svg" onClick="createCmp_prod(this.parentNode)" class='icon__CRUD'>`;
     body.appendChild(div);
 }

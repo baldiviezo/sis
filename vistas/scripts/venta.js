@@ -297,11 +297,15 @@ const selectDateVntProd = document.getElementById('selectDateVntProd');
 selectDateVntProd.addEventListener('change', searchProdVnt);
 const stateFacturedProd = document.getElementById('stateFacturedProd');
 stateFacturedProd.addEventListener('click', searchProdVnt);
+const selectMonthVnPd = document.getElementById('selectMonthVnPd');
+selectMonthVnPd.addEventListener('change', searchProdVnt);
+
 function selectchangeYearProd() {
     filterVnt_prods = filterVnt_prods.filter(buy => {
         const estado = stateFacturedProd.value === 'todas' ? true : buy.estado_factura_vnt === stateFacturedProd.value;
         const fecha = selectDateVntProd.value === 'todas' ? true : buy.fecha_vnt.split('-')[0] === selectDateVntProd.value;
-        return estado && fecha;
+        const mes = selectMonthVnPd.value === 'todas' ? true : buy.fecha_vnt.split('-')[1] === selectMonthVnPd.value;
+        return estado && fecha && mes;
     });
     paginacionProdVnt(filterVnt_prods.length, 1);
 }

@@ -289,19 +289,19 @@ img.imagen--addProd{
 	margin: 0 .5rem;
 }
 p.codigo--addProd{
-	width: 12rem;
+	width: 10rem;
 }
 p.descripcion--addProd{
-	width: 30rem;
+	width: 16rem;
 }
 p.cantidad--addProd{
-	width: 4rem;
+	width: 6rem;
 }
 p.costo--addProd{
 	width: 6rem;
 }
 p.total--addProd{
-	width: 8rem;
+	width: 6rem;
 }
 /*
 .cart__item{

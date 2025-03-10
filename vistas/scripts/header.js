@@ -13,6 +13,7 @@ if(localStorage.getItem('rol_usua')=='Gerente general' || localStorage.getItem('
 						<li><a href="armados.html" class="nav__link">Armados y desarmados</a></li>
 						<li><a href="compras.html" class="nav__link">Compras</a></li>
 						<li><a href="ventas.html" class="nav__link">Ventas</a></li>
+						<li><a href="ingresos.html" class="nav__link">Ingresos e egresos</a></li>
 						<li><a href="cerrar.html" class="nav__link">Cerrar sesión</a></li>
 					</ul>
 					<figure class="nav__menu">
