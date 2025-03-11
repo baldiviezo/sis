@@ -19,6 +19,8 @@ class Consultas{
                 $array[$row['id_igpd'].'_igpd'] = $filas;
             }
             echo json_encode($array, JSON_UNESCAPED_UNICODE);
+        } else {
+            echo json_encode('No hay registros', JSON_UNESCAPED_UNICODE);
         }
     }
 
