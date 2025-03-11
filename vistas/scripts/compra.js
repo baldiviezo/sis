@@ -13,14 +13,15 @@ async function init() {
         preloader.classList.add('modal__show');
         rqstBuy = true;
         Promise.all([
+            readBuys(),
             readSuppliers().then(() => readEnterprises()),
-            readBuys(), 
-            readCmp_prods(), 
-            readProducts(), 
-            readAllMarcas(), 
-            readAllCategorias(), 
-            readInventories(), 
-            readPrices()]).then(() => {
+            readCmp_prods(),
+            readProducts(),
+            readAllMarcas(),
+            readAllCategorias(),
+            readInventories(),
+            readPrices()
+        ]).then(() => {
             rqstBuy = false;
             preloader.classList.remove('modal__show');
         })
@@ -2112,6 +2113,7 @@ async function readInventories() {
             body: formData
         }).then(response => response.json()).then(data => {
             inventories = Object.values(data);
+            resolve();
         }).catch(err => console.log(err));
     })
 }
@@ -2147,16 +2149,19 @@ function closePriceList() {
 let prices = [];
 let filterPrices = [];
 async function readPrices() {
-    let formData = new FormData();
-    formData.append('readPrices', '');
-    fetch('../controladores/proforma.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.json()).then(data => {
-        prices = Object.values(data);
-        filterPrices = prices;
-        paginacionPriceList(filterPrices.length, 1);
-    }).catch(err => console.log(err));
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readPrices', '');
+        fetch('../controladores/proforma.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            prices = Object.values(data);
+            filterPrices = prices;
+            paginacionPriceList(filterPrices.length, 1);
+            resolve();
+        }).catch(err => console.log(err));
+    })
 }
 //------buscar por input
 const inputSearchPriceList = document.getElementById("inputSearchPriceList");
