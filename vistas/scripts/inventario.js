@@ -10,7 +10,7 @@ if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getIte
     //inventoryMMW
     document.getElementsByName('cantidad_invM')[0].setAttribute('readonly', 'readonly');
     //inventoryRMW
-    //document.querySelector('#openInventoryRMW').removeAttribute('hidden');
+    document.querySelector('#openInventoryRMW').removeAttribute('hidden');
     document.getElementsByName('cantidad_invR')[0].setAttribute('readonly', 'readonly');
     //document.querySelector('#inventoryRMW .form__group--select').children[4].removeAttribute('hidden');
 
@@ -798,8 +798,7 @@ function tableProductsMW(page) {
                     td.innerText = i;
                     tr.appendChild(td);
                     i++;
-                } else if (valor == 'id_mrc') {
-                } else if (valor == 'id_ctgr') {
+                } else if (valor == 'id_mrc' || valor == 'id_ctgr' || valor == 'catalogo_prod' || valor == 'codigo_smc_prod') {
                 } else if (valor == 'imagen_prod') {
                     let img = document.createElement('img');
                     img.classList.add('tbody__img');

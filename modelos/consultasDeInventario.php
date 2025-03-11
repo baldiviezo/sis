@@ -17,18 +17,57 @@ class consultas {
 		$this->descripcion = trim($conexion->real_escape_string($_POST['descripcion_invM']));
 	}
 	//-------Leer inventarios
-	public  function readInventories(){
-		include 'conexion.php';
+	public function readInventories() {
+		$conexion = new Conexion();
 		$consulta = "SELECT * FROM inventario INNER JOIN producto ON inventario.fk_id_prod_inv = id_prod INNER JOIN marca ON producto.fk_id_mrc_prod = id_mrc INNER JOIN categoria ON producto.fk_id_ctgr_prod = id_ctgr ORDER BY id_inv DESC";
 		$resultado = $conexion->query($consulta);
-		$productos =  array();
-			while ($fila = $resultado->fetch_assoc()){
-				$description = $fila['descripcion_prod'];
-				//$description = str_replace("\r" , '<br>', $description);
-				$datos = array ('id_inv'=>$fila['id_inv'], 'fk_id_prod_inv'=>$fila['fk_id_prod_inv'], 'id_mrc'=>$fila['id_mrc'], 'marca_prod'=>$fila['nombre_mrc'], 'id_ctgr'=>$fila['id_ctgr'], 'categoria_prod'=>$fila['nombre_ctgr'], 'codigo_prod'=>$fila['codigo_prod'], 'nombre_prod'=>$fila['nombre_prod'], 'descripcion_prod'=>$description, 'imagen_prod'=>$fila['imagen_prod'], 'cantidad_inv'=>$fila['cantidad_inv'], 'cost_uni_inv'=>$fila['cost_uni_inv'], 'descripcion_inv'=>$fila['descripcion_inv']);
-				$productos[$fila['codigo_prod']] = $datos;
-			}
-			echo json_encode($productos, JSON_UNESCAPED_UNICODE);
+		$productos = array();
+	
+		while ($fila = $resultado->fetch_assoc()) {
+			$description = $fila['descripcion_prod'];
+			$datos = array (
+				'id_inv' => $fila['id_inv'],
+				'fk_id_prod_inv' => $fila['fk_id_prod_inv'],
+				'id_mrc' => $fila['id_mrc'],
+				'ubi_almacen' => 0,
+				'marca_prod' => $fila['nombre_mrc'],
+				'id_ctgr' => $fila['id_ctgr'],
+				'categoria_prod' => $fila['nombre_ctgr'],
+				'codigo_prod' => $fila['codigo_prod'],
+				'nombre_prod' => $fila['nombre_prod'],
+				'descripcion_prod' => $description,
+				'imagen_prod' => $fila['imagen_prod'],
+				'cantidad_inv' => $fila['cantidad_inv'],
+				'cost_uni_inv' => $fila['cost_uni_inv'],
+				'descripcion_inv' => $fila['descripcion_inv']
+			);
+			$productos[$fila['codigo_prod']] = $datos;
+		}
+	
+		$consulta = "SELECT * FROM inventario_arce INNER JOIN producto ON inventario_arce.fk_id_prod_inva = id_prod INNER JOIN marca ON producto.fk_id_mrc_prod = id_mrc INNER JOIN categoria ON producto.fk_id_ctgr_prod = id_ctgr ORDER BY id_inva DESC";
+		$resultado = $conexion->query($consulta);
+	
+		while ($fila = $resultado->fetch_assoc()) {
+			$description = $fila['descripcion_prod'];
+			$datos = array (
+				'id_inv' => $fila['id_inva'],
+				'fk_id_prod_inv' => $fila['fk_id_prod_inva'],
+				'id_mrc' => $fila['id_mrc'],
+				'ubi_almacen' => 1,
+				'marca_prod' => $fila['nombre_mrc'],
+				'id_ctgr' => $fila['id_ctgr'],
+				'categoria_prod' => $fila['nombre_ctgr'],
+				'codigo_prod' => $fila['codigo_prod'],
+				'nombre_prod' => $fila['nombre_prod'],
+				'descripcion_prod' => $description,
+				'imagen_prod' => $fila['imagen_prod'],
+				'cantidad_inv' => $fila['cantidad_inva'],
+				'cost_uni_inv' => $fila['cost_uni_inva'],
+				'descripcion_inv' => $fila['descripcion_inva']
+			);
+			$productos[$fila['codigo_prod']] = $datos;
+		}
+		echo json_encode($productos, JSON_UNESCAPED_UNICODE);
 	}
 	//-------Registrar un inventario
 	public function createInventory(){
@@ -38,9 +77,9 @@ class consultas {
 		$resultado = $conexion->query($consulta);
 		$numeroFilas = $resultado->num_rows;
 		if($numeroFilas > 0){
-			echo ("El producto ya esta en el inventario");	
+			echo ("El producto ya se encuentra en el inventario");	
 		}else{
-			$consulta = "INSERT INTO inventario (fk_id_prod_inv, cantidad_inv, cost_uni_inv, descripcion_inv) VALUES ('$this->codigo', '$this->cantidad', '$this->cu', '$this->descripcion')";
+			$consulta = "INSERT INTO inventario (fk_id_prod_inv, cantidad_inv, cost_uni_inv, descripcion_inv) VALUES ('$this->codigo', 0, '$this->cu', '$this->descripcion')";
 			//Si la sentencia se ejecuto exitosamente $resultado devuelve true, si no se ejecuto devuelve false
 			$resultado = $conexion->query($consulta);
 			echo ("El producto se añadió al inventario exitosamente");
@@ -66,7 +105,7 @@ class consultas {
 	}
 	public function update(){
 		include 'conexion.php';
-		$consulta = "UPDATE inventario INNER JOIN producto ON inventario.fk_id_prod_inv = id_prod set  cantidad_inv='$this->cantidad', cost_uni_inv='$this->cu', descripcion_inv='$this->descripcion' WHERE id_inv='$this->id_inv'";
+		$consulta = "UPDATE inventario INNER JOIN producto ON inventario.fk_id_prod_inv = id_prod set   cost_uni_inv='$this->cu', descripcion_inv='$this->descripcion' WHERE id_inv='$this->id_inv'";
 		$resultado = $conexion->query($consulta);
 		echo ("Inventario actualizado exitosamente");
 	}

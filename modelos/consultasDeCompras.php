@@ -58,7 +58,7 @@ class Consultas{
 			//Insertando los productos de la compra
 			$productos = json_decode($productos,true);
 			foreach($productos as $celda){
-				//Coprobar que los productos esten creados en inventario
+				//Coprobar que el producto este creado en el alamcen de El Alto
 				$consulta = "SELECT * FROM inventario WHERE fk_id_prod_inv = '$celda[fk_id_prod_cppd]'";
 				$resultado = $conexion->query($consulta);
 				$numero_productos = $resultado->num_rows;
@@ -66,6 +66,16 @@ class Consultas{
 					$consulta = "INSERT INTO inventario (fk_id_prod_inv, cantidad_inv, cost_uni_inv, descripcion_inv) VALUES ('$celda[fk_id_prod_cppd]', 0, '$celda[cost_uni_cppd]', '')";
 					$resultado = $conexion->query($consulta);
 				}
+				//Coprobar que el producto este creado en el alamcen de La Arce
+				$consulta = "SELECT * FROM inventario_arce WHERE fk_id_prod_inva = '$celda[fk_id_prod_cppd]'";
+				$resultado = $conexion->query($consulta);
+				$numero_productos = $resultado->num_rows;
+				if ($numero_productos == 0) {
+					$consulta = "INSERT INTO inventario_arce (fk_id_prod_inva, cantidad_inva, cost_uni_inva, descripcion_inva) VALUES ('$celda[fk_id_prod_cppd]', 0, '$celda[cost_uni_cppd]', '')";
+					$resultado = $conexion->query($consulta);
+				}
+
+
 				//Insertando los productos de la compra
 				$fk_id_prod_cppd = $celda['fk_id_prod_cppd'];
 				$descripcion_cppd = $celda['descripcion_cppd'];
