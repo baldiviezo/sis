@@ -230,7 +230,7 @@ function showDetails(id_prod) {
         <h3>Precio de lista: ${cost_uni} Bs</h3>
       </div>
       <div class="modalCard__footer">
-        <img src="../imagenes/edit.svg" onclick="readProduct(this.parentNode)" class="icon__CRUD">
+        <img src="../imagenes/edit.svg" onclick="readProduct(${id_prod})" class="icon__CRUD">
         <a href="${catalogo_prod}" target="_blank" title="Catálogo">${catalogo_prod}</a>
       </div>
     `;
@@ -2564,11 +2564,10 @@ async function createProduct() {
     }
 }
 //------Leer un producto
-function readProduct(tr) {
+function readProduct(id_prod) {
     cleanUpProductFormM();
-    let codigo_prod = tr.children[2].innerText;
     for (let product in filterProducts) {
-        if (filterProducts[product]['codigo_prod'] == codigo_prod) {
+        if (filterProducts[product]['id_prod'] == id_prod) {
             for (let valor in filterProducts[product]) {
                 if (valor == 'imagen_prod') {
                     document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("../modelos/imagenes/${filterProducts[product][valor]}"); background-size: cover;`);
@@ -2621,6 +2620,7 @@ async function updateProduct() {
                 } else {
                     readProducts().then(() => {
                         productsMMW.classList.remove('modal__show');
+                        modalCard.classList.remove('modal__show');
                         mostrarAlerta(data);
                     })
                 }

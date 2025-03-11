@@ -266,7 +266,7 @@ $fpdf->Image('logos/quanser.jpg',25,240,56,12);
 $fpdf->Image('logos/balluff.png',87,240,56,15);
 $fpdf->Image('logos/kimo.jpg',147,240,44,15);
 $fpdf->setTitle($_prof_mprof_ne);
-$fpdf->Output();
+$fpdf->Output('I',$_prof_mprof_ne.'.pdf','UTF-8');
 //$fpdf->Output('D',$_SESSION['nProforma'].'.pdf','UTF-8');
 //$fpdf->Output('F','../../reportes/'.$_SESSION['nProforma'].'.pdf');
 

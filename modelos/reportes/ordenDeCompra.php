@@ -153,7 +153,7 @@ $fpdf->Cell(94,6, utf8_decode('Benjamín A. Aparicio García'), 0, 1,'C',false);
 $y = $fpdf->GetY();
 $fpdf->Image('logos/firmaIng.jpg',80,$y-35,45,30);
 $fpdf->setTitle($_prof_mprof_ne);
-$fpdf->Output();
+$fpdf->Output('I',$_prof_mprof_ne.'.pdf','UTF-8');
 
 ?>
 

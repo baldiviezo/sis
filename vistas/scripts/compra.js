@@ -12,7 +12,15 @@ async function init() {
     if (rqstBuy == false) {
         preloader.classList.add('modal__show');
         rqstBuy = true;
-        Promise.all([readSuppliers(), readEnterprises(), readBuys(), readCmp_prods(), readProducts(), readAllMarcas(), readAllCategorias()], readInventories(), readPrices()).then(() => {
+        Promise.all([
+            readSuppliers().then(() => readEnterprises()),
+            readBuys(), 
+            readCmp_prods(), 
+            readProducts(), 
+            readAllMarcas(), 
+            readAllCategorias(), 
+            readInventories(), 
+            readPrices()]).then(() => {
             rqstBuy = false;
             preloader.classList.remove('modal__show');
         })
