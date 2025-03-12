@@ -5,8 +5,8 @@ class consultas {
 		//Ponemos TRIM para el momento de comparar, al no usar trim se puede guardar una variable con espasio en la base de datos y al comparar con la misma variable ya guardada en el fronent el espacio se quita y al comparar no son las mismas
 		$this->codigo = trim($conexion->real_escape_string(strtoupper($_POST['codigo_prodR'])));
 		$this->codigo_smc_prod = trim($conexion->real_escape_string($_POST['codigo_smc_prodR']));
-		$this->marca = trim($conexion->real_escape_string($_POST['marca_prodR']));
-		$this->categoria = trim($conexion->real_escape_string($_POST['categoria_prodR']));
+		$this->marca = trim($conexion->real_escape_string($_POST['fk_id_mrc_prodR']));
+		$this->categoria = trim($conexion->real_escape_string($_POST['fk_id_ctgr_prodR']));
 		$this->nombre = trim($conexion->real_escape_string($_POST['nombre_prodR']));
 		$this->descripcion = trim($conexion->real_escape_string($_POST['descripcion_prodR']));
 		$this->imagen = trim($conexion->real_escape_string($_FILES['imagen_prodR']['name']));
@@ -17,8 +17,8 @@ class consultas {
 		$this->id = trim($conexion->real_escape_string($_POST['id_prodM']));
 		$this->codigo = trim($conexion->real_escape_string(strtoupper($_POST['codigo_prodM'])));
 		$this->codigo_smc_prod = trim($conexion->real_escape_string($_POST['codigo_smc_prodM']));
-		$this->marca = trim($conexion->real_escape_string($_POST['marca_prodM']));
-		$this->categoria = trim($conexion->real_escape_string($_POST['categoria_prodM']));
+		$this->marca = trim($conexion->real_escape_string($_POST['fk_id_mrc_prodM']));
+		$this->categoria = trim($conexion->real_escape_string($_POST['fk_id_ctgr_prodM']));
 		$this->descripcion = trim($conexion->real_escape_string($_POST['descripcion_prodM']));
 		$this->nombre = trim($conexion->real_escape_string($_POST['nombre_prodM']));
 		$this->imagen = trim($conexion->real_escape_string($_FILES['imagen_prodM']['name']));
@@ -26,15 +26,13 @@ class consultas {
 	}
 	//-------------------------------CRUD PRODUCTS--------------------------------
 	//-------Leer productos
-	public function readProducts(){
-		require 'conexion.php';
-		$consulta = "SELECT * FROM producto INNER JOIN marca ON producto.fk_id_mrc_prod = id_mrc INNER JOIN categoria ON producto.fk_id_ctgr_prod = id_ctgr ORDER BY id_prod DESC"; 
+	public function readProducts() {
+		require_once 'conexion.php';
+		$consulta = "SELECT * FROM producto ORDER BY id_prod DESC"; 
 		$resultado = $conexion->query($consulta);
-		$productos =  array();
-		while ($fila = $resultado->fetch_assoc()){
-			$description = $fila['descripcion_prod'];
-			$datos = array ( 'id_prod'=>$fila['id_prod'], 'id_mrc'=>$fila['id_mrc'], 'marca_prod'=>$fila['nombre_mrc'], 'id_ctgr'=>$fila['id_ctgr'], 'categoria_prod'=>$fila['nombre_ctgr'], 'codigo_smc_prod'=>$fila['codigo_smc_prod'], 'codigo_prod'=>$fila['codigo_prod'], 'nombre_prod'=>$fila['nombre_prod'], 'descripcion_prod'=>$description,  'imagen_prod'=>$fila['imagen_prod'], 'catalogo_prod'=>$fila['catalogo_prod']);
-			$productos['id_prod_'.$fila['id_prod']] = $datos;
+		$productos = array();
+		while ($fila = $resultado->fetch_assoc()) {
+			$productos[] = $fila;
 		}
 		echo json_encode($productos, JSON_UNESCAPED_UNICODE);
 	}
@@ -229,17 +227,15 @@ class consultas {
 		}
 	}
 	//-----------------------------------CRUD MARCAS----------------------------------
-	public function readMarcas(){
-		include 'conexion.php';
+	public function readMarcas() {
+		require_once 'conexion.php';
 		$consulta = "SELECT * FROM marca ORDER BY nombre_mrc ASC";
 		$resultado = $conexion->query($consulta);
-		$marcas =  array();
-		while ($fila = $resultado->fetch_assoc()){
-			$datos = array ( 'id_mrc'=>$fila['id_mrc'], 'nombre_mrc'=>$fila['nombre_mrc']);
-			$marcas[$fila['id_mrc'].'_mrc'] = $datos;
+		$marcas = array();
+		while ($fila = $resultado->fetch_assoc()) {
+			$marcas[] = $fila;
 		}
-		$json = json_encode($marcas, JSON_UNESCAPED_UNICODE);
-		echo $json;
+		echo json_encode($marcas, JSON_UNESCAPED_UNICODE);
 	}
 	public function createMarca(){
 		include 'conexion.php';
@@ -281,20 +277,15 @@ class consultas {
 		}
 	}
 	//----------------------------------CRUD CATEGORIAS------------------------------
-	public function readCategorias(){
-		include 'conexion.php';
-		$consulta = "SELECT * FROM mrc_ctgr 
-             INNER JOIN marca ON mrc_ctgr.fk_id_mrc_mccr = id_mrc 
-             INNER JOIN categoria ON mrc_ctgr.fk_id_ctgr_mccr = id_ctgr 
-             ORDER BY categoria.nombre_ctgr ASC";
+	public function readCategorias() {
+		require_once 'conexion.php';
+		$consulta = "SELECT id_ctgr, fk_id_mrc_mccr, nombre_ctgr FROM categoria INNER JOIN mrc_ctgr ON categoria.id_ctgr = mrc_ctgr.fk_id_ctgr_mccr ORDER BY nombre_ctgr ASC";
 		$resultado = $conexion->query($consulta);
-		$categorias =  array();
-		while ($fila = $resultado->fetch_assoc()){
-			$datos = array ( 'id_mccr'=>$fila['id_mccr'], 'id_mrc'=>$fila['id_mrc'], 'nombre_mrc'=>$fila['nombre_mrc'], 'id_ctgr'=>$fila['id_ctgr'], 'nombre_ctgr'=>$fila['nombre_ctgr']);
-			$categorias[$fila['id_mccr'].'_mccr'] = $datos;
+		$categorias = array();
+		while ($fila = $resultado->fetch_assoc()) {
+			$categorias[] = $fila;
 		}
-		$json = json_encode($categorias, JSON_UNESCAPED_UNICODE);
-		echo $json;
+		echo json_encode($categorias, JSON_UNESCAPED_UNICODE);
 	}
 	public function createCategoria(){
 		include 'conexion.php';

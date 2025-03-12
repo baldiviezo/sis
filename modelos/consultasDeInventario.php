@@ -18,54 +18,23 @@ class consultas {
 	}
 	//-------Leer inventarios
 	public function readInventories() {
-		$conexion = new Conexion();
-		$consulta = "SELECT * FROM inventario INNER JOIN producto ON inventario.fk_id_prod_inv = id_prod INNER JOIN marca ON producto.fk_id_mrc_prod = id_mrc INNER JOIN categoria ON producto.fk_id_ctgr_prod = id_ctgr ORDER BY id_inv DESC";
-		$resultado = $conexion->query($consulta);
+		include 'conexion.php';
 		$productos = array();
-	
-		while ($fila = $resultado->fetch_assoc()) {
-			$description = $fila['descripcion_prod'];
-			$datos = array (
-				'id_inv' => $fila['id_inv'],
-				'fk_id_prod_inv' => $fila['fk_id_prod_inv'],
-				'id_mrc' => $fila['id_mrc'],
-				'ubi_almacen' => 0,
-				'marca_prod' => $fila['nombre_mrc'],
-				'id_ctgr' => $fila['id_ctgr'],
-				'categoria_prod' => $fila['nombre_ctgr'],
-				'codigo_prod' => $fila['codigo_prod'],
-				'nombre_prod' => $fila['nombre_prod'],
-				'descripcion_prod' => $description,
-				'imagen_prod' => $fila['imagen_prod'],
-				'cantidad_inv' => $fila['cantidad_inv'],
-				'cost_uni_inv' => $fila['cost_uni_inv'],
-				'descripcion_inv' => $fila['descripcion_inv']
-			);
-			$productos[$fila['codigo_prod']] = $datos;
-		}
-	
-		$consulta = "SELECT * FROM inventario_arce INNER JOIN producto ON inventario_arce.fk_id_prod_inva = id_prod INNER JOIN marca ON producto.fk_id_mrc_prod = id_mrc INNER JOIN categoria ON producto.fk_id_ctgr_prod = id_ctgr ORDER BY id_inva DESC";
+		// Ejemplo de consulta a la base de datos
+		$consulta = "SELECT * FROM inventario ORDER BY id_inv DESC";
 		$resultado = $conexion->query($consulta);
-	
+		$producto = array();
 		while ($fila = $resultado->fetch_assoc()) {
-			$description = $fila['descripcion_prod'];
-			$datos = array (
-				'id_inv' => $fila['id_inva'],
-				'fk_id_prod_inv' => $fila['fk_id_prod_inva'],
-				'id_mrc' => $fila['id_mrc'],
-				'ubi_almacen' => 1,
-				'marca_prod' => $fila['nombre_mrc'],
-				'id_ctgr' => $fila['id_ctgr'],
-				'categoria_prod' => $fila['nombre_ctgr'],
-				'codigo_prod' => $fila['codigo_prod'],
-				'nombre_prod' => $fila['nombre_prod'],
-				'descripcion_prod' => $description,
-				'imagen_prod' => $fila['imagen_prod'],
-				'cantidad_inv' => $fila['cantidad_inva'],
-				'cost_uni_inv' => $fila['cost_uni_inva'],
-				'descripcion_inv' => $fila['descripcion_inva']
-			);
-			$productos[$fila['codigo_prod']] = $datos;
+			$fila['ubi_almacen'] = 0;
+			$productos[] = $fila;
+		}
+		
+		// Ejemplo de otra consulta a la base de datos
+		$consulta = "SELECT * FROM inventario_arce ORDER BY id_inva DESC";
+		$resultado = $conexion->query($consulta);
+		while ($fila = $resultado->fetch_assoc()) {
+			$fila['ubi_almacen'] = 1;
+			$productos[] = $fila;
 		}
 		echo json_encode($productos, JSON_UNESCAPED_UNICODE);
 	}

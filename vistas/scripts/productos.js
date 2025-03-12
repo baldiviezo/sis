@@ -19,12 +19,15 @@ async function init() {
     if (!requestProducts) {
         requestProducts = true;
         preloader.classList.add('modal__show');
-        Promise.all([readProducts(), readAllMarcas(), readAllCategorias()]).then(() => {
+        try {
+            await readAllMarcas();
+            await readAllCategorias();
+            await readProducts();
             requestProducts = false;
             preloader.classList.remove('modal__show');
-        }).catch((error) => {
+        } catch (error) {
             mostrarAlerta('Ocurrio un error al cargar la tabla de productos. Cargue nuevamente la pagina.');
-        });
+        }
     }
 }
 //--------------------------------------------TABLE PRODUCT-----------------------------------------------------
@@ -44,9 +47,10 @@ async function readProducts() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            products = Object.values(data);
+            products = data;
             filterProducts = products;
-            (selectMarcaProduct.value == 'todasLasMarcas' && selectCategoriaProduct.value == 'todasLasCategorias') ? paginacionProduct(products.length, 1) : selectProducts();
+            paginacionProduct(products.length, 1);
+            //(selectMarcaProduct.value == 'todasLasMarcas' && selectCategoriaProduct.value == 'todasLasCategorias') ? paginacionProduct(products.length, 1) : selectProducts();
             resolve();
         }).catch(err => console.log(err));
     })
@@ -69,9 +73,11 @@ function searchProducts() {
     const valor = selectSearchProduct.value;
     filterProducts = products.filter(product => {
         if (valor == 'todas') {
-            return product.codigo_prod.toLowerCase().includes(busqueda) ||
+            return (
+                product.codigo_prod.toLowerCase().includes(busqueda) ||
                 product.nombre_prod.toLowerCase().includes(busqueda) ||
-                product.descripcion_prod.toLowerCase().includes(busqueda);
+                product.descripcion_prod.toLowerCase().includes(busqueda)
+            );
         } else {
             return product[valor].toLowerCase().includes(busqueda);
         }
@@ -80,20 +86,14 @@ function searchProducts() {
 }
 //------buscar por marca y categoria:
 function selectProducts() {
-    if (selectMarcaProduct.value == 'todasLasMarcas' && selectCategoriaProduct.value == 'todasLasCategorias') {
-        paginacionProduct(filterProducts.length, 1);
-    } else {
-        filterProducts = filterProducts.filter(product => {
-            if (selectMarcaProduct.value == 'todasLasMarcas') {
-                return product['id_ctgr'] == selectCategoriaProduct.value;
-            } else if (selectCategoriaProduct.value == 'todasLasCategorias') {
-                return product['id_mrc'] == selectMarcaProduct.value;
-            } else {
-                return product['id_ctgr'] == selectCategoriaProduct.value && product['id_mrc'] == selectMarcaProduct.value;
-            }
-        });
-        paginacionProduct(filterProducts.length, 1);
+    filterProducts = products;
+    if (selectMarcaProduct.value != 'todasLasMarcas') {
+        filterProducts = filterProducts.filter(product => product['fk_id_mrc_prod'] == selectMarcaProduct.value);
     }
+    if (selectCategoriaProduct.value != 'todasLasCategorias') {
+        filterProducts = filterProducts.filter(product => product['fk_id_ctgr_prod'] == selectCategoriaProduct.value);
+    }
+    paginacionProduct(filterProducts.length, 1);
 }
 //------Ordenar tabla descendente ascendente
 let orderProducts = document.querySelectorAll('.tbody__head--Product');
@@ -156,55 +156,68 @@ function paginacionProduct(allProducts, page) {
 //------Crear la tabla
 function tableProducts(page) {
     let tbody = document.getElementById('tbodyProduct');
-    inicio = (page - 1) * Number(selectNumberProduct.value);
-    final = inicio + Number(selectNumberProduct.value);
-    i = 1;
-    tbody.innerHTML = '';
-    for (let product in filterProducts) {
-        if (i > inicio && i <= final) {
-            let tr = document.createElement('tr');
-            for (let valor in filterProducts[product]) {
-                let td = document.createElement('td');
-                if (valor == 'id_prod') {
-                    td.innerText = filterProducts[product][valor];
-                    td.setAttribute('hidden', '');
-                    tr.appendChild(td);
-                    td = document.createElement('td');
-                    td.innerText = i;
-                    tr.appendChild(td);
-                    i++;
-                } else if (valor == 'codigo_smc_prod' || valor == 'id_mrc' || valor == 'id_ctgr' || valor == 'catalogo_prod') {
-                } else if (valor == 'imagen_prod') {
-                    let img = document.createElement('img');
-                    img.classList.add('tbody__img');
-                    img.setAttribute('src', '../modelos/imagenes/' + filterProducts[product][valor]);
-                    td.appendChild(img);
-                    tr.appendChild(td);
-                } else {
-                    td.innerText = filterProducts[product][valor];
-                    tr.appendChild(td);
-                }
-            }
+    let inicio = (page - 1) * Number(selectNumberProduct.value);
+    let final = inicio + Number(selectNumberProduct.value);
+    let fragment = document.createDocumentFragment();
+
+    for (let product of filterProducts.slice(inicio, final)) {
+        let tr = document.createElement('tr');
+        for (let valor in product) {
             let td = document.createElement('td');
-            let html = '';
-            if (filterProducts[product]['catalogo_prod'] != '') {
-                html += `<a href='${filterProducts[product]['catalogo_prod']}' target='_blank'><img src='../imagenes/pdf.svg' title='Catálogo'></a>`;
-            }
-            if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
-                html += `
-                <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)' title='Editar producto'>
-                <img src='../imagenes/trash.svg' onclick='deleteProduct(this.parentNode.parentNode)' title='Eliminar Producto'>`;
+            if (valor == 'id_prod') {
+                td.innerText = product[valor];
+                td.setAttribute('hidden', '');
+                tr.appendChild(td);
+                td2 = document.createElement('td');
+                td2.innerText = filterProducts.indexOf(product) + 1;
+                tr.appendChild(td2);
+            } else if (valor == 'codigo_smc_prod' || valor == 'catalogo_prod') {
+            } else if (valor == 'fk_id_mrc_prod') {
+                const marca = marcas.find((marca) => marca.id_mrc === product[valor]);
+                td.innerText = marca ? marca.nombre_mrc : '';
+                tr.appendChild(td);
+            } else if (valor == 'fk_id_ctgr_prod') {
+                const categoria = categorias.find((categoria) => categoria.id_ctgr === product[valor]);
+                td.innerText = categoria ? categoria.nombre_ctgr : '';
+                tr.appendChild(td);
+            } else if (valor == 'imagen_prod') {
+                let img = document.createElement('img');
+                img.classList.add('tbody__img');
+                img.setAttribute('src', '../modelos/imagenes/' + product[valor]);
+                td.appendChild(img);
+                tr.appendChild(td);
             } else {
-                html += `
-                <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)' title='Editar Producto'>`;
+                td.innerText = product[valor];
+                tr.appendChild(td);
             }
-            td.innerHTML = html;
-            tr.appendChild(td);
-            tbody.appendChild(tr);
-        } else {
-            i++;
         }
+        let td = document.createElement('td');
+        if (localStorage.getItem('rol_usua') === 'Gerente general' || localStorage.getItem('rol_usua') === 'Administrador') {
+            if (product['catalogo_prod'] == '') {
+                td.innerHTML = `
+                    <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)' title='Editar producto'>
+                    <img src='../imagenes/trash.svg' onclick='deleteProduct(this.parentNode.parentNode)' title='Eliminar Producto'>`;
+            } else {
+                td.innerHTML = `
+                    <a href="${product['catalogo_prod']}" target="_blank"><img src='../imagenes/pdf.svg'  title='Catálogo'></a>
+                    <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)' title='Editar producto'>
+                    <img src='../imagenes/trash.svg' onclick='deleteProduct(this.parentNode.parentNode)' title='Eliminar Producto'>`;
+            }
+        } else {
+            if (product['catalogo_prod'] == '') {
+                td.innerHTML = `
+                    <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)' title='Editar producto'>`;
+            } else {
+                td.innerHTML = `
+                    <a href="${product['catalogo_prod']}" target="_blank"><img src='../imagenes/pdf.svg'  title='Catálogo'></a>
+                <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)' title='Editar producto'>`;
+            }
+        }
+        tr.appendChild(td);
+        fragment.appendChild(tr);
     }
+    tbody.innerHTML = '';
+    tbody.appendChild(fragment);
 }
 //<<------------------------------------------CRUD DE PRODUCTS------------------------------------->>
 //------Create un producto
@@ -227,18 +240,18 @@ async function createProduct() {
                 body: formData
             }).then(response => response.text()).then(data => {
                 requestProducts = false;
-                
+
                 if (data == "El codigo ya existe") {
                     mostrarAlerta(data);
                     preloader.classList.remove('modal__show');
-                } else if (data == "El codigo SMC ya existe"){
+                } else if (data == "El codigo SMC ya existe") {
                     mostrarAlerta(data);
                     preloader.classList.remove('modal__show');
                 } else {
                     readProducts().then(() => {
                         mostrarAlerta("El producto fue creado con éxito");
                         productsRMW.classList.remove('modal__show');
-                        divCodigoSMCR.setAttribute('hidden', '');                        
+                        divCodigoSMCR.setAttribute('hidden', '');
                         form.reset();
                         preloader.classList.remove('modal__show');
                     })
@@ -254,28 +267,25 @@ async function createProduct() {
 function readProduct(tr) {
     cleanUpProductFormM();
     let id_prod = tr.children[0].innerText;
-    for (let product in filterProducts) {
-        if (filterProducts[product]['id_prod'] == id_prod) {
-            for (let valor in filterProducts[product]) {
-                if (valor == 'imagen_prod') {
-                    document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("../modelos/imagenes/${filterProducts[product][valor]}"); background-size: cover;`);
-                } else if (valor == 'codigo_smc_prod') {
-                    if (filterProducts[product]['id_mrc'] == '15') {
-                        divCodigoSMCM.removeAttribute('hidden');
-                        document.getElementsByName(valor + 'M')[0].value = filterProducts[product][valor];
-                    }
-                } else if (valor == 'id_ctgr') {
-                } else if (valor == 'id_mrc') {
-                } else if (valor == 'marca_prod') {
-                    document.getElementsByName(valor + 'M')[0].value = filterProducts[product]['id_mrc'];
-                } else if (valor == 'categoria_prod') {
-                    selectCategoriaProdM();
-                    document.getElementsByName(valor + 'M')[0].value = filterProducts[product]['id_ctgr'];
-                } else {
-                    document.getElementsByName(valor + 'M')[0].value = filterProducts[product][valor];
+    let product = filterProducts.find(product => product.id_prod == id_prod);
+
+    if (product) {
+        for (let valor in product) {
+            if (valor == 'imagen_prod') {
+                document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("../modelos/imagenes/${product[valor]}"); background-size: cover;`);
+            } else if (valor == 'codigo_smc_prod') {
+                if (product['fk_id_mrc_prod'] == '15') {
+                    divCodigoSMCM.removeAttribute('hidden');
+                    document.getElementsByName(valor + 'M')[0].value = product[valor];
                 }
+            } else if (valor == 'fk_id_mrc_prod') {
+                document.getElementsByName(valor + 'M')[0].value = product[valor];
+            } else if (valor == 'fk_id_ctgr_prod') {
+                selectCategoriaProdM();
+                document.getElementsByName(valor + 'M')[0].value = product[valor];
+            } else {
+                document.getElementsByName(valor + 'M')[0].value = product[valor];
             }
-            break;
         }
     }
     productsMMW.classList.add('modal__show');
@@ -303,7 +313,7 @@ async function updateProduct() {
                 if (data == "El codigo ya existe") {
                     mostrarAlerta(data);
                     preloader.classList.remove('modal__show');
-                } else if (data == 'El codigo SMC ya existe'){
+                } else if (data == 'El codigo SMC ya existe') {
                     mostrarAlerta(data);
                     preloader.classList.remove('modal__show');
                 } else {
@@ -508,7 +518,7 @@ function processFileM(file) {
 }
 /*----------------------------------------------Marca y categoria-------------------------------------------------*/
 //-------Read all Marcas
-let marcas = {};
+let marcas = [];
 async function readAllMarcas() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
@@ -526,7 +536,7 @@ async function readAllMarcas() {
     })
 }
 //-------Read all categorias
-let categorias = {};
+let categorias = [];
 async function readAllCategorias() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
@@ -584,12 +594,12 @@ function selectMarcaProd() {
     option.value = 'todasLasMarcas';
     option.innerText = 'Todas las marcas';
     selectMarcaProduct.appendChild(option);
-    for (let clave in marcas) {
+    marcas.forEach(marca => {
         let option = document.createElement('option');
-        option.value = marcas[clave]['id_mrc'];
-        option.innerText = marcas[clave]['nombre_mrc'];
+        option.value = marca.id_mrc;
+        option.innerText = marca.nombre_mrc;
         selectMarcaProduct.appendChild(option);
-    }
+    });
 }
 //-------registrar categoria
 let formCategoriaR = document.getElementById('formCategoriaR');
@@ -640,21 +650,21 @@ function selectCategoriaProd() {
     selectCategoriaProduct.appendChild(option);
     if (selectMarcaProduct.value != 'todasLasMarcas') {
         let id_mrc = selectMarcaProduct.value;
-        for (let clave in categorias) {
-            if (categorias[clave]['id_mrc'] == id_mrc) {
+        categorias.forEach(categoria => {
+            if (categoria.fk_id_mrc_mccr == id_mrc) {
                 let option = document.createElement('option');
-                option.value = categorias[clave]['id_ctgr'];
-                option.innerText = categorias[clave]['nombre_ctgr'];
+                option.value = categoria.id_ctgr;
+                option.innerText = categoria.nombre_ctgr;
                 selectCategoriaProduct.appendChild(option);
             }
-        }
+        });
     }
     searchProducts();
 }
 //------MARCA Y CATEGORIA PARA FORMULARIO DE REGSITRO Y MODIFICACION DE PRODUCTOS
-const marca_prodR = document.getElementById('marca_prodR');
+const marca_prodR = document.getElementById('fk_id_mrc_prodR');
 marca_prodR.addEventListener('change', selectCategoriaProdR);
-const categoria_prodR = document.getElementById('categoria_prodR');
+const categoria_prodR = document.getElementById('fk_id_ctgr_prodR');
 //-------Select de marcas registrar
 function selectMarcaProdR() {
     marca_prodR.innerHTML = '';
@@ -662,12 +672,12 @@ function selectMarcaProdR() {
     option.value = 'todasLasMarcas';
     option.innerText = 'Todas las marcas';
     marca_prodR.appendChild(option);
-    for (let clave in marcas) {
+    marcas.forEach(marca => {
         let option = document.createElement('option');
-        option.value = marcas[clave]['id_mrc'];
-        option.innerText = marcas[clave]['nombre_mrc'];
+        option.value = marca.id_mrc;
+        option.innerText = marca.nombre_mrc;
         marca_prodR.appendChild(option);
-    }
+    });
     selectCategoriaProdR();
 }
 function selectCategoriaProdR() {
@@ -678,19 +688,19 @@ function selectCategoriaProdR() {
     categoria_prodR.appendChild(option);
     if (marca_prodR.value != 'todasLasMarcas') {
         let id_mrc = marca_prodR.value;
-        for (let clave in categorias) {
-            if (categorias[clave]['id_mrc'] == id_mrc) {
+        categorias.forEach(categoria => {
+            if (categoria.fk_id_mrc_mccr == id_mrc) {
                 let option = document.createElement('option');
-                option.value = categorias[clave]['id_ctgr'];
-                option.innerText = categorias[clave]['nombre_ctgr'];
+                option.value = categoria.id_ctgr;
+                option.innerText = categoria.nombre_ctgr;
                 categoria_prodR.appendChild(option);
             }
-        }
+        });
     }
 }
-const marca_prodM = document.getElementById('marca_prodM');
+const marca_prodM = document.getElementById('fk_id_mrc_prodM');
 marca_prodM.addEventListener('change', selectCategoriaProdM);
-const categoria_prodM = document.getElementById('categoria_prodM');
+const categoria_prodM = document.getElementById('fk_id_ctgr_prodM');
 //-------Select de marcas registrar
 function selectMarcaProdM() {
     marca_prodM.innerHTML = '';
@@ -698,12 +708,12 @@ function selectMarcaProdM() {
     option.value = 'todasLasMarcas';
     option.innerText = 'Todas las marcas';
     marca_prodM.appendChild(option);
-    for (let clave in marcas) {
+    marcas.forEach(marca => {
         let option = document.createElement('option');
-        option.value = marcas[clave]['id_mrc'];
-        option.innerText = marcas[clave]['nombre_mrc'];
+        option.value = marca.id_mrc;
+        option.innerText = marca.nombre_mrc;
         marca_prodM.appendChild(option);
-    }
+    });
     selectCategoriaProdM();
 }
 function selectCategoriaProdM() {
@@ -714,14 +724,14 @@ function selectCategoriaProdM() {
     categoria_prodM.appendChild(option);
     if (marca_prodM.value != 'todasLasMarcas') {
         let id_mrc = marca_prodM.value;
-        for (let clave in categorias) {
-            if (categorias[clave]['id_mrc'] == id_mrc) {
+        categorias.forEach(categoria => {
+            if (categoria.fk_id_mrc_mccr == id_mrc) {
                 let option = document.createElement('option');
-                option.value = categorias[clave]['id_ctgr'];
-                option.innerText = categorias[clave]['nombre_ctgr'];
+                option.value = categoria.id_ctgr;
+                option.innerText = categoria.nombre_ctgr;
                 categoria_prodM.appendChild(option);
             }
-        }
+        });
     }
 }
 //<<------------------------ABRIR Y CERRAR VENTANAS MODALES DE MARCA Y CATEGORIA--------------------------------->>

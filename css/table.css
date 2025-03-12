@@ -296,15 +296,15 @@ tbody tr:hover{
 	min-width: 30rem;
 } 
 /*----------------------tabla inventario ---------------------------------------------*/
-#tbodyInventory td:nth-of-type(5){
+#tbodyInventory td:nth-of-type(6){
 	min-width: 8rem;
 	max-width: 12rem;
 }
-#tbodyInventory td:nth-of-type(7){
+#tbodyInventory td:nth-of-type(8){
 	min-width: 12rem;
 	max-width: 16rem;
 }
-#tbodyInventory td:nth-of-type(8){
+#tbodyInventory td:nth-of-type(9){
 	min-width: 30rem;
 }
 /*-------------------------espacios de tabla product modal---------------------------------------*/
