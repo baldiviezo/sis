@@ -69,7 +69,7 @@ selectNumberProduct.addEventListener('change', function () {
 });
 //------buscar por:
 function searchProducts() {
-    const busqueda = inputSerchProduct.value.toLowerCase();
+    const busqueda = inputSerchProduct.value.toLowerCase().trim();
     const valor = selectSearchProduct.value;
     filterProducts = products.filter(product => {
         if (valor == 'todas') {

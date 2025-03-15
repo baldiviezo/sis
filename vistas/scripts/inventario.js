@@ -60,6 +60,7 @@ async function readInventories() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
+            console.log(data)
             inventories = data;
             filterInventories = inventories;
             paginacionInventory(inventories.length, 1);
@@ -86,34 +87,24 @@ function searchInventories() {
     filterInventories = inventories.filter(inventory => {
         if (valor === 'todas') {
             return (
-                inventory.codigo_prod.toLowerCase().includes(busqueda) ||
-                inventory.nombre_prod.toLowerCase().includes(busqueda) ||
-                inventory.descripcion_prod.toLowerCase().includes(busqueda) ||
-                inventory.descripcion_inv.toLowerCase().includes(busqueda) ||
-                inventory.cost_uni_inv.toString().toLowerCase().includes(busqueda)
+                inventory.cost_uni_inv.includes(busqueda)
             );
         } else {
-            return inventory[valor].toString().toLowerCase().includes(busqueda);
+            return inventory[valor].toString().includes(busqueda);
         }
     });
     selectInventories();
 }
 //------buscar por marca y categoria:
 function selectInventories() {
-    if (selectMarcaInventory.value == 'todasLasMarcas' && selectCategoriaInventory.value == 'todasLasCategorias') {
-        paginacionInventory(filterInventories.length, 1);
-    } else {
-        filterInventories = filterInventories.filter(product => {
-            if (selectMarcaInventory.value == 'todasLasMarcas') {
-                return product['id_ctgr'] == selectCategoriaInventory.value;
-            } else if (selectCategoriaInventory.value == 'todasLasCategorias') {
-                return product['id_mrc'] == selectMarcaInventory.value;
-            } else {
-                return product['id_ctgr'] == selectCategoriaInventory.value && product['id_mrc'] == selectMarcaInventory.value;
-            }
-        });
-        paginacionInventory(filterInventories.length, 1);
+    filterInventories = inventories; // crear una copia del arreglo
+    if (selectMarcaInventory.value != 'todasLasMarcas') {
+        filterInventories = filterInventories.filter(product => product['id_mrc'] == selectMarcaInventory.value);
+    }   
+    if (selectCategoriaInventory.value != 'todasLasCategorias') {
+        filterInventories = filterInventories.filter(product => product['id_ctgr'] == selectCategoriaInventory.value);
     }
+    paginacionInventory(filterInventories.length, 1);
 }
 //------Ordenar tabla descendente ascendente
 let orderInventories = document.querySelectorAll('.tbody__head--inventory');
@@ -382,7 +373,6 @@ async function readProductsMW() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            console.log(data)
             products = data;
             filterProducts = products;
             sortProducts = products;
@@ -686,7 +676,7 @@ inputSearchProdMW.addEventListener("keyup", searchProductsMW);
 const selectNumberProdMW = document.getElementById('selectNumberProdMW');
 selectNumberProdMW.selectedIndex = 3;
 selectNumberProdMW.addEventListener('change', function () {
-    paginacionProductMW(Object.values(filterProducts).length, 1);
+    paginacionProductMW(filterProducts.length, 1);
 });
 //------buscar por:
 function searchProductsMW() {
@@ -715,7 +705,7 @@ function searchProductsMW() {
 //------buscar por marca y categoria:
 function selectProductsMW() {
     if (selectMarcaProdMW.value == 'todasLasMarcas' && selectCategoriaProdMW.value == 'todasLasCategorias') {
-        paginacionProductMW(Object.values(filterProducts).length, 1);
+        paginacionProductMW(filterProducts.length, 1);
     } else {
         for (let product in filterProducts) {
             for (let valor in filterProducts[product]) {
@@ -737,7 +727,7 @@ function selectProductsMW() {
                 }
             }
         }
-        paginacionProductMW(Object.values(filterProducts).length, 1);
+        paginacionProductMW(filterProducts.length, 1);
     }
 }
 //------Ordenar tabla descendente ascendente
@@ -752,7 +742,7 @@ orderProducts.forEach(div => {
             return 0;
         })
         filterProducts = Object.fromEntries(array);
-        paginacionProductMW(Object.values(filterProducts).length, 1);
+        paginacionProductMW(filterProducts.length, 1);
     });
     div.children[1].addEventListener('click', function () {
         let array = Object.entries(filterProducts).sort((a, b) => {
@@ -763,7 +753,7 @@ orderProducts.forEach(div => {
             return 0;
         })
         filterProducts = Object.fromEntries(array);
-        paginacionProductMW(Object.values(filterProducts).length, 1);
+        paginacionProductMW(filterProducts.length, 1);
     });
 })
 //------PaginacionProductMW
