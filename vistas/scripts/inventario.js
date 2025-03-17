@@ -41,9 +41,11 @@ async function init() {
                 readInventories()
             ]);
             paginacionInventory(filterInventories.length, 1);
+            paginacionProductMW(products.length, 1);
             requestInventory = false;
             preloader.classList.remove('modal__show');
         } catch (error) {
+            console.log(error)
             mostrarAlerta('Ocurrio un error al cargar la tabla de inventarios. Cargue nuevamente la pagina.');
         } finally {
             initializing = false;
@@ -137,7 +139,6 @@ orderInventories.forEach(div => {
 })
 //------PaginacionInventory
 function paginacionInventory(allInventories, page) {
-    console.log('paginacionInventory: ejecutando');
     const totalStock = document.querySelector('#totalStock');
     let stock = 0;
     for (let inventory in filterInventories) {
@@ -200,7 +201,7 @@ function tableInventories(page) {
     for (let inventory of filterInventories.slice(inicio, final)) {
         let product = products.find(product => product.id_prod === inventory.fk_id_prod_inv);
         let tr = document.createElement('tr');
-        tr.setAttribute('id_inv', inventory.id_inv); // Agregar atributo personalizado
+        tr.setAttribute('id_inv', inventory.id_inv); 
 
         let tdIndex = document.createElement('td');
         tdIndex.innerText = inicio + i++;
@@ -251,6 +252,11 @@ function tableInventories(page) {
 document.getElementById("formInventarioR").addEventListener("submit", createInventory);
 async function createInventory() {
     event.preventDefault();
+    //verificar que el valor de codigo_prod_invR no este vacio
+    if (document.getElementsByName('codigo_prod_invR')[0].value == '') {
+        mostrarAlerta('Seleccione un producto');
+        return;
+    }
     if (requestInventory == false) {
         requestInventory = true;
         inventoryRMW.classList.remove('modal__show');
@@ -281,9 +287,15 @@ function readInventory(tr) {
     let id_inv = tr.getAttribute('id_inv');
     for (let inventory in filterInventories) {
         if (filterInventories[inventory]['id_inv'] == id_inv) {
+            const product = products.find(product => product.id_prod === filterInventories[inventory]['fk_id_prod_inv']);
+            document.getElementsByName('codigo_prod_invM')[0].value = product['codigo_prod'];
             for (let valor in filterInventories[inventory]) {
-                document.getElementsByName(valor + 'M')[0].value = filterInventories[inventory][valor];
-            }
+                if (valor == 'ubi_almacen') {
+                    document.getElementsByName('ubi_almacenM')[0].value = filterInventories[inventory][valor] == 0 ? 'El Alto' : 'La Paz';
+                } else {
+                    document.getElementsByName(valor + 'M')[0].value = filterInventories[inventory][valor];
+                }
+            } 
             break;
         }
     }
@@ -351,8 +363,7 @@ async function deleteInventory(tr) {
 const inventoryRMW = document.getElementById('inventoryRMW');
 const inventoryMMW = document.getElementById('inventoryMMW');
 const openInventoryRMW = document.getElementById('openInventoryRMW');
-const openInventoryMMW = document.getElementById('openInventoryMMW');
-const closeInventoryRMW = document.getElementById('closeInventoryRMW');
+const openInventoryMMW = document.getElementById('openInventoryMMW');const closeInventoryRMW = document.getElementById('closeInventoryRMW');
 const closeInventoryMMW = document.getElementById('closeInventoryMMW');
 openInventoryRMW.addEventListener('click', () => {
     inventoryRMW.classList.add('modal__show');
@@ -371,11 +382,8 @@ selectMarcaProdMW.addEventListener('change', selectCategoriaProd);
 const selectCategoriaProdMW = document.getElementById('selectCategoriaProdMW');
 selectCategoriaProdMW.addEventListener('change', searchProductsMW);
 //<<-----------------------------------LLENAR LA LISTA DE PRODUCTOS-------------------------------------->>
-const selectProductR = document.getElementById('selectProductR');
-const selectProductM = document.getElementById('selectProductM');
 let products = [];
 let filterProducts = [];
-let sortProducts = [];
 let indexProduct = 0;
 let formProduct;
 async function readProductsMW() {
@@ -387,28 +395,10 @@ async function readProductsMW() {
             body: formData
         }).then(response => response.json()).then(data => {
             products = data;
-            filterProducts = products;
-            sortProducts = products;
-            let array = Object.entries(sortProducts).sort((a, b) => {
-                return a[1].codigo_prod.toLowerCase().localeCompare(b[1].codigo_prod.toLowerCase());
-            });
-            sortProducts = Object.fromEntries(array);
-            fillSelectProd(selectProductR, indexProduct);
-            fillSelectProd(selectProductM, indexProduct);
-            (selectMarcaProdMW.value == 'todasLasMarcas' && selectCategoriaProdMW.value == 'todasLasCategorias') ? paginacionProductMW(products.length, 1) : selectProductsMW();
+            filterProducts = products; 
             resolve();
         }).catch(err => mostrarAlerta('Ocurrio un error al cargar los productos, cargue nuevamente la pagina.'));
     })
-}
-function fillSelectProd(select, index) {
-    select.innerHTML = '';
-    for (let product in sortProducts) {
-        let option = document.createElement('option');
-        option.value = sortProducts[product]['id_prod'];
-        option.innerText = sortProducts[product]['codigo_prod'];
-        select.appendChild(option);
-    }
-    if (index > 0) { select.value = index }
 }
 //<<------------------------------------------CRUD DE PRODUCTS------------------------------------->>
 //------Create un producto
@@ -431,7 +421,8 @@ async function createProduct() {
             if (data == "El codigo ya existe") {
                 mostrarAlerta(data);
             } else {
-                Promise.all([readProductsMW(), readInventories()]).then(() => {
+                readProductsMW().then(() => {
+                    paginacionProductMW(products.length, 1);
                     indexProduct = data;
                     form.reset();
                     mostrarAlerta("El producto fue creado con éxito");
@@ -444,23 +435,25 @@ async function createProduct() {
 function readProduct(div) {
     cleanUpProductFormM();
     let id_prod = div.children[0].value;
-    for (let product in products) {
-        if (products[product]['id_prod'] == id_prod) {
-            for (let valor in products[product]) {
-                if (valor == 'imagen_prod') {
-                    document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("../modelos/imagenes/${products[product][valor]}"); background-size: cover;`);
-                } else if (valor == 'id_ctgr') {
-                } else if (valor == 'id_mrc') {
-                } else if (valor == 'marca_prod') {
-                    document.getElementsByName(valor + 'M')[0].value = products[product]['id_mrc'];
-                } else if (valor == 'categoria_prod') {
-                    selectCategoriaProdM();
-                    document.getElementsByName(valor + 'M')[0].value = products[product]['id_ctgr'];
-                } else {
-                    document.getElementsByName(valor + 'M')[0].value = products[product][valor];
+    let product = filterProducts.find(product => product.id_prod == id_prod);
+
+    if (product) {
+        for (let valor in product) {
+            if (valor == 'imagen_prod') {
+                document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("../modelos/imagenes/${product[valor]}"); background-size: cover;`);
+            } else if (valor == 'codigo_smc_prod') {
+                if (product['fk_id_mrc_prod'] == '15') {
+                    divCodigoSMCM.removeAttribute('hidden');
+                    document.getElementsByName(valor + 'M')[0].value = product[valor];
                 }
+            } else if (valor == 'fk_id_mrc_prod') {
+                document.getElementsByName(valor + 'M')[0].value = product[valor];
+            } else if (valor == 'fk_id_ctgr_prod') {
+                selectCategoriaProdM();
+                document.getElementsByName(valor + 'M')[0].value = product[valor];
+            } else {
+                document.getElementsByName(valor + 'M')[0].value = product[valor];
             }
-            break;
         }
     }
     productsMMW.classList.add('modal__show');
@@ -482,7 +475,9 @@ async function updateProduct() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            Promise.all([readProductsMW(), readInventories()]).then(() => {
+            readProductsMW().then(() => {
+                paginacionInventory(filterInventories.length, 1);
+                paginacionProductMW(products.length, 1);
                 mostrarAlerta(data);
                 indexProduct = document.getElementsByName('fk_id_prod_inv' + formProduct)[0].value;
             })
@@ -545,21 +540,11 @@ function mostrarimagenM() {
     let urlDeImagen = URL.createObjectURL(imagen);
     document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("${urlDeImagen}"); background-size: cover;`);
 }
-//<<--------------------------------------------------------CAMPOS DE LOS FORMULARIOS------------------------------->>
-//------Vuelve oblogatorios los campos del formulario
-function requiredInputProd() {
-    inputsFormProduct.forEach(input => input.setAttribute("required", ""));
-    //formulario registrar
-    document.getElementsByName("imagen_prodR")[0].setAttribute('accept', "image/png, image/jpeg, image/jpg, image/gif");
-    document.getElementsByName("descripcion_prodR")[0].setAttribute("required", "");
-    //formulario modificar
-    document.getElementsByName("id_prodM")[0].setAttribute("hidden", "");
-    document.getElementsByName("imagen_prodM")[0].setAttribute("accept", "image/png, image/jpeg, image/jpg, image/gif");
-    document.getElementsByName("descripcion_prodM")[0].setAttribute("required", "");
-}
 //<<-------------------------------------------------------ESPACIOS OBLIGATORIOS de formProductsR y formProductsM ------------------------------------------>>
 inputsFormProduct.forEach(input => {
     input.setAttribute('required', '');
+    document.getElementsByName("codigo_smc_prodR")[0].removeAttribute('required');
+    document.getElementsByName("codigo_smc_prodM")[0].removeAttribute('required');
 })
 //------Limpia los campos del fomulario registrar
 function cleanUpProductFormR() {
@@ -693,55 +678,29 @@ selectNumberProdMW.addEventListener('change', function () {
 });
 //------buscar por:
 function searchProductsMW() {
-    filterProducts = {};
-    for (let product in products) {
-        for (let valor in products[product]) {
-            if (selectSearchProdMW.value == 'todas') {
-                if (valor == 'codigo_prod' || valor == 'nombre_prod' || valor == 'descripcion_prod') {
-                    if (products[product][valor].toLowerCase().indexOf(inputSearchProdMW.value.toLowerCase()) >= 0) {
-                        filterProducts[product] = products[product];
-                        break;
-                    }
-                }
-            } else {
-                if (valor == selectSearchProdMW.value) {
-                    if (products[product][valor].toLowerCase().indexOf(inputSearchProdMW.value.toLowerCase()) >= 0) {
-                        filterProducts[product] = products[product];
-                        break;
-                    }
-                }
-            }
+    const valor = selectSearchProdMW.value;
+    const busqueda = inputSearchProdMW.value.toLowerCase().trim();
+    filterProducts = products.filter(product => {
+        if (valor === 'todas') {
+            return (
+                product.codigo_prod.toLowerCase().includes(busqueda) ||
+                product.nombre_prod.toLowerCase().includes(busqueda) ||
+                product.descripcion_prod.toLowerCase().includes(busqueda)
+            );
+        } else {
+            return product[valor].toLowerCase().includes(busqueda);
         }
-    }
+    });
     selectProductsMW();
 }
 //------buscar por marca y categoria:
 function selectProductsMW() {
-    if (selectMarcaProdMW.value == 'todasLasMarcas' && selectCategoriaProdMW.value == 'todasLasCategorias') {
-        paginacionProductMW(filterProducts.length, 1);
-    } else {
-        for (let product in filterProducts) {
-            for (let valor in filterProducts[product]) {
-                if (selectMarcaProdMW.value == 'todasLasMarcas') {
-                    if (filterProducts[product]['id_ctgr'] != selectCategoriaProdMW.value) {
-                        delete filterProducts[product];
-                        break;
-                    }
-                } else if (selectCategoriaProdMW.value == 'todasLasCategorias') {
-                    if (filterProducts[product]['id_mrc'] != selectMarcaProdMW.value) {
-                        delete filterProducts[product];
-                        break;
-                    }
-                } else {
-                    if (filterProducts[product]['id_ctgr'] != selectCategoriaProdMW.value || filterProducts[product]['id_mrc'] != selectMarcaProdMW.value) {
-                        delete filterProducts[product];
-                        break;
-                    }
-                }
-            }
-        }
-        paginacionProductMW(filterProducts.length, 1);
-    }
+    filterProducts = filterProducts.filter(product => {
+        const marca = selectMarcaProdMW.value === 'todasLasMarcas' ? true : product.fk_id_mrc_prod === selectMarcaProdMW.value;
+        const categoria = selectCategoriaProdMW.value === 'todasLasCategorias' ? true : product.fk_id_ctgr_prod === selectCategoriaProdMW.value;
+        return marca && categoria;
+    });
+    paginacionProductMW(filterProducts.length, 1);
 }
 //------Ordenar tabla descendente ascendente
 let orderProducts = document.querySelectorAll('.tbody__head--ProdMW');
@@ -806,49 +765,57 @@ function paginacionProductMW(allProducts, page) {
 //------Crear la tabla
 function tableProductsMW(page) {
     let tbody = document.getElementById('tbodyProductMW');
-    inicio = (page - 1) * Number(selectNumberProdMW.value);
-    final = inicio + Number(selectNumberProdMW.value);
-    i = 1;
-    tbody.innerHTML = '';
-    for (let product in filterProducts) {
-        if (i > inicio && i <= final) {
-            let tr = document.createElement('tr');
-            for (let valor in filterProducts[product]) {
-                let td = document.createElement('td');
-                if (valor == 'id_prod') {
-                    td.innerText = filterProducts[product][valor];
-                    td.setAttribute('hidden', '');
-                    tr.appendChild(td);
-                    td = document.createElement('td');
-                    td.innerText = i;
-                    tr.appendChild(td);
-                    i++;
-                } else if (valor == 'id_mrc' || valor == 'id_ctgr' || valor == 'catalogo_prod' || valor == 'codigo_smc_prod') {
-                } else if (valor == 'imagen_prod') {
-                    let img = document.createElement('img');
-                    img.classList.add('tbody__img');
-                    img.setAttribute('src', '../modelos/imagenes/' + filterProducts[product][valor]);
-                    td.appendChild(img);
-                    tr.appendChild(td);
-                } else {
-                    td.innerText = filterProducts[product][valor];
-                    tr.appendChild(td);
-                }
-            }
+    let inicio = (page - 1) * Number(selectNumberProdMW.value);
+    let final = inicio + Number(selectNumberProdMW.value);
+    let fragment = document.createDocumentFragment();
+
+    for (let product of filterProducts.slice(inicio, final)) {
+        let tr = document.createElement('tr');
+        tr.setAttribute('id_prod', product.id_prod);
+
+        let tdIndex = document.createElement('td');
+        tdIndex.innerText = inicio + filterProducts.indexOf(product) + 1;
+        tr.appendChild(tdIndex);
+
+        for (let valor in product) {
             let td = document.createElement('td');
-            td.innerHTML = `
-        <img src='../imagenes/send.svg' onclick='sendProduct(this.parentNode.parentNode)' title='Seleccionar'>`;
-            tr.appendChild(td);
-            tbody.appendChild(tr);
-        } else {
-            i++;
+            if (valor == 'id_prod' || valor == 'codigo_smc_prod' || valor == 'catalogo_prod') {
+                // No hacer nada
+            } else if (valor == 'fk_id_mrc_prod') {
+                const marca = marcas.find((marca) => marca.id_mrc === product[valor]);
+                td.innerText = marca ? marca.nombre_mrc : '';
+                tr.appendChild(td);
+            } else if (valor == 'fk_id_ctgr_prod') {
+                const categoria = categorias.find((categoria) => categoria.id_ctgr === product[valor]);
+                td.innerText = categoria ? categoria.nombre_ctgr : '';
+                tr.appendChild(td);
+            } else if (valor == 'imagen_prod') {
+                let img = document.createElement('img');
+                img.classList.add('tbody__img');
+                img.setAttribute('src', '../modelos/imagenes/' + product[valor]);
+                td.appendChild(img);
+                tr.appendChild(td);
+            } else {
+                td.innerText = product[valor];
+                tr.appendChild(td);
+            }
         }
+
+        let td = document.createElement('td');
+        td.innerHTML = `
+            <img src='../imagenes/send.svg' onclick='sendProduct(this.parentNode.parentNode)' title='Seleccionar'>`;
+        tr.appendChild(td);
+        fragment.appendChild(tr);
     }
+    tbody.innerHTML = '';
+    tbody.appendChild(fragment);
 }
 function sendProduct(tr) {
-    let id_prod = tr.children[0].innerText;
-    let select = document.getElementsByName('fk_id_prod_inv' + formProduct)[0];
-    select.value = id_prod;
+    const id_prod = tr.getAttribute('id_prod');
+    const fk_id_prod_invR = document.getElementsByName('fk_id_prod_inv' + formProduct)[0];
+    fk_id_prod_invR.value = id_prod;
+    const codigo_prod_invR = document.getElementsByName('codigo_prod_inv' + formProduct)[0];
+    codigo_prod_invR.value = tr.children[1].innerText;
     productSMW.classList.remove('modal__show');
 }
 //---------------------------VENTANA MODAL PARA BUSCAR PRODUCTOS
@@ -1041,12 +1008,14 @@ function selectCategoriaProd() {
             }
         });
     }
-    searchProductsMW();
+    if (!initializing) {
+        searchProductsMW();
+    }
 }
 //------MARCA Y CATEGORIA PARA FORMULARIO DE REGSITRO Y MODIFICACION DE PRODUCTOS
-const marca_prodR = document.getElementById('marca_prodR');
+const marca_prodR = document.getElementById('fk_id_mrc_prodR');
 marca_prodR.addEventListener('change', selectCategoriaProdR);
-const categoria_prodR = document.getElementById('categoria_prodR');
+const categoria_prodR = document.getElementById('fk_id_ctgr_prodR');
 //-------Select de marcas registrar
 function selectMarcaProdR() {
     marca_prodR.innerHTML = '';
@@ -1081,9 +1050,9 @@ function selectCategoriaProdR() {
         });
     }
 }
-const marca_prodM = document.getElementById('marca_prodM');
+const marca_prodM = document.getElementById('fk_id_mrc_prodM');
 marca_prodM.addEventListener('change', selectCategoriaProdM);
-const categoria_prodM = document.getElementById('categoria_prodM');
+const categoria_prodM = document.getElementById('fk_id_ctgr_prodM');
 //-------Select de marcas registrar
 function selectMarcaProdM() {
     marca_prodM.innerHTML = '';
@@ -1145,4 +1114,21 @@ function mostrarAlerta(message) {
 }
 botonAceptar.addEventListener('click', (e) => {
     modalAlerta.classList.remove('modal__show');
+});
+//------div codigo smc
+const divCodigoSMCR = document.getElementById('divCodigoSMCR');
+const divCodigoSMCM = document.getElementById('divCodigoSMCM');
+marca_prodR.addEventListener('change', () => {
+    if (marca_prodR.value == '15') {
+        divCodigoSMCR.removeAttribute('hidden');
+    } else {
+        divCodigoSMCR.setAttribute('hidden', '');
+    }
+});
+marca_prodM.addEventListener('change', () => {
+    if (marca_prodM.value == '15') {
+        divCodigoSMCM.removeAttribute('hidden');
+    } else {
+        divCodigoSMCM.setAttribute('hidden', '');
+    }
 });

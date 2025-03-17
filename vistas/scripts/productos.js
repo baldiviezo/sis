@@ -13,20 +13,27 @@ if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getIte
 }
 //-------------------------------------------BLOCK REQUEST WITH A FLAG--------------------------------------------
 let requestProducts = false;
+let initializing = false;
 const preloader = document.getElementById('preloader');
 init();
 async function init() {
     if (!requestProducts) {
         requestProducts = true;
         preloader.classList.add('modal__show');
+        initializing = true; 
         try {
-            await readAllMarcas();
-            await readAllCategorias();
-            await readProducts();
+            await Promise.all([
+                readAllMarcas(),
+                readAllCategorias(),
+                readProducts()
+            ]);
+            paginacionProduct(filterProducts.length, 1); 
             requestProducts = false;
             preloader.classList.remove('modal__show');
         } catch (error) {
             mostrarAlerta('Ocurrio un error al cargar la tabla de productos. Cargue nuevamente la pagina.');
+        } finally {
+            initializing = false; 
         }
     }
 }
@@ -49,7 +56,6 @@ async function readProducts() {
         }).then(response => response.json()).then(data => {
             products = data;
             filterProducts = products;
-            paginacionProduct(products.length, 1);
             resolve();
         }).catch(err => console.log(err));
     })
@@ -81,7 +87,9 @@ function searchProducts() {
             return product[valor].toLowerCase().includes(busqueda);
         }
     });
-    selectProducts();
+    if (!initializing) {
+        selectProducts();
+    }
 }
 //------buscar por marca y categoria:
 function selectProducts() {
@@ -159,16 +167,16 @@ function tableProducts(page) {
 
     for (let product of filterProducts.slice(inicio, final)) {
         let tr = document.createElement('tr');
+        tr.setAttribute('id_prod', product.id_prod);
+
+        let tdIndex = document.createElement('td');
+        tdIndex.innerText = inicio + filterProducts.indexOf(product) + 1;
+        tr.appendChild(tdIndex);
+
         for (let valor in product) {
             let td = document.createElement('td');
-            if (valor == 'id_prod') {
-                td.innerText = product[valor];
-                td.setAttribute('hidden', '');
-                tr.appendChild(td);
-                td2 = document.createElement('td');
-                td2.innerText = filterProducts.indexOf(product) + 1;
-                tr.appendChild(td2);
-            } else if (valor == 'codigo_smc_prod' || valor == 'catalogo_prod') {
+            if (valor == 'id_prod' || valor == 'codigo_smc_prod' || valor == 'catalogo_prod') {
+                // No hacer nada
             } else if (valor == 'fk_id_mrc_prod') {
                 const marca = marcas.find((marca) => marca.id_mrc === product[valor]);
                 td.innerText = marca ? marca.nombre_mrc : '';
@@ -188,6 +196,7 @@ function tableProducts(page) {
                 tr.appendChild(td);
             }
         }
+
         let td = document.createElement('td');
         if (localStorage.getItem('rol_usua') === 'Gerente general' || localStorage.getItem('rol_usua') === 'Administrador') {
             if (product['catalogo_prod'] == '') {
@@ -246,6 +255,7 @@ async function createProduct() {
                     preloader.classList.remove('modal__show');
                 } else {
                     readProducts().then(() => {
+                        paginacionProduct(filterProducts.length, 1); 
                         mostrarAlerta("El producto fue creado con éxito");
                         productsRMW.classList.remove('modal__show');
                         divCodigoSMCR.setAttribute('hidden', '');
@@ -263,7 +273,7 @@ async function createProduct() {
 //------Leer un producto
 function readProduct(tr) {
     cleanUpProductFormM();
-    let id_prod = tr.children[0].innerText;
+    let id_prod = tr.getAttribute('id_prod'); 
     let product = filterProducts.find(product => product.id_prod == id_prod);
 
     if (product) {
@@ -315,6 +325,7 @@ async function updateProduct() {
                     preloader.classList.remove('modal__show');
                 } else {
                     readProducts().then(() => {
+                        paginacionProduct(filterProducts.length, 1); 
                         productsMMW.classList.remove('modal__show');
                         mostrarAlerta(data);
                         preloader.classList.remove('modal__show');
@@ -332,7 +343,7 @@ async function deleteProduct(tr) {
     if (confirm(`¿Esta usted seguro? Se eliminará el producto "${tr.children[4].innerText}"`)) {
         if (requestProducts == false) {
             requestProducts = true;
-            let id_prod = tr.children[0].innerText;
+            let id_prod = tr.getAttribute('id_prod');
             let formData = new FormData()
             formData.append('deleteProduct', id_prod);
             preloader.classList.add('modal__show');
@@ -341,6 +352,7 @@ async function deleteProduct(tr) {
                 body: formData
             }).then(response => response.text()).then(data => {
                 readProducts().then(() => {
+                    paginacionProduct(filterProducts.length, 1); 
                     preloader.classList.remove('modal__show');
                     requestProducts = false;
                     mostrarAlerta(data);
