@@ -25,15 +25,15 @@ class consultas {
 		$resultado = $conexion->query($consulta);
 		$producto = array();
 		while ($fila = $resultado->fetch_assoc()) {
-			$fila['ubi_almacen'] = 0;
+			$fila['ubi_almacen'] = "0";
 			$productos[] = $fila;
 		}
 		
 		// Ejemplo de otra consulta a la base de datos
-		$consulta = "SELECT * FROM inventario_arce ORDER BY id_inva DESC";
+		$consulta = "SELECT * FROM inventario_arce ORDER BY id_inv DESC";
 		$resultado = $conexion->query($consulta);
 		while ($fila = $resultado->fetch_assoc()) {
-			$fila['ubi_almacen'] = 1;
+			$fila['ubi_almacen'] = "1";
 			$productos[] = $fila;
 		}
 		echo json_encode($productos, JSON_UNESCAPED_UNICODE);

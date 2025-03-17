@@ -50,7 +50,6 @@ async function readProducts() {
             products = data;
             filterProducts = products;
             paginacionProduct(products.length, 1);
-            //(selectMarcaProduct.value == 'todasLasMarcas' && selectCategoriaProduct.value == 'todasLasCategorias') ? paginacionProduct(products.length, 1) : selectProducts();
             resolve();
         }).catch(err => console.log(err));
     })
@@ -86,13 +85,11 @@ function searchProducts() {
 }
 //------buscar por marca y categoria:
 function selectProducts() {
-    filterProducts = products;
-    if (selectMarcaProduct.value != 'todasLasMarcas') {
-        filterProducts = filterProducts.filter(product => product['fk_id_mrc_prod'] == selectMarcaProduct.value);
-    }
-    if (selectCategoriaProduct.value != 'todasLasCategorias') {
-        filterProducts = filterProducts.filter(product => product['fk_id_ctgr_prod'] == selectCategoriaProduct.value);
-    }
+    filterProducts = filterProducts.filter(product => {
+        const marca = selectMarcaProduct.value === 'todasLasMarcas' ? true : product.fk_id_mrc_prod === selectMarcaProduct.value;
+        const categoria = selectCategoriaProduct.value === 'todasLasCategorias' ? true : product.fk_id_ctgr_prod === selectCategoriaProduct.value;
+        return marca && categoria;
+    });
     paginacionProduct(filterProducts.length, 1);
 }
 //------Ordenar tabla descendente ascendente
