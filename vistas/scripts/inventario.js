@@ -56,6 +56,8 @@ const selectMarcaInventory = document.getElementById('selectMarcaInventory');
 selectMarcaInventory.addEventListener('change', selectCategoriaInv);
 const selectCategoriaInventory = document.getElementById('selectCategoriaInventory');
 selectCategoriaInventory.addEventListener('change', searchInventories);
+const selectAlmacenInventory = document.getElementById('selectAlmacenInventory');
+selectAlmacenInventory.addEventListener('change', searchInventories);
 //------Read inventarios
 let inventories = [];
 let filterInventories = [];
@@ -114,7 +116,8 @@ function selectInventories() {
         let product = products.find(product => product.id_prod === inventory.fk_id_prod_inv);
         const marca = selectMarcaInventory.value === 'todasLasMarcas' ? true : product.fk_id_mrc_prod === selectMarcaInventory.value;
         const categoria = selectCategoriaInventory.value === 'todasLasCategorias' ? true : product.fk_id_ctgr_prod === selectCategoriaInventory.value;
-        return marca && categoria;
+        const almacen = selectAlmacenInventory.value === 'todo' ? true : inventory.ubi_almacen === selectAlmacenInventory.value;
+        return marca && categoria && almacen;
     });
     paginacionInventory(filterInventories.length, 1);
 }
@@ -132,7 +135,6 @@ orderInventories.forEach(div => {
         paginacionInventory(filterInventories.length, 1);
     });
 })
-
 //------PaginacionInventory
 function paginacionInventory(allInventories, page) {
     console.log('paginacionInventory: ejecutando');
@@ -183,7 +185,6 @@ function tableInventories(page) {
     let fragment = document.createDocumentFragment();
 
     const columnas = [
-        'id_inv',
         'ubi_almacen',
         'codigo_prod',
         'fk_id_mrc_prod',
@@ -199,17 +200,17 @@ function tableInventories(page) {
     for (let inventory of filterInventories.slice(inicio, final)) {
         let product = products.find(product => product.id_prod === inventory.fk_id_prod_inv);
         let tr = document.createElement('tr');
+        tr.setAttribute('id_inv', inventory.id_inv); // Agregar atributo personalizado
+
+        let tdIndex = document.createElement('td');
+        tdIndex.innerText = inicio + i++;
+        tr.appendChild(tdIndex);
+
         for (const columna of columnas) {
             let td = document.createElement('td');
 
             if (columna in inventory) {
-                if (columna == 'id_inv') {
-                    let td2 = document.createElement('td');
-                    td2.innerText = inicio + i++;
-                    tr.appendChild(td2);
-                    td.innerText = inventory[columna];
-                    td.setAttribute('hidden', '');
-                } else if (columna == 'cost_uni_inv') {
+                if (columna == 'cost_uni_inv') {
                     td.innerText = Number(inventory[columna]).toFixed(2);
                 } else if (columna == 'ubi_almacen') {
                     td.innerText = inventory[columna] == 0 ? 'El Alto' : 'La Paz';
@@ -277,16 +278,11 @@ async function createInventory() {
 //------LEER UN INVENTARIO
 function readInventory(tr) {
     formProduct = 'M';
-    let id_inv = tr.children[0].innerText;
+    let id_inv = tr.getAttribute('id_inv');
     for (let inventory in filterInventories) {
         if (filterInventories[inventory]['id_inv'] == id_inv) {
             for (let valor in filterInventories[inventory]) {
-                if (valor == 'marca_prod' || valor == 'categoria_prod' || valor == 'codigo_prod' || valor == 'nombre_prod' || valor == 'descripcion_prod' || valor == 'imagen_prod') {
-                } else if (valor == 'id_ctgr') {
-                } else if (valor == 'id_mrc') {
-                } else {
-                    document.getElementsByName(valor + 'M')[0].value = filterInventories[inventory][valor];
-                }
+                document.getElementsByName(valor + 'M')[0].value = filterInventories[inventory][valor];
             }
             break;
         }

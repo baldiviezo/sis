@@ -3,15 +3,16 @@ class consultas {
 	public function asignarValores (){
 		include 'conexion.php';
 		//Ponemos TRIM para el momento de comparar, al no usar trim se puede guardar una variable con espasio en la base de datos y al comparar con la misma variable ya guardada en el fronent el espacio se quita y al comparar no son las mismas
-		$this->codigo = trim($conexion->real_escape_string($_POST['fk_id_prod_invR'])); //codigo igual a id_prod
+		$this->fk_id_prod = trim($conexion->real_escape_string($_POST['fk_id_prod_invR'])); //codigo igual a id_prod
 		$this->cantidad = trim($conexion->real_escape_string($_POST['cantidad_invR']));
-		$this->cu = (trim($conexion->real_escape_string($_POST['cost_uni_invR']))!='')?round(trim($conexion->real_escape_string($_POST['cost_uni_invR'])), 2):0;
+		$this->cu = (trim($conexion->real_escape_string($_POST['cost_uni_invR']))!='') ? round(trim($conexion->real_escape_string($_POST['cost_uni_invR'])), 2):0;
 		$this->descripcion = trim($conexion->real_escape_string($_POST['descripcion_invR']));
+		$this->ubi_almacen = trim($conexion->real_escape_string($_POST['ubi_almacenR']));
 	}
 	public function asignarValoresModificar(){
 		include 'conexion.php';
 		$this->id_inv = trim($conexion->real_escape_string($_POST['id_invM']));
-		$this->codigo = trim($conexion->real_escape_string($_POST['fk_id_prod_invM']));
+		$this->fk_id_prod = trim($conexion->real_escape_string($_POST['fk_id_prod_invM']));
 		$this->cantidad = trim($conexion->real_escape_string($_POST['cantidad_invM']));
 		$this->cu = isset($_POST['cost_uni_invM'])?round(trim($conexion->real_escape_string($_POST['cost_uni_invM'])), 2):0;
 		$this->descripcion = trim($conexion->real_escape_string($_POST['descripcion_invM']));
@@ -41,14 +42,21 @@ class consultas {
 	//-------Registrar un inventario
 	public function createInventory(){
 		include 'conexion.php';
+		//seleccionar almacen
+		$inventario = '';
+		if ($this->ubi_almacen == "0"){
+			$inventario = "inventario";
+		}else if ($this->ubi_almacen == "1"){
+			$inventario = "inventario_arce";
+		}
 		//buscando el id_prod
-		$consulta = "SELECT * FROM inventario WHERE fk_id_prod_inv='$this->codigo'";
+		$consulta = "SELECT * FROM $inventario WHERE fk_id_prod_inv='$this->fk_id_prod'";
 		$resultado = $conexion->query($consulta);
 		$numeroFilas = $resultado->num_rows;
 		if($numeroFilas > 0){
 			echo ("El producto ya se encuentra en el inventario");	
 		}else{
-			$consulta = "INSERT INTO inventario (fk_id_prod_inv, cantidad_inv, cost_uni_inv, descripcion_inv) VALUES ('$this->codigo', 0, '$this->cu', '$this->descripcion')";
+			$consulta = "INSERT INTO $inventario (fk_id_prod_inv, cost_uni_inv, descripcion_inv) VALUES ('$this->fk_id_prod', '$this->cu', '$this->descripcion')";
 			//Si la sentencia se ejecuto exitosamente $resultado devuelve true, si no se ejecuto devuelve false
 			$resultado = $conexion->query($consulta);
 			echo ("El producto se añadió al inventario exitosamente");
@@ -57,7 +65,7 @@ class consultas {
 	//------Actualizar un inventario
 	public function updateInventory(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM inventario WHERE fk_id_prod_inv='$this->codigo'";
+		$consulta = "SELECT * FROM inventario WHERE fk_id_prod_inv='$this->fk_id_prod'";
 		$resultado = $conexion->query($consulta);
 		$numeroFilas = $resultado->num_rows;
 		if($numeroFilas > 0){

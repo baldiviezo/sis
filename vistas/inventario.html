@@ -43,6 +43,14 @@
 					<img src="../imagenes/registrar.svg" id="openCategoriaRMW" hidden>
 					<img src="../imagenes/trash.svg" onclick="deleteCategoriaInv()" hidden>
 				</div>
+				<div>
+					<label>Almacen: </label>
+					<select id="selectAlmacenInventory" class="select__marca">
+						<option value="todo">Todos los alamcenes</option>
+						<option value="0">EL ALTO</option>
+						<option value="1">AV. ARCE</option>
+					</select>
+				</div>
 			</section>
 			<div class="combo__search">
 				<div class="filter__search">
@@ -118,9 +126,9 @@
 					</div>
 					<label class="form__label--only">Almacen:</label>
 					<div class="form__group--select">
-						<select id="ubicacionAlamacen" name="ubi_alamcen">
-							<option value="0">El Alto</option>
-							<option value="1">Avenida Arce</option>
+						<select name="ubi_almacenR">
+							<option value="0">EL ALTO</option>
+							<option value="1">AV. ARCE</option>
 						</select>
 					</div>
 					<div class="form__group">
@@ -128,7 +136,7 @@
 						<label for="cantidad_invR" class="form__label">Cantidad:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="cost_uni_invR"  placeholder=" " class="form__input">
+						<input type="number" name="cost_uni_invR" min="0" step="0.01" placeholder=" " class="form__input">
 						<label for="cost_uni_invR" class="form__label">Costo unitario:</label>
 					</div>
 					<div class="form__group">
@@ -158,6 +166,12 @@
 						<img class="icon__CRUD" src="../imagenes/registrar.svg" onclick="openProductsRMW()" title="Registrar Producto" hidden>
 						<img class="icon__CRUD" src="../imagenes/edit.svg" onclick="readProduct(this.parentNode)" title="Editar Producto" hidden>
 						<img class="icon__CRUD" src="../imagenes/trash.svg" onclick="deleteProduct(this.parentNode)" title="Eliminar Producto" hidden>
+					</div>
+					<div class="form__group--select">
+						<select name="ubi_almacenM">
+							<option value="0">EL ALTO</option>
+							<option value="1">AV. ARCE</option>
+						</select>
 					</div> 
 					<div class="form__group">
 						<input type="text" name="cantidad_invM"  placeholder=" " class="form__input">
@@ -291,9 +305,10 @@
 						</div>
 					</section>
 					<div class="combo__search">
-						<div>
+						<div class="filter__search">
+							<h3>Filtrar por:</h3>
 							<select id="selectSearchProdMW" class="select">
-								<option value="todas">Buscar por</option>
+								<option value="todas">Todo</option>
 								<option value="codigo_prod">Código</option>
 								<option value="nombre_prod">Nombre</option>
 								<option value="descripcion_prod">Descripcion</option>
