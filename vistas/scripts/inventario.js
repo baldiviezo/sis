@@ -71,6 +71,7 @@ async function readInventories() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
+            console.log(data)
             inventories = data;
             filterInventories = inventories;
             resolve();
@@ -859,10 +860,6 @@ async function readAllCategorias() {
             body: formData
         }).then(response => response.json()).then(data => {
             categorias = data;
-            selectCategoriaProd();
-            selectCategoriaInv();
-            selectCategoriaProdR();
-            selectCategoriaProdM();
             resolve();
         }).catch(err => console.log(err));
     })

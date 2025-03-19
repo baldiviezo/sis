@@ -34,7 +34,7 @@ class consultas {
 		while ($fila = $resultado->fetch_assoc()) {
 			$productos[] = $fila;
 		}
-		echo json_encode($productos, JSON_UNESCAPED_UNICODE);
+		echo json_encode($productos, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 	}
 	//-------Registra un producto
 	public function registrar(){

@@ -42,7 +42,7 @@ class consultas {
 				$datos = array ( 'id_usua'=>$fila['id_usua'], 'nombre_usua'=>$fila['nombre_usua'], 'apellido_usua'=>$fila['apellido_usua'], 'email_usua'=>$fila['email_usua'], 'ci_usua'=>$fila['ci_usua'], 'direccion_usua'=>$fila['direccion_usua'], 'celular_usua'=>$fila['celular_usua'],  'rol_usua'=>$fila['rol_usua']);
 				$usuarios['usua_'.$fila['id_usua']] = $datos;
 			}
-			$json = json_encode($usuarios, JSON_UNESCAPED_UNICODE);
+			$json = json_encode($usuarios, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 			echo $json;
 		}
 	}

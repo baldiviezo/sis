@@ -284,37 +284,37 @@ tbody tr:hover{
 /*#tbodyProduct td:nth-of-type(2){
 	min-width: 1rem;
 }*/
-#tbodyProduct td:nth-of-type(4){
+#tbodyProduct td:nth-of-type(3){
 	min-width: 8rem;
 	max-width: 12rem;
 }
-#tbodyProduct td:nth-of-type(6){
+#tbodyProduct td:nth-of-type(5){
 	min-width: 12rem;
 	max-width: 16rem;
 } 
-#tbodyProduct td:nth-of-type(7){
+#tbodyProduct td:nth-of-type(6){
 	min-width: 30rem;
 } 
 /*----------------------tabla inventario ---------------------------------------------*/
-#tbodyInventory td:nth-of-type(6){
+#tbodyInventory td:nth-of-type(4){
 	min-width: 8rem;
 	max-width: 12rem;
 }
-#tbodyInventory td:nth-of-type(8){
+#tbodyInventory td:nth-of-type(5){
 	min-width: 12rem;
 	max-width: 16rem;
 }
-#tbodyInventory td:nth-of-type(9){
+#tbodyInventory td:nth-of-type(6){
 	min-width: 30rem;
 }
 /*-------------------------espacios de tabla product modal---------------------------------------*/
 /*#tbodyProduct td:nth-of-type(2){
 	min-width: 1rem;
 }*/
-#tbodyProductMW td:nth-of-type(6){
+#tbodyProductMW td:nth-of-type(5){
 	min-width: 12rem;
 } 
-#tbodyProductMW td:nth-of-type(7){
+#tbodyProductMW td:nth-of-type(6){
 	min-width: 30rem;
 } 
 /*----------------------tabla inventario modal ---------------------------------------------*/

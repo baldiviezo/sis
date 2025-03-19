@@ -20,20 +20,20 @@ async function init() {
     if (!requestProducts) {
         requestProducts = true;
         preloader.classList.add('modal__show');
-        initializing = true; 
+        initializing = true;
         try {
             await Promise.all([
                 readAllMarcas(),
                 readAllCategorias(),
                 readProducts()
             ]);
-            paginacionProduct(filterProducts.length, 1); 
+            paginacionProduct(filterProducts.length, 1);
             requestProducts = false;
             preloader.classList.remove('modal__show');
         } catch (error) {
             mostrarAlerta('Ocurrio un error al cargar la tabla de productos. Cargue nuevamente la pagina.');
         } finally {
-            initializing = false; 
+            initializing = false;
         }
     }
 }
@@ -198,27 +198,13 @@ function tableProducts(page) {
         }
 
         let td = document.createElement('td');
-        if (localStorage.getItem('rol_usua') === 'Gerente general' || localStorage.getItem('rol_usua') === 'Administrador') {
-            if (product['catalogo_prod'] == '') {
-                td.innerHTML = `
-                    <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)' title='Editar producto'>
-                    <img src='../imagenes/trash.svg' onclick='deleteProduct(this.parentNode.parentNode)' title='Eliminar Producto'>`;
-            } else {
-                td.innerHTML = `
-                    <a href="${product['catalogo_prod']}" target="_blank"><img src='../imagenes/pdf.svg'  title='Catálogo'></a>
-                    <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)' title='Editar producto'>
-                    <img src='../imagenes/trash.svg' onclick='deleteProduct(this.parentNode.parentNode)' title='Eliminar Producto'>`;
-            }
-        } else {
-            if (product['catalogo_prod'] == '') {
-                td.innerHTML = `
-                    <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)' title='Editar producto'>`;
-            } else {
-                td.innerHTML = `
-                    <a href="${product['catalogo_prod']}" target="_blank"><img src='../imagenes/pdf.svg'  title='Catálogo'></a>
-                <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)' title='Editar producto'>`;
-            }
-        }
+        const isAdmin = ['Gerente general', 'Administrador'].includes(localStorage.getItem('rol_usua'));
+        const hasCatalog = product['catalogo_prod'] !== '';
+
+        td.innerHTML = `
+            ${isAdmin ? '<img src="../imagenes/trash.svg" onclick="deleteProduct(this.parentNode.parentNode)" title="Eliminar Producto">' : ''}
+            ${hasCatalog ? `<a href="${product['catalogo_prod']}" target="_blank"><img src="../imagenes/pdf.svg" title="Catálogo"></a>` : ''}
+                <img src="../imagenes/edit.svg" onclick="readProduct(this.parentNode.parentNode)" title="Editar producto">`;
         tr.appendChild(td);
         fragment.appendChild(tr);
     }
@@ -255,7 +241,7 @@ async function createProduct() {
                     preloader.classList.remove('modal__show');
                 } else {
                     readProducts().then(() => {
-                        paginacionProduct(filterProducts.length, 1); 
+                        paginacionProduct(filterProducts.length, 1);
                         mostrarAlerta("El producto fue creado con éxito");
                         productsRMW.classList.remove('modal__show');
                         divCodigoSMCR.setAttribute('hidden', '');
@@ -273,7 +259,7 @@ async function createProduct() {
 //------Leer un producto
 function readProduct(tr) {
     cleanUpProductFormM();
-    let id_prod = tr.getAttribute('id_prod'); 
+    let id_prod = tr.getAttribute('id_prod');
     let product = filterProducts.find(product => product.id_prod == id_prod);
 
     if (product) {
@@ -325,7 +311,7 @@ async function updateProduct() {
                     preloader.classList.remove('modal__show');
                 } else {
                     readProducts().then(() => {
-                        paginacionProduct(filterProducts.length, 1); 
+                        paginacionProduct(filterProducts.length, 1);
                         productsMMW.classList.remove('modal__show');
                         mostrarAlerta(data);
                         preloader.classList.remove('modal__show');
@@ -352,7 +338,7 @@ async function deleteProduct(tr) {
                 body: formData
             }).then(response => response.text()).then(data => {
                 readProducts().then(() => {
-                    paginacionProduct(filterProducts.length, 1); 
+                    paginacionProduct(filterProducts.length, 1);
                     preloader.classList.remove('modal__show');
                     requestProducts = false;
                     mostrarAlerta(data);
@@ -555,9 +541,6 @@ async function readAllCategorias() {
             body: formData
         }).then(response => response.json()).then(data => {
             categorias = data;
-            selectCategoriaProd();
-            selectCategoriaProdR();
-            selectCategoriaProdM();
             resolve();
         }).catch(err => console.log(err));
     })

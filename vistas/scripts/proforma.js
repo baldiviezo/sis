@@ -28,8 +28,10 @@ async function init() {
             readInventories(),
             readAllMarcas(),
             readAllCategorias(),
-            readPrices()
+            readPrices(),
+            readUsers()
         ]).then(() => {
+            paginacionProforma(proformas.length, 1);
             preloader.classList.remove('modal__show');
             requestProf = false;
         })
@@ -62,7 +64,7 @@ async function readProducts() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            products = Object.values(data);
+            products = data;
             filterProducts = products;
             filterProductsMW = products;
             paginacionProduct(products.length, 1);
@@ -107,23 +109,16 @@ function searchProducts() {
 }
 //------buscar por marca y categoria:
 function selectProducts() {
-    if (selectMarcaProduct.value == 'todasLasMarcas' && selectCategoriaProduct.value == 'todasLasCategorias') {
-        paginacionProduct(filterProducts.length, 1);
-    } else {
-        filterProducts = filterProducts.filter(product => {
-            if (selectMarcaProduct.value == 'todasLasMarcas') {
-                return product['id_ctgr'] == selectCategoriaProduct.value;
-            } else if (selectCategoriaProduct.value == 'todasLasCategorias') {
-                return product['id_mrc'] == selectMarcaProduct.value;
-            } else {
-                return product['id_ctgr'] == selectCategoriaProduct.value && product['id_mrc'] == selectMarcaProduct.value;
-            }
-        });
-        paginacionProduct(filterProducts.length, 1);
-    }
+    filterProducts = filterProducts.filter(product => {
+        const marca = selectMarcaProduct.value === 'todasLasMarcas' ? true : product.fk_id_mrc_prod === selectMarcaProduct.value;
+        const categoria = selectCategoriaProduct.value === 'todasLasCategorias' ? true : product.fk_id_ctgr_prod === selectCategoriaProduct.value;
+        return marca && categoria;
+    });
+    paginacionProduct(filterProducts.length, 1);
 }
 //------PaginacionProduct
 function paginacionProduct(allProducts, page) {
+    console.log('PaginacionProduct');
     let numberProducts = Number(selectNumberProduct.value);
     let allPages = Math.ceil(allProducts / numberProducts);
     let ul = document.querySelector('#wrapperProduct ul');
@@ -182,9 +177,6 @@ function cardProduct(page) {
         const bottom = document.createElement('div');
         bottom.classList.add('bottom');
 
-        const h3 = document.createElement('h3');
-        h3.hidden = true;
-        h3.textContent = product.id_prod;
 
         const p = document.createElement('p');
         p.classList.add('box__code');
@@ -192,9 +184,8 @@ function cardProduct(page) {
 
         const button = document.createElement('button');
         button.textContent = 'Añadir';
-        button.onclick = () => addCard(button.parentNode.parentNode);
+        button.onclick = () => addCard(product.id_prod);
 
-        bottom.appendChild(h3);
         bottom.appendChild(p);
         bottom.appendChild(button);
         box.appendChild(bottom);
@@ -244,13 +235,11 @@ function closeModalCard() {
 //---------------------------------------------------AÑADIR LA CARD A EL CART------------------------------------
 //-------Añadir card al cart
 const cartItem = document.getElementById('cartItem');
-function addCard(card) {
-    let id_prod = card.children[1].children[0].innerText;
-    let codigo_prod = card.children[1].children[1].innerText;
+function addCard(id_prod) {
     let carts = cartItem.querySelectorAll('div.cart-item');
     let i = 0;
     carts.forEach(cart => {
-        if (codigo_prod == cart.children[2].innerText) { i++ }
+        if (id_prod == cart.getAttribute('id_prod')) { i++ }
     })
     if (i == 0) {
         cartProduct(id_prod);
@@ -272,6 +261,7 @@ function cartProduct(id_prod) {
 
         const card = document.createElement('div');
         card.classList.add('cart-item');
+        card.setAttribute('id_prod', id_prod);
         card.setAttribute('draggable', 'true');
         const html = `
         <input type="hidden" value="${product['id_prod']}">
@@ -283,9 +273,7 @@ function cartProduct(id_prod) {
         <input type="number" value="1" min="1" onChange="changeQuantity(this.parentNode)" class="cart-item__cantidad">
         <input type="number" value="${cost_uni}" onChange="changeQuantity(this.parentNode)" class="cart-item__costUnit">
         <input type="number" value="${cost_uni}" class="cart-item__costTotal" readonly>
-        <img src="../imagenes/trash.svg" onClick="removeCardFromCart(this.parentNode)" class='icon__CRUD'>
-        <h3 hidden>${product['nombre_prod']}</h3>
-        <h3 hidden>${product['descripcion_prod']}</h3>`;
+        <img src="../imagenes/trash.svg" onClick="removeCardFromCart(this.parentNode)" class='icon__CRUD'>`;
         card.innerHTML = html;
         cartItem.appendChild(card);
     }
@@ -365,15 +353,12 @@ async function readProformas() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
-                proformas = Object.values(data);
-            } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
-                proformas = Object.values(data).filter(proforma => proforma.fk_id_usua_prof === localStorage.getItem('id_usua'));
-            }
+            console.log(data)
+            const isAdmin = ['Gerente general', 'Administrador'].includes(localStorage.getItem('rol_usua'));
+            proformas = isAdmin ? data : data.filter(proforma => proforma.fk_id_usua_prof === localStorage.getItem('id_usua'));
             filterProformas = proformas;
             resolve();
             createYearProforma();
-            paginacionProforma(proformas.length, 1);
         }).catch(err => console.log(err));
     })
 }
@@ -523,6 +508,7 @@ function paginacionProforma(allProducts, page) {
 }
 //--------Tabla de proforma
 function tableProformas(page) {
+
     const totalProfMW = document.getElementById('totalProfMW');
     const total = filterProformas.reduce((acc, current) => acc + current.total_prof, 0);
     totalProfMW.innerText = `Total: ${total.toFixed(2)} Bs`;
@@ -533,11 +519,12 @@ function tableProformas(page) {
     const proformas = filterProformas.slice(inicio, final);
     tbody.innerHTML = '';
     proformas.forEach((proforma, index) => {
+        const cliente = customers.find(customer => customer.id_clte === proforma.fk_id_clte_prof);
+        const usuario = users.find(user => user.id_usua === proforma.fk_id_usua_prof);
+        const empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
         const tr = document.createElement('tr');
-        const tdId = document.createElement('td');
-        tdId.innerText = proforma.id_prof;
-        tdId.setAttribute('hidden', '');
-        tr.appendChild(tdId);
+
+        tr.setAttribute('id_prof', proforma.id_prof);
 
         const tdNumero = document.createElement('td');
         tdNumero.innerText = index + 1;
@@ -552,15 +539,15 @@ function tableProformas(page) {
         tr.appendChild(tdFecha);
 
         const tdEncargado = document.createElement('td');
-        tdEncargado.innerText = proforma.nombre_usua + ' ' + proforma.apellido_usua;
+        tdEncargado.innerText = usuario.nombre_usua + ' ' + usuario.apellido_usua;
         tr.appendChild(tdEncargado);
 
         const tdEmpresa = document.createElement('td');
-        tdEmpresa.innerText = proforma.nombre_emp;
+        tdEmpresa.innerText = empresa.nombre_emp;
         tr.appendChild(tdEmpresa);
 
         const tdCliente = document.createElement('td');
-        tdCliente.innerText = proforma.apellido_clte + ' ' + proforma.nombre_clte;
+        tdCliente.innerText = cliente.apellido_clte + ' ' + cliente.nombre_clte;
         tr.appendChild(tdCliente);
 
         const tdTotal = document.createElement('td');
@@ -574,25 +561,30 @@ function tableProformas(page) {
 
         if (proforma.estado_prof == 'vendido') {
             imgs = [
-                { src: '../imagenes/folder.svg', onclick: 'showMdfProforma(this.parentNode.parentNode.children[0].innerText)', title: 'Proformas anteriores' },
                 { src: '../imagenes/pdf.svg', onclick: 'selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")', title: 'Mostrar PDF' }
             ];
+            const hasMdfProforma = mdfPproforma.filter(mdfProforma => mdfProforma.id_prof_mprof == proforma.id_prof).length > 0;
+            if (hasMdfProforma) {
+                imgs.push({ src: '../imagenes/folder.svg', onclick: 'showMdfProforma(this.parentNode.parentNode.children[0].innerText)', title: 'Proformas anteriores' });
+            }
         } else if (proforma.estado_prof == 'pendiente') {
-            if (localStorage.getItem('rol_usua') == 'Administrador' || localStorage.getItem('rol_usua') == 'Gerente general') {
+            if (['Administrador', 'Gerente general'].includes(localStorage.getItem('rol_usua'))) {
                 imgs = [
                     { src: '../imagenes/notaEntrega.svg', onclick: 'openNotaEntregaRMW(this.parentNode.parentNode)', title: 'Generar Nota de Entrega' },
-                    { src: '../imagenes/folder.svg', onclick: 'showMdfProforma(this.parentNode.parentNode.children[0].innerText)', title: 'Proformas anteriores' },
                     { src: '../imagenes/pdf.svg', onclick: 'selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")', title: 'Mostrar PDF' },
                     { src: '../imagenes/edit.svg', onclick: 'readProforma(this.parentNode.parentNode)', title: 'Editar Proforma' },
                     { src: '../imagenes/trash.svg', onclick: 'deleteProforma(this.parentNode.parentNode)', title: 'Eliminar Proforma' }
                 ];
-            } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
+            } else if (['Ingeniero', 'Gerente De Inventario'].includes(localStorage.getItem('rol_usua'))) {
                 imgs = [
                     { src: '../imagenes/notaEntrega.svg', onclick: 'openNotaEntregaRMW(this.parentNode.parentNode)', title: 'Generar Nota de Entrega' },
-                    { src: '../imagenes/folder.svg', onclick: 'showMdfProforma(this.parentNode.parentNode.children[0].innerText)', title: 'Proformas anteriores' },
                     { src: '../imagenes/pdf.svg', onclick: 'selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")', title: 'Mostrar PDF' },
                     { src: '../imagenes/edit.svg', onclick: 'readProforma(this.parentNode.parentNode)', title: 'Editar Proforma' }
                 ];
+            }
+            const hasMdfProforma = mdfPproforma.filter(mdfProforma => mdfProforma.id_prof_mprof == proforma.id_prof).length > 0;
+            if (hasMdfProforma) {
+                imgs.push({ src: '../imagenes/folder.svg', onclick: 'showMdfProforma(this.parentNode.parentNode.children[0].innerText)', title: 'Proformas anteriores' });
             }
         } else if (proforma.estado_prof == 'devolucion') {
             imgs = [
@@ -831,7 +823,7 @@ async function readMdfProforma() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            mdfPproforma = Object.values(data);
+            mdfPproforma = data;
             resolve();
         }).catch(err => console.log(err));
     })
@@ -2902,14 +2894,14 @@ function selectCategoriaProd() {
     selectCategoriaProduct.appendChild(option);
     if (selectMarcaProduct.value != 'todasLasMarcas') {
         let id_mrc = selectMarcaProduct.value;
-        for (let clave in categorias) {
-            if (categorias[clave]['id_mrc'] == id_mrc) {
+        categorias.forEach(categoria => {
+            if (categoria.fk_id_mrc_mccr == id_mrc) {
                 let option = document.createElement('option');
-                option.value = categorias[clave]['id_ctgr'];
-                option.innerText = categorias[clave]['nombre_ctgr'];
+                option.value = categoria.id_ctgr;
+                option.innerText = categoria.nombre_ctgr;
                 selectCategoriaProduct.appendChild(option);
             }
-        }
+        });
     }
     searchProducts();
 }
@@ -3190,5 +3182,24 @@ function tablePrices(page) {
         tr.appendChild(precioVenta);
 
         tbody.appendChild(tr);
+    });
+}
+//********* USUARIO ***********/
+//------Leer tabla de usuarios
+let users = [];
+async function readUsers() {
+    return new Promise((resolve) => {
+        let formData = new FormData();
+        formData.append('readUsers', '');
+        fetch('../controladores/usuarios.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            users = Object.values(data);
+            console.log(users)
+            resolve();
+        }).catch(err => {
+            mostrarAlerta('Ocurrio un error al cargar la tabla de usuarios, cargue nuevamente la pagina');
+        });
     });
 }

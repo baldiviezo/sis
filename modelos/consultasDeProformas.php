@@ -35,22 +35,17 @@ class consultas{
 	}
 	//--------------------------------------------CRUD PROFORMAS-----------------------------
 	//-------Read proformas
-	public function readProformas(){
-		include 'conexion.php';
-		$consulta = "SELECT * FROM proforma INNER JOIN cliente ON proforma.fk_id_clte_prof = id_clte INNER JOIN usuario ON proforma.fk_id_usua_prof = id_usua INNER JOIN empresa ON cliente.fk_id_emp_clte = id_emp ORDER BY id_prof DESC";
+	public function readProformas() {
+		require_once 'conexion.php';
+		$consulta = "SELECT proforma.*, cliente.apellido_clte, empresa.sigla_emp, empresa.nombre_emp FROM proforma INNER JOIN cliente ON proforma.fk_id_clte_prof = cliente.id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = empresa.id_emp ORDER BY id_prof DESC";
 		$resultado = $conexion->query($consulta);
-		$proformas =  array();
-		while ($fila = $resultado->fetch_assoc()){
-			$_prof_mprof_ne = '';
-			if ($fila['nombre_emp'] == 'Ninguna'){
-				$_prof_mprof_ne = strtoupper('SMS'.substr($fila['fecha_prof'],2,2).'-'.$this->addZerosGo($fila['numero_prof']).'-'.explode(" ",$fila['apellido_clte'])[0]);
-			}else{
-				$_prof_mprof_ne = strtoupper('SMS'.substr($fila['fecha_prof'],2,2).'-'.$this->addZerosGo($fila['numero_prof']).'-'.$sigla_emp = $fila['sigla_emp']);
-			}
-			$datos = array ('id_prof'=>$fila['id_prof'], 'numero_prof'=>$_prof_mprof_ne, 'fecha_prof'=>$fila['fecha_prof'], 'fk_id_usua_prof'=>$fila['fk_id_usua_prof'], 'nombre_usua'=>$fila['nombre_usua'], 'apellido_usua'=>$fila['apellido_usua'], 'email_usua'=>$fila['email_usua'], 'celular_usua'=>$fila['celular_usua'], 'id_emp'=>$fila['id_emp'], 'nombre_emp'=>$fila['nombre_emp'], 'sigla_emp'=>$fila['sigla_emp'], 'direccion_emp'=>$fila['direccion_emp'], 'telefono_emp'=>$fila['telefono_emp'], 'fk_id_clte_prof'=>$fila['fk_id_clte_prof'], 'nombre_clte'=>$fila['nombre_clte'], 'apellido_clte'=>$fila['apellido_clte'], 'celular_clte'=>$fila['celular_clte'], 'descuento_prof'=>$fila['descuento_prof'], 'total_prof'=>doubleval($fila['total_prof']), 'tpo_valido_prof'=>$fila['tpo_valido_prof'], 'cond_pago_prof'=>$fila['cond_pago_prof'], 'tpo_entrega_prof'=>$fila['tpo_entrega_prof'], 'observacion_prof'=>$fila['observacion_prof'],  'moneda_prof'=>$fila['moneda_prof'], 'tipo_cambio_prof'=>$fila['tipo_cambio_prof'], 'estado_prof'=>$fila['estado_prof']);
-			$proformas[$fila['id_prof'].'_id_prof'] = $datos;
+		$proformas = array();
+		while ($fila = $resultado->fetch_array(MYSQLI_ASSOC)) {
+			$fila['numero_prof'] = strtoupper('SMS' . substr($fila['fecha_prof'], 2, 2) . '-' . $this->addZerosGo($fila['numero_prof']) . '-' . ($fila['nombre_emp'] == 'Ninguna' ? explode(" ", $fila['apellido_clte'])[0] : $fila['sigla_emp']));
+			unset($fila['apellido_clte'], $fila['sigla_emp'], $fila['nombre_emp']);
+			$proformas[] = $fila;
 		}
-		echo json_encode($proformas, JSON_UNESCAPED_UNICODE);
+		echo json_encode($proformas, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 	}
 	//-------Create a proforma
 	public function createProforma($productos){
@@ -190,28 +185,17 @@ class consultas{
 		
 	}
 	//-----------------------------------------------CRUD MDF_PROFORMA------------------------------
-	public function read_mdf_Proforma(){
-		include 'conexion.php';
-		$consulta = "SELECT * FROM mdf_proforma INNER JOIN cliente ON mdf_proforma.fk_id_clte_mprof = id_clte INNER JOIN usuario ON mdf_proforma.fk_id_usua_mprof = id_usua INNER JOIN empresa ON cliente.fk_id_emp_clte = id_emp";
+	public function read_mdf_Proforma() {
+		require_once 'conexion.php';
+		$consulta = "SELECT mdf_proforma.*, cliente.apellido_clte, empresa.sigla_emp, empresa.nombre_emp FROM mdf_proforma INNER JOIN cliente ON mdf_proforma.fk_id_clte_mprof = cliente.id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = empresa.id_emp ORDER BY id_prof_mprof DESC";
 		$resultado = $conexion->query($consulta);
-		$numeroFilas = $resultado->num_rows;
-		$mProforma =  array();
-		if($numeroFilas > 0){
-			while ($fila = $resultado->fetch_assoc()){
-				$_prof_mprof_ne = '';
-				if ($fila['nombre_emp'] == 'Ninguna'){
-					$_prof_mprof_ne = strtoupper('SMS'.substr($fila['fecha_mprof'],2,2).'-'.$this->addZerosGo($fila	['numero_mprof']).'-'.explode(" ",$fila['apellido_clte'])[0]);
-				}else{
-					$_prof_mprof_ne = strtoupper('SMS'.substr($fila['fecha_mprof'],2,2).'-'.$this->addZerosGo($fila	['numero_mprof']).'-'.$sigla_emp = $fila['sigla_emp']);
-				}
-				$datos = array ('id_mprof'=>$fila['id_mprof'], 'id_prof_mprof'=>$fila['id_prof_mprof'], 'numero_mprof'=>$_prof_mprof_ne, 'fecha_mprof'=>$fila['fecha_mprof'], 'nombre_usua'=>$fila['nombre_usua'], 'apellido_usua'=>$fila['apellido_usua'], 'email_usua'=>$fila['email_usua'], 'celular_usua'=>$fila['celular_usua'], 'sigla_emp'=>$fila['sigla_emp'], 'nombre_emp'=>$fila['nombre_emp'], 'direccion_emp'=>$fila['direccion_emp'], 'telefono_emp'=>$fila['telefono_emp'], 'nombre_clte'=>$fila['nombre_clte'], 'apellido_clte'=>$fila['apellido_clte'], 'celular_clte'=>$fila['celular_clte'], 'descuento_mprof'=>$fila['descuento_mprof'], 'total_mprof'=>$fila['total_mprof'],  'tpo_valido_mprof'=>$fila['tpo_valido_mprof'], 'cond_pago_mprof'=>$fila['cond_pago_mprof'], 'tpo_entrega_mprof'=>$fila['tpo_entrega_mprof'], 'observacion_mprof'=>$fila['observacion_mprof'], 'moneda_mprof'=>$fila['moneda_mprof'], 'tipo_cambio_mprof'=>$fila['tipo_cambio_mprof']);
-				$mProforma[$fila['id_mprof'].'_id_mprof'] = $datos;
-			}
-			$json = json_encode($mProforma, JSON_UNESCAPED_UNICODE);
-			echo $json;
-		}else{
-			echo json_encode('');
+		$proformas_mprof = array();
+		while ($fila = $resultado->fetch_array(MYSQLI_ASSOC)) {
+			$fila['numero_mprof'] = strtoupper('SMS' . substr($fila['fecha_mprof'], 2, 2) . '-' . $this->addZerosGo($fila['numero_mprof']) . '-' . ($fila['nombre_emp'] == 'Ninguna' ? explode(" ", $fila['apellido_clte'])[0] : $fila['sigla_emp']));
+			unset($fila['apellido_clte'], $fila['sigla_emp'], $fila['nombre_emp']);
+			$proformas_mprof[] = $fila;
 		}
+		echo json_encode($proformas_mprof, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 	}
 	//-----Delete proforma
 	public function deletemProforma($id_mprof){

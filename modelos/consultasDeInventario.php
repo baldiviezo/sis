@@ -37,7 +37,7 @@ class consultas {
 			$fila['ubi_almacen'] = "1";
 			$productos[] = $fila;
 		}
-		echo json_encode($productos, JSON_UNESCAPED_UNICODE);
+		echo json_encode($productos, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 	}
 	//-------Registrar un inventario
 	public function createInventory(){
