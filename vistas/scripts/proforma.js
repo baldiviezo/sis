@@ -1569,6 +1569,311 @@ function openNotaEntregaRMW(tr) {
 closeNotaEntregaRMW.addEventListener('click', (e) => {
     notaEntregaRMW.classList.remove('modal__show');
 });
+//<<---------------------------------------------EMPRESA---------------------------------------------->>
+const selectEnterpriseR = document.getElementsByName('fk_id_emp_clteR')[0];
+const selectEnterpriseM = document.getElementsByName('fk_id_emp_clteM')[0];
+selectEnterpriseR.addEventListener('change', function () {
+    fillSelectClte(selectCustomerR, indexCustomer);
+});
+let enterprises = [];
+let filterEnterprises = [];
+let indexEnterprise = 0;
+async function readEnterprises() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readEnterprises', '');
+        fetch('../controladores/clientes.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            enterprises = data;
+            filterEnterprises = enterprises;
+            resolve();
+        }).catch(err => console.log(err));
+    })
+}
+//<<---------------------------------------TABLA MODAL EMPRESA--------------------------------------->>
+//------Select utilizado para buscar por columnas
+const selectSearchEmpMW = document.getElementById('selectSearchEmpMW');
+selectSearchEmpMW.addEventListener('change', searchEnterprisesMW);
+//------buscar por input
+const inputSearchEmpMW = document.getElementById("inputSearchEmpMW");
+inputSearchEmpMW.addEventListener("keyup", searchEnterprisesMW);
+//------Clientes por pagina
+const selectNumberEmpMW = document.getElementById('selectNumberEmpMW');
+selectNumberEmpMW.selectedIndex = 3;
+selectNumberEmpMW.addEventListener('change', function () {
+    paginacionEnterpriseMW(filterEnterprises.length, 1);
+});
+//------buscar por:
+function searchEnterprisesMW() {
+    const valor = selectSearchEmpMW.value;
+    const busqueda = inputSearchEmpMW.value.toLowerCase().trim();
+    filterEnterprises = enterprises.filter(enterprise => {
+        if (valor === 'todas') {
+            return (
+                enterprise.nombre_emp.toLowerCase().includes(busqueda) ||
+                enterprise.sigla_emp.toString().toLowerCase().includes(busqueda) ||
+                enterprise.nit_emp.toString().toLowerCase().includes(busqueda)
+            );
+        } else {
+            return enterprise[valor].toString().toLowerCase().includes(busqueda);
+        }
+    });
+    paginacionEnterpriseMW(filterEnterprises.length, 1);
+}
+//------Ordenar tabla descendente ascendente
+let orderEnterprises = document.querySelectorAll('.tbody__head--empMW');
+orderEnterprises.forEach(div => {
+    div.children[0].addEventListener('click', function () {
+        const valor = div.children[0].name;
+        filterEnterprises.sort((a, b) => a[valor].localeCompare(b[valor]));
+        paginacionEnterpriseMW(filterEnterprises.length, 1);
+    });
+    div.children[1].addEventListener('click', function () {
+        const valor = div.children[0].name;
+        filterEnterprises.sort((a, b) => b[valor].localeCompare(a[valor]));
+        paginacionEnterpriseMW(filterEnterprises.length, 1);
+    });
+})
+//------PaginacionEnterpriseMW
+function paginacionEnterpriseMW(allEnterprises, page) {
+    let numberEnterprises = Number(selectNumberEmpMW.value);
+    let allPages = Math.ceil(allEnterprises / numberEnterprises);
+    let ul = document.querySelector('#wrapperEmpMW ul');
+    let li = '';
+    let beforePages = page - 1;
+    let afterPages = page + 1;
+    let liActive;
+    if (page > 1) {
+        li += `<li class="btn" onclick="paginacionEnterpriseMW(${allEnterprises}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
+    }
+    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
+        if (pageLength > allPages) {
+            continue;
+        }
+        if (pageLength == 0) {
+            pageLength = pageLength + 1;
+        }
+        if (page == pageLength) {
+            liActive = 'active';
+        } else {
+            liActive = '';
+        }
+        li += `<li class="numb ${liActive}" onclick="paginacionEnterpriseMW(${allEnterprises}, ${pageLength})"><span>${pageLength}</span></li>`;
+    }
+    if (page < allPages) {
+        li += `<li class="btn" onclick="paginacionEnterpriseMW(${allEnterprises}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
+    }
+    ul.innerHTML = li;
+    let h2 = document.querySelector('#showPageEmpMW h2');
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${allEnterprises} Empresas`;
+    tableEnterprisesMW(page);
+}
+//------Crear la tabla
+function tableEnterprisesMW(page) {
+    const tbody = document.getElementById('tbodyEmpMW');
+    inicio = (page - 1) * Number(selectNumberEmpMW.value);
+    final = inicio + Number(selectNumberEmpMW.value);
+    i = 1;
+    tbody.innerHTML = '';
+    for (let enterprise in filterEnterprises) {
+        if (i > inicio && i <= final) {
+            let tr = document.createElement('tr');
+            tr.setAttribute('id', `${filterEnterprises[enterprise].id_emp}`);
+            for (let valor in filterEnterprises[enterprise]) {
+                let td = document.createElement('td');
+                if (valor == 'id_emp') {
+                    td.innerText = i;
+                    tr.appendChild(td);
+                    i++;
+                } else if (valor == 'nit_emp') {
+                    if (filterEnterprises[enterprise][valor] == '0') {
+                        td.innerText = '';
+                    } else {
+                        td.innerText = filterEnterprises[enterprise][valor];
+                    }
+                    tr.appendChild(td);
+                } else if (valor == 'telefono_emp') {
+                    if (filterEnterprises[enterprise][valor] == '0') {
+                        td.innerText = '';
+                    } else {
+                        td.innerText = filterEnterprises[enterprise][valor];
+                    }
+                    tr.appendChild(td);
+                } else {
+                    td.innerText = filterEnterprises[enterprise][valor];
+                    tr.appendChild(td);
+                }
+            }
+            let td = document.createElement('td');
+            td.innerHTML = `
+                <img src='../imagenes/send.svg' onclick='sendEnterprise(${filterEnterprises[enterprise].id_emp})'>`;
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+        } else {
+            i++;
+        }
+    }
+}
+function sendEnterprise(id_emp) {
+    const fk_nombre_emp_profR = document.getElementById('fk_nombre_emp_profR');
+    enterpriseSMW.classList.remove('modal__show');
+    if (formProformas == 'R') {
+        selectEnterpriseR.value = id_emp;
+        fk_nombre_emp_profR.value = enterprises.find(enterprise => enterprise.id_emp == id_emp).nombre_emp;
+
+    } else if (formProformas == 'M') {
+        selectEnterpriseM.value = id_emp;
+    }
+}
+function fillSelectClte(select, index) {
+    const id_emp = formProformas == 'R' ? selectEnterpriseR.value : selectEnterpriseM.value;
+    select.innerHTML = '';
+    filterCustomers = customers.filter(customer => customer.fk_id_emp_clte == id_emp);
+    chooseCustomers = filterCustomers;
+
+    const options = filterCustomers.map(customer => {
+        const option = document.createElement('option');
+        option.value = customer.id_clte;
+        option.innerText = `${customer.apellido_clte} ${customer.nombre_clte}`;
+        select.appendChild(option);
+    });
+
+    paginacionCustomerMW(filterCustomers.length, 1);
+
+    const enterprise = enterprises.find(enterprise => enterprise.id_emp == id_emp);
+    if (enterprise) {
+        if (formProformas == 'R') {
+            document.getElementsByName('descuento_profR')[0].value = enterprise.precio_emp;
+        } else if (formProformas == 'M') {
+            document.getElementsByName('descuento_profM')[0].value = enterprise.precio_emp;
+        }
+    }
+}
+//----------------------------------ventana modal EnterpriseSMW-------------------------------------------
+const enterpriseSMW = document.getElementById('enterpriseSMW');
+//enterpriseSMW.addEventListener('click', ()=>enterpriseSMW.classList.remove('modal__show'));
+const closeEnterpriseSMW = document.getElementById('closeEnterpriseSMW');
+function openEnterpriseSMW() {
+    enterpriseSMW.classList.add('modal__show');
+}
+closeEnterpriseSMW.addEventListener('click', () => {
+    enterpriseSMW.classList.remove('modal__show');
+});
+//<<---------------------------CRUD EMPRESA------------------------------->>
+//------Leer una empresa
+function readEnterprise(div) {
+    let id_emp = div.children[0].value;
+    for (let enterprise in enterprises) {
+        if (enterprises[enterprise]['id_emp'] == id_emp) {
+            for (let valor in enterprises[enterprise]) {
+                document.getElementsByName(valor + 'M')[0].value = enterprises[enterprise][valor];
+            }
+            break;
+        }
+    }
+    enterprisesMMW.classList.add('modal__show');
+}
+//------Craer una empresa
+const formEmpresaR = document.getElementById('formEmpresaR');
+formEmpresaR.addEventListener('submit', createEnterprise);
+async function createEnterprise() {
+    event.preventDefault();
+    if (requestProf == false) {
+        requestProf = true;
+        enterprisesRMW.classList.remove('modal__show');
+        let formData = new FormData(formEmpresaR);
+        formData.append('createEnterprise', '');
+        preloader.classList.add('modal__show');
+        fetch('../controladores/clientes.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            readCustomers().then(() => {
+                return readEnterprises();
+            }).then(() => {
+                requestProf = false;
+                formEmpresaR.reset();
+                mostrarAlerta(data);
+                paginacionEnterpriseMW(filterEnterprises.length, 1);
+                preloader.classList.remove('modal__show');
+            })
+        }).catch(err => {
+            requestProf = false;
+            mostrarAlerta(err);
+        });
+    }
+}
+//------Actualizar una empresa
+let formEmpresaM = document.getElementById('formEmpresaM');
+formEmpresaM.addEventListener('submit', updateEnterprise);
+async function updateEnterprise() {
+    event.preventDefault();
+    if (requestProf == false) {
+        requestProf = true;
+        indexEnterprise = selectEnterpriseR.value;
+        enterprisesMMW.classList.remove('modal__show');
+        let formData = new FormData(formEmpresaM);
+        formData.append('updateEnterprise', '');
+        preloader.classList.add('modal__show');
+        fetch('../controladores/clientes.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            readEnterprises().then(() => {
+                requestProf = false;
+                mostrarAlerta(data);
+                selectEnterpriseR.value = indexEnterprise;
+                preloader.classList.remove('modal__show');
+            })
+        }).catch(err => {
+            requestProf = false;
+            mostrarAlerta(err);
+        });
+    }
+}
+//------Borrar una empresa
+async function deleteEnterprise(div) {
+    let id_emp = div.children[0].value;
+    if (confirm('¿Esta usted seguro?')) {
+        if (requestProf == false) {
+            requestProf = true;
+            let formData = new FormData();
+            formData.append('deleteEnterprise', id_emp);
+            preloader.classList.add('modal__show');
+            fetch('../controladores/clientes.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                readEnterprises().then(() => {
+                    requestProf = false;
+                    mostrarAlerta(data);
+                    indexEnterprise = 0;
+                    preloader.classList.remove('modal__show');
+                })
+            }).catch(err => {
+                requestProf = false;
+                mostrarAlerta(err);
+            });
+        }
+    }
+}
+//<<----------------------------------------ABRIR Y CERRAR VENTANAS MODALES--------------------------------->>
+//-----------------------------------Ventana modal para empresa---------------------------------//
+const enterprisesRMW = document.getElementById('enterprisesRMW');
+const enterprisesMMW = document.getElementById('enterprisesMMW');
+const closeEnterprisesRMW = document.getElementById('closeEnterprisesRMW');
+const closeEnterprisesMMW = document.getElementById('closeEnterprisesMMW');
+function openEnterprisesRMW() {
+    enterprisesRMW.classList.add('modal__show');
+}
+closeEnterprisesRMW.addEventListener('click', () => {
+    enterprisesRMW.classList.remove('modal__show');
+});
+closeEnterprisesMMW.addEventListener('click', () => {
+    enterprisesMMW.classList.remove('modal__show');
+});
 //---------------------------------------------------------------CLIENTES----------------------------------------------
 const selectCustomerR = document.getElementById('selectCustomerR');
 const selectCustomerM = document.getElementById('selectCustomerM');
@@ -1854,310 +2159,6 @@ closeCustomersRMW.addEventListener('click', () => {
 });
 closeCustomersMMW.addEventListener('click', () => {
     customersMMW.classList.remove('modal__show');
-});
-//<<---------------------------------------------EMPRESA---------------------------------------------->>
-const selectEnterpriseR = document.getElementsByName('fk_id_emp_clteR')[0];
-const selectEnterpriseM = document.getElementsByName('fk_id_emp_clteM')[0];
-selectEnterpriseR.addEventListener('change', function () {
-    fillSelectClte(selectCustomerR, indexCustomer);
-});
-let enterprises = [];
-let filterEnterprises = [];
-let indexEnterprise = 0;
-async function readEnterprises() {
-    return new Promise((resolve, reject) => {
-        let formData = new FormData();
-        formData.append('readEnterprises', '');
-        fetch('../controladores/clientes.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.json()).then(data => {
-            enterprises = data;
-            filterEnterprises = enterprises;
-            resolve();
-        }).catch(err => console.log(err));
-    })
-}
-//<<---------------------------------------TABLA MODAL EMPRESA--------------------------------------->>
-//------Select utilizado para buscar por columnas
-const selectSearchEmpMW = document.getElementById('selectSearchEmpMW');
-selectSearchEmpMW.addEventListener('change', searchEnterprisesMW);
-//------buscar por input
-const inputSearchEmpMW = document.getElementById("inputSearchEmpMW");
-inputSearchEmpMW.addEventListener("keyup", searchEnterprisesMW);
-//------Clientes por pagina
-const selectNumberEmpMW = document.getElementById('selectNumberEmpMW');
-selectNumberEmpMW.selectedIndex = 3;
-selectNumberEmpMW.addEventListener('change', function () {
-    paginacionEnterpriseMW(filterEnterprises.length, 1);
-});
-//------buscar por:
-function searchEnterprisesMW() {
-    const valor = selectSearchEmpMW.value;
-    const busqueda = inputSearchEmpMW.value.toLowerCase().trim();
-    filterEnterprises = enterprises.filter(enterprise => {
-        if (valor === 'todas') {
-            return (
-                enterprise.nombre_emp.toLowerCase().includes(busqueda) ||
-                enterprise.sigla_emp.toString().toLowerCase().includes(busqueda) ||
-                enterprise.nit_emp.toString().toLowerCase().includes(busqueda)
-            );
-        } else {
-            return enterprise[valor].toString().toLowerCase().includes(busqueda);
-        }
-    });
-    paginacionEnterpriseMW(filterEnterprises.length, 1);
-}
-//------Ordenar tabla descendente ascendente
-let orderEnterprises = document.querySelectorAll('.tbody__head--empMW');
-orderEnterprises.forEach(div => {
-    div.children[0].addEventListener('click', function () {
-        const valor = div.children[0].name;
-        filterEnterprises.sort((a, b) => a[valor].localeCompare(b[valor]));
-        paginacionEnterpriseMW(filterEnterprises.length, 1);
-    });
-    div.children[1].addEventListener('click', function () {
-        const valor = div.children[0].name;
-        filterEnterprises.sort((a, b) => b[valor].localeCompare(a[valor]));
-        paginacionEnterpriseMW(filterEnterprises.length, 1);
-    });
-})
-//------PaginacionEnterpriseMW
-function paginacionEnterpriseMW(allEnterprises, page) {
-    let numberEnterprises = Number(selectNumberEmpMW.value);
-    let allPages = Math.ceil(allEnterprises / numberEnterprises);
-    let ul = document.querySelector('#wrapperEmpMW ul');
-    let li = '';
-    let beforePages = page - 1;
-    let afterPages = page + 1;
-    let liActive;
-    if (page > 1) {
-        li += `<li class="btn" onclick="paginacionEnterpriseMW(${allEnterprises}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
-    }
-    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
-        if (pageLength > allPages) {
-            continue;
-        }
-        if (pageLength == 0) {
-            pageLength = pageLength + 1;
-        }
-        if (page == pageLength) {
-            liActive = 'active';
-        } else {
-            liActive = '';
-        }
-        li += `<li class="numb ${liActive}" onclick="paginacionEnterpriseMW(${allEnterprises}, ${pageLength})"><span>${pageLength}</span></li>`;
-    }
-    if (page < allPages) {
-        li += `<li class="btn" onclick="paginacionEnterpriseMW(${allEnterprises}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
-    }
-    ul.innerHTML = li;
-    let h2 = document.querySelector('#showPageEmpMW h2');
-    h2.innerHTML = `Pagina ${page}/${allPages}, ${allEnterprises} Empresas`;
-    tableEnterprisesMW(page);
-}
-//------Crear la tabla
-function tableEnterprisesMW(page) {
-    const tbody = document.getElementById('tbodyEmpMW');
-    inicio = (page - 1) * Number(selectNumberEmpMW.value);
-    final = inicio + Number(selectNumberEmpMW.value);
-    i = 1;
-    tbody.innerHTML = '';
-    for (let enterprise in filterEnterprises) {
-        if (i > inicio && i <= final) {
-            let tr = document.createElement('tr');
-            tr.setAttribute('id', `${filterEnterprises[enterprise].id_emp}`);
-            for (let valor in filterEnterprises[enterprise]) {
-                let td = document.createElement('td');
-                if (valor == 'id_emp') {
-                    td.innerText = i;
-                    tr.appendChild(td);
-                    i++;
-                } else if (valor == 'nit_emp') {
-                    if (filterEnterprises[enterprise][valor] == '0') {
-                        td.innerText = '';
-                    } else {
-                        td.innerText = filterEnterprises[enterprise][valor];
-                    }
-                    tr.appendChild(td);
-                } else if (valor == 'telefono_emp') {
-                    if (filterEnterprises[enterprise][valor] == '0') {
-                        td.innerText = '';
-                    } else {
-                        td.innerText = filterEnterprises[enterprise][valor];
-                    }
-                    tr.appendChild(td);
-                } else {
-                    td.innerText = filterEnterprises[enterprise][valor];
-                    tr.appendChild(td);
-                }
-            }
-            let td = document.createElement('td');
-            td.innerHTML = `
-                <img src='../imagenes/send.svg' onclick='sendEnterprise(${filterEnterprises[enterprise].id_emp})'>`;
-            tr.appendChild(td);
-            tbody.appendChild(tr);
-        } else {
-            i++;
-        }
-    }
-}
-function sendEnterprise(id_emp) {
-    const fk_nombre_emp_profR = document.getElementById('fk_nombre_emp_profR');
-    enterpriseSMW.classList.remove('modal__show');
-    if (formProformas == 'R') {
-        selectEnterpriseR.value = id_emp;
-        fk_nombre_emp_profR.value = enterprises.find(enterprise => enterprise.id_emp == id_emp).nombre_emp;
-    } else if (formProformas == 'M') {
-        selectEnterpriseM.value = id_emp;
-    }
-}
-function fillSelectClte(select, index) {
-    const id_emp = formProformas == 'R' ? selectEnterpriseR.value : selectEnterpriseM.value;
-    select.innerHTML = '';
-    filterCustomers = customers.filter(customer => customer.fk_id_emp_clte == id_emp);
-    chooseCustomers = filterCustomers;
-
-    const options = filterCustomers.map(customer => {
-        const option = document.createElement('option');
-        option.value = customer.id_clte;
-        option.innerText = `${customer.apellido_clte} ${customer.nombre_clte}`;
-        select.appendChild(option);
-    });
-
-    paginacionCustomerMW(filterCustomers.length, 1);
-
-    const enterprise = enterprises.find(enterprise => enterprise.id_emp == id_emp);
-    if (enterprise) {
-        if (formProformas == 'R') {
-            document.getElementsByName('descuento_profR')[0].value = enterprise.precio_emp;
-        } else if (formProformas == 'M') {
-            document.getElementsByName('descuento_profM')[0].value = enterprise.precio_emp;
-        }
-    }
-}
-//----------------------------------ventana modal EnterpriseSMW-------------------------------------------
-const enterpriseSMW = document.getElementById('enterpriseSMW');
-//enterpriseSMW.addEventListener('click', ()=>enterpriseSMW.classList.remove('modal__show'));
-const closeEnterpriseSMW = document.getElementById('closeEnterpriseSMW');
-function openEnterpriseSMW() {
-    enterpriseSMW.classList.add('modal__show');
-}
-closeEnterpriseSMW.addEventListener('click', () => {
-    enterpriseSMW.classList.remove('modal__show');
-});
-//<<---------------------------CRUD EMPRESA------------------------------->>
-//------Leer una empresa
-function readEnterprise(div) {
-    let id_emp = div.children[0].value;
-    for (let enterprise in enterprises) {
-        if (enterprises[enterprise]['id_emp'] == id_emp) {
-            for (let valor in enterprises[enterprise]) {
-                document.getElementsByName(valor + 'M')[0].value = enterprises[enterprise][valor];
-            }
-            break;
-        }
-    }
-    enterprisesMMW.classList.add('modal__show');
-}
-//------Craer una empresa
-const formEmpresaR = document.getElementById('formEmpresaR');
-formEmpresaR.addEventListener('submit', createEnterprise);
-async function createEnterprise() {
-    event.preventDefault();
-    if (requestProf == false) {
-        requestProf = true;
-        enterprisesRMW.classList.remove('modal__show');
-        let formData = new FormData(formEmpresaR);
-        formData.append('createEnterprise', '');
-        preloader.classList.add('modal__show');
-        fetch('../controladores/clientes.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            readCustomers().then(() => {
-                return readEnterprises();
-            }).then(() => {
-                requestProf = false;
-                formEmpresaR.reset();
-                mostrarAlerta(data);
-                paginacionEnterpriseMW(filterEnterprises.length, 1);
-                preloader.classList.remove('modal__show');
-            })
-        }).catch(err => {
-            requestProf = false;
-            mostrarAlerta(err);
-        });
-    }
-}
-//------Actualizar una empresa
-let formEmpresaM = document.getElementById('formEmpresaM');
-formEmpresaM.addEventListener('submit', updateEnterprise);
-async function updateEnterprise() {
-    event.preventDefault();
-    if (requestProf == false) {
-        requestProf = true;
-        indexEnterprise = selectEnterpriseR.value;
-        enterprisesMMW.classList.remove('modal__show');
-        let formData = new FormData(formEmpresaM);
-        formData.append('updateEnterprise', '');
-        preloader.classList.add('modal__show');
-        fetch('../controladores/clientes.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            readEnterprises().then(() => {
-                requestProf = false;
-                mostrarAlerta(data);
-                selectEnterpriseR.value = indexEnterprise;
-                preloader.classList.remove('modal__show');
-            })
-        }).catch(err => {
-            requestProf = false;
-            mostrarAlerta(err);
-        });
-    }
-}
-//------Borrar una empresa
-async function deleteEnterprise(div) {
-    let id_emp = div.children[0].value;
-    if (confirm('¿Esta usted seguro?')) {
-        if (requestProf == false) {
-            requestProf = true;
-            let formData = new FormData();
-            formData.append('deleteEnterprise', id_emp);
-            preloader.classList.add('modal__show');
-            fetch('../controladores/clientes.php', {
-                method: "POST",
-                body: formData
-            }).then(response => response.text()).then(data => {
-                readEnterprises().then(() => {
-                    requestProf = false;
-                    mostrarAlerta(data);
-                    indexEnterprise = 0;
-                    preloader.classList.remove('modal__show');
-                })
-            }).catch(err => {
-                requestProf = false;
-                mostrarAlerta(err);
-            });
-        }
-    }
-}
-//<<----------------------------------------ABRIR Y CERRAR VENTANAS MODALES--------------------------------->>
-//-----------------------------------Ventana modal para empresa---------------------------------//
-const enterprisesRMW = document.getElementById('enterprisesRMW');
-const enterprisesMMW = document.getElementById('enterprisesMMW');
-const closeEnterprisesRMW = document.getElementById('closeEnterprisesRMW');
-const closeEnterprisesMMW = document.getElementById('closeEnterprisesMMW');
-function openEnterprisesRMW() {
-    enterprisesRMW.classList.add('modal__show');
-}
-closeEnterprisesRMW.addEventListener('click', () => {
-    enterprisesRMW.classList.remove('modal__show');
-});
-closeEnterprisesMMW.addEventListener('click', () => {
-    enterprisesMMW.classList.remove('modal__show');
 });
 //------------------------------------------------------INVENTARIO----------------------------------------------------------
 let inventories = [];
