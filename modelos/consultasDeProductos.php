@@ -235,7 +235,7 @@ class consultas {
 		while ($fila = $resultado->fetch_assoc()) {
 			$marcas[] = $fila;
 		}
-		echo json_encode($marcas, JSON_UNESCAPED_UNICODE);
+		echo json_encode($marcas, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 	}
 	public function createMarca(){
 		include 'conexion.php';
@@ -285,7 +285,7 @@ class consultas {
 		while ($fila = $resultado->fetch_assoc()) {
 			$categorias[] = $fila;
 		}
-		echo json_encode($categorias, JSON_UNESCAPED_UNICODE);
+		echo json_encode($categorias, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 	}
 	public function createCategoria(){
 		include 'conexion.php';

@@ -98,13 +98,12 @@ class consultas {
 	//------Leer clientes
 	public function readCustomers(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM cliente INNER JOIN empresa ON cliente.fk_id_emp_clte = id_emp ORDER BY id_clte DESC";
+		$consulta = "SELECT * FROM cliente ORDER BY id_clte DESC";
 		$resultado = $conexion->query($consulta);
 		$numeroClientes = $resultado->num_rows;
 		$clientes =  array();
 		while ($fila = $resultado->fetch_assoc()){
-			$datos = array ( 'id_clte'=>$fila['id_clte'], 'nombre_clte'=>$fila['nombre_clte'], 'apellido_clte'=>$fila['apellido_clte'], 'nit_clte'=>$fila['nit_clte'], 'nombre_emp'=>$fila['nombre_emp'], 'sigla_emp'=>$fila['sigla_emp'], 'nit_emp'=>$fila['nit_emp'], 'email_clte'=>$fila['email_clte'], 'direccion_clte'=>$fila['direccion_clte'], 'celular_clte'=>$fila['celular_clte'], 'fk_id_emp_clte'=>$fila['fk_id_emp_clte'], 'precio_emp'=>$fila['precio_emp']);
-			$clientes['clte_'.$fila['id_clte']] = $datos;
+			$clientes[] = $fila;
 			
 		}
 		echo json_encode($clientes, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
@@ -157,8 +156,7 @@ class consultas {
 		$numeroClientes = $resultado->num_rows;
 		$empresas =  array();
 		while ($fila = $resultado->fetch_assoc()){
-			$datos = array ( 'id_emp'=>$fila['id_emp'], 'nombre_emp'=>$fila['nombre_emp'], 'sigla_emp'=>$fila['sigla_emp'], 'nit_emp'=>$fila['nit_emp'], 'precio_emp'=>$fila['precio_emp'], 'direccion_emp'=>$fila['direccion_emp'], 'telefono_emp'=>$fila['telefono_emp']);
-			$empresas['id_emp_'.$fila['id_emp']] = $datos;
+			$empresas[] = $fila;
 		}
 		echo json_encode($empresas, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 	}

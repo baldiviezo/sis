@@ -119,8 +119,11 @@
 	/*Cuando el mause esta encima de la tabla se muestra el scroll*/
 	visibility: visible;
 }
-
-
+.form__group--img{
+	width: 100%;
+	display: flex;
+	justify-content: center;
+}
 .form__container{
 	display: grid;
 	gap: 1em;
@@ -131,6 +134,7 @@
 	align-items: center;
 }
 .form__group{
+	width: 100%;
 	position: relative;
 	--color: #5757577e;
 }
@@ -172,18 +176,14 @@
 	color: #225c74;
 	cursor: pointer;
 }
-.form__label--only{
-	text-align: left;
-	color: #225c74;
-	
-}
+
 /************************/
 /*inventario */
 .form__label--only{
 	display: flex;
     /*color: #5757577e;*/
     color: #225c74;
-    text-align: left;
+    padding-left: 0.5rem;
 }
 /*select*/
 .form__group--select{

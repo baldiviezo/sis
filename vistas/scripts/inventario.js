@@ -25,14 +25,12 @@ if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getIte
 }
 //--------------------------------------------BLOCK REQUEST WITH A FLAG--------------------------------------------
 let requestInventory = false;
-let initializing = false;
 const preloader = document.getElementById('preloader');
 init();
 async function init() {
     if (!requestInventory) {
         requestInventory = true;
         preloader.classList.add('modal__show');
-        initializing = true;
         try {
             await Promise.all([
                 readAllMarcas(),
@@ -47,9 +45,7 @@ async function init() {
         } catch (error) {
             console.log(error)
             mostrarAlerta('Ocurrio un error al cargar la tabla de inventarios. Cargue nuevamente la pagina.');
-        } finally {
-            initializing = false;
-        }
+        } 
     }
 }
 //---------------------------------------------TABLA INVENTORY--------------------------------------------
@@ -71,7 +67,6 @@ async function readInventories() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            console.log(data)
             inventories = data;
             filterInventories = inventories;
             resolve();
@@ -117,9 +112,9 @@ function searchInventories() {
 function selectInventories() {
     filterInventories = filterInventories.filter(inventory => {
         let product = products.find(product => product.id_prod === inventory.fk_id_prod_inv);
-        const marca = selectMarcaInventory.value === 'todasLasMarcas' ? true : product.fk_id_mrc_prod === selectMarcaInventory.value;
-        const categoria = selectCategoriaInventory.value === 'todasLasCategorias' ? true : product.fk_id_ctgr_prod === selectCategoriaInventory.value;
-        const almacen = selectAlmacenInventory.value === 'todo' ? true : inventory.ubi_almacen === selectAlmacenInventory.value;
+        const marca = selectMarcaInventory.value === 'todasLasMarcas' ? true : product.fk_id_mrc_prod == selectMarcaInventory.value;
+        const categoria = selectCategoriaInventory.value === 'todasLasCategorias' ? true : product.fk_id_ctgr_prod == selectCategoriaInventory.value;
+        const almacen = selectAlmacenInventory.value === 'todo' ? true : inventory.ubi_almacen == selectAlmacenInventory.value;
         return marca && categoria && almacen;
     });
     paginacionInventory(filterInventories.length, 1);
@@ -697,8 +692,8 @@ function searchProductsMW() {
 //------buscar por marca y categoria:
 function selectProductsMW() {
     filterProducts = filterProducts.filter(product => {
-        const marca = selectMarcaProdMW.value === 'todasLasMarcas' ? true : product.fk_id_mrc_prod === selectMarcaProdMW.value;
-        const categoria = selectCategoriaProdMW.value === 'todasLasCategorias' ? true : product.fk_id_ctgr_prod === selectCategoriaProdMW.value;
+        const marca = selectMarcaProdMW.value === 'todasLasMarcas' ? true : product.fk_id_mrc_prod == selectMarcaProdMW.value;
+        const categoria = selectCategoriaProdMW.value === 'todasLasCategorias' ? true : product.fk_id_ctgr_prod == selectCategoriaProdMW.value;
         return marca && categoria;
     });
     paginacionProductMW(filterProducts.length, 1);
@@ -804,19 +799,18 @@ function tableProductsMW(page) {
 
         let td = document.createElement('td');
         td.innerHTML = `
-            <img src='../imagenes/send.svg' onclick='sendProduct(this.parentNode.parentNode)' title='Seleccionar'>`;
+            <img src='../imagenes/send.svg' onclick='sendProduct(${product.id_prod})' title='Seleccionar'>`;
         tr.appendChild(td);
         fragment.appendChild(tr);
     }
     tbody.innerHTML = '';
     tbody.appendChild(fragment);
 }
-function sendProduct(tr) {
-    const id_prod = tr.getAttribute('id_prod');
+function sendProduct(id_prod) {
     const fk_id_prod_invR = document.getElementsByName('fk_id_prod_inv' + formProduct)[0];
     fk_id_prod_invR.value = id_prod;
     const codigo_prod_invR = document.getElementsByName('codigo_prod_inv' + formProduct)[0];
-    codigo_prod_invR.value = tr.children[1].innerText;
+    codigo_prod_invR.value = products.find(product => product.id_prod === id_prod).codigo_prod;
     productSMW.classList.remove('modal__show');
 }
 //---------------------------VENTANA MODAL PARA BUSCAR PRODUCTOS
@@ -968,9 +962,7 @@ function selectCategoriaInv() {
         });
     }
     // Llamar a searchInventories solo si no estamos en la inicialización
-    if (!initializing) {
-        searchInventories();
-    }
+    searchInventories();
 }
 /*----------------------------------------------Marca y categoria modal producto-------------------------------------------------*/
 //-------Select de marcas
@@ -1005,9 +997,7 @@ function selectCategoriaProd() {
             }
         });
     }
-    if (!initializing) {
-        searchProductsMW();
-    }
+    searchProductsMW();
 }
 //------MARCA Y CATEGORIA PARA FORMULARIO DE REGSITRO Y MODIFICACION DE PRODUCTOS
 const marca_prodR = document.getElementById('fk_id_mrc_prodR');

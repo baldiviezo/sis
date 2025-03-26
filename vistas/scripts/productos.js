@@ -13,14 +13,12 @@ if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getIte
 }
 //-------------------------------------------BLOCK REQUEST WITH A FLAG--------------------------------------------
 let requestProducts = false;
-let initializing = false;
 const preloader = document.getElementById('preloader');
 init();
 async function init() {
     if (!requestProducts) {
         requestProducts = true;
         preloader.classList.add('modal__show');
-        initializing = true;
         try {
             await Promise.all([
                 readAllMarcas(),
@@ -32,9 +30,7 @@ async function init() {
             preloader.classList.remove('modal__show');
         } catch (error) {
             mostrarAlerta('Ocurrio un error al cargar la tabla de productos. Cargue nuevamente la pagina.');
-        } finally {
-            initializing = false;
-        }
+        } 
     }
 }
 //--------------------------------------------TABLE PRODUCT-----------------------------------------------------
@@ -87,15 +83,14 @@ function searchProducts() {
             return product[valor].toLowerCase().includes(busqueda);
         }
     });
-    if (!initializing) {
-        selectProducts();
-    }
+    selectProducts();
+    
 }
 //------buscar por marca y categoria:
 function selectProducts() {
     filterProducts = filterProducts.filter(product => {
-        const marca = selectMarcaProduct.value === 'todasLasMarcas' ? true : product.fk_id_mrc_prod === selectMarcaProduct.value;
-        const categoria = selectCategoriaProduct.value === 'todasLasCategorias' ? true : product.fk_id_ctgr_prod === selectCategoriaProduct.value;
+        const marca = selectMarcaProduct.value === 'todasLasMarcas' ? true : product.fk_id_mrc_prod == selectMarcaProduct.value;
+        const categoria = selectCategoriaProduct.value === 'todasLasCategorias' ? true : product.fk_id_ctgr_prod == selectCategoriaProduct.value;
         return marca && categoria;
     });
     paginacionProduct(filterProducts.length, 1);

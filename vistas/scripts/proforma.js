@@ -15,26 +15,35 @@ const preloader = document.getElementById('preloader');
 let requestProf = false;
 init();
 async function init() {
-    if (requestProf == false) {
+    if (!requestProf) {
         requestProf = true;
         preloader.classList.add('modal__show');
-        Promise.all([
-            readProducts(),
-            readProformas(),
-            readMdfProforma(),
-            readProf_prods(),
-            readmProf_prods(),
-            readCustomers().then(() => readEnterprises()),
-            readInventories(),
-            readAllMarcas(),
-            readAllCategorias(),
-            readPrices(),
-            readUsers()
-        ]).then(() => {
+        try {
+            await Promise.all([
+                readProducts(),
+                readProformas(),
+                readMdfProforma(),
+                readProf_prods(),
+                readmProf_prods(),
+                readCustomers(),
+                readEnterprises(),
+                readInventories(),
+                readAllMarcas(),
+                readAllCategorias(),
+                readPrices(),
+                readUsers()
+            ]);
+            paginacionProduct(products.length, 1);
+            paginacionEnterpriseMW(filterEnterprises.length, 1);
             paginacionProforma(proformas.length, 1);
-            preloader.classList.remove('modal__show');
+
+            paginacionProductMW(products.length, 1);
             requestProf = false;
-        })
+            preloader.classList.remove('modal__show');
+        } catch (error) {
+            console.log(error);
+            mostrarAlerta('Ocurrio un error al cargar la tabla de proformas. Cargue nuevamente la pagina.');
+        }
     }
 }
 //-----------------------------------------------FECHA ACTUAL-------------------------------------
@@ -67,8 +76,6 @@ async function readProducts() {
             products = data;
             filterProducts = products;
             filterProductsMW = products;
-            paginacionProduct(products.length, 1);
-            paginacionProductMW(products.length, 1);
             resolve();
         }).catch(err => mostrarAlerta('Ocurrio un error al cargar los productos, cargue nuevamente la pagina.'));
     })
@@ -110,8 +117,8 @@ function searchProducts() {
 //------buscar por marca y categoria:
 function selectProducts() {
     filterProducts = filterProducts.filter(product => {
-        const marca = selectMarcaProduct.value === 'todasLasMarcas' ? true : product.fk_id_mrc_prod === selectMarcaProduct.value;
-        const categoria = selectCategoriaProduct.value === 'todasLasCategorias' ? true : product.fk_id_ctgr_prod === selectCategoriaProduct.value;
+        const marca = selectMarcaProduct.value === 'todasLasMarcas' ? true : product.fk_id_mrc_prod == selectMarcaProduct.value;
+        const categoria = selectCategoriaProduct.value === 'todasLasCategorias' ? true : product.fk_id_ctgr_prod == selectCategoriaProduct.value;
         return marca && categoria;
     });
     paginacionProduct(filterProducts.length, 1);
@@ -205,7 +212,7 @@ function showDetails(id_prod) {
     const cost_uni2 = prices.find(price => price.modelo === product.codigo_prod);
     const inventory = inventories.find(inventory => inventory.fk_id_prod_inv === id_prod);
     const cantidad_inv = inventory ? inventory.cantidad_inv : 0;
-    const cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio)) : (inventory ? Math.round(inventory.cost_uni_inv * 1.1) : 0);
+    const cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio)) : (inventory ? inventory.cost_uni_inv : 0);
 
     modalCard__body.innerHTML = `
       <div class="modalCard__head">
@@ -264,7 +271,6 @@ function cartProduct(id_prod) {
         card.setAttribute('id_prod', id_prod);
         card.setAttribute('draggable', 'true');
         const html = `
-        <input type="hidden" value="${product['id_prod']}">
         <p class="cart-item__cantInv">${cantidad_inv}</p>
         <div class="row-img">
           <img src="../modelos/imagenes/${product['imagen_prod']}" class="rowimg">
@@ -310,10 +316,10 @@ function removeCardFromCart(cart) {
 }
 //------Al cambia la cantidad
 function changeQuantity(product) {
-    let cantidad_prod = product.children[4].value;
-    let costo_uni = product.children[5].value;
+    let cantidad_prod = product.children[3].value;
+    let costo_uni = product.children[4].value;
     let cost_uni_total = cantidad_prod * costo_uni;
-    product.children[6].value = cost_uni_total.toFixed(2);
+    product.children[5].value = cost_uni_total.toFixed(2);
     totalPrice();
 }
 //-------Precio total y moneda
@@ -322,7 +328,7 @@ function totalPrice() {
     let moneda = selectMoneyCart.value;
     let total = 0;
     divs.forEach(div => {
-        costo = Number(div.children[6].value);
+        costo = Number(div.children[5].value);
         total = total + costo;
     })
     document.getElementById('total').innerHTML = moneda + ' ' + total.toFixed(2);
@@ -353,7 +359,6 @@ async function readProformas() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            console.log(data)
             const isAdmin = ['Gerente general', 'Administrador'].includes(localStorage.getItem('rol_usua'));
             proformas = isAdmin ? data : data.filter(proforma => proforma.fk_id_usua_prof === localStorage.getItem('id_usua'));
             filterProformas = proformas;
@@ -565,30 +570,30 @@ function tableProformas(page) {
             ];
             const hasMdfProforma = mdfPproforma.filter(mdfProforma => mdfProforma.id_prof_mprof == proforma.id_prof).length > 0;
             if (hasMdfProforma) {
-                imgs.push({ src: '../imagenes/folder.svg', onclick: 'showMdfProforma(this.parentNode.parentNode.children[0].innerText)', title: 'Proformas anteriores' });
+                imgs.push({ src: '../imagenes/folder.svg', onclick: `showMdfProforma(${proforma.id_prof})`, title: 'Proformas anteriores' });
             }
         } else if (proforma.estado_prof == 'pendiente') {
             if (['Administrador', 'Gerente general'].includes(localStorage.getItem('rol_usua'))) {
                 imgs = [
                     { src: '../imagenes/notaEntrega.svg', onclick: 'openNotaEntregaRMW(this.parentNode.parentNode)', title: 'Generar Nota de Entrega' },
-                    { src: '../imagenes/pdf.svg', onclick: 'selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")', title: 'Mostrar PDF' },
+                    { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_prof}, "prof")`, title: 'Mostrar PDF' },
                     { src: '../imagenes/edit.svg', onclick: 'readProforma(this.parentNode.parentNode)', title: 'Editar Proforma' },
                     { src: '../imagenes/trash.svg', onclick: 'deleteProforma(this.parentNode.parentNode)', title: 'Eliminar Proforma' }
                 ];
             } else if (['Ingeniero', 'Gerente De Inventario'].includes(localStorage.getItem('rol_usua'))) {
                 imgs = [
                     { src: '../imagenes/notaEntrega.svg', onclick: 'openNotaEntregaRMW(this.parentNode.parentNode)', title: 'Generar Nota de Entrega' },
-                    { src: '../imagenes/pdf.svg', onclick: 'selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")', title: 'Mostrar PDF' },
+                    { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_prof}, "prof")`, title: 'Mostrar PDF' },
                     { src: '../imagenes/edit.svg', onclick: 'readProforma(this.parentNode.parentNode)', title: 'Editar Proforma' }
                 ];
             }
             const hasMdfProforma = mdfPproforma.filter(mdfProforma => mdfProforma.id_prof_mprof == proforma.id_prof).length > 0;
             if (hasMdfProforma) {
-                imgs.push({ src: '../imagenes/folder.svg', onclick: 'showMdfProforma(this.parentNode.parentNode.children[0].innerText)', title: 'Proformas anteriores' });
+                imgs.push({ src: '../imagenes/folder.svg', onclick: `showMdfProforma(${proforma.id_prof})`, title: 'Proformas anteriores' });
             }
         } else if (proforma.estado_prof == 'devolucion') {
             imgs = [
-                { src: '../imagenes/pdf.svg', onclick: 'selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")', title: 'Mostrar PDF' }
+                { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_prof}, "prof")`, title: 'Mostrar PDF' }
             ]
         }
 
@@ -674,7 +679,6 @@ function readProforma(tr) {
                 } else if (valor == 'id_emp') {
                     selectEnterpriseM.value = filterProformas[proforma][valor];
                 } else if (valor == 'fk_id_clte_prof') {
-                    fillSelectClte(selectCustomerM, 0);
                     selectCustomerM.value = filterProformas[proforma][valor];
                 } else if (valor == 'silga_emp' || valor == 'nombre_emp' || valor == 'nombre_clte' || valor == 'fk_id_usua_prof' || valor == 'apellido_clte' || valor == 'nombre_usua' || valor == 'celular_clte' || valor == 'apellido_usua' || valor == 'email_usua' || valor == 'celular_usua' || valor == 'factura_prof' || valor == 'direccion_emp' || valor == 'estado_prof') {
                 } else if (valor == 'tipo_cambio_prof') {
@@ -814,7 +818,6 @@ function isInteger(input) {
 }
 //-------------------------------------------------------CRUD PROFORMAS MODIFICADAS---------------------------------
 let mdfPproforma = [];
-let filtermdfPproforma = [];
 async function readMdfProforma() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
@@ -829,74 +832,90 @@ async function readMdfProforma() {
     })
 }
 function showMdfProforma(id_prof) {
+    const tbody = document.getElementById('tbodymProforma');
+    const tablemProfMW = document.getElementById('tablemProfMW');
+
     tablemProfMW.classList.add('modal__show');
-    let tbody = document.getElementById('tbodymProforma');
-    let i = 1;
     tbody.innerHTML = '';
-    document.querySelector('#tablemProfMW div.table__title h1').innerHTML = ``;
-    for (let proforma in mdfPproforma) {
-        if (mdfPproforma[proforma]['id_prof_mprof'] == id_prof) {
-            filtermdfPproforma.push(mdfPproforma[proforma]);
-            let tr = document.createElement('tr');
-            for (let dato in mdfPproforma[proforma]) {
-                let td = document.createElement('td');
-                if (dato == 'id_mprof') {
-                    document.querySelector('#tablemProfMW div.table__title h1').innerHTML = `${mdfPproforma[proforma]['numero_mprof']}`;
-                    td.innerText = i;
-                    tr.appendChild(td);
-                    td = document.createElement('td');
-                    td.innerText = mdfPproforma[proforma]['id_mprof'];
-                    td.setAttribute('hidden', '');
-                    tr.appendChild(td);
-                    td = document.createElement('td');
-                    td.innerText = mdfPproforma[proforma]['id_prof_mprof'];
-                    td.setAttribute('hidden', '');
-                    tr.appendChild(td);
-                    td = document.createElement('td');
-                    td.innerText = mdfPproforma[proforma]['numero_mprof'] + '-' + i;
-                    tr.appendChild(td);
-                    i++;
-                } else if (dato == 'fecha_mprof') {
-                    td.innerText = mdfPproforma[proforma][dato];
-                    tr.appendChild(td);
-                } else if (dato == 'nombre_usua') {
-                    td.innerText = mdfPproforma[proforma][dato] + ' ' + mdfPproforma[proforma]['apellido_usua'];
-                    tr.appendChild(td);
-                } else if (dato == 'id_prof_mprof' || dato == 'numero_mprof' || dato == 'cond_pago_mprof' || dato == 'observacion_mprof' || dato == 'tpo_entrega_mprof' || dato == 'apellido_usua' || dato == 'email_usua' || dato == 'celular_usua' || dato == 'sigla_emp' || dato == 'telefono_emp' || dato == 'direccion_emp' || dato == 'apellido_clte' || dato == 'celular_clte' || dato == 'moneda_mprof' || dato == 'tipo_cambio_mprof') {
-                } else if (dato == 'nombre_clte') {
-                    td.innerText = mdfPproforma[proforma][dato] + ' ' + mdfPproforma[proforma]['apellido_clte'];
-                    tr.appendChild(td);
-                } else if (dato == 'total_mprof') {
-                    td.innerText = mdfPproforma[proforma][dato] + ' ' + mdfPproforma[proforma]['moneda_mprof'];
-                    tr.appendChild(td);
-                } else if (dato == 'descuento_mprof') {
-                    td.innerText = mdfPproforma[proforma][dato] + '%';
-                    tr.appendChild(td);
-                } else {
-                    td.innerText = mdfPproforma[proforma][dato];
-                    tr.appendChild(td);
-                }
+    document.querySelector('#tablemProfMW div.table__title h1').innerHTML = proformas.find(proforma => proforma.id_prof === id_prof).numero_prof;
+
+    let i = 1;
+    mdfPproforma.forEach((proforma, index) => {
+        if (proforma.id_prof_mprof === id_prof) {
+            const cliente = customers.find(customer => customer.id_clte === proforma.fk_id_clte_mprof);
+            const usuario = users.find(user => user.id_usua === proforma.fk_id_usua_mprof);
+            const empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
+            const tr = document.createElement('tr');
+
+            tr.setAttribute('id_mprof', proforma.id_mprof);
+
+            const tdNumero = document.createElement('td');
+            tdNumero.innerText = i;
+            tr.appendChild(tdNumero);
+
+            const tdNumeroProforma = document.createElement('td');
+            tdNumeroProforma.innerText = proforma.numero_mprof;
+            tr.appendChild(tdNumeroProforma);
+
+            const tdFecha = document.createElement('td');
+            tdFecha.innerText = proforma.fecha_mprof;
+            tr.appendChild(tdFecha);
+
+            const tdEncargado = document.createElement('td');
+            tdEncargado.innerText = usuario.nombre_usua + ' ' + usuario.apellido_usua;
+            tr.appendChild(tdEncargado);
+
+            const tdEmpresa = document.createElement('td');
+            tdEmpresa.innerText = empresa.nombre_emp;
+            tr.appendChild(tdEmpresa);
+
+            const tdCliente = document.createElement('td');
+            tdCliente.innerText = cliente.apellido_clte + ' ' + cliente.nombre_clte;
+            tr.appendChild(tdCliente);
+
+            const tdTotal = document.createElement('td');
+            tdTotal.innerText = proforma.total_mprof + ' ' + proforma.moneda_mprof;
+            tr.appendChild(tdTotal);
+
+            const tdAcciones = document.createElement('td');
+            const fragment = document.createDocumentFragment();
+
+            let imgs = [];
+
+
+            if (['Administrador', 'Gerente general'].includes(localStorage.getItem('rol_usua'))) {
+                imgs = [
+                    { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_mprof}, "mprof")`, title: 'PDF' },
+                    { src: '../imagenes/trash.svg', onclick: `deleteMdfProforma(${proforma.id_mprof}, "mprof")`, title: 'Eliminar' }
+                ];
+            } else if (['Ingeniero', 'Gerente De Inventario'].includes(localStorage.getItem('rol_usua'))) {
+                imgs = [
+                    { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_mprof}, "mprof")`, title: 'PDF' }
+                ];
             }
-            let td = document.createElement('td');
-            if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
-                td.innerHTML = `
-                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[1].innerText, "mprof")' title='PDF'>
-                <img src='../imagenes/trash.svg' onclick='deleteMdfProforma(this.parentNode.parentNode, "mprof")' title='Eliminar'>`;
-            } else {
-                td.innerHTML = `
-                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[1].innerText, "mprof")' title='PDF'>`;
-            }
-            tr.appendChild(td);
+
+
+            imgs.forEach((img) => {
+                const imgElement = document.createElement('img');
+                imgElement.src = img.src;
+                imgElement.onclick = new Function(img.onclick);
+                imgElement.title = img.title;
+                fragment.appendChild(imgElement);
+            });
+
+            tdAcciones.appendChild(fragment);
+            tr.appendChild(tdAcciones);
+
             tbody.appendChild(tr);
+            i++;
         }
-    }
+    });
 }
 //-------Delete una proforma modificada
-async function deleteMdfProforma(tr) {
+async function deleteMdfProforma(id_mprof) {
     if (confirm('¿Esta usted seguro?')) {
         if (requestProf == false) {
             requestProf = true;
-            let id_mprof = tr.children[1].innerText;
             let formData = new FormData();
             tablemProfMW.classList.remove('modal__show');
             formData.append('deletemProforma', id_mprof);
@@ -944,7 +963,7 @@ function selectPDFInformation(id, pdf) {
             showPDF(proforma, objects, pdf);
         }
     } else if (pdf == 'mprof') {
-        filtermdfPproforma.forEach(proforma => {
+        mdfPproforma.forEach(proforma => {
             if (proforma['id_mprof'] == id) {
                 const objects = mProf_prods.filter(pf_pd => pf_pd['fk_id_mprof_mpfpd'] == id)
                     .map(pf_pd => {
@@ -1349,6 +1368,13 @@ function openPreviwProducts() {
 }
 function getProducts() {
     if (formProformas === 'R') {
+        const titlePreviewProducts = document.getElementById('titlePreviewProducts');
+
+        if (selectEnterpriseR.value != 77) {
+            titlePreviewProducts.innerText = selectEnterpriseR.options[selectEnterpriseR.selectedIndex].text;
+        } else {
+            titlePreviewProducts.innerText = selectCustomerR.options[selectCustomerR.selectedIndex].text;
+        }
         return document.querySelectorAll('#cartItem .cart-item');
     } else if (formProformas === 'M') {
         return document.querySelectorAll('#cartsProf_prodMW .cart-item');
@@ -1364,7 +1390,7 @@ function getMoneda() {
 function calculateTotal(productos) {
     let total = 0;
     productos.forEach(producto => {
-        total += Number(producto.children[6].value);
+        total += Number(producto.children[5].value);
     });
     return total;
 }
@@ -1374,16 +1400,17 @@ function getDescuento() {
 function createTable(tbody, productos, moneda) {
     const html = [];
     productos.forEach(producto => {
+        let row = products.find(product => product['id_prod'] == producto.getAttribute('id_prod'));
         html.push(`
         <tr>
           <td>${i}</td>
           <td>${producto.children[3].innerText}</td>
-          <td><textarea class="textarea__preview" readonly>${producto.children[8].innerText}</textarea></td>
-          <td><textarea class="textarea__preview" readonly>${producto.children[9].innerText}</textarea></td>
-          <td><img src='${producto.children[2].children[0].src}' class='tbody__img'></td>
-          <td>${producto.children[4].value}</td>
+          <td><textarea class="textarea__preview" readonly>${row.nombre_prod}</textarea></td>
+          <td><textarea class="textarea__preview" readonly>${row.descripcion_prod}</textarea></td>
+          <td><img src='${producto.children[1].children[0].src}' class='tbody__img'></td>
+          <td>${producto.children[3].value}</td>
+          <td>${producto.children[4].value} <b>${moneda}</b></td>
           <td>${producto.children[5].value} <b>${moneda}</b></td>
-          <td>${producto.children[6].value} <b>${moneda}</b></td>
         </tr>
       `);
         i++;
@@ -1543,8 +1570,8 @@ closeNotaEntregaRMW.addEventListener('click', (e) => {
     notaEntregaRMW.classList.remove('modal__show');
 });
 //---------------------------------------------------------------CLIENTES----------------------------------------------
-let selectCustomerR = document.getElementById('selectCustomerR');
-let selectCustomerM = document.getElementById('selectCustomerM');
+const selectCustomerR = document.getElementById('selectCustomerR');
+const selectCustomerM = document.getElementById('selectCustomerM');
 let customers = [];
 let filterCustomers = [];
 let chooseCustomers = [];
@@ -1734,11 +1761,6 @@ async function createCustomer() {
             readCustomers().then(() => {
                 requestProf = false;
                 formClienteR.reset();
-                if (formProformas == 'R') {
-                    fillSelectClte(selectCustomerR, indexCustomer);
-                } else if (formProformas == 'M') {
-                    fillSelectClte(selectCustomerM, indexCustomer);
-                }
                 preloader.classList.remove('modal__show');
                 mostrarAlerta(data);
             });
@@ -1767,7 +1789,6 @@ async function updateCustomer() {
             readCustomers().then(() => {
                 requestProf = false;
                 formClienteM.reset();
-                fillSelectClte(selectCustomerR, indexCustomer);
                 selectCustomerR.value = indexCustomer;
                 preloader.classList.remove('modal__show');
                 mostrarAlerta(data);
@@ -1851,11 +1872,8 @@ async function readEnterprises() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            enterprises = Object.values(data);
+            enterprises = data;
             filterEnterprises = enterprises;
-            paginacionEnterpriseMW(enterprises.length, 1);
-            fillSelectEmp(selectEnterpriseR, indexEnterprise);
-            fillSelectEmp(selectEnterpriseM, indexEnterprise);
             resolve();
         }).catch(err => console.log(err));
     })
@@ -1881,8 +1899,8 @@ function searchEnterprisesMW() {
         if (valor === 'todas') {
             return (
                 enterprise.nombre_emp.toLowerCase().includes(busqueda) ||
-                enterprise.sigla_emp.toLowerCase().includes(busqueda) ||
-                enterprise.nit_emp.toLowerCase().includes(busqueda)
+                enterprise.sigla_emp.toString().toLowerCase().includes(busqueda) ||
+                enterprise.nit_emp.toString().toLowerCase().includes(busqueda)
             );
         } else {
             return enterprise[valor].toString().toLowerCase().includes(busqueda);
@@ -1948,13 +1966,10 @@ function tableEnterprisesMW(page) {
     for (let enterprise in filterEnterprises) {
         if (i > inicio && i <= final) {
             let tr = document.createElement('tr');
+            tr.setAttribute('id', `${filterEnterprises[enterprise].id_emp}`);
             for (let valor in filterEnterprises[enterprise]) {
                 let td = document.createElement('td');
                 if (valor == 'id_emp') {
-                    td.innerText = filterEnterprises[enterprise][valor];
-                    td.setAttribute('hidden', '');
-                    tr.appendChild(td);
-                    td = document.createElement('td');
                     td.innerText = i;
                     tr.appendChild(td);
                     i++;
@@ -1979,7 +1994,7 @@ function tableEnterprisesMW(page) {
             }
             let td = document.createElement('td');
             td.innerHTML = `
-        <img src='../imagenes/send.svg' onclick='sendEnterprise(this.parentNode.parentNode)'>`;
+                <img src='../imagenes/send.svg' onclick='sendEnterprise(${filterEnterprises[enterprise].id_emp})'>`;
             tr.appendChild(td);
             tbody.appendChild(tr);
         } else {
@@ -1987,32 +2002,20 @@ function tableEnterprisesMW(page) {
         }
     }
 }
-function sendEnterprise(tr) {
+function sendEnterprise(id_emp) {
+    const fk_nombre_emp_profR = document.getElementById('fk_nombre_emp_profR');
     enterpriseSMW.classList.remove('modal__show');
-    let id_emp = tr.children[0].innerText;
     if (formProformas == 'R') {
         selectEnterpriseR.value = id_emp;
-        fillSelectClte(selectCustomerR, indexCustomer);
+        fk_nombre_emp_profR.value = enterprises.find(enterprise => enterprise.id_emp == id_emp).nombre_emp;
     } else if (formProformas == 'M') {
         selectEnterpriseM.value = id_emp;
-        fillSelectClte(selectCustomerM, indexCustomer);
     }
-}
-function fillSelectEmp(select, index) {
-    select.innerHTML = '';
-    for (let enterprise in filterEnterprises) {
-        let option = document.createElement('option');
-        option.value = filterEnterprises[enterprise]['id_emp'];
-        option.innerText = filterEnterprises[enterprise]['nombre_emp'];
-        select.appendChild(option);
-    }
-    fillSelectClte(selectCustomerR, indexCustomer);
-    fillSelectClte(selectCustomerM, indexCustomer);
 }
 function fillSelectClte(select, index) {
     const id_emp = formProformas == 'R' ? selectEnterpriseR.value : selectEnterpriseM.value;
     select.innerHTML = '';
-    filterCustomers = customers.filter(customer => customer.fk_id_emp_clte === id_emp);
+    filterCustomers = customers.filter(customer => customer.fk_id_emp_clte == id_emp);
     chooseCustomers = filterCustomers;
 
     const options = filterCustomers.map(customer => {
@@ -2024,7 +2027,7 @@ function fillSelectClte(select, index) {
 
     paginacionCustomerMW(filterCustomers.length, 1);
 
-    const enterprise = enterprises.find(enterprise => enterprise.id_emp === id_emp);
+    const enterprise = enterprises.find(enterprise => enterprise.id_emp == id_emp);
     if (enterprise) {
         if (formProformas == 'R') {
             document.getElementsByName('descuento_profR')[0].value = enterprise.precio_emp;
@@ -2078,6 +2081,7 @@ async function createEnterprise() {
                 requestProf = false;
                 formEmpresaR.reset();
                 mostrarAlerta(data);
+                paginacionEnterpriseMW(filterEnterprises.length, 1);
                 preloader.classList.remove('modal__show');
             })
         }).catch(err => {

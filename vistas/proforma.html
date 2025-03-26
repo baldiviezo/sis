@@ -34,7 +34,6 @@
 					<img src="../imagenes/registrar.svg" onclick="openProductsRMW()" class="img__folder"
 						title="Registrar producto">
 					<img src="../imagenes/dollarCircle.svg" onclick="openPriceList()" class="img__folder">
-					<img src="../imagenes/i.svg" onclick="openInventorySMW()" class="icon__CRUD">
 				</div>
 				<section class="select__search">
 					<div>
@@ -148,7 +147,8 @@
 				</div>
 				<section class="table__header">
 					<h1 id="totalProfMW">Total:</h1>
-					<img src="../imagenes/inventario.svg"  id="openTablePPMW" class="icon__CRUD" title="Productos de la proforma">
+					<img src="../imagenes/inventario.svg" id="openTablePPMW" class="icon__CRUD"
+						title="Productos de la proforma">
 					<section class="select__search">
 						<div>
 							<label>Fecha proforma:</label>
@@ -181,7 +181,7 @@
 								<option value="vendido">Vendido</option>
 								<option value="devolucion">Devolución</option>
 							</select>
-						</div>	
+						</div>
 					</section>
 					<div class="combo__search">
 						<div class="filter__search">
@@ -303,7 +303,7 @@
 								<option value="11">Noviembre</option>
 								<option value="12">Diciembre</option>
 							</select>
-						</div>	
+						</div>
 					</section>
 					<div class="combo__search">
 						<div class="filter__search">
@@ -398,9 +398,7 @@
 								<th>Encargado</th>
 								<th>Empresa</th>
 								<th>Cliente</th>
-								<th>Desc. (%)</th>
-								<th>Total</TH>
-								<th>Valido</th>
+								<th>Total</th>
 								<th>Acciones</th>
 							</tr>
 						</thead>
@@ -467,9 +465,9 @@
 					</thead>
 				</table>
 			</div>
-				<div class="container--modal__body">
-					<div id="cartsProductsSold" class="modal__body--pfpd"></div>
-				</div>
+			<div class="container--modal__body">
+				<div id="cartsProductsSold" class="modal__body--pfpd"></div>
+			</div>
 			<div class="foot">
 				<div class="foot__left table__subTitle">
 					<p id="subTotalNE">Sub-Total (Bs):</p>
@@ -496,33 +494,29 @@
 			<div class="form">
 				<form id="formProformaR">
 					<div class="form__container">
+						<input type="text" name="fk_id_emp_clteR" class="form__input" hidden>
+						<input type="text" name="fk_id_clte_profR" class="form__input" hidden>
 						<div class="form__group">
 							<input type="date" name="fecha_profR" placeholder=" " class="form__input">
 							<label for="fecha_profR" class="form__label">Fecha:</label>
 						</div>
-						<label class="form__label--only">Empresa:</label>
-						<div class="form__group--select">
-							<select name="fk_id_emp_clteR" id="fk_id_emp_clteR"></select>
+						<div class="form__group--img">
+							<div class="form__group">
+								<input type="text" name="fk_nombre_emp_profR" id="fk_nombre_emp_profR"
+									class="form__input" readonly>
+								<label for="fk_nombre_emp_profR" class="form__label">Empresa:</label>
+							</div>
 							<img src="../imagenes/search.svg" onclick="openEnterpriseSMW()" class="icon__CRUD"
 								title="Buscar empresa">
-							<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()" class="icon__CRUD"
-								title="Registrar empresa">
-							<!--<img src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)" class="icon__CRUD"
-								title="Editar empresa">-->
-							<img src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)"
-								class="icon__CRUD" title="Eliminar empresa" hidden>
 						</div>
-						<label class="form__label--only">Cliente:</label>
-						<div class="form__group--select">
-							<select name="fk_id_clte_profR" id="selectCustomerR"></select>
+						<div class="form__group--img">
+							<div class="form__group">
+								<input type="text" name="fk_id_clte_profR" id="selectCustomerR" class="form__input"
+									readonly>
+								<label for="fk_id_clte_profR" class="form__label">Cliente:</label>
+							</div>
 							<img src="../imagenes/search.svg" onclick="openCustomersSMW('R')" class="icon__CRUD"
 								title="Buscar cliente">
-							<img src="../imagenes/registrar.svg" onclick="openCustomersRMW()" class="icon__CRUD"
-								title="Registrar cliente">
-							<!--<img src="../imagenes/edit.svg" onclick="readCustomer(this.parentNode)" class="icon__CRUD"
-								title="Editar cliente">-->
-							<img src="../imagenes/trash.svg" onclick="deleteCustomer(this.parentNode)"
-								class="icon__CRUD" title="Eliminar cliente" hidden>
 						</div>
 						<div class="form__group">
 							<input type="text" name="tpo_valido_profR" placeholder=" " class="form__input">
@@ -579,7 +573,8 @@
 							<select name="fk_id_clte_profM" id="selectCustomerM"></select>
 							<img src="../imagenes/search.svg" onclick="openCustomersSMW('R')" class="icon__CRUD"
 								title="Buscar cliente">
-							<img src="../imagenes/registrar.svg" onclick="openCustomersRMW()" class="icon__CRUD" title="Registrar cliente">
+							<img src="../imagenes/registrar.svg" onclick="openCustomersRMW()" class="icon__CRUD"
+								title="Registrar cliente">
 							<!--<img src="../imagenes/edit.svg" onclick="readCustomers('M')">
 							<img src="../imagenes/trash.svg" onclick="deleteCustomers('M')">-->
 						</div>
@@ -664,6 +659,7 @@
 			<div class="table">
 				<div class="table__title">
 					<img src="../imagenes/salir.svg" id="closePreviewProducts" class="button__close" title="Minimizar">
+					<h1 id="titlePreviewProducts"></h1>
 					<div class="table__subTitle">
 						<p id="subTotalProf">sub total</p>
 						<p id="descProf">Descuento</p>
@@ -779,6 +775,74 @@
 			</form>
 		</div>
 	</section>
+	<!--Tabla Modal Empresa-->
+	<section id="enterpriseSMW" class="modalTable">
+		<div class="modalTable__container">
+			<div class="table">
+				<div class="table__title">
+					<h1><img src="../imagenes/enterprise.svg">Empresas</h1>
+					<img src="../imagenes/salir.svg" id="closeEnterpriseSMW" class="button__close">
+				</div>
+				<section class="table__header">
+					<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()" class="icon__CRUD"
+						title="Registrar empresa">
+					<div class="combo__search">
+						<div>
+							<select id="selectSearchEmpMW" class="select">
+								<option value="todas">Buscar por</option>
+								<option value="nombre_emp">Empresa</option>
+							</select>
+						</div>
+						<div class="table__search">
+							<input type="search" id="inputSearchEmpMW" placeholder="Buscar...">
+							<img src="../imagenes/search.png">
+						</div>
+					</div>
+				</section>
+				<div class="showPage" id="showPageEmpMW">
+					<h2></h2>
+				</div>
+				<div class="container__page">
+					<div class="paginacion">
+						<!--Envoltura-->
+						<div class="wrapper" id="wrapperEmpMW">
+							<ul></ul>
+						</div>
+					</div>
+					<div>
+						<select id="selectNumberEmpMW" class="select__number">
+							<option value="2">2</option>
+							<option value="4">4</option>
+							<option value="6">6</option>
+							<option value="10">10 </option>
+							<option value="20">20</option>
+						</select>
+					</div>
+				</div>
+				<section class="table__body">
+					<table>
+						<thead>
+							<tr>
+								<th>N°</th>
+								<th>
+									<div class="tbody__head--empMW">Nombre <img src="../imagenes/sortA_Z.svg"
+											name="nombre_emp"><img src="../imagenes/sortZ_A.svg" name="nombre_emp">
+									</div>
+								</th>
+								<th>Sigla</S></th>
+								<th>Nit</th>
+								<th>Descuento</th>
+								<th>Direccion</th>
+								<th>Telefono</th>
+								<th>Seleccionar</th>
+							</tr>
+						</thead>
+						<tbody id="tbodyEmpMW"></tbody>
+					</table>
+				</section>
+			</div>
+		</div>
+	</section>
 	<!--Ventana modal para registrar y modificar Empresas-->
 	<section id="enterprisesRMW" class="modal">
 		<div class="modal__container">
@@ -862,73 +926,6 @@
 					<input type="submit" value="Modificar" class="form__submit">
 				</div>
 			</form>
-		</div>
-	</section>
-	<!--Tabla Modal Empresa-->
-	<section id="enterpriseSMW" class="modalTable">
-		<div class="modalTable__container">
-			<div class="table">
-				<div class="table__title">
-					<h1><img src="../imagenes/enterprise.svg">Empresas</h1>
-					<img src="../imagenes/salir.svg" id="closeEnterpriseSMW" class="button__close">
-				</div>
-				<section class="table__header">
-					<div></div>
-					<div class="combo__search">
-						<div>
-							<select id="selectSearchEmpMW" class="select">
-								<option value="todas">Buscar por</option>
-								<option value="nombre_emp">Empresa</option>
-							</select>
-						</div>
-						<div class="table__search">
-							<input type="search" id="inputSearchEmpMW" placeholder="Buscar...">
-							<img src="../imagenes/search.png">
-						</div>
-					</div>
-				</section>
-				<div class="showPage" id="showPageEmpMW">
-					<h2></h2>
-				</div>
-				<div class="container__page">
-					<div class="paginacion">
-						<!--Envoltura-->
-						<div class="wrapper" id="wrapperEmpMW">
-							<ul></ul>
-						</div>
-					</div>
-					<div>
-						<select id="selectNumberEmpMW" class="select__number">
-							<option value="2">2</option>
-							<option value="4">4</option>
-							<option value="6">6</option>
-							<option value="10">10 </option>
-							<option value="20">20</option>
-						</select>
-					</div>
-				</div>
-				<section class="table__body">
-					<table>
-						<thead>
-							<tr>
-								<th>N°</th>
-								<th>
-									<div class="tbody__head--empMW">Nombre <img src="../imagenes/sortA_Z.svg"
-											name="nombre_emp"><img src="../imagenes/sortZ_A.svg" name="nombre_emp">
-									</div>
-								</th>
-								<th>Sigla</S></th>
-								<th>Nit</th>
-								<th>Precio</th>
-								<th>Direccion</th>
-								<th>Telefono</th>
-								<th>Seleccionar</th>
-							</tr>
-						</thead>
-						<tbody id="tbodyEmpMW"></tbody>
-					</table>
-				</section>
-			</div>
 		</div>
 	</section>
 	<!--Tabla Modal Customer-->
