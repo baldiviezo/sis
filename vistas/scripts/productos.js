@@ -30,7 +30,7 @@ async function init() {
             preloader.classList.remove('modal__show');
         } catch (error) {
             mostrarAlerta('Ocurrio un error al cargar la tabla de productos. Cargue nuevamente la pagina.');
-        } 
+        }
     }
 }
 //--------------------------------------------TABLE PRODUCT-----------------------------------------------------
@@ -84,7 +84,7 @@ function searchProducts() {
         }
     });
     selectProducts();
-    
+
 }
 //------buscar por marca y categoria:
 function selectProducts() {
@@ -199,7 +199,7 @@ function tableProducts(page) {
         td.innerHTML = `
             ${isAdmin ? '<img src="../imagenes/trash.svg" onclick="deleteProduct(this.parentNode.parentNode)" title="Eliminar Producto">' : ''}
             ${hasCatalog ? `<a href="${product['catalogo_prod']}" target="_blank"><img src="../imagenes/pdf.svg" title="Catálogo"></a>` : ''}
-                <img src="../imagenes/edit.svg" onclick="readProduct(this.parentNode.parentNode)" title="Editar producto">`;
+                <img src="../imagenes/edit.svg" onclick="readProduct(${product.id_prod})" title="Editar producto">`;
         tr.appendChild(td);
         fragment.appendChild(tr);
     }
@@ -252,28 +252,24 @@ async function createProduct() {
     }
 }
 //------Leer un producto
-function readProduct(tr) {
+function readProduct(id_prod) {
     cleanUpProductFormM();
-    let id_prod = tr.getAttribute('id_prod');
     let product = filterProducts.find(product => product.id_prod == id_prod);
-
-    if (product) {
-        for (let valor in product) {
-            if (valor == 'imagen_prod') {
-                document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("../modelos/imagenes/${product[valor]}"); background-size: cover;`);
-            } else if (valor == 'codigo_smc_prod') {
-                if (product['fk_id_mrc_prod'] == '15') {
-                    divCodigoSMCM.removeAttribute('hidden');
-                    document.getElementsByName(valor + 'M')[0].value = product[valor];
-                }
-            } else if (valor == 'fk_id_mrc_prod') {
-                document.getElementsByName(valor + 'M')[0].value = product[valor];
-            } else if (valor == 'fk_id_ctgr_prod') {
-                selectCategoriaProdM();
-                document.getElementsByName(valor + 'M')[0].value = product[valor];
-            } else {
+    for (let valor in product) {
+        if (valor == 'imagen_prod') {
+            document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("../modelos/imagenes/${product[valor]}"); background-size: cover;`);
+        } else if (valor == 'codigo_smc_prod') {
+            if (product['fk_id_mrc_prod'] == '15') {
+                divCodigoSMCM.removeAttribute('hidden');
                 document.getElementsByName(valor + 'M')[0].value = product[valor];
             }
+        } else if (valor == 'fk_id_mrc_prod') {
+            document.getElementsByName(valor + 'M')[0].value = product[valor];
+        } else if (valor == 'fk_id_ctgr_prod') {
+            selectCategoriaProdM();
+            document.getElementsByName(valor + 'M')[0].value = product[valor];
+        } else {
+            document.getElementsByName(valor + 'M')[0].value = product[valor];
         }
     }
     productsMMW.classList.add('modal__show');
