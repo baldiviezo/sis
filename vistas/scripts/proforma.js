@@ -103,7 +103,7 @@ function searchProducts() {
     filterProducts = products.filter(product => {
         if (valor === 'todas') {
             return (
-                product.codigo_prod.toLowerCase().includes(busqueda) ||
+                product.codigo_prod.toString().toLowerCase().includes(busqueda) ||
                 product.nombre_prod.toLowerCase().includes(busqueda) ||
                 product.descripcion_prod.toLowerCase().includes(busqueda)
             );
@@ -259,7 +259,7 @@ function cartProduct(id_prod) {
     const product = filterProducts.find(product => product['id_prod'] == id_prod);
     if (product) {
 
-        const cost_uni2 = prices.find(price => price.modelo === product.codigo_prod);
+        const cost_uni2 = prices.find(price => price.modelo.trim() === product.codigo_prod);
         const inventory = inventories.find(inventory => inventory.fk_id_prod_inv === id_prod);
 
         const cantidad_inv = inventory ? inventory.cantidad_inv : 0;
@@ -776,13 +776,33 @@ const proformaMMW = document.getElementById('proformaMMW');
 openProformaRMW.addEventListener('click', () => {
     document.getElementsByName('fecha_profR')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
     formProformas = 'R';
-    proformaRMW.classList.add('modal__show');
-    /*if (findOutCartItem() == '') {
+    if (findOutCartItem() == '' && findCostUni('') == '') {
         proformaRMW.classList.add('modal__show');
     } else {
-        mostrarAlerta(findOutCartItem());
-    }*/
+        mostrarAlerta(findOutCartItem() + findCostUni());
+    }
 });
+function findOutCartItem() {
+    let cartItem = document.querySelectorAll('#cartItem div.cart-item');
+    let errorMessage = '';
+    cartItem.forEach(cart => {
+        if (!isInteger(cart.children[3].value)) {
+            errorMessage += `La cantidad de "${cart.children[2].innerText}" no es un valor entero\n`;
+        }
+    });
+    return errorMessage;
+}
+//------Mostrar una alerta si el cost uni es menor a 0
+function findCostUni() {
+    let cartItem = document.querySelectorAll('#cartItem div.cart-item');
+    let errorMessage = '';
+    cartItem.forEach(cart => {
+        if (Number(cart.children[4].value) <= 0) {
+            errorMessage += `El costo unitario de "${cart.children[2].innerText}" no es un valor valido\n`;
+        }
+    })
+    return errorMessage;
+}
 closeProformaRMW.addEventListener('click', (e) => {
     proformaRMW.classList.remove('modal__show');
 });
@@ -801,16 +821,6 @@ NIT: 153578020
 Numero de cuenta en Bs.: 1675590024`;
     document.getElementsByName('tpo_entrega_profR')[0].innerHTML = `48 Horas después de la confirmación de su pedido.`;
     document.getElementsByName('observacion_profR')[0].innerHTML = `Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta`;
-}
-function findOutCartItem() {
-    let cartItem = document.querySelectorAll('#cartItem div.cart-item');
-    let errorMessage = '';
-    cartItem.forEach(cart => {
-        if (!isInteger(cart.children[4].value)) {
-            errorMessage += `La cantidad de "${cart.children[3].innerText}" no es un valor entero\n`;
-        }
-    });
-    return errorMessage;
 }
 function isInteger(input) {
     return /^[-+]?\d+$/.test(input);
@@ -1716,17 +1726,29 @@ const fk_nombre_emp_profR = document.getElementById('fk_nombre_emp_profR');
 const fk_cliente_profR = document.getElementById('fk_cliente_profR');
 function sendEnterprise(id_emp) {
     enterpriseSMW.classList.remove('modal__show');
-    if (formProformas == 'R') {
-        fk_id_emp_clteR.value = id_emp;
-        fk_nombre_emp_profR.value = enterprises.find(enterprise => enterprise.id_emp == id_emp).nombre_emp;
-        fk_id_clte_profR.value = customers.find(customer => customer.nombre_clte == '' && customer.apellido_clte == '' && customer.fk_id_emp_clte == id_emp).id_clte;
-        console.log(fk_id_clte_profR.value)
-        filterCustomers = customers.filter(customer => customer.nombre_clte != '' && customer.apellido_clte != '' && customer.fk_id_emp_clte == id_emp)
-        paginacionCustomerMW(filterCustomers.length, 1);
-    } else if (formProformas == 'M') {
-        selectEnterpriseM.value = id_emp;
+  
+    if (formProformas === 'R') {
+      const empresa = enterprises.find(enterprise => enterprise.id_emp === id_emp);
+      const cliente = customers.find(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte === '' && customer.apellido_clte === '');
+  
+      fk_id_emp_clteR.value = id_emp;
+      fk_nombre_emp_profR.value = empresa.nombre_emp;
+  
+      if (cliente) {
+        fk_id_clte_profR.value = cliente.id_clte;
+        fk_cliente_profR.value = `${cliente.apellido_clte} ${cliente.nombre_clte}`;
+      } else {
+        const clienteDefault = customers.find(customer => customer.fk_id_emp_clte === id_emp);
+        fk_id_clte_profR.value = clienteDefault.id_clte;
+        fk_cliente_profR.value = `${clienteDefault.apellido_clte} ${clienteDefault.nombre_clte}`;
+      }
+  
+      filterCustomers = customers.filter(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte !== '' && customer.apellido_clte !== '');
+      paginacionCustomerMW(filterCustomers.length, 1);
+    } else if (formProformas === 'M') {
+      selectEnterpriseM.value = id_emp;
     }
-}
+  }
 //----------------------------------ventana modal EnterpriseSMW-------------------------------------------
 const enterpriseSMW = document.getElementById('enterpriseSMW');
 //enterpriseSMW.addEventListener('click', ()=>enterpriseSMW.classList.remove('modal__show'));
@@ -1941,6 +1963,8 @@ function paginacionCustomerMW(allEnterprises, page) {
 }
 //------Crear la tabla
 function tableCustomersMW(page) {
+    console.log(filterCustomers)
+
     const tbody = document.getElementById('tbodyClteSMW');
     const inicio = (page - 1) * Number(selectNumberClteSMW.value);
     const final = inicio + Number(selectNumberClteSMW.value);
@@ -1960,6 +1984,12 @@ function tableCustomersMW(page) {
                     i++;
                 } else if (valor === 'nombre_clte') {
                     td.innerText = `${filterCustomers[customer].apellido_clte} ${filterCustomers[customer].nombre_clte}`;
+                    tr.appendChild(td);
+                } else if (valor === 'apellido_clte') {
+
+                } else if (valor === 'fk_id_emp_clte') {
+                    let empresa = enterprises.find(enterprise => enterprise.id_emp == filterCustomers[customer][valor]);
+                    td.innerText = empresa.nombre_emp;
                     tr.appendChild(td);
                 } else if (valor === 'nit_clte' || valor === 'celular_clte') {
                     if (filterCustomers[customer][valor] === '0') {
@@ -2548,7 +2578,7 @@ function readProduct(id_prod) {
             document.getElementsByName(valor + 'M')[0].value = product[valor];
         }
     }
-
+ 
     productsMMW.classList.add('modal__show');
 }
 //-------Update un producto
@@ -3063,7 +3093,7 @@ async function readPrices() {
         method: "POST",
         body: formData
     }).then(response => response.json()).then(data => {
-        prices = Object.values(data);
+        prices = data;
         filterPrices = prices;
         paginacionPriceList(filterPrices.length, 1);
     }).catch(err => console.log(err));

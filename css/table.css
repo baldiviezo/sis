@@ -304,7 +304,7 @@ tbody tr:hover{
 	min-width: 12rem;
 	max-width: 16rem;
 }
-#tbodyInventory td:nth-of-type(6){
+#tbodyInventory td:nth-of-type(7){
 	min-width: 30rem;
 }
 /*-------------------------espacios de tabla product modal---------------------------------------*/

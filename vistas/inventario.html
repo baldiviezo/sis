@@ -26,7 +26,10 @@
 			<h1><img src="../imagenes/inventario.svg">Inventario</h1>
 		</div>
 		<section class="table__header">
-			<h1 id="totalStock">TOTAL:</h1>
+			<div>
+				<h1 id="totalStock">Precio de lista:</h1>
+				<h1 id="totalCompra">Precio de compra:</h1>
+			</div>
 			<img src="../imagenes/registrar.svg" id="openInventoryRMW" title="Registrar en inventario" hidden>
 			<section class="select__search">
 				<div>
@@ -35,7 +38,7 @@
 						<option value="todasLasMarcas">Todas las marcas</option>
 					</select>
 					<img src="../imagenes/registrar.svg" id="openMarcaRMW" hidden>
-					<img src="../imagenes/trash.svg" onclick="deleteMarcaInv()" hidden>
+					<img src="../imagenes/trash.svg" id="buttondDeleteMarca" onclick="deleteMarcaInv()" hidden>
 				</div>
 				<div>
 					<label>Categorias: </label>
@@ -43,7 +46,7 @@
 						<option value="todasLasCategorias">Todas las categorias</option>
 					</select>
 					<img src="../imagenes/registrar.svg" id="openCategoriaRMW" hidden>
-					<img src="../imagenes/trash.svg" onclick="deleteCategoriaInv()" hidden>
+					<img src="../imagenes/trash.svg" id="buttonDeleteCategoria" onclick="deleteCategoriaInv()" hidden>
 				</div>
 				<div>
 					<label>Almacen: </label>
@@ -157,7 +160,7 @@
 						</div>
 					</div>
 					<div class="form__group">
-						<input type="text" name="cantidad_invR" placeholder=" " class="form__input">
+						<input type="text" name="cantidad_invR" placeholder=" " class="form__input" hidden>
 						<label for="cantidad_invR" class="form__label">Cantidad:</label>
 					</div>
 					<div class="form__group">
@@ -195,7 +198,7 @@
 						<label for="ubi_almacenM" class="form__label">Almacen:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="cantidad_invM" placeholder=" " class="form__input">
+						<input type="text" name="cantidad_invM" placeholder=" " class="form__input" hidden>
 						<label for="cantidad_invM" class="form__label">Cantidad:</label>
 					</div>
 					<div class="form__group">

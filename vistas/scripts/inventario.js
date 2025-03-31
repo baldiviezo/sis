@@ -1,10 +1,14 @@
 //--------------------------------------------Restricciones de usuario----------------------------------------------
+const openMarcaRMW = document.getElementById('openMarcaRMW');
+const buttondDeleteMarca = document.getElementById('buttondDeleteMarca');
+const openCategoriaRMW = document.getElementById('openCategoriaRMW');
+const buttonDeleteCategoria = document.getElementById('buttonDeleteCategoria');
 if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
     //Marca y Categoria
-    document.querySelector('.select__search').children[0].children[2].removeAttribute('hidden');
-    document.querySelector('.select__search').children[0].children[3].removeAttribute('hidden');
-    document.querySelector('.select__search').children[1].children[2].removeAttribute('hidden');
-    document.querySelector('.select__search').children[1].children[3].removeAttribute('hidden');
+    openMarcaRMW.removeAttribute('hidden');
+    buttondDeleteMarca.removeAttribute('hidden');
+    openCategoriaRMW.removeAttribute('hidden');
+    buttonDeleteCategoria.removeAttribute('hidden');
     //tabla inventario
     document.querySelector('main section.table__body tr').children[11].removeAttribute('hidden');
     //inventoryMMW
@@ -67,7 +71,7 @@ async function readInventories() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            inventories = data;
+            inventories = data.filter(objeto => objeto.cantidad_inv !== 0);
             filterInventories = inventories;
             resolve();
         }).catch(err => console.log(err));
@@ -95,7 +99,7 @@ function searchInventories() {
         if (valor === 'todas') {
             return (
                 inventory.cost_uni_inv.toString().toLowerCase().includes(busqueda) ||
-                product.codigo_prod.toLowerCase().includes(busqueda) ||
+                product.codigo_prod.toString().toLowerCase().includes(busqueda) ||
                 product.nombre_prod.toLowerCase().includes(busqueda) ||
                 product.descripcion_prod.toLowerCase().includes(busqueda)
             );
@@ -134,13 +138,15 @@ orderInventories.forEach(div => {
     });
 })
 //------PaginacionInventory
+const totalStock = document.querySelector('#totalStock');
+const totalCompra = document.querySelector('#totalCompra');
 function paginacionInventory(allInventories, page) {
-    const totalStock = document.querySelector('#totalStock');
     let stock = 0;
     for (let inventory in filterInventories) {
         stock += Number(filterInventories[inventory].cantidad_inv) * Number(filterInventories[inventory].cost_uni_inv) * .65;
     }
-    totalStock.innerText = `Stock total: ${stock.toFixed(2)} Bs`;
+    totalStock.innerText = `Precio de lista: ${stock.toFixed(2)} Bs`;
+    totalCompra.innerText = `Precio de compra:: ${(stock*.65).toFixed(2)} Bs`;
     let numberInventories = Number(selectNumberInv.value);
     let allPages = Math.ceil(allInventories / numberInventories);
     let ul = document.querySelector('#wrapperInventory ul');
@@ -679,7 +685,7 @@ function searchProductsMW() {
     filterProducts = products.filter(product => {
         if (valor === 'todas') {
             return (
-                product.codigo_prod.toLowerCase().includes(busqueda) ||
+                product.codigo_prod.toString().toLowerCase().includes(busqueda) ||
                 product.nombre_prod.toLowerCase().includes(busqueda) ||
                 product.descripcion_prod.toLowerCase().includes(busqueda)
             );
@@ -1075,7 +1081,6 @@ function selectCategoriaProdM() {
 }
 //<<------------------------ABRIR Y CERRAR VENTANAS MODALES--------------------------------->>
 const marcaRMW = document.getElementById('marcaRMW');
-const openMarcaRMW = document.getElementById('openMarcaRMW');
 const closeMarcaRMW = document.getElementById('closeMarcaRMW');
 openMarcaRMW.addEventListener('click', (e) => {
     marcaRMW.classList.add('modal__show');
@@ -1084,7 +1089,6 @@ closeMarcaRMW.addEventListener('click', (e) => {
     marcaRMW.classList.remove('modal__show');
 });
 const categoriaRMW = document.getElementById('categoriaRMW');
-const openCategoriaRMW = document.getElementById('openCategoriaRMW');
 const closeCategoriaRMW = document.getElementById('closeCategoriaRMW');
 openCategoriaRMW.addEventListener('click', (e) => {
     categoriaRMW.classList.add('modal__show');
