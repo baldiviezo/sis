@@ -124,7 +124,6 @@ function selectProducts() {
 }
 //------PaginacionProduct
 function paginacionProduct(allProducts, page) {
-    console.log('PaginacionProduct');
     let numberProducts = Number(selectNumberProduct.value);
     let allPages = Math.ceil(allProducts / numberProducts);
     let ul = document.querySelector('#wrapperProduct ul');
@@ -322,6 +321,7 @@ function changeQuantity(product) {
     totalPrice();
 }
 //-------Precio total y moneda
+const totalProfR = document.getElementById('total');
 function totalPrice() {
     let divs = cartItem.querySelectorAll('div.cart-item');
     let moneda = selectMoneyCart.value;
@@ -330,7 +330,7 @@ function totalPrice() {
         costo = Number(div.children[5].value);
         total = total + costo;
     })
-    document.getElementById('total').innerHTML = moneda + ' ' + total.toFixed(2);
+    totalProfR.innerHTML = moneda + ' ' + total.toFixed(2);
     document.getElementById('count').innerHTML = cartItem.querySelectorAll('div.cart-item').length;
 }
 //-------Cambio de moneda
@@ -576,14 +576,14 @@ function tableProformas(page) {
                 imgs = [
                     { src: '../imagenes/notaEntrega.svg', onclick: 'openNotaEntregaRMW(this.parentNode.parentNode)', title: 'Generar Nota de Entrega' },
                     { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_prof}, "prof")`, title: 'Mostrar PDF' },
-                    { src: '../imagenes/edit.svg', onclick: 'readProforma(this.parentNode.parentNode)', title: 'Editar Proforma' },
-                    { src: '../imagenes/trash.svg', onclick: 'deleteProforma(this.parentNode.parentNode)', title: 'Eliminar Proforma' }
+                    { src: '../imagenes/edit.svg', onclick: `readProforma(${proforma.id_prof})`, title: 'Editar Proforma' },
+                    { src: '../imagenes/trash.svg', onclick: `deleteProforma(${proforma.id_prof})`, title: 'Eliminar Proforma' }
                 ];
             } else if (['Ingeniero', 'Gerente De Inventario'].includes(localStorage.getItem('rol_usua'))) {
                 imgs = [
                     { src: '../imagenes/notaEntrega.svg', onclick: 'openNotaEntregaRMW(this.parentNode.parentNode)', title: 'Generar Nota de Entrega' },
                     { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_prof}, "prof")`, title: 'Mostrar PDF' },
-                    { src: '../imagenes/edit.svg', onclick: 'readProforma(this.parentNode.parentNode)', title: 'Editar Proforma' }
+                    { src: '../imagenes/edit.svg', onclick: `readProforma(${proforma.id_prof})`, title: 'Editar Proforma' }
                 ];
             }
             const hasMdfProforma = mdfPproforma.filter(mdfProforma => mdfProforma.id_prof_mprof == proforma.id_prof).length > 0;
@@ -621,78 +621,70 @@ closeTableProfMW.addEventListener('click', (e) => {
 });
 //---------------------------------------------------------CRUD PROFORMA-------------------------------------------
 //------Create una proforma
-document.getElementById('formProformaR').addEventListener('submit', createProforma);
+const formProformaR = document.getElementById('formProformaR')
+formProformaR.addEventListener('submit', createProforma);
 async function createProforma() {
-    let cart = document.querySelectorAll('#cartItem .cart-item');
-    if (cart.length > 0) {
-        if (requestProf == false) {
-            requestProf = true;
-            proformaRMW.classList.remove('modal__show');
-            previewProducts.classList.remove('modal__show');
-            cartItem.innerHTML = '';
-            const productos = JSON.stringify(
-                Array.from(cart).map(product => ({
-                    id_prod: product.children[0].value,
-                    cantidad: product.children[4].value,
-                    costoUnitario: product.children[5].value
-                }))
-            );
-            let form = document.getElementById("formProformaR");
-            let moneda = selectMoneyCart.value;
-            let formData = new FormData(form);
-            formData.set("total_profR", Number(document.getElementById('totalProf').innerHTML.split(' ')[1]));
-            formData.append('createProforma', productos);
-            formData.append('moneda_profR', moneda);
-            formData.append('tipo_cambio_profR', tipoDeCambioProf.value);
-            formData.append('id_usua', localStorage.getItem('id_usua'));
-            preloader.classList.add('modal__show');
-            fetch('../controladores/proforma.php', {
-                method: "POST",
-                body: formData
-            }).then(response => response.text()).then(data => {
-                Promise.all([readProformas(), readProf_prods()]).then(() => {
-                    requestProf = false;
-                    preloader.classList.remove('modal__show');
-                    totalPrice();
-                    fillFormProfR();
-                    mostrarAlerta(data);
-                })
-            }).catch(err => {
-                requestProf = false;
-                mostrarAlerta(err);
-            });
+    const tbodyPreviewProd = document.getElementById('tbodyPreviewProd');
+    const trs =  document.querySelectorAll('#tbodyPreviewProd tr');
+
+    if (requestProf === false) {
+        requestProf = true;
+        preloader.classList.add('modal__show');
+        proformaRMW.classList.remove('modal__show');
+        previewProducts.classList.remove('modal__show');
+
+        const productos = [];
+        for (let div of cartItem.querySelectorAll('div.cart-item')) {
+            productos.push({
+                id_prod: div.getAttribute('id_prod'),
+                cantidad: div.children[3].value,
+                costoUnitario: div.children[4].value
+            })
         }
-    } else {
-        mostrarAlerta('No a seleccionado ningun producto');
+
+
+        let formData = new FormData(formProformaR);
+        formData.set("total_profR", Number(totalProfR.innerHTML.split(' ')[1]));
+        formData.append('createProforma', JSON.stringify(productos));
+        formData.append('moneda_profR', selectMoneyCart.value);
+        formData.append('tipo_cambio_profR', tipoDeCambioProf.value);
+        formData.append('id_usua', localStorage.getItem('id_usua'));
+        fetch('../controladores/proforma.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            Promise.all([readProformas(), readProf_prods()]).then(() => {
+                paginacionProforma(proformas.length, 1);
+                requestProf = false;
+                preloader.classList.remove('modal__show');
+                cartItem.innerHTML = '';
+                totalPrice();
+                fillFormProfR();
+                mostrarAlerta(data);
+            })
+        }).catch(err => {
+            requestProf = false;
+            mostrarAlerta(err);
+        });
     }
 }
 //------Read una proforma
-function readProforma(tr) {
+function readProforma(id_prof) {
     formProformas = 'M';
-    let id_prof = tr.children[0].innerText;
-    for (let proforma in filterProformas) {
-        for (let valor in filterProformas[proforma]) {
-            if (filterProformas[proforma]['id_prof'] == id_prof) {
-                if (valor == 'fecha_prof') {
-                    document.getElementsByName('fecha_profM')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
-                } else if (valor == 'id_emp') {
-                    selectEnterpriseM.value = filterProformas[proforma][valor];
-                } else if (valor == 'fk_id_clte_prof') {
-                    selectCustomerM.value = filterProformas[proforma][valor];
-                } else if (valor == 'silga_emp' || valor == 'nombre_emp' || valor == 'nombre_clte' || valor == 'fk_id_usua_prof' || valor == 'apellido_clte' || valor == 'nombre_usua' || valor == 'celular_clte' || valor == 'apellido_usua' || valor == 'email_usua' || valor == 'celular_usua' || valor == 'factura_prof' || valor == 'direccion_emp' || valor == 'estado_prof') {
-                } else if (valor == 'tipo_cambio_prof') {
-                    if (filterProformas[proforma]['moneda_prof'] == '$') {
-                        document.getElementsByName(valor + 'M')[0].parentNode.classList.remove('hide');
-                    } else {
-                        document.getElementsByName(valor + 'M')[0].parentNode.classList.add('hide');
-                    }
-                    document.getElementsByName(valor + 'M')[0].value = filterProformas[proforma][valor];
-                } else {
-                    document.getElementsByName(valor + 'M')[0].value = filterProformas[proforma][valor];
-                }
-            }
+    const proforma = filterProformas.find(proforma => proforma.id_prof == id_prof);
+    console.log(proforma)
+
+    for (const valor in proforma){
+        if (valor != 'fk_id_usua_prof' && valor != 'estado_prof') {
+            document.getElementsByName(valor + 'M')[0].value = proforma[valor];
         }
     }
+
+    const cliente = customers.find(customer => customer.id_clte === proforma.fk_id_clte_prof);
+    const empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
+    fk_nombre_emp_profM.value = empresa.nombre_emp;
+    fk_cliente_profM.value = cliente.apellido_clte + ' ' + cliente.nombre_clte;
+
     proformaMMW.classList.add('modal__show');
     readProf_prod();
 }
@@ -742,11 +734,10 @@ async function updateProforma() {
     }
 }
 //-------Delete una proforma
-async function deleteProforma(tr) {
+async function deleteProforma(id_prof) {
     if (confirm('¿Esta usted seguro?')) {
         if (requestProf == false) {
             requestProf = true;
-            let id_prof = tr.children[0].innerText;
             let formData = new FormData();
             formData.append('deleteProforma', id_prof);
             preloader.classList.add('modal__show');
@@ -755,6 +746,7 @@ async function deleteProforma(tr) {
                 body: formData
             }).then(response => response.text()).then(data => {
                 Promise.all([readProformas(), readProf_prods()]).then(() => {
+                    paginacionProforma(proformas.length, 1);
                     requestProf = false;
                     preloader.classList.remove('modal__show');
                     mostrarAlerta(data);
@@ -993,6 +985,7 @@ function selectPDFInformation(id, pdf) {
 }
 //-------Crear el pdf de la proforma
 function showPDF(prof_mprof_ne, pf_pd, pdf) {
+
     // Crea un formulario oculto
     var form = document.createElement('form');
     form.method = 'post';
@@ -1003,6 +996,7 @@ function showPDF(prof_mprof_ne, pf_pd, pdf) {
     var input1 = document.createElement('input');
     input1.type = 'hidden';
     input1.name = 'prof_mprof_ne';
+    console.log(prof_mprof_ne)
     input1.value = JSON.stringify(prof_mprof_ne); // Reemplaza con el valor real
 
     // Crea un campo oculto para la variable pf_pd
@@ -1365,25 +1359,37 @@ closeProf_prodMW.addEventListener('click', (e) => {
 });
 //-------------------------------------------MOSTRAR LOS PRODUCTOS PREVIAMENTE---------------------------------------------------
 function openPreviwProducts() {
-    const tbody = document.getElementById('tbodyPreviewProd');
-    const productos = getProducts();
-    const moneda = getMoneda();
-    const total = calculateTotal(productos);
-    const desc = getDescuento();
-    createTable(tbody, productos, moneda);
-    updateTotales(total, desc, moneda);
-    createButton(tbody, formProformas);
-    previewProducts.classList.add('modal__show');
+    let cart = document.querySelectorAll('#cartItem .cart-item');
+
+    if (fk_id_emp_clteR.value == '') {
+        mostrarAlerta('Selecciona una empresa');
+        return;
+    }
+
+    if (cart.length > 0) {
+        const tbody = document.getElementById('tbodyPreviewProd');
+        const productos = getProducts();
+        const moneda = getMoneda();
+        const total = calculateTotal(productos);
+        const desc = getDescuento();
+        createTable(tbody, productos, moneda);
+        updateTotales(total, desc, moneda);
+        createButton(tbody, formProformas);
+        previewProducts.classList.add('modal__show');
+    } else {
+        mostrarAlerta('No a seleccionado ningun producto');
+    }
 }
+const titleEnterprise = document.getElementById('titleEnterprise');
+const titleCustomer = document.getElementById('titleCustomer');
 function getProducts() {
     if (formProformas === 'R') {
-        const titlePreviewProducts = document.getElementById('titlePreviewProducts');
+        const empresa = enterprises.find(enterprise => enterprise.id_emp == fk_id_emp_clteR.value);
+        const cliente = customers.find(customer => customer.id_clte == fk_id_clte_profR.value);
 
-        if (fk_id_emp_clteR.value != 77) {
-            titlePreviewProducts.innerText = fk_id_emp_clteR.value;
-        } else {
-            titlePreviewProducts.innerText = fk_cliente_profR.options[fk_cliente_profR.selectedIndex].text;
-        }
+        titleEnterprise.innerText = `EMPRESA: ${empresa.nombre_emp}`;
+        titleCustomer.innerText = `CLIENTE: ${cliente.apellido_clte + ' ' + cliente.nombre_clte}`;
+
         return document.querySelectorAll('#cartItem .cart-item');
     } else if (formProformas === 'M') {
         return document.querySelectorAll('#cartsProf_prodMW .cart-item');
@@ -1407,32 +1413,79 @@ function getDescuento() {
     return Number(document.getElementsByName('descuento_prof' + formProformas)[0].value);
 }
 function createTable(tbody, productos, moneda) {
-    const html = [];
-    productos.forEach(producto => {
-        let row = products.find(product => product['id_prod'] == producto.getAttribute('id_prod'));
-        html.push(`
-        <tr>
-          <td>${i}</td>
-          <td>${producto.children[3].innerText}</td>
-          <td><textarea class="textarea__preview" readonly>${row.nombre_prod}</textarea></td>
-          <td><textarea class="textarea__preview" readonly>${row.descripcion_prod}</textarea></td>
-          <td><img src='${producto.children[1].children[0].src}' class='tbody__img'></td>
-          <td>${producto.children[3].value}</td>
-          <td>${producto.children[4].value} <b>${moneda}</b></td>
-          <td>${producto.children[5].value} <b>${moneda}</b></td>
-        </tr>
-      `);
-        i++;
+    let fragment = document.createDocumentFragment();
+
+    productos.forEach((producto, index) => {
+
+        const row = products.find(product => product.id_prod == producto.getAttribute('id_prod'));
+
+        const imagenSrc = producto.children[1].children[0].src;
+        const monedaSymbol = `<b>${moneda}</b>`;
+
+        let tr = document.createElement('tr');
+        tr.setAttribute('id_prod', producto.getAttribute('id_prod'));
+
+        let tdIndex = document.createElement('td');
+        tdIndex.innerText = index + 1;
+        tr.appendChild(tdIndex);
+
+        let tdDescripcion = document.createElement('td');
+        tdDescripcion.innerText = row.descripcion_prod;
+        tr.appendChild(tdDescripcion);
+
+        let tdImagen = document.createElement('td');
+        let img = document.createElement('img');
+        img.classList.add('tbody__img');
+        img.setAttribute('src', imagenSrc);
+        tdImagen.appendChild(img);
+        tr.appendChild(tdImagen);
+
+        let tdCantidad = document.createElement('td');
+        tdCantidad.innerText = producto.children[3].value;
+        tr.appendChild(tdCantidad);
+
+        let tdPrecio = document.createElement('td');
+        tdPrecio.innerHTML = `${producto.children[4].value} ${monedaSymbol}`;
+        tr.appendChild(tdPrecio);
+
+        let tdTotal = document.createElement('td');
+        tdTotal.innerHTML = `${producto.children[5].value} ${monedaSymbol}`;
+        tr.appendChild(tdTotal);
+
+        fragment.appendChild(tr);
     });
-    tbody.innerHTML = html.join('');
+
+    tbody.innerHTML = '';
+    tbody.appendChild(fragment);
 }
 function updateTotales(total, desc, moneda) {
-    document.getElementsByName('total_prof' + formProformas)[0].value = total.toFixed(2);
-    subTotalProf.innerText = `Sub-Total(${moneda}): ${total} ${moneda}`;
-    descProf.innerText = `Desc. ${desc}% (${moneda}): ${(total * desc / 100).toFixed(2)} ${moneda}`;
-    totalProf.innerText = `Total(${moneda}): ${(total - (total * desc / 100)).toFixed(2)} ${moneda}`;
+
+    const tbody = document.getElementById('tbodyPreviewProd');
+
+    const footerData = [
+        { value: `Sub-Total: ${total.toFixed(2)}` },
+        { value: `Desc. ${desc}%: ${(total * desc / 100).toFixed(2)}%` },
+        { value: `Total: ${(total - (total * desc / 100)).toFixed(2)}` }
+    ];
+
+    footerData.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        const tdLabel = document.createElement('td');
+        tdLabel.setAttribute('colspan', '5');
+
+        const tdValue = document.createElement('td');
+        tdValue.classList.add('footer__tbody');
+        tdValue.innerText = `${item.value} ${moneda}`;
+
+        tr.appendChild(tdLabel);
+        tr.appendChild(tdValue);
+        tbody.appendChild(tr);
+    });
 }
 function createButton(tbody, formProformas) {
+    const tr = document.createElement('tr');
+    const tdLabel = document.createElement('td');
+    const tdValue = document.createElement('td');
     const button = document.createElement('button');
     button.classList.add('button__sell--previw');
     button.innerText = 'Registrar';
@@ -1441,10 +1494,12 @@ function createButton(tbody, formProformas) {
     } else if (formProformas === 'M') {
         button.setAttribute('onclick', 'updateProforma();');
     }
-    const td = document.createElement('td');
-    td.setAttribute('colspan', '8');
-    td.appendChild(button);
-    tbody.appendChild(td);
+
+    tdLabel.setAttribute('colspan', '5');
+    tdValue.appendChild(button);
+    tr.appendChild(tdLabel);
+    tr.appendChild(tdValue);
+    tbody.appendChild(tr);
 }
 //-----------------------------MODAL VISTA PREVIA DE LOS PRODUCTOS DE LA PROFORMA
 const previewProducts = document.getElementById('previewProducts');
@@ -1580,7 +1635,7 @@ closeNotaEntregaRMW.addEventListener('click', (e) => {
 });
 //<<---------------------------------------------EMPRESA---------------------------------------------->>
 const fk_id_emp_clteR = document.getElementById('fk_id_emp_clteR');
-const selectEnterpriseM = document.getElementsByName('fk_id_emp_clteM')[0];
+const fk_id_emp_clteM = document.getElementsByName('fk_id_emp_clteM');
 let enterprises = [];
 let filterEnterprises = [];
 let indexEnterprise = 0;
@@ -1723,32 +1778,50 @@ function tableEnterprisesMW(page) {
     }
 }
 const fk_nombre_emp_profR = document.getElementById('fk_nombre_emp_profR');
+const fk_nombre_emp_profM = document.getElementById('fk_nombre_emp_profM');
 const fk_cliente_profR = document.getElementById('fk_cliente_profR');
+const fk_cliente_profM = document.getElementById('fk_cliente_profM');
 function sendEnterprise(id_emp) {
     enterpriseSMW.classList.remove('modal__show');
-  
+
     if (formProformas === 'R') {
-      const empresa = enterprises.find(enterprise => enterprise.id_emp === id_emp);
-      const cliente = customers.find(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte === '' && customer.apellido_clte === '');
-  
-      fk_id_emp_clteR.value = id_emp;
-      fk_nombre_emp_profR.value = empresa.nombre_emp;
-  
-      if (cliente) {
-        fk_id_clte_profR.value = cliente.id_clte;
-        fk_cliente_profR.value = `${cliente.apellido_clte} ${cliente.nombre_clte}`;
-      } else {
-        const clienteDefault = customers.find(customer => customer.fk_id_emp_clte === id_emp);
-        fk_id_clte_profR.value = clienteDefault.id_clte;
-        fk_cliente_profR.value = `${clienteDefault.apellido_clte} ${clienteDefault.nombre_clte}`;
-      }
-  
-      filterCustomers = customers.filter(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte !== '' && customer.apellido_clte !== '');
-      paginacionCustomerMW(filterCustomers.length, 1);
+        const empresa = enterprises.find(enterprise => enterprise.id_emp === id_emp);
+        const cliente = customers.find(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte === '' && customer.apellido_clte === '');
+
+        fk_id_emp_clteR.value = id_emp;
+        fk_nombre_emp_profR.value = empresa.nombre_emp;
+
+        if (cliente) {
+            fk_id_clte_profR.value = cliente.id_clte;
+            fk_cliente_profR.value = `${cliente.apellido_clte} ${cliente.nombre_clte}`;
+        } else {
+            const clienteDefault = customers.find(customer => customer.fk_id_emp_clte === id_emp);
+            fk_id_clte_profR.value = clienteDefault.id_clte;
+            fk_cliente_profR.value = `${clienteDefault.apellido_clte} ${clienteDefault.nombre_clte}`;
+        }
+
+        filterCustomers = customers.filter(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte !== '' && customer.apellido_clte !== '');
+        
     } else if (formProformas === 'M') {
-      selectEnterpriseM.value = id_emp;
+        const empresa = enterprises.find(enterprise => enterprise.id_emp === id_emp);
+        const cliente = customers.find(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte === '' && customer.apellido_clte === '');
+
+        fk_id_emp_clteM.value = id_emp;
+        fk_nombre_emp_profM.value = empresa.nombre_emp;
+
+        if (cliente) {
+            fk_id_clte_profM.value = cliente.id_clte;
+            fk_cliente_profM.value = `${cliente.apellido_clte} ${cliente.nombre_clte}`;
+        } else {
+            const clienteDefault = customers.find(customer => customer.fk_id_emp_clte === id_emp);
+            fk_id_clte_profM.value = clienteDefault.id_clte;
+            fk_cliente_profM.value = `${clienteDefault.apellido_clte} ${clienteDefault.nombre_clte}`;
+        }
+
+        filterCustomers = customers.filter(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte !== '' && customer.apellido_clte !== '');
     }
-  }
+    paginacionCustomerMW(filterCustomers.length, 1);
+}
 //----------------------------------ventana modal EnterpriseSMW-------------------------------------------
 const enterpriseSMW = document.getElementById('enterpriseSMW');
 //enterpriseSMW.addEventListener('click', ()=>enterpriseSMW.classList.remove('modal__show'));
@@ -1874,7 +1947,7 @@ closeEnterprisesMMW.addEventListener('click', () => {
 });
 //---------------------------------------------------------------CLIENTES----------------------------------------------
 const fk_id_clte_profR = document.getElementById('fk_id_clte_profR');
-const selectCustomerM = document.getElementById('selectCustomerM');
+const fk_id_clte_profM = document.getElementById('fk_id_clte_profM');
 let customers = [];
 let filterCustomers = [];
 let formCustomer;
@@ -1963,7 +2036,6 @@ function paginacionCustomerMW(allEnterprises, page) {
 }
 //------Crear la tabla
 function tableCustomersMW(page) {
-    console.log(filterCustomers)
 
     const tbody = document.getElementById('tbodyClteSMW');
     const inicio = (page - 1) * Number(selectNumberClteSMW.value);
@@ -2018,9 +2090,13 @@ function tableCustomersMW(page) {
 function sendCustomers(id_clte) {
     customerSMW.classList.remove('modal__show');
     const cliente = filterCustomers.find(customer => customer.id_clte == id_clte);
-    fk_cliente_profR.value = cliente.nombre_clte + ' ' + cliente.apellido_clte;
-    fk_id_clte_profR.value = id_clte;
-    console.log(fk_id_clte_profR.value)
+    if (formProformas === 'R') {
+        fk_cliente_profR.value = cliente.apellido_clte + ' ' + cliente.nombre_clte;
+        fk_id_clte_profR.value = id_clte;
+    } else if(formProformas === 'M') {
+        fk_cliente_profM.value = cliente.apellido_clte + ' ' + cliente.nombre_clte;
+        fk_id_clte_profM.value = id_clte;
+    }
 }
 //----------------------------------VENTANA MODAL CUSTOMERSMW-------------------------------------------
 const customerSMW = document.getElementById('customerSMW');
@@ -2132,7 +2208,7 @@ function selectCreateCustomer() {
     selectEmp2.innerHTML = '';
     const option2 = document.createElement('option');
 
-    const selectEnterprise = formProformas === 'R' ? fk_id_emp_clteR : selectEnterpriseM;
+    const selectEnterprise = formProformas === 'R' ? fk_id_emp_clteR : fk_id_emp_clteM;
     const valor = selectEnterprise.options[selectEnterprise.selectedIndex].text;
 
     option2.value = selectEnterprise.value;
@@ -2578,7 +2654,7 @@ function readProduct(id_prod) {
             document.getElementsByName(valor + 'M')[0].value = product[valor];
         }
     }
- 
+
     productsMMW.classList.add('modal__show');
 }
 //-------Update un producto
@@ -3193,7 +3269,6 @@ async function readUsers() {
             body: formData
         }).then(response => response.json()).then(data => {
             users = Object.values(data);
-            console.log(users)
             resolve();
         }).catch(err => {
             mostrarAlerta('Ocurrio un error al cargar la tabla de usuarios, cargue nuevamente la pagina');

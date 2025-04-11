@@ -61,6 +61,7 @@ class consultas{
     	$id_prof = $resultado->fetch_assoc();
 		$numero_prof = $id_prof['id_prof_max'];
 		$productos = json_decode($productos,true);
+		
 		foreach($productos as $celda){
     		$id_prod = $celda['id_prod'];
     		$cantidad = $celda['cantidad'];

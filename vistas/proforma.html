@@ -552,6 +552,8 @@
 				<form id="formProformaM">
 					<div class="form__container">
 						<input type="text" name="id_profM" placeholder=" " class="form__input" hidden>
+						<input type="text" name="fk_id_emp_clteM" id="fk_id_emp_clteM" class="form__input" hidden>
+						<input type="text" name="fk_id_clte_profM" id="fk_id_clte_profM" class="form__input" hidden>
 						<div class="form__group">
 							<input type="date" name="fecha_profM" placeholder=" " class="form__input">
 							<label for="fecha_profM" class="form__label">Fecha:</label>
@@ -560,23 +562,23 @@
 							<input type="text" name="numero_profM" placeholder=" " class="form__input" readonly>
 							<label for="numero_profM" class="form__label">Proforma:</label>
 						</div>
-						<label class="form__label--only">Empresa:</label>
-						<div class="form__group--select">
-							<select name="fk_id_emp_clteM"></select>
-							<img src="../imagenes/search.svg" onclick="openEnterpriseSMW('M')">
-							<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()">
-							<!--<img src="../imagenes/edit.svg" onclick="readEnterprise(this.parentNode)">
-							<img src="../imagenes/trash.svg" onclick="deleteEnterprise(this.parentNode)">-->
+						<div class="form__group--img">
+							<div class="form__group">
+								<input type="text" name="fk_nombre_emp_profM" id="fk_nombre_emp_profM"
+									class="form__input" readonly>
+								<label for="fk_nombre_emp_profM" class="form__label">Empresa:</label>
+							</div>
+							<img src="../imagenes/search.svg" onclick="openEnterpriseSMW()" class="icon__CRUD"
+								title="Buscar empresa">
 						</div>
-						<label class="form__label--only">Cliente:</label>
-						<div class="form__group--select">
-							<select name="fk_id_clte_profM" id="selectCustomerM"></select>
-							<img src="../imagenes/search.svg" onclick="openCustomersSMW('R')" class="icon__CRUD"
+						<div class="form__group--img">
+							<div class="form__group">
+								<input type="text" name="fk_cliente_profM" id="fk_cliente_profM" class="form__input"
+									readonly>
+								<label for="fk_cliente_profM" class="form__label">Cliente:</label>
+							</div>
+							<img src="../imagenes/search.svg" onclick="openCustomersSMW('M')" class="icon__CRUD"
 								title="Buscar cliente">
-							<img src="../imagenes/registrar.svg" onclick="openCustomersRMW()" class="icon__CRUD"
-								title="Registrar cliente">
-							<!--<img src="../imagenes/edit.svg" onclick="readCustomers('M')">
-							<img src="../imagenes/trash.svg" onclick="deleteCustomers('M')">-->
 						</div>
 						<div class="form__group">
 							<input type="text" name="tpo_valido_profM" placeholder=" " class="form__input">
@@ -596,7 +598,7 @@
 								class="form__input">
 							<label for="descuento_profM" class="form__label">Descuento:</label>
 						</div>
-						<label class="form__label--only">Moneda:</label>
+						<label class="form__label--only">Moneda:</label>	
 						<div class="form__group--select">
 							<select name="moneda_profM">
 								<option value="Bs">Bs</option>
@@ -605,7 +607,7 @@
 						</div>
 						<div class="form__group" id="tipoDeCambioProfM" class="hide">
 							<input type="text" name="tipo_cambio_profM" placeholder="" class="form__input">
-							<label for="tipo_cambio_profM" class="form__label">Descuento:</label>
+							<label for="tipo_cambio_profM" class="form__label">Cambio de moneda:</label>
 						</div>
 					</div>
 				</form>
@@ -655,24 +657,20 @@
 	</section>
 	<!--Vista previa de los productos de la proforma-->
 	<section id="previewProducts" class="modalTable">
-		<div class="modalTable__container">
+		<div class="modal__container--previewProducts">
 			<div class="table">
 				<div class="table__title">
-					<img src="../imagenes/salir.svg" id="closePreviewProducts" class="button__close" title="Minimizar">
-					<h1 id="titlePreviewProducts"></h1>
-					<div class="table__subTitle">
-						<p id="subTotalProf">sub total</p>
-						<p id="descProf">Descuento</p>
-						<p id="totalProf">Total</p>
+					<div>
+						<h1 id="titleEnterprise"></h1>
+						<h1 id="titleCustomer"></h1>
 					</div>
+					<img src="../imagenes/salir.svg" id="closePreviewProducts" class="button__close" title="Minimizar">
 				</div>
 				<section class="table__body">
 					<table>
 						<thead>
 							<tr>
 								<th>N°</th>
-								<th>Codigo</th>
-								<th>Descripcion corta</th>
 								<th>Descripcion</th>
 								<th>Imagen</th>
 								<th>Cantidad</th>
