@@ -10,15 +10,15 @@ class pdf extends FPDF{
         $this->SetTextColor(0,0,0);  
         //Direccion
         $this->SetX(13);
-        $this->Cell(0,5, utf8_decode('SMS Integración y Control LTDA.'),0,1,'L',false);
+        $this->Cell(0,4, utf8_decode('SMS Integración y Control LTDA.'),0,1,'L',false);
         $this->SetX(13);
-        $this->Cell(0,5, utf8_decode('Dirección: Av. Ballivian Otero # 1209-B'),0,1,'L',false);
+        $this->Cell(0,4, utf8_decode('Dirección: Av. Ballivian Otero # 1209-B'),0,1,'L',false);
         $this->SetX(13);
-        $this->Cell(0,5, utf8_decode('Ciudad Satelite'),0,1,'L',false);
+        $this->Cell(0,4, utf8_decode('Ciudad Satelite'),0,1,'L',false);
         $this->SetX(13);
-        $this->Cell(0,5, utf8_decode('Telf. (591-2) 2430864-2430867'),0,1,'L',false);
+        $this->Cell(0,4, utf8_decode('Telf. (591-2) 2430864-2430867'),0,1,'L',false);
         $this->SetX(13);
-        $this->Cell(0,5, utf8_decode('La Paz - Bolivia'),0,1,'L',false);
+        $this->Cell(0,4, utf8_decode('La Paz - Bolivia'),0,1,'L',false);
         $this->SetY(10);
         //Logo
         $this->Image('logos/logo.jpg',146,10,56,15);

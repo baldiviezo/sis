@@ -1828,6 +1828,8 @@ const enterpriseSMW = document.getElementById('enterpriseSMW');
 const closeEnterpriseSMW = document.getElementById('closeEnterpriseSMW');
 function openEnterpriseSMW() {
     enterpriseSMW.classList.add('modal__show');
+    //Al mostrar la tabla de cliente que el puntero se encuentre en el input de busqueda
+    inputSearchEmpMW.focus();
 }
 closeEnterpriseSMW.addEventListener('click', () => {
     enterpriseSMW.classList.remove('modal__show');

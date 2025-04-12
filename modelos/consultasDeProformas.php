@@ -37,12 +37,12 @@ class consultas{
 	//-------Read proformas
 	public function readProformas() {
 		require_once 'conexion.php';
-		$consulta = "SELECT proforma.*, cliente.apellido_clte, empresa.sigla_emp, empresa.nombre_emp FROM proforma INNER JOIN cliente ON proforma.fk_id_clte_prof = cliente.id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = empresa.id_emp ORDER BY id_prof DESC";
+		$consulta = "SELECT proforma.*, cliente.apellido_clte, empresa.id_emp, empresa.sigla_emp, empresa.nombre_emp FROM proforma INNER JOIN cliente ON proforma.fk_id_clte_prof = cliente.id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = empresa.id_emp ORDER BY id_prof DESC";
 		$resultado = $conexion->query($consulta);
 		$proformas = array();
 		while ($fila = $resultado->fetch_array(MYSQLI_ASSOC)) {
-			$fila['numero_prof'] = strtoupper('SMS' . substr($fila['fecha_prof'], 2, 2) . '-' . $this->addZerosGo($fila['numero_prof']) . '-' . ($fila['nombre_emp'] == 'Ninguna' ? explode(" ", $fila['apellido_clte'])[0] : $fila['sigla_emp']));
-			unset($fila['apellido_clte'], $fila['sigla_emp'], $fila['nombre_emp']);
+			$fila['numero_prof'] = strtoupper('SMS' . substr($fila['fecha_prof'], 2, 2) . '-' . $this->addZerosGo($fila['numero_prof']) . '-' . ($fila['id_emp'] == 77 ? explode(" ", $fila['apellido_clte'])[0] : $fila['sigla_emp']));
+			unset($fila['apellido_clte'], $fila['sigla_emp'], $fila['nombre_emp'], $fila['id_emp']);
 			$proformas[] = $fila;
 		}
 		echo json_encode($proformas, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
