@@ -20,6 +20,8 @@ async function init() {
         preloader.classList.add('modal__show');
         try {
             await Promise.all([
+                readAllMarcas(),
+                readAllCategorias(),
                 readProducts(),
                 readProformas(),
                 readMdfProforma(),
@@ -28,8 +30,6 @@ async function init() {
                 readCustomers(),
                 readEnterprises(),
                 readInventories(),
-                readAllMarcas(),
-                readAllCategorias(),
                 readPrices(),
                 readUsers()
             ]);
@@ -38,6 +38,7 @@ async function init() {
             paginacionProforma(proformas.length, 1);
             paginacionProductMW(products.length, 1);
             paginacionPfPd(filterProf_prods.length, 1);
+            paginacionInventoryMW(inventories.length, 1);
             requestProf = false;
             preloader.classList.remove('modal__show');
         } catch (error) {
@@ -1241,16 +1242,18 @@ function readProf_prod() {
 }
 //--------Muestra la lista de los productos de la proforma
 function cartProduct_pfpd(product, action) {
-    const producto = products.find(prod => prod['id_prod'] == product['fk_id_prod_pfpd']);
+    let producto;
     const inventory = inventories.find(inv => inv['fk_id_prod_inv'] === product['fk_id_prod_pfpd']);
     const cantidad_inv = inventory ? inventory['cantidad_inv'] : 0;
     let cost_uni = undefined;
     let cantidad_prod = undefined;
     if (action == 'new') {
+        producto = products.find(prod => prod['id_prod'] == product['id_prod']);
         const cost_uni2 = prices.find(price => price.modelo === product['codigo_prod']);
         cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio) * 1.1) : (inventory ? Math.round(inventory.cost_uni_inv * 1.1) : 0);
         cantidad_prod = 1;
     } else if (action == 'read') {
+        producto = products.find(prod => prod['id_prod'] == product['fk_id_prod_pfpd']);
         cost_uni = product['cost_uni_pfpd'];
         cantidad_prod = product['cantidad_pfpd']
     }
@@ -1260,7 +1263,7 @@ function cartProduct_pfpd(product, action) {
     const html = `
         <p class="cart-item__cantInv">${cantidad_inv}</p>
         <div class="row-img">
-            <img src="../modelos/imagenes/${producto['imagen_prod']}" class="rowimg">
+            <img src="../modelos/imagenes/${producto.imagen_prod}" class="rowimg">
         </div>  
         <p class="cart-item__codigo">${producto['codigo_prod']}</p>
         <input type="number" value="${cantidad_prod}" min="1" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__cantidad">
@@ -2250,9 +2253,8 @@ async function readInventories() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            inventories = Object.values(data)
+            inventories = data;
             filterInventoriesMW = inventories;
-            paginacionInventoryMW(inventories.length, 1);
             resolve();
         }).catch(err => console.log(err));
     })
@@ -2362,49 +2364,78 @@ function paginacionInventoryMW(allInventoriesMW, page) {
 //------Crear la tabla
 function tableInventoriesMW(page) {
     let tbody = document.getElementById('tbodyInvMW');
-    inicio = (page - 1) * Number(selectNumberInvMW.value);
-    final = inicio + Number(selectNumberInvMW.value);
+    let inicio = (page - 1) * Number(selectNumberInvMW.value);
+    let final = inicio + Number(selectNumberInvMW.value);
     i = 1;
     tbody.innerHTML = '';
-    for (let inventory in filterInventoriesMW) {
-        if (i > inicio && i <= final) {
-            let tr = document.createElement('tr');
-            for (let valor in filterInventoriesMW[inventory]) {
-                let td = document.createElement('td');
-                if (valor == 'id_inv') {
-                    td.innerText = filterInventoriesMW[inventory][valor];
-                    td.setAttribute('hidden', '');
-                    tr.appendChild(td);
-                } else if (valor == 'id_mrc') {
-                } else if (valor == 'id_ctgr') {
-                } else if (valor == 'fk_id_prod_inv') {
-                    td.innerText = filterInventoriesMW[inventory][valor];
-                    td.setAttribute('hidden', '');
-                    tr.appendChild(td);
-                    td = document.createElement('td');
-                    td.innerText = i;
-                    tr.appendChild(td);
-                    i++;
-                } else if (valor == 'imagen_prod') {
+    let fragment = document.createDocumentFragment();
+
+    const columnas = [
+        'ubi_almacen',
+        'codigo_prod',
+        'fk_id_mrc_prod',
+        'fk_id_ctgr_prod',
+        'nombre_prod',
+        'descripcion_prod',
+        'imagen_prod',
+        'cantidad_inv',
+        'cost_uni_inv',
+        'descripcion_inv'
+    ];
+
+    for (let inventory of filterInventoriesMW.slice(inicio, final)) {
+
+        let product = products.find(product => product.id_prod === inventory.fk_id_prod_inv);
+  
+        let tr = document.createElement('tr');
+        tr.setAttribute('id_inv', inventory.id_inv); 
+
+        let tdIndex = document.createElement('td');
+        tdIndex.innerText = inicio + i++;
+        tr.appendChild(tdIndex);
+
+        for (const columna of columnas) {
+
+            let td = document.createElement('td');
+
+            if (columna in inventory) {
+                if (columna == 'cost_uni_inv') {
+                    td.innerText = Number(inventory[columna]).toFixed(2);
+                } else if (columna == 'ubi_almacen') {
+                    td.innerText = inventory[columna] == 0 ? 'El Alto' : 'La Paz';
+                } else {
+                    td.innerText = inventory[columna];
+                }
+            } else if (columna in product) {
+                if (columna == 'fk_id_mrc_prod') {
+                    const marca = marcas.find((marca) => marca.id_mrc === product[columna]);
+                    td.innerText = marca ? marca.nombre_mrc : '';
+                } else if (columna == 'fk_id_ctgr_prod') {
+                    const categoria = categorias.find((categoria) => categoria.id_ctgr === product[columna]);
+                    td.innerText = categoria ? categoria.nombre_ctgr : '';
+          
+                } else if (columna == 'imagen_prod') {
                     let img = document.createElement('img');
                     img.classList.add('tbody__img');
-                    img.setAttribute('src', '../modelos/imagenes/' + filterInventoriesMW[inventory][valor]);
+                    img.setAttribute('src', '../modelos/imagenes/' + product[columna]);
                     td.appendChild(img);
-                    tr.appendChild(td);
                 } else {
-                    td.innerText = filterInventoriesMW[inventory][valor];
-                    tr.appendChild(td);
+                    td.innerText = product[columna];
                 }
+
             }
-            let td = document.createElement('td');
-            td.innerHTML = `
-        <img src='../imagenes/send.svg' onclick='sendInventory(this.parentNode.parentNode)'>`;
             tr.appendChild(td);
-            tbody.appendChild(tr);
-        } else {
-            i++;
         }
+
+        let td = document.createElement('td');
+        if (['Gerente general', 'Administrador', 'Gerente De Inventario'].includes(localStorage.getItem('rol_usua'))) {
+            td.innerHTML = `<img src='../imagenes/edit.svg' onclick='readInventory(this.parentNode.parentNode)' title='Editar en Inventario'>`;
+            tr.appendChild(td);
+        }
+        fragment.appendChild(tr);
     }
+    tbody.innerHTML = '';
+    tbody.appendChild(fragment);
 }
 function sendInventory(tr) {
     let id_inv = tr.children[0].innerText;
@@ -2430,7 +2461,7 @@ function openInventorySMW() {
 closeInventorySMW.addEventListener('click', () => {
     inventorySMW.classList.remove('modal__show');
 });
-//------------------------------------------------TABLA MODAL PRODUCTS--------------------------------------------------
+//--------------------------------------------TABLA MODAL PRODUCTS-----------------------------------------------
 //------Select utilizado para buscar por columnas
 const selectSearchProdMW = document.getElementById('selectSearchProdMW');
 selectSearchProdMW.addEventListener('change', searchProductsMW);
@@ -2533,47 +2564,52 @@ function paginacionProductMW(allProducts, page) {
 //------Crear la tabla
 function tableProductsMW(page) {
     let tbody = document.getElementById('tbodyProductMW');
-    inicio = (page - 1) * Number(selectNumberProdMW.value);
-    final = inicio + Number(selectNumberProdMW.value);
-    i = 1;
-    tbody.innerHTML = '';
-    for (let product in filterProductsMW) {
-        if (i > inicio && i <= final) {
-            let tr = document.createElement('tr');
-            for (let valor in filterProductsMW[product]) {
-                let td = document.createElement('td');
-                if (valor == 'id_prod') {
-                    td.innerText = filterProductsMW[product][valor];
-                    td.setAttribute('hidden', '');
-                    tr.appendChild(td);
-                    td = document.createElement('td');
-                    td.innerText = i;
-                    tr.appendChild(td);
-                    i++;
-                } else if (valor == 'codigo_smc_prod' || valor == 'id_mrc' || valor == 'id_ctgr' || valor == 'catalogo_prod') {
-                } else if (valor == 'imagen_prod') {
-                    let img = document.createElement('img');
-                    img.classList.add('tbody__img');
-                    img.setAttribute('src', '../modelos/imagenes/' + filterProductsMW[product][valor]);
-                    td.appendChild(img);
-                    tr.appendChild(td);
-                } else {
-                    td.innerText = filterProductsMW[product][valor];
-                    tr.appendChild(td);
-                }
-            }
+    let inicio = (page - 1) * Number(selectNumberProdMW.value);
+    let final = inicio + Number(selectNumberProdMW.value);
+    let fragment = document.createDocumentFragment();
+
+    for (let product of filterProducts.slice(inicio, final)) {
+        let tr = document.createElement('tr');
+        tr.setAttribute('id_prod', product.id_prod);
+
+        let tdIndex = document.createElement('td');
+        tdIndex.innerText = inicio + filterProducts.indexOf(product) + 1;
+        tr.appendChild(tdIndex);
+
+        for (let valor in product) {
             let td = document.createElement('td');
-            td.innerHTML = `
-        <img src='../imagenes/send.svg' onclick='sendProduct(this.parentNode.parentNode)'>`;
-            tr.appendChild(td);
-            tbody.appendChild(tr);
-        } else {
-            i++;
+            if (valor == 'id_prod' || valor == 'codigo_smc_prod' || valor == 'catalogo_prod') {
+                // No hacer nada
+            } else if (valor == 'fk_id_mrc_prod') {
+                const marca = marcas.find((marca) => marca.id_mrc === product[valor]);
+                td.innerText = marca ? marca.nombre_mrc : '';
+                tr.appendChild(td);
+            } else if (valor == 'fk_id_ctgr_prod') {
+                const categoria = categorias.find((categoria) => categoria.id_ctgr === product[valor]);
+                td.innerText = categoria ? categoria.nombre_ctgr : '';
+                tr.appendChild(td);
+            } else if (valor == 'imagen_prod') {
+                let img = document.createElement('img');
+                img.classList.add('tbody__img');
+                img.setAttribute('src', '../modelos/imagenes/' + product[valor]);
+                td.appendChild(img);
+                tr.appendChild(td);
+            } else {
+                td.innerText = product[valor];
+                tr.appendChild(td);
+            }
         }
+
+        let td = document.createElement('td');
+        td.innerHTML = `
+            <img src='../imagenes/send.svg' onclick='sendProduct(${product.id_prod})' title='Seleccionar'>`;
+        tr.appendChild(td);
+        fragment.appendChild(tr);
     }
+    tbody.innerHTML = '';
+    tbody.appendChild(fragment);
 }
-function sendProduct(tr) {
-    let id_prod = tr.children[0].innerText;
+function sendProduct(id_prod) {
     const product = filterProductsMW.find(prod => prod['id_prod'] === id_prod);
     if (product) {
         let prof_prods = modalProf_prod.querySelectorAll('.cart-item');
@@ -2880,7 +2916,7 @@ function processFileM(file) {
 }
 /*-----------------------------------------Marca y categoria producto-------------------------------------------------*/
 //-------Read all Marcas
-let marcas = {};
+let marcas = [];
 async function readAllMarcas() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
@@ -2890,6 +2926,7 @@ async function readAllMarcas() {
             body: formData
         }).then(response => response.json()).then(data => {
             marcas = data;
+            console.log(data)
             selectMarcaProd();
             selectMarcaProdR();
             //selectMarcaInv();
@@ -2901,7 +2938,7 @@ async function readAllMarcas() {
     })
 }
 //-------Read all categorias
-let categorias = {};
+let categorias = [];
 async function readAllCategorias() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
@@ -2911,6 +2948,7 @@ async function readAllCategorias() {
             body: formData
         }).then(response => response.json()).then(data => {
             categorias = data;
+            console.log(data)
             resolve();
         }).catch(err => console.log(err));
     })
