@@ -154,31 +154,23 @@ class consultas{
 	//-------Read Prof_prods
 	public function readProf_prods(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM prof_prod INNER JOIN proforma ON prof_prod.fk_id_prof_pfpd = proforma.id_prof INNER JOIN cliente ON proforma.fk_id_clte_prof = cliente.id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = empresa.id_emp INNER JOIN producto ON prof_prod.fk_id_prod_pfpd = producto.id_prod INNER JOIN categoria ON producto.fk_id_ctgr_prod = categoria.id_ctgr INNER JOIN marca ON producto.fk_id_mrc_prod = marca.id_mrc ORDER BY id_pfpd ASC";
+		$consulta = "SELECT * FROM prof_prod";
 		$resultado = $conexion->query($consulta);
-		$proformas =  array();
+		$profProds =  array();
 		while ($fila = $resultado->fetch_assoc()){
-			$_numero_prof = '';
-			if ($fila['nombre_emp'] == 'Ninguna'){
-				$_numero_prof = strtoupper('SMS'.substr($fila['fecha_prof'],2,2).'-'.$this->addZerosGo($fila['numero_prof']).'-'.explode(" ",$fila['apellido_clte'])[0]);
-			}else{
-				$_numero_prof = strtoupper('SMS'.substr($fila['fecha_prof'],2,2).'-'.$this->addZerosGo($fila['numero_prof']).'-'.$sigla_emp = $fila['sigla_emp']);
-			}
-			$datos = array ('id_pfpd'=>$fila['id_pfpd'], 'fk_id_prof_pfpd'=>$fila['fk_id_prof_pfpd'], 'fk_id_prod_pfpd'=>$fila['fk_id_prod_pfpd'], 'numero_prof'=>$_numero_prof, 'fecha_prof'=>$fila['fecha_prof'], 'nombre_mrc'=>$fila['nombre_mrc'], 'nombre_ctgr'=>$fila['nombre_ctgr'], 'codigo_prod'=>$fila['codigo_prod'], 'cantidad_pfpd'=>intval($fila['cantidad_pfpd']), 'cost_uni_pfpd'=>doubleval($fila['cost_uni_pfpd']), 'descuento_prof'=>$fila['descuento_prof'], 'estado_prof'=>$fila['estado_prof']);
-			$proformas[$fila['id_pfpd'].'_id_pfpd'] = $datos;
+			$profProds[] = $fila;
 		}
-		echo json_encode($proformas, JSON_UNESCAPED_UNICODE);
+		echo json_encode($profProds, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 	}
 	public function readmProf_prods(){
 		include 'conexion.php';
 		$consulta = "SELECT * FROM mdf_prof_prod";
 		$resultado = $conexion->query($consulta);
-		$mproformas =  array();
+		$mprofProds =  array();
 		while ($fila = $resultado->fetch_assoc()){
-			$datos = array ('fk_id_mprof_mpfpd'=>$fila['fk_id_mprof_mpfpd'], 'fk_id_prod_mpfpd'=>$fila['fk_id_prod_mpfpd'], 'cantidad_mpfpd'=>$fila['cantidad_mpfpd'], 'cost_uni_mpfpd'=>$fila['cost_uni_mpfpd']);
-			$mproformas[$fila['id_mpfpd'].'_id_mpfpd'] = $datos;
+			$mprofProds[] = $fila;
 		}
-		echo json_encode($mproformas, JSON_UNESCAPED_UNICODE);
+		echo json_encode($mprofProds, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 	}
 	//-------Create Prof_prod
 	public function createProf_prod($productos){

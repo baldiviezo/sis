@@ -37,6 +37,7 @@ async function init() {
             paginacionEnterpriseMW(filterEnterprises.length, 1);
             paginacionProforma(proformas.length, 1);
             paginacionProductMW(products.length, 1);
+            paginacionPfPd(filterProf_prods.length, 1);
             requestProf = false;
             preloader.classList.remove('modal__show');
         } catch (error) {
@@ -565,7 +566,7 @@ function tableProformas(page) {
 
         if (proforma.estado_prof == 'vendido') {
             imgs = [
-                { src: '../imagenes/pdf.svg', onclick: 'selectPDFInformation(this.parentNode.parentNode.children[0].innerText, "prof")', title: 'Mostrar PDF' }
+                { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_prof}, "prof")`, title: 'Mostrar PDF' }
             ];
             const hasMdfProforma = mdfPproforma.filter(mdfProforma => mdfProforma.id_prof_mprof == proforma.id_prof).length > 0;
             if (hasMdfProforma) {
@@ -672,7 +673,6 @@ async function createProforma() {
 function readProforma(id_prof) {
     formProformas = 'M';
     const proforma = filterProformas.find(proforma => proforma.id_prof == id_prof);
-    console.log(proforma)
 
     for (const valor in proforma){
         if (valor != 'fk_id_usua_prof' && valor != 'estado_prof') {
@@ -682,6 +682,8 @@ function readProforma(id_prof) {
 
     const cliente = customers.find(customer => customer.id_clte === proforma.fk_id_clte_prof);
     const empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
+    fk_id_clte_profM.value = proforma.fk_id_clte_prof;
+    fk_id_emp_clteM.value = empresa.id_emp;
     fk_nombre_emp_profM.value = empresa.nombre_emp;
     fk_cliente_profM.value = cliente.apellido_clte + ' ' + cliente.nombre_clte;
 
@@ -692,8 +694,8 @@ function readProforma(id_prof) {
 let formProformaM = document.getElementById('formProformaM');
 formProformaM.addEventListener('submit', updateProforma)
 async function updateProforma() {
-    let modal = document.querySelector('#cartsProf_prodMW');
-    let cartItems = modal.querySelectorAll('div.cart-item');
+    const modal = document.querySelector('#cartsProf_prodMW');
+    const cartItems = modal.querySelectorAll('div.cart-item');
     if (cartItems.length > 0) {
         if (requestProf == false) {
             requestProf = true;
@@ -703,15 +705,15 @@ async function updateProforma() {
             let array = [];
             cartItems.forEach(product => {
                 let valor = {};
-                valor['id_prod'] = product.children[0].value;
-                valor['cantidad'] = product.children[4].value;
-                valor['costoUnitario'] = product.children[5].value;
+                valor['id_prod'] = product.getAttribute('id_prod');
+                valor['cantidad'] = product.children[3].value;
+                valor['costoUnitario'] = product.children[4].value;
                 array.push(valor);
             });
             let productos = JSON.stringify(array); //string json
             let form = document.getElementById('formProformaM');
             let formData = new FormData(form);
-            formData.set("total_profM", Number(document.getElementById('totalProf').innerHTML.split(' ')[1]));
+            formData.set("total_profM", Number(document.getElementById('total_pfpd').innerHTML.split(' ')[1]));
             formData.append('updateProforma', productos);
             formData.append('id_usua', localStorage.getItem('id_usua'));
             preloader.classList.add('modal__show');
@@ -720,6 +722,7 @@ async function updateProforma() {
                 body: formData
             }).then(response => response.text()).then(data => {
                 Promise.all([readProformas(), readProf_prods(), readMdfProforma(), readmProf_prods()]).then(() => {
+                    paginacionProforma(proformas.length, 1);
                     requestProf = false;
                     preloader.classList.remove('modal__show');
                     mostrarAlerta(data);
@@ -918,8 +921,8 @@ async function deleteMdfProforma(id_mprof) {
         if (requestProf == false) {
             requestProf = true;
             let formData = new FormData();
-            tablemProfMW.classList.remove('modal__show');
             formData.append('deletemProforma', id_mprof);
+            tablemProfMW.classList.remove('modal__show');
             preloader.classList.add('modal__show');
             fetch('../controladores/proforma.php', {
                 method: "POST",
@@ -947,6 +950,7 @@ closemTableProfMW.addEventListener('click', (e) => {
 //---------------------------------------------------------------GENERAR PDF-----------------------------------------------------
 //-------Pide la informacion del pdf que se va a mostrar (prof, mprof, ne)
 function selectPDFInformation(id, pdf) {
+
     if (pdf == 'prof') {
         const proforma = filterProformas.find(proforma => proforma['id_prof'] == id);
         if (proforma) {
@@ -964,24 +968,23 @@ function selectPDFInformation(id, pdf) {
             showPDF(proforma, objects, pdf);
         }
     } else if (pdf == 'mprof') {
-        mdfPproforma.forEach(proforma => {
-            if (proforma['id_mprof'] == id) {
-                const objects = mProf_prods.filter(pf_pd => pf_pd['fk_id_mprof_mpfpd'] == id)
-                    .map(pf_pd => {
-                        const product = products.find(product => product['id_prod'] == pf_pd['fk_id_prod_mpfpd']);
-                        return {
-                            'codigo_prod': product['codigo_prod'],
-                            'descripcion_prod': product['descripcion_prod'],
-                            'cantidad_mpfpd': pf_pd['cantidad_mpfpd'],
-                            'cost_uni_mpfpd': pf_pd['cost_uni_mpfpd'],
-                            'imagen_prod': product['imagen_prod']
-                        };
-                    });
-                showPDF(proforma, objects, pdf);
-                return;
-            }
-        });
-    }
+
+        const proforma = mdfPproforma.find(proforma => proforma['id_mprof'] == id);
+        if (proforma) {
+            const objects = mProf_prods.filter(pf_pd => pf_pd['fk_id_mprof_mpfpd'] == id)
+                .map(pf_pd => {
+                    const product = products.find(product => product['id_prod'] == pf_pd['fk_id_prod_mpfpd']);
+                    return {
+                        'codigo_prod': product['codigo_prod'],
+                        'descripcion_prod': product['descripcion_prod'],
+                        'cantidad_mpfpd': pf_pd['cantidad_mpfpd'],
+                        'cost_uni_mpfpd': pf_pd['cost_uni_mpfpd'],
+                        'imagen_prod': product['imagen_prod']
+                    };
+                });
+            showPDF(proforma, objects, pdf);
+        }
+    } 
 }
 //-------Crear el pdf de la proforma
 function showPDF(prof_mprof_ne, pf_pd, pdf) {
@@ -996,7 +999,6 @@ function showPDF(prof_mprof_ne, pf_pd, pdf) {
     var input1 = document.createElement('input');
     input1.type = 'hidden';
     input1.name = 'prof_mprof_ne';
-    console.log(prof_mprof_ne)
     input1.value = JSON.stringify(prof_mprof_ne); // Reemplaza con el valor real
 
     // Crea un campo oculto para la variable pf_pd
@@ -1029,7 +1031,7 @@ function showPDF(prof_mprof_ne, pf_pd, pdf) {
 }
 //------------------------------------------------CRUD PROF_PROD------------------------------------------------------------
 let prof_prods = [];
-filterProf_prods = [];
+let filterProf_prods = [];
 async function readProf_prods() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
@@ -1038,9 +1040,8 @@ async function readProf_prods() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            prof_prods = Object.values(data);
+            prof_prods = data;
             filterProf_prods = prof_prods;
-            paginacionPfPd(filterProf_prods.length, 1);
             resolve();
         }).catch(err => console.log(err));
     })
@@ -1223,7 +1224,7 @@ async function readmProf_prods() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            mProf_prods = Object.values(data);
+            mProf_prods = data;
             resolve();
         }).catch(err => console.log(err));
     });
@@ -1232,28 +1233,16 @@ async function readmProf_prods() {
 let modalProf_prod = document.querySelector('#cartsProf_prodMW');
 function readProf_prod() {
     modalProf_prod.innerHTML = '';
-    const id_prof = document.getElementsByName('id_profM')[0].value;
+    const id_prof = document.getElementById('id_profM').value;
     const prof_prods_filtered = prof_prods.filter(prof_prod => prof_prod['fk_id_prof_pfpd'] == id_prof);
     prof_prods_filtered.forEach(prof_prod => {
-        const product = products.find(product => product['id_prod'] == prof_prod['fk_id_prod_pfpd']);
-        if (product) {
-            const nuevo_objeto = {
-                'fk_id_prof_pfpd': prof_prod['fk_id_prof_pfpd'],
-                'id_prod': product['id_prod'],
-                'codigo_prod': product['codigo_prod'],
-                'nombre_prod': product['nombre_prod'],
-                'descripcion_prod': product['descripcion_prod'],
-                'imagen_prod': product['imagen_prod'],
-                'cantidad_pfpd': prof_prod['cantidad_pfpd'],
-                'cost_uni_pfpd': prof_prod['cost_uni_pfpd'],
-            };
-            cartProduct_pfpd(nuevo_objeto, 'read');
-        }
-    });
+        cartProduct_pfpd(prof_prod, 'read');
+    })
 }
 //--------Muestra la lista de los productos de la proforma
 function cartProduct_pfpd(product, action) {
-    const inventory = inventories.find(inv => inv['fk_id_prod_inv'] === product['id_prod']);
+    const producto = products.find(prod => prod['id_prod'] == product['fk_id_prod_pfpd']);
+    const inventory = inventories.find(inv => inv['fk_id_prod_inv'] === product['fk_id_prod_pfpd']);
     const cantidad_inv = inventory ? inventory['cantidad_inv'] : 0;
     let cost_uni = undefined;
     let cantidad_prod = undefined;
@@ -1269,20 +1258,17 @@ function cartProduct_pfpd(product, action) {
     item.classList.add('cart-item');
     item.setAttribute('draggable', 'true');
     const html = `
-        <input type="hidden" value="${product['id_prod']}">
         <p class="cart-item__cantInv">${cantidad_inv}</p>
         <div class="row-img">
-            <img src="../modelos/imagenes/${product['imagen_prod']}" class="rowimg">
-        </div>
-        <p class="cart-item__codigo">${product['codigo_prod']}</p>
+            <img src="../modelos/imagenes/${producto['imagen_prod']}" class="rowimg">
+        </div>  
+        <p class="cart-item__codigo">${producto['codigo_prod']}</p>
         <input type="number" value="${cantidad_prod}" min="1" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__cantidad">
         <input type="number" value="${cost_uni}" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__costUnit">
         <input type="number" value="${cantidad_prod * cost_uni}" class="cart-item__costTotal" readonly>
-        <img src="../imagenes/trash.svg" onClick="remove_pfpd(this.parentNode)" class='icon__CRUD'>
-        <h3 hidden>${product['nombre_prod']}</h3>
-        <h3 hidden>${product['descripcion_prod']}</h3>
-    `;
+        <img src="../imagenes/trash.svg" onClick="remove_pfpd(this.parentNode)" class='icon__CRUD'>`;
     item.innerHTML = html;
+    item.setAttribute('id_prod', product['fk_id_prod_pfpd']);
     modalProf_prod.appendChild(item);
     totalPrice_pfpd();
 
@@ -1320,10 +1306,10 @@ function remove_pfpd(product) {
 }
 //-------Cuando cambia la cantidad
 function changeQuantity_pfpd(product) {
-    let cantidad_prod = product.children[4].value;
-    let costo_uni = product.children[5].value;
+    let cantidad_prod = product.children[3].value;
+    let costo_uni = product.children[4].value;
     let cost_uni_total = cantidad_prod * costo_uni;
-    product.children[6].value = cost_uni_total.toFixed(2);
+    product.children[5].value = cost_uni_total.toFixed(2);
     totalPrice_pfpd();
 }
 function totalPrice_pfpd() {
@@ -1331,10 +1317,13 @@ function totalPrice_pfpd() {
     let moneda = document.getElementsByName('moneda_profM')[0].value;
     let total = 0;
     divs.forEach(div => {
-        costo = Number(div.children[6].value);
+        costo = Number(div.children[5].value);
         total = total + costo;
     })
-    document.getElementById('total_pfpd').innerHTML = moneda + ' ' + total.toFixed(2);
+    let descuento = Number(document.getElementsByName('descuento_profM')[0].value);
+    document.getElementById('subTotal_pfpd').innerHTML = `Sub-Total(${moneda}): ${total.toFixed(2)} ${moneda}`;
+    document.getElementById('desc_pfpd').innerHTML = `Desc. ${descuento}% (${moneda}):   ${((total * descuento) / 100).toFixed(2)} ${moneda}`;  
+    document.getElementById('total_pfpd').innerHTML = `Total(${moneda}): ${((total - (total * descuento) / 100)).toFixed(2)} ${moneda}`;
     document.getElementById('count_pfpd').innerHTML = divs.length;
 }
 //-------Tipo de moneda
@@ -1353,19 +1342,26 @@ const closeProf_prodMW = document.getElementById('closeProf_prodMW');
 const prof_prodMW = document.getElementById('prof_prodMW');
 function openProf_prodMW() {
     prof_prodMW.classList.add('modal__show');
+    totalPrice_pfpd();
+    
 }
 closeProf_prodMW.addEventListener('click', (e) => {
     prof_prodMW.classList.remove('modal__show');
 });
 //-------------------------------------------MOSTRAR LOS PRODUCTOS PREVIAMENTE---------------------------------------------------
 function openPreviwProducts() {
-    let cart = document.querySelectorAll('#cartItem .cart-item');
-
-    if (fk_id_emp_clteR.value == '') {
-        mostrarAlerta('Selecciona una empresa');
-        return;
+    let cart;
+    if (formProformas == 'R' ){
+        cart =document.querySelectorAll('#cartItem .cart-item')
+    } else if (formProformas == 'M') {
+        cart = document.querySelectorAll('#cartsProf_prodMW .cart-item')
     }
 
+    if (fk_id_emp_clteR.value == '' && formProformas == 'R') {
+        mostrarAlerta('Selecciona una empresa');
+        return;
+    } 
+ 
     if (cart.length > 0) {
         const tbody = document.getElementById('tbodyPreviewProd');
         const productos = getProducts();
@@ -1392,6 +1388,12 @@ function getProducts() {
 
         return document.querySelectorAll('#cartItem .cart-item');
     } else if (formProformas === 'M') {
+
+        const empresa = enterprises.find(enterprise => enterprise.id_emp == fk_id_emp_clteM.value);
+        const cliente = customers.find(customer => customer.id_clte == fk_id_clte_profM.value);
+
+        titleEnterprise.innerText = `EMPRESA: ${empresa.nombre_emp}`;
+        titleCustomer.innerText = `CLIENTE: ${cliente.apellido_clte + ' ' + cliente.nombre_clte}`;
         return document.querySelectorAll('#cartsProf_prodMW .cart-item');
     }
 }
@@ -1413,13 +1415,13 @@ function getDescuento() {
     return Number(document.getElementsByName('descuento_prof' + formProformas)[0].value);
 }
 function createTable(tbody, productos, moneda) {
+
     let fragment = document.createDocumentFragment();
 
     productos.forEach((producto, index) => {
 
         const row = products.find(product => product.id_prod == producto.getAttribute('id_prod'));
 
-        const imagenSrc = producto.children[1].children[0].src;
         const monedaSymbol = `<b>${moneda}</b>`;
 
         let tr = document.createElement('tr');
@@ -1436,7 +1438,7 @@ function createTable(tbody, productos, moneda) {
         let tdImagen = document.createElement('td');
         let img = document.createElement('img');
         img.classList.add('tbody__img');
-        img.setAttribute('src', imagenSrc);
+        img.setAttribute('src', `../modelos/imagenes/${row.imagen_prod}`);
         tdImagen.appendChild(img);
         tr.appendChild(tdImagen);
 
@@ -1512,7 +1514,7 @@ closePreviewProducts.addEventListener('click', () => {
 const productsSold = document.querySelector('#productsSold');
 const closeProductsSold = document.querySelector('#closeProductsSold');
 function openPreviwProductsSold() {
-    const id_prof = document.getElementById('id_prof').value;
+    const id_prof = Number(document.getElementById('id_prof').value);
     const prof_prodsFiltered = prof_prods.filter(prof_prod => prof_prod['fk_id_prof_pfpd'] === id_prof);
     const inventoriesMap = new Map(inventories.map(inventory => [inventory['fk_id_prod_inv'], inventory]));
     const productsMap = new Map(products.map(product => [product['id_prod'], product]));
@@ -1589,6 +1591,7 @@ async function createNotaEntrega() {
             cantidad_neiv: parseInt(cart.children[3].value),
             cost_uni_neiv: parseFloat(cart.children[4].value)
         });
+        console.log(arrayObjetos)
     }
     if (count == true) {
         if (confirm('¿Esta usted seguro?')) {
@@ -1624,10 +1627,11 @@ async function createNotaEntrega() {
 const closeNotaEntregaRMW = document.getElementById('closeNotaEntregaRMW');
 const notaEntregaRMW = document.getElementById('notaEntregaRMW');
 function openNotaEntregaRMW(tr) {
+    console.log(tr)
     document.getElementById('fecha_ne').value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
-    document.getElementById('id_prof').value = tr.children[0].innerText;
+    document.getElementById('id_prof').value = tr.getAttribute('id_prof');
     document.getElementById('descuento_prof').value = filterProformas.find(proforma => proforma['id_prof'] == tr.children[0].innerText)['descuento_prof'];
-    document.getElementById('numero_prof').value = tr.children[2].innerText;
+    document.getElementById('numero_prof').value = tr.children[1].innerText;
     notaEntregaRMW.classList.add('modal__show');
 }
 closeNotaEntregaRMW.addEventListener('click', (e) => {
@@ -1635,7 +1639,7 @@ closeNotaEntregaRMW.addEventListener('click', (e) => {
 });
 //<<---------------------------------------------EMPRESA---------------------------------------------->>
 const fk_id_emp_clteR = document.getElementById('fk_id_emp_clteR');
-const fk_id_emp_clteM = document.getElementsByName('fk_id_emp_clteM');
+const fk_id_emp_clteM = document.getElementById('fk_id_emp_clteM');
 let enterprises = [];
 let filterEnterprises = [];
 let indexEnterprise = 0;
@@ -2104,6 +2108,7 @@ function sendCustomers(id_clte) {
 const customerSMW = document.getElementById('customerSMW');
 const closeCustomerSMW = document.getElementById('closeCustomerSMW');
 function openCustomersSMW() {
+    inputSearchClteSMW.focus();
     customerSMW.classList.add('modal__show');
 }
 closeCustomerSMW.addEventListener('click', () => {

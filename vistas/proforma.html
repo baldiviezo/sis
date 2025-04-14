@@ -424,12 +424,12 @@
 					<input type="hidden" id="id_prof" name="id_prof" placeholder=" " class="form__input">
 					<input type="hidden" id="descuento_prof">
 					<div class="form__group">
-						<input type="date" name="fecha_ne" id="fecha_ne" placeholder=" " class="form__input">
-						<label for="fecha_ne" class="form__label">Fecha nota de entrega:</label>
-					</div>
-					<div class="form__group">
 						<input type="text" id="numero_prof" placeholder=" " class="form__input" readonly>
 						<label class="form__label">Proforma:</label>
+					</div>
+					<div class="form__group">
+						<input type="date" name="fecha_ne" id="fecha_ne" placeholder=" " class="form__input">
+						<label for="fecha_ne" class="form__label">Fecha nota de entrega:</label>
 					</div>
 					<div class="form__group">
 						<input type="text" name="orden_ne" placeholder=" " class="form__input">
@@ -441,7 +441,7 @@
 					</div>
 				</div>
 			</form>
-			<button id="btnNotaEntrega" class="form__submit" onclick="openPreviwProductsSold()">Registrar</button>
+			<button class="form__submit" onclick="openPreviwProductsSold()">Registrar</button>
 		</div>
 	</section>
 	<!--Productos para descontar del inventario-->
@@ -551,7 +551,7 @@
 			<div class="form">
 				<form id="formProformaM">
 					<div class="form__container">
-						<input type="text" name="id_profM" placeholder=" " class="form__input" hidden>
+						<input type="text" name="id_profM" id="id_profM" placeholder=" " class="form__input" hidden>
 						<input type="text" name="fk_id_emp_clteM" id="fk_id_emp_clteM" class="form__input" hidden>
 						<input type="text" name="fk_id_clte_profM" id="fk_id_clte_profM" class="form__input" hidden>
 						<div class="form__group">
@@ -598,7 +598,7 @@
 								class="form__input">
 							<label for="descuento_profM" class="form__label">Descuento:</label>
 						</div>
-						<label class="form__label--only">Moneda:</label>	
+						<label class="form__label--only">Moneda:</label>
 						<div class="form__group--select">
 							<select name="moneda_profM">
 								<option value="Bs">Bs</option>
@@ -630,7 +630,7 @@
 				<table>
 					<thead>
 						<tr>
-							<td>cant. inv.</td>
+							<td>Stock</td>
 							<td>Img.</td>
 							<td>Codigo</td>
 							<td>Cant.</td>
@@ -645,14 +645,20 @@
 				<div id="cartsProf_prodMW" class="modal__body--pfpd"></div>
 			</div>
 			<div class="foot">
-				<div class="cart"><img src="../imagenes/carrito.svg">
-					<p id="count_pfpd">0</p>
+				<div class="foot__left table__subTitle">
+					<p id="subTotal_pfpd">Sub-Total (Bs):</p>
+					<p id="desc_pfpd">Desc. (Bs):</p>
+					<p id="total_pfpd">Total (Bs):</p>
 				</div>
-				<div>
-					<h2 id="total_pfpd">Bs 0.00</h2>
+				<div class="foot__right">
+					<div class="cart">
+						<img src="../imagenes/carrito.svg">
+						<p id="count_pfpd">0</p>
+					</div>
 					<button class="button--sell" onclick="openPreviwProducts()">Modificar</button>
 				</div>
 			</div>
+
 		</div>
 	</section>
 	<!--Vista previa de los productos de la proforma-->
