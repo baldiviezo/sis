@@ -1242,21 +1242,26 @@ function readProf_prod() {
 }
 //--------Muestra la lista de los productos de la proforma
 function cartProduct_pfpd(product, action) {
+    console.log(product);
     let producto;
-    const inventory = inventories.find(inv => inv['fk_id_prod_inv'] === product['fk_id_prod_pfpd']);
-    const cantidad_inv = inventory ? inventory['cantidad_inv'] : 0;
     let cost_uni = undefined;
     let cantidad_prod = undefined;
+    
+    const inventory = inventories.find(inv => inv['fk_id_prod_inv'] === product['fk_id_prod_pfpd']);
+    const cantidad_inv = inventory ? inventory['cantidad_inv'] : 0;
     if (action == 'new') {
         producto = products.find(prod => prod['id_prod'] == product['id_prod']);
         const cost_uni2 = prices.find(price => price.modelo === product['codigo_prod']);
-        cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio) * 1.1) : (inventory ? Math.round(inventory.cost_uni_inv * 1.1) : 0);
+        cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio) * 1.1) : (product ? Math.round(product.cost_uni_inv * 1.1) : 0);
         cantidad_prod = 1;
     } else if (action == 'read') {
+        
         producto = products.find(prod => prod['id_prod'] == product['fk_id_prod_pfpd']);
         cost_uni = product['cost_uni_pfpd'];
         cantidad_prod = product['cantidad_pfpd']
     }
+    
+
     const item = document.createElement('div');
     item.classList.add('cart-item');
     item.setAttribute('draggable', 'true');
@@ -2283,15 +2288,18 @@ function searchInventoriesMW() {
     const valor = selectSearchInvMW.value;
     const busqueda = inputSearchInvMW.value.toLowerCase().trim();
     filterInventoriesMW = inventories.filter(inventory => {
+        let product = products.find(product => product.id_prod === inventory.fk_id_prod_inv);
         if (valor === 'todas') {
             return (
-                inventory.codigo_prod.toLowerCase().includes(busqueda) ||
-                inventory.nombre_prod.toLowerCase().includes(busqueda) ||
-                inventory.descripcion_prod.toLowerCase().includes(busqueda) ||
-                inventory.cost_uni_inv.toString().toLowerCase().includes(busqueda)
+                inventory.cost_uni_inv.toString().toLowerCase().includes(busqueda) ||
+                product.codigo_prod.toString().toLowerCase().includes(busqueda) ||
+                product.nombre_prod.toLowerCase().includes(busqueda) ||
+                product.descripcion_prod.toLowerCase().includes(busqueda)
             );
-        } else {
+        } else if (valor in inventory) {
             return inventory[valor].toString().toLowerCase().includes(busqueda);
+        } else if (valor in product) {
+            return product[valor].toString().toLowerCase().includes(busqueda);
         }
     });
     selectInventoriesMW();
@@ -2429,7 +2437,7 @@ function tableInventoriesMW(page) {
 
         let td = document.createElement('td');
         if (['Gerente general', 'Administrador', 'Gerente De Inventario'].includes(localStorage.getItem('rol_usua'))) {
-            td.innerHTML = `<img src='../imagenes/edit.svg' onclick='readInventory(this.parentNode.parentNode)' title='Editar en Inventario'>`;
+            td.innerHTML = `<img src='../imagenes/send.svg' onclick='sendInventory(${inventory.id_inv})' title='Seleccionar'>`;
             tr.appendChild(td);
         }
         fragment.appendChild(tr);
@@ -2437,13 +2445,14 @@ function tableInventoriesMW(page) {
     tbody.innerHTML = '';
     tbody.appendChild(fragment);
 }
-function sendInventory(tr) {
-    let id_inv = tr.children[0].innerText;
-    let inventory = filterInventoriesMW.find(inv => inv['id_inv'] === id_inv);
+function sendInventory(id_inv) {
+    const inventory = filterInventoriesMW.find(inv => inv['id_inv'] === id_inv);
+    const prof_prods = modalProf_prod.querySelectorAll('.cart-item');
     if (inventory) {
-        inventory.id_prod = inventory['fk_id_prod_inv'];
-        let prof_prods = modalProf_prod.querySelectorAll('.cart-item');
-        const codigo = inventory['codigo_prod'];
+        inventory.id_prod = inventory.fk_id_prod_inv;
+        const product = products.find(product => product.id_prod === inventory.fk_id_prod_inv);
+        inventory.codigo_prod = product.codigo_prod;
+        const codigo = inventory.codigo_prod;
         const existe = Array.from(prof_prods).some(prod => prod.children[2].innerText === codigo);
         if (!existe) {
             cartProduct_pfpd(inventory, 'new');
@@ -2483,48 +2492,52 @@ selectCategoriaProdMW.addEventListener('change', searchProductsMW);
 function searchProductsMW() {
     const valor = selectSearchProdMW.value;
     const busqueda = inputSearchProdMW.value.toLowerCase().trim();
-    filterProductsMW = products.filter(product => {
+    filterProducts = products.filter(product => {
         if (valor === 'todas') {
             return (
-                product.codigo_prod.toLowerCase().includes(busqueda) ||
+                product.codigo_prod.toString().toLowerCase().includes(busqueda) ||
                 product.nombre_prod.toLowerCase().includes(busqueda) ||
                 product.descripcion_prod.toLowerCase().includes(busqueda)
             );
         } else {
-            return product[valor].toLowerCase().includes(busqueda);
+            return product[valor].toString().toLowerCase().includes(busqueda);
         }
     });
     selectProductsMW();
 }
 //------buscar por marca y categoria:
 function selectProductsMW() {
-    if (selectMarcaProdMW.value == 'todasLasMarcas' && selectCategoriaProdMW.value == 'todasLasCategorias') {
-        paginacionProductMW(filterProductsMW.length, 1);
-    } else {
-        filterProductsMW = filterProductsMW.filter(product => {
-            if (selectMarcaProdMW.value == 'todasLasMarcas') {
-                return product['id_ctgr'] == selectCategoriaProdMW.value;
-            } else if (selectCategoriaProdMW.value == 'todasLasCategorias') {
-                return product['id_mrc'] == selectMarcaProdMW.value;
-            } else {
-                return product['id_ctgr'] == selectCategoriaProdMW.value && product['id_mrc'] == selectMarcaProdMW.value;
-            }
-        });
-        paginacionProductMW(filterProductsMW.length, 1);
-    }
+    filterProducts = filterProducts.filter(product => {
+        const marca = selectMarcaProdMW.value === 'todasLasMarcas' ? true : product.fk_id_mrc_prod == selectMarcaProdMW.value;
+        const categoria = selectCategoriaProdMW.value === 'todasLasCategorias' ? true : product.fk_id_ctgr_prod == selectCategoriaProdMW.value;
+        return marca && categoria;
+    });
+    paginacionProductMW(filterProducts.length, 1);
 }
 //------Ordenar tabla descendente ascendente
-let orderProducts = document.querySelectorAll('.tbody__head--ProdMW');
+const orderProducts = document.querySelectorAll('.tbody__head--ProdMW');
 orderProducts.forEach(div => {
     div.children[0].addEventListener('click', function () {
-        const valor = div.children[0].name;
-        filterProductsMW.sort((a, b) => a[valor].localeCompare(b[valor]));
-        paginacionProductMW(filterProductsMW.length, 1);
+        let array = Object.entries(filterProducts).sort((a, b) => {
+            let first = a[1][div.children[0].name].toString().toLowerCase();
+            let second = b[1][div.children[0].name].toString().toLowerCase();
+            if (first < second) { return -1 }
+            if (first > second) { return 1 }
+            return 0;
+        })
+        filterProducts = Object.fromEntries(array);
+        paginacionProductMW(filterProducts.length, 1);
     });
     div.children[1].addEventListener('click', function () {
-        const valor = div.children[0].name;
-        filterProductsMW.sort((a, b) => b[valor].localeCompare(a[valor]));
-        paginacionProductMW(filterProductsMW.length, 1);
+        let array = Object.entries(filterProducts).sort((a, b) => {
+            let first = a[1][div.children[0].name].toString().toLowerCase();
+            let second = b[1][div.children[0].name].toString().toLowerCase();
+            if (first > second) { return -1 }
+            if (first < second) { return 1 }
+            return 0;
+        })
+        filterProducts = Object.fromEntries(array);
+        paginacionProductMW(filterProducts.length, 1);
     });
 })
 //------PaginacionProductMW
@@ -2926,7 +2939,6 @@ async function readAllMarcas() {
             body: formData
         }).then(response => response.json()).then(data => {
             marcas = data;
-            console.log(data)
             selectMarcaProd();
             selectMarcaProdR();
             //selectMarcaInv();
@@ -2948,7 +2960,6 @@ async function readAllCategorias() {
             body: formData
         }).then(response => response.json()).then(data => {
             categorias = data;
-            console.log(data)
             resolve();
         }).catch(err => console.log(err));
     })

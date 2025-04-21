@@ -106,7 +106,7 @@ function searchInventories() {
         } else if (valor in inventory) {
             return inventory[valor].toString().toLowerCase().includes(busqueda);
         } else if (valor in product) {
-            return product[valor].toLowerCase().includes(busqueda);
+            return product[valor].toString().toLowerCase().includes(busqueda);
         }
         
     });
@@ -146,7 +146,7 @@ function paginacionInventory(allInventories, page) {
         stock += Number(filterInventories[inventory].cantidad_inv) * Number(filterInventories[inventory].cost_uni_inv) * .65;
     }
     totalStock.innerText = `Precio de lista: ${stock.toFixed(2)} Bs`;
-    totalCompra.innerText = `Precio de compra:: ${(stock*.65).toFixed(2)} Bs`;
+    totalCompra.innerText = `Precio de compra: ${(stock*.65).toFixed(2)} Bs`;
     let numberInventories = Number(selectNumberInv.value);
     let allPages = Math.ceil(allInventories / numberInventories);
     let ul = document.querySelector('#wrapperInventory ul');
@@ -194,14 +194,16 @@ function tableInventories(page) {
         'fk_id_ctgr_prod',
         'nombre_prod',
         'descripcion_prod',
-        'imagen_prod',
+        'imagen_prod',  
         'cantidad_inv',
         'cost_uni_inv',
         'descripcion_inv'
     ];
 
     for (let inventory of filterInventories.slice(inicio, final)) {
+
         let product = products.find(product => product.id_prod === inventory.fk_id_prod_inv);
+        
         let tr = document.createElement('tr');
         tr.setAttribute('id_inv', inventory.id_inv); 
 
@@ -690,7 +692,7 @@ function searchProductsMW() {
                 product.descripcion_prod.toLowerCase().includes(busqueda)
             );
         } else {
-            return product[valor].toLowerCase().includes(busqueda);
+            return product[valor].toString().toLowerCase().includes(busqueda);
         }
     });
     selectProductsMW();
@@ -705,7 +707,7 @@ function selectProductsMW() {
     paginacionProductMW(filterProducts.length, 1);
 }
 //------Ordenar tabla descendente ascendente
-let orderProducts = document.querySelectorAll('.tbody__head--ProdMW');
+const orderProducts = document.querySelectorAll('.tbody__head--ProdMW');
 orderProducts.forEach(div => {
     div.children[0].addEventListener('click', function () {
         let array = Object.entries(filterProducts).sort((a, b) => {
@@ -825,6 +827,7 @@ const closeProductSMW = document.getElementById('closeProductSMW');
 function openProductSMW(clave) {
     productSMW.classList.add('modal__show');
     claveSendProduct = clave;
+    inputSearchProdMW.focus();
 }
 closeProductSMW.addEventListener('click', () => {
     productSMW.classList.remove('modal__show');

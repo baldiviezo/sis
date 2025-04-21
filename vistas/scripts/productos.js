@@ -75,12 +75,12 @@ function searchProducts() {
     filterProducts = products.filter(product => {
         if (valor == 'todas') {
             return (
-                product.codigo_prod.toLowerCase().includes(busqueda) ||
+                product.codigo_prod.toString().toLowerCase().includes(busqueda) ||
                 product.nombre_prod.toLowerCase().includes(busqueda) ||
                 product.descripcion_prod.toLowerCase().includes(busqueda)
             );
         } else {
-            return product[valor].toLowerCase().includes(busqueda);
+            return product[valor].toString().toLowerCase().includes(busqueda);
         }
     });
     selectProducts();
@@ -96,12 +96,12 @@ function selectProducts() {
     paginacionProduct(filterProducts.length, 1);
 }
 //------Ordenar tabla descendente ascendente
-let orderProducts = document.querySelectorAll('.tbody__head--Product');
+const orderProducts = document.querySelectorAll('.tbody__head--Product');
 orderProducts.forEach(div => {
     div.children[0].addEventListener('click', function () {
         filterProducts.sort((a, b) => {
-            let first = a[div.children[0].name].toLowerCase();
-            let second = b[div.children[0].name].toLowerCase();
+            let first = a[div.children[0].name].toString().toLowerCase();
+            let second = b[div.children[0].name].toString().toLowerCase();
             if (first < second) { return -1 }
             if (first > second) { return 1 }
             return 0;
@@ -110,8 +110,8 @@ orderProducts.forEach(div => {
     });
     div.children[1].addEventListener('click', function () {
         filterProducts.sort((a, b) => {
-            let first = a[div.children[0].name].toLowerCase();
-            let second = b[div.children[0].name].toLowerCase();
+            let first = a[div.children[0].name].toString().toLowerCase();
+            let second = b[div.children[0].name].toString().toLowerCase();
             if (first > second) { return -1 }
             if (first < second) { return 1 }
             return 0;

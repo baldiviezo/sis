@@ -1020,13 +1020,14 @@
 						</div>
 					</section>
 					<div class="combo__search">
-						<div>
+						<div class="filter__search">
+							<h3>Filtrar por:</h3>
 							<select id="selectSearchInvMW" class="select">
-								<option value="todas">Buscar por</option>
+								<option value="todas">Todo</option>
 								<option value="codigo_prod">Código</option>
-								<option value="nombre_prod">Nombre</option>
+								<option value="nombre_prod">Descripcion corta</option>
 								<option value="descripcion_prod">Descripcion</option>
-								<option value="cost_uni_inv">Costo</option>
+								<option value="cost_uni_inv">Precio</option>
 							</select>
 						</div>
 						<div class="table__search">
@@ -1060,6 +1061,7 @@
 						<thead>
 							<tr>
 								<th>N°</th>
+								<th>Almacen</th>
 								<th>
 									<div class="tbody__head--invMW">Marca <img src="../imagenes/sortA_Z.svg"
 											name="marca_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
