@@ -33,6 +33,14 @@
 			<img src="../imagenes/registrar.svg" id="openInventoryRMW" title="Registrar en inventario" hidden>
 			<section class="select__search">
 				<div>
+					<label>Almacen: </label>
+					<select id="selectAlmacenInventory" class="select__marca">
+						<option value="todo">Todos los alamcenes</option>
+						<option value="0">EL ALTO</option>
+						<option value="1">AV. ARCE</option>
+					</select>
+				</div>
+				<div>
 					<label>Marcas: </label>
 					<select id="selectMarcaInventory" class="select__marca">
 						<option value="todasLasMarcas">Todas las marcas</option>
@@ -47,14 +55,6 @@
 					</select>
 					<img src="../imagenes/registrar.svg" id="openCategoriaRMW" hidden>
 					<img src="../imagenes/trash.svg" id="buttonDeleteCategoria" onclick="deleteCategoriaInv()" hidden>
-				</div>
-				<div>
-					<label>Almacen: </label>
-					<select id="selectAlmacenInventory" class="select__marca">
-						<option value="todo">Todos los alamcenes</option>
-						<option value="0">EL ALTO</option>
-						<option value="1">AV. ARCE</option>
-					</select>
 				</div>
 			</section>
 			<div class="combo__search">

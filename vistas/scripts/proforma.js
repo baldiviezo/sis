@@ -1242,41 +1242,57 @@ function readProf_prod() {
 }
 //--------Muestra la lista de los productos de la proforma
 function cartProduct_pfpd(product, action) {
-    console.log(product);
-    let producto;
+    let stock = undefined;
+    let imagen = undefined;
+    let codigo = undefined;
     let cost_uni = undefined;
     let cantidad_prod = undefined;
+    let id_prod = undefined;
     
-    const inventory = inventories.find(inv => inv['fk_id_prod_inv'] === product['fk_id_prod_pfpd']);
-    const cantidad_inv = inventory ? inventory['cantidad_inv'] : 0;
-    if (action == 'new') {
-        producto = products.find(prod => prod['id_prod'] == product['id_prod']);
-        const cost_uni2 = prices.find(price => price.modelo === product['codigo_prod']);
+    if (action == 'sendProduct') {
+        const inventory = inventories.find(inv => inv['fk_id_prod_inv'] === product['id_prod']);
+        stock = inventory ? inventory['cantidad_inv'] : 0;
+        imagen = product.imagen_prod;
+        codigo = product['codigo_prod'];
+        const cost_uni2 = prices.find(price => price.modelo.trim() === product['codigo_prod']);
+        cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio) * 1.1) : (inventory ? Math.round(inventory.cost_uni_inv * 1.1) : 0);
+        cantidad_prod = 1;
+        id_prod = product['id_prod'];
+    } else if (action == 'read') {
+        const inventory = inventories.find(inv => inv['fk_id_prod_inv'] === product['fk_id_prod_pfpd']);
+        stock = inventory ? inventory['cantidad_inv'] : 0;
+        const producto = products.find(prod => prod['id_prod'] == product['fk_id_prod_pfpd']);
+        imagen = producto.imagen_prod;
+        codigo = producto['codigo_prod'];
+        cost_uni = product['cost_uni_pfpd'];
+        cantidad_prod = product['cantidad_pfpd'];
+        id_prod = product['fk_id_prod_pfpd'];
+    } else if (action == 'sendInventory') {
+        stock = product['cantidad_inv'];
+        const producto = products.find(prod => prod['id_prod'] == product['fk_id_prod_inv']);
+        imagen = producto.imagen_prod;
+        codigo = producto['codigo_prod'];
+        const cost_uni2 = prices.find(price => price.modelo.trim() === producto['codigo_prod']);
         cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio) * 1.1) : (product ? Math.round(product.cost_uni_inv * 1.1) : 0);
         cantidad_prod = 1;
-    } else if (action == 'read') {
-        
-        producto = products.find(prod => prod['id_prod'] == product['fk_id_prod_pfpd']);
-        cost_uni = product['cost_uni_pfpd'];
-        cantidad_prod = product['cantidad_pfpd']
+        id_prod = product['fk_id_prod_inv'];
     }
     
-
     const item = document.createElement('div');
     item.classList.add('cart-item');
     item.setAttribute('draggable', 'true');
     const html = `
-        <p class="cart-item__cantInv">${cantidad_inv}</p>
+        <p class="cart-item__cantInv">${stock}</p>
         <div class="row-img">
-            <img src="../modelos/imagenes/${producto.imagen_prod}" class="rowimg">
+            <img src="../modelos/imagenes/${imagen}" class="rowimg">
         </div>  
-        <p class="cart-item__codigo">${producto['codigo_prod']}</p>
+        <p class="cart-item__codigo">${codigo}</p>
         <input type="number" value="${cantidad_prod}" min="1" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__cantidad">
         <input type="number" value="${cost_uni}" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__costUnit">
         <input type="number" value="${cantidad_prod * cost_uni}" class="cart-item__costTotal" readonly>
         <img src="../imagenes/trash.svg" onClick="remove_pfpd(this.parentNode)" class='icon__CRUD'>`;
     item.innerHTML = html;
-    item.setAttribute('id_prod', product['fk_id_prod_pfpd']);
+    item.setAttribute('id_prod', id_prod);
     modalProf_prod.appendChild(item);
     totalPrice_pfpd();
 
@@ -2455,7 +2471,7 @@ function sendInventory(id_inv) {
         const codigo = inventory.codigo_prod;
         const existe = Array.from(prof_prods).some(prod => prod.children[2].innerText === codigo);
         if (!existe) {
-            cartProduct_pfpd(inventory, 'new');
+            cartProduct_pfpd(inventory, 'sendInventory');
         } else {
             mostrarAlerta("El producto ya se encuentra en la lista");
         }
@@ -2629,7 +2645,7 @@ function sendProduct(id_prod) {
         const codigo = product['codigo_prod'];
         const existe = Array.from(prof_prods).some(prod => prod.children[2].innerText === codigo);
         if (!existe) {
-            cartProduct_pfpd(product, 'new');
+            cartProduct_pfpd(product, 'sendProduct');
         } else {
             mostrarAlerta("El producto ya se encuentra en la lista");
         }
@@ -2692,7 +2708,6 @@ async function createProduct() {
 function readProduct(id_prod) {
     cleanUpProductFormM();
     let product = filterProducts.find(product => product.id_prod == id_prod);
-
     for (let valor in product) {
         if (valor == 'imagen_prod') {
             document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("../modelos/imagenes/${product[valor]}"); background-size: cover;`);
@@ -2710,7 +2725,6 @@ function readProduct(id_prod) {
             document.getElementsByName(valor + 'M')[0].value = product[valor];
         }
     }
-
     productsMMW.classList.add('modal__show');
 }
 //-------Update un producto
@@ -3077,12 +3091,12 @@ function selectMarcaProductMW() {
     option.value = 'todasLasMarcas';
     option.innerText = 'Todas las marcas';
     selectMarcaProdMW.appendChild(option);
-    for (let clave in marcas) {
+    marcas.forEach(marca => {
         let option = document.createElement('option');
-        option.value = marcas[clave]['id_mrc'];
-        option.innerText = marcas[clave]['nombre_mrc'];
+        option.value = marca.id_mrc;
+        option.innerText = marca.nombre_mrc;
         selectMarcaProdMW.appendChild(option);
-    }
+    });
 }
 //------Select categorias
 function selectCategoriaProductMW() {
@@ -3093,21 +3107,21 @@ function selectCategoriaProductMW() {
     selectCategoriaProdMW.appendChild(option);
     if (selectMarcaProdMW.value != 'todasLasMarcas') {
         let id_mrc = selectMarcaProdMW.value;
-        for (let clave in categorias) {
-            if (categorias[clave]['id_mrc'] == id_mrc) {
+        categorias.forEach(categoria => {
+            if (categoria.fk_id_mrc_mccr == id_mrc) {
                 let option = document.createElement('option');
-                option.value = categorias[clave]['id_ctgr'];
-                option.innerText = categorias[clave]['nombre_ctgr'];
+                option.value = categoria.id_ctgr;
+                option.innerText = categoria.nombre_ctgr;
                 selectCategoriaProdMW.appendChild(option);
             }
-        }
+        });
     }
     searchProductsMW();
 }
 /***************************MARCA Y CATEGORIA PARA FORMULARIO DE REGSITRO DE PRODUCTOS***************************/
-const marca_prodR = document.getElementById('marca_prodR');
+const marca_prodR = document.getElementById('fk_id_mrc_prodR');
 marca_prodR.addEventListener('change', selectCategoriaProdR);
-const categoria_prodR = document.getElementById('categoria_prodR');
+const categoria_prodR = document.getElementById('fk_id_ctgr_prodR');
 //-------Select de marcas registrar
 function selectMarcaProdR() {
     marca_prodR.innerHTML = '';
@@ -3115,12 +3129,12 @@ function selectMarcaProdR() {
     option.value = 'todasLasMarcas';
     option.innerText = 'Todas las marcas';
     marca_prodR.appendChild(option);
-    for (let clave in marcas) {
+    marcas.forEach(marca => {
         let option = document.createElement('option');
-        option.value = marcas[clave]['id_mrc'];
-        option.innerText = marcas[clave]['nombre_mrc'];
+        option.value = marca.id_mrc;
+        option.innerText = marca.nombre_mrc;
         marca_prodR.appendChild(option);
-    }
+    });
     selectCategoriaProdR();
 }
 function selectCategoriaProdR() {
@@ -3131,19 +3145,19 @@ function selectCategoriaProdR() {
     categoria_prodR.appendChild(option);
     if (marca_prodR.value != 'todasLasMarcas') {
         let id_mrc = marca_prodR.value;
-        for (let clave in categorias) {
-            if (categorias[clave]['id_mrc'] == id_mrc) {
+        categorias.forEach(categoria => {
+            if (categoria.fk_id_mrc_mccr == id_mrc) {
                 let option = document.createElement('option');
-                option.value = categorias[clave]['id_ctgr'];
-                option.innerText = categorias[clave]['nombre_ctgr'];
+                option.value = categoria.id_ctgr;
+                option.innerText = categoria.nombre_ctgr;
                 categoria_prodR.appendChild(option);
             }
-        }
+        });
     }
 }
-const marca_prodM = document.getElementById('marca_prodM');
+const marca_prodM = document.getElementById('fk_id_mrc_prodM');
 marca_prodM.addEventListener('change', selectCategoriaProdM);
-const categoria_prodM = document.getElementById('categoria_prodM');
+const categoria_prodM = document.getElementById('fk_id_ctgr_prodM');
 //-------Select de marcas registrar
 function selectMarcaProdM() {
     marca_prodM.innerHTML = '';
