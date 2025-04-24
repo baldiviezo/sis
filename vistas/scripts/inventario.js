@@ -49,7 +49,7 @@ async function init() {
         } catch (error) {
             console.log(error)
             mostrarAlerta('Ocurrio un error al cargar la tabla de inventarios. Cargue nuevamente la pagina.');
-        } 
+        }
     }
 }
 //---------------------------------------------TABLA INVENTORY--------------------------------------------
@@ -95,7 +95,7 @@ function searchInventories() {
     const busqueda = inputSearchInv.value.toLowerCase().trim();
     filterInventories = inventories.filter(inventory => {
         let product = products.find(product => product.id_prod === inventory.fk_id_prod_inv);
-        
+
         if (valor === 'todas') {
             return (
                 inventory.cost_uni_inv.toString().toLowerCase().includes(busqueda) ||
@@ -108,7 +108,7 @@ function searchInventories() {
         } else if (valor in product) {
             return product[valor].toString().toLowerCase().includes(busqueda);
         }
-        
+
     });
     selectInventories();
 }
@@ -146,7 +146,7 @@ function paginacionInventory(allInventories, page) {
         stock += Number(filterInventories[inventory].cantidad_inv) * Number(filterInventories[inventory].cost_uni_inv) * .65;
     }
     totalStock.innerText = `Precio de lista: ${stock.toFixed(2)} Bs`;
-    totalCompra.innerText = `Precio de compra: ${(stock*.65).toFixed(2)} Bs`;
+    totalCompra.innerText = `Precio de compra: ${(stock * .65).toFixed(2)} Bs`;
     let numberInventories = Number(selectNumberInv.value);
     let allPages = Math.ceil(allInventories / numberInventories);
     let ul = document.querySelector('#wrapperInventory ul');
@@ -194,7 +194,7 @@ function tableInventories(page) {
         'fk_id_ctgr_prod',
         'nombre_prod',
         'descripcion_prod',
-        'imagen_prod',  
+        'imagen_prod',
         'cantidad_inv',
         'cost_uni_inv',
         'descripcion_inv'
@@ -203,9 +203,9 @@ function tableInventories(page) {
     for (let inventory of filterInventories.slice(inicio, final)) {
 
         let product = products.find(product => product.id_prod === inventory.fk_id_prod_inv);
-        
+
         let tr = document.createElement('tr');
-        tr.setAttribute('id_inv', inventory.id_inv); 
+        tr.setAttribute('id_inv', inventory.id_inv);
 
         let tdIndex = document.createElement('td');
         tdIndex.innerText = inicio + i++;
@@ -299,7 +299,7 @@ function readInventory(tr) {
                 } else {
                     document.getElementsByName(valor + 'M')[0].value = filterInventories[inventory][valor];
                 }
-            } 
+            }
             break;
         }
     }
@@ -367,7 +367,7 @@ async function deleteInventory(tr) {
 const inventoryRMW = document.getElementById('inventoryRMW');
 const inventoryMMW = document.getElementById('inventoryMMW');
 const openInventoryRMW = document.getElementById('openInventoryRMW');
-const openInventoryMMW = document.getElementById('openInventoryMMW');const closeInventoryRMW = document.getElementById('closeInventoryRMW');
+const openInventoryMMW = document.getElementById('openInventoryMMW'); const closeInventoryRMW = document.getElementById('closeInventoryRMW');
 const closeInventoryMMW = document.getElementById('closeInventoryMMW');
 openInventoryRMW.addEventListener('click', () => {
     inventoryRMW.classList.add('modal__show');
@@ -388,7 +388,6 @@ selectCategoriaProdMW.addEventListener('change', searchProductsMW);
 //<<-----------------------------------LLENAR LA LISTA DE PRODUCTOS-------------------------------------->>
 let products = [];
 let filterProducts = [];
-let indexProduct = 0;
 let formProduct;
 async function readProductsMW() {
     return new Promise((resolve, reject) => {
@@ -399,7 +398,7 @@ async function readProductsMW() {
             body: formData
         }).then(response => response.json()).then(data => {
             products = data;
-            filterProducts = products; 
+            filterProducts = products;
             resolve();
         }).catch(err => mostrarAlerta('Ocurrio un error al cargar los productos, cargue nuevamente la pagina.'));
     })
@@ -414,25 +413,38 @@ async function createProduct() {
     } else if (categoria_prodR.value == "todasLasCategorias") {
         mostrarAlerta("Debe seleccionar una categoria");
     } else {
-        productsRMW.classList.remove('modal__show');
-        let form = document.getElementById("formProductsR");
-        let formData = new FormData(form);
-        formData.append('createProduct', '');
-        fetch('../controladores/productos.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            if (data == "El codigo ya existe") {
-                mostrarAlerta(data);
-            } else {
-                readProductsMW().then(() => {
-                    paginacionProductMW(products.length, 1);
-                    indexProduct = data;
-                    form.reset();
-                    mostrarAlerta("El producto fue creado con éxito");
-                })
-            }
-        }).catch(err => console.log(err));
+        if (requestInventory == false) {
+            requestInventory = true;
+            preloader.classList.add('modal__show');
+            productsRMW.classList.remove('modal__show');
+            let form = document.getElementById("formProductsR");
+            let formData = new FormData(form);
+            formData.append('createProduct', '');
+            fetch('../controladores/productos.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                requestInventory = false;
+                if (data == "El codigo ya existe") {
+                    mostrarAlerta(data);
+                    preloader.classList.remove('modal__show');
+                } else if (data == "El codigo SMC ya existe") {
+                    mostrarAlerta(data);
+                    preloader.classList.remove('modal__show');
+                } else {
+                    readProductsMW().then(() => {
+                        form.reset();
+                        paginacionProductMW(products.length, 1);
+                        mostrarAlerta("El producto fue creado con éxito");
+                        divCodigoSMCR.setAttribute('hidden', '');
+                        preloader.classList.remove('modal__show');
+                    })
+                }
+            }).catch(err => {
+                requestInventory = false;
+                mostrarAlerta(err);
+            });
+        }
     }
 }
 //------Leer un producto
@@ -479,11 +491,10 @@ async function updateProduct() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            readProductsMW().then(() => {
+            readProductsMWMW().then(() => {
                 paginacionInventory(filterInventories.length, 1);
                 paginacionProductMW(products.length, 1);
                 mostrarAlerta(data);
-                indexProduct = document.getElementsByName('fk_id_prod_inv' + formProduct)[0].value;
             })
         }).catch(err => console.log(err));
     }
@@ -491,18 +502,23 @@ async function updateProduct() {
 //------Delete un producto
 async function deleteProduct(div) {
     if (confirm(`¿Esta usted seguro? Se eliminará el producto "${div.children[0].options[div.children[0].selectedIndex].text}"`)) {
-        let id_prod = div.children[0].value;
-        const formData = new FormData()
-        formData.append('deleteProduct', id_prod);
-        fetch('../controladores/productos.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            Promise.all([readProductsMW(), readInventories()]).then(() => {
-                mostrarAlerta(data);
-                indexProduct = 0;
-            });
-        }).catch(error => console.log("Ocurrio un error. Intente nuevamente mas tarde"));
+        if (requestInventory == false) {
+            requestInventory = true;
+            let id_prod = div.children[0].value;
+            let formData = new FormData();
+            formData.append('deleteProduct', id_prod);
+            preloader.classList.add('modal__show');
+            fetch('../controladores/productos.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                readProductsMW().then(() => {
+                    paginacionProductMW(products.length, 1);
+                    preloader.classList.remove('modal__show');
+                    mostrarAlerta(data);
+                })
+            }).catch(err => console.log(err));
+        }
     }
 }
 //---------------------------------VENTANA MODAL PARA REGISTRAR PRODUCTOS------------------------------>>

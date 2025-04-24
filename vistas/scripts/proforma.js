@@ -2291,16 +2291,16 @@ inputSearchInvMW.addEventListener("keyup", searchInventoriesMW);
 const selectNumberInvMW = document.getElementById('selectNumberInvMW');
 selectNumberInvMW.selectedIndex = 3;
 selectNumberInvMW.addEventListener('change', function () {
-    paginacionInventoryMW(Object.values(filterInventoriesMW).length, 1);
+    paginacionInventoryMW(filterInventoriesMW.length, 1);
 });
 //-------Marca y categoria
 const selectMarcaInvMW = document.getElementById('selectMarcaInvMW');
 const selectCategoriaInvMW = document.getElementById('selectCategoriaInvMW');
 selectMarcaInvMW.addEventListener('change', selectCategoriaInventoryMW);
-const MWMW = document.getElementById('MWMW');
 selectCategoriaInvMW.addEventListener('change', searchInventoriesMW);
 //------buscar por:
 function searchInventoriesMW() {
+    console.log('entro')
     const valor = selectSearchInvMW.value;
     const busqueda = inputSearchInvMW.value.toLowerCase().trim();
     filterInventoriesMW = inventories.filter(inventory => {
@@ -2322,20 +2322,12 @@ function searchInventoriesMW() {
 }
 //------buscar por marca y categoria:
 function selectInventoriesMW() {
-    if (selectMarcaInvMW.value == 'todasLasMarcas' && selectCategoriaInvMW.value == 'todasLasCategorias') {
-        paginacionInventoryMW(filterInventoriesMW.length, 1);
-    } else {
-        filterInventoriesMW = filterInventoriesMW.filter(product => {
-            if (selectMarcaInvMW.value == 'todasLasMarcas') {
-                return product['id_ctgr'] == selectCategoriaInvMW.value;
-            } else if (selectCategoriaInvMW.value == 'todasLasCategorias') {
-                return product['id_mrc'] == selectMarcaInvMW.value;
-            } else {
-                return product['id_ctgr'] == selectCategoriaInvMW.value && product['id_mrc'] == selectMarcaInvMW.value;
-            }
-        });
-        paginacionInventoryMW(filterInventoriesMW.length, 1);
-    }
+    filterInventoriesMW = filterInventoriesMW.filter(inventory => {
+        let product = products.find(product => product.id_prod === inventory.fk_id_prod_inv);
+        const marca = selectMarcaInvMW.value === 'todas' ? true : product.fk_id_mrc_prod === selectMarcaInvMW.value;
+        const categoria = selectCategoriaInvMW.value === 'todas' ? true : product.fk_id_ctgr_prod === selectCategoriaInvMW.value;
+        return marca && categoria;
+    })
 }
 //------Ordenar tabla descendente ascendente
 let orderInventoriesMW = document.querySelectorAll('.tbody__head--invMW');
@@ -2677,6 +2669,7 @@ async function createProduct() {
             let formData = new FormData(form);
             formData.append('createProduct', '');
             preloader.classList.add('modal__show');
+            productsRMW.classList.remove('modal__show');
             fetch('../controladores/productos.php', {
                 method: "POST",
                 body: formData
@@ -2690,10 +2683,11 @@ async function createProduct() {
                     preloader.classList.remove('modal__show');
                 } else {
                     readProducts().then(() => {
-                        mostrarAlerta("El producto fue creado con éxito");
-                        productsRMW.classList.remove('modal__show');
-                        divCodigoSMCR.setAttribute('hidden', '');
                         form.reset();
+                        paginacionProduct(products.length, 1);
+                        paginacionProductMW(products.length, 1);
+                        mostrarAlerta("El producto fue creado con éxito");
+                        divCodigoSMCR.setAttribute('hidden', '');
                         preloader.classList.remove('modal__show');
                     })
                 }
@@ -3056,12 +3050,12 @@ function selectMarcaInventoryMW() {
     option.value = 'todasLasMarcas';
     option.innerText = 'Todas las marcas';
     selectMarcaInvMW.appendChild(option);
-    for (let clave in marcas) {
+    marcas.forEach(marca => {
         let option = document.createElement('option');
-        option.value = marcas[clave]['id_mrc'];
-        option.innerText = marcas[clave]['nombre_mrc'];
+        option.value = marca.id_mrc;
+        option.innerText = marca.nombre_mrc;
         selectMarcaInvMW.appendChild(option);
-    }
+    })
 }
 //------Select categorias
 function selectCategoriaInventoryMW() {
@@ -3072,14 +3066,14 @@ function selectCategoriaInventoryMW() {
     selectCategoriaInvMW.appendChild(option);
     if (selectMarcaInvMW.value != 'todasLasMarcas') {
         let id_mrc = selectMarcaInvMW.value;
-        for (let clave in categorias) {
-            if (categorias[clave]['id_mrc'] == id_mrc) {
+        categorias.forEach(categoria => {
+            if (categoria.fk_id_mrc_mccr == id_mrc) {
                 let option = document.createElement('option');
-                option.value = categorias[clave]['id_ctgr'];
-                option.innerText = categorias[clave]['nombre_ctgr'];
+                option.value = categoria.id_ctgr;
+                option.innerText = categoria.nombre_ctgr;
                 selectCategoriaInvMW.appendChild(option);
             }
-        }
+        })
     }
     searchInventoriesMW();
 }
