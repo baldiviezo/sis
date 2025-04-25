@@ -2300,7 +2300,6 @@ selectMarcaInvMW.addEventListener('change', selectCategoriaInventoryMW);
 selectCategoriaInvMW.addEventListener('change', searchInventoriesMW);
 //------buscar por:
 function searchInventoriesMW() {
-    console.log('entro')
     const valor = selectSearchInvMW.value;
     const busqueda = inputSearchInvMW.value.toLowerCase().trim();
     filterInventoriesMW = inventories.filter(inventory => {
@@ -2324,22 +2323,35 @@ function searchInventoriesMW() {
 function selectInventoriesMW() {
     filterInventoriesMW = filterInventoriesMW.filter(inventory => {
         let product = products.find(product => product.id_prod === inventory.fk_id_prod_inv);
-        const marca = selectMarcaInvMW.value === 'todas' ? true : product.fk_id_mrc_prod === selectMarcaInvMW.value;
-        const categoria = selectCategoriaInvMW.value === 'todas' ? true : product.fk_id_ctgr_prod === selectCategoriaInvMW.value;
+        const marca = selectMarcaInvMW.value === 'todasLasMarcas' ? true : product.fk_id_mrc_prod == selectMarcaInvMW.value;
+        const categoria = selectCategoriaInvMW.value === 'todasLasCategorias' ? true : product.fk_id_ctgr_prod == selectCategoriaInvMW.value;
         return marca && categoria;
     })
+    paginacionInventoryMW(filterInventoriesMW.length, 1);
 }
 //------Ordenar tabla descendente ascendente
-let orderInventoriesMW = document.querySelectorAll('.tbody__head--invMW');
+const orderInventoriesMW = document.querySelectorAll('.tbody__head--invMW');
 orderInventoriesMW.forEach(div => {
     div.children[0].addEventListener('click', function () {
         const valor = div.children[0].name;
-        filterInventoriesMW.sort((a, b) => a[valor].localeCompare(b[valor]));
+        filterInventoriesMW.sort((a, b) => {
+            const productoA = products.find(p => p.id_prod === a.fk_id_prod_inv);
+            const productoB = products.find(p => p.id_prod === b.fk_id_prod_inv);
+            const valorA = String(productoA[valor]);
+            const valorB = String(productoB[valor]);
+            return valorA.localeCompare(valorB);
+        });
         paginacionInventoryMW(filterInventoriesMW.length, 1);
     });
     div.children[1].addEventListener('click', function () {
         const valor = div.children[0].name;
-        filterInventoriesMW.sort((a, b) => b[valor].localeCompare(a[valor]));
+        filterInventoriesMW.sort((a, b) => {
+            const productoA = products.find(p => p.id_prod === a.fk_id_prod_inv);
+            const productoB = products.find(p => p.id_prod === b.fk_id_prod_inv);
+            const valorA = String(productoA[valor]);
+            const valorB = String(productoB[valor]);
+            return valorB.localeCompare(valorA);
+        });
         paginacionInventoryMW(filterInventoriesMW.length, 1);
     });
 })
@@ -2526,25 +2538,21 @@ function selectProductsMW() {
 const orderProducts = document.querySelectorAll('.tbody__head--ProdMW');
 orderProducts.forEach(div => {
     div.children[0].addEventListener('click', function () {
-        let array = Object.entries(filterProducts).sort((a, b) => {
-            let first = a[1][div.children[0].name].toString().toLowerCase();
-            let second = b[1][div.children[0].name].toString().toLowerCase();
-            if (first < second) { return -1 }
-            if (first > second) { return 1 }
-            return 0;
-        })
-        filterProducts = Object.fromEntries(array);
+        const valor = div.children[0].name;
+        filterProducts.sort((a, b) => {
+            const valorA = String(a[valor]);
+            const valorB = String(b[valor]);
+            return valorA.localeCompare(valorB);
+        });
         paginacionProductMW(filterProducts.length, 1);
     });
     div.children[1].addEventListener('click', function () {
-        let array = Object.entries(filterProducts).sort((a, b) => {
-            let first = a[1][div.children[0].name].toString().toLowerCase();
-            let second = b[1][div.children[0].name].toString().toLowerCase();
-            if (first > second) { return -1 }
-            if (first < second) { return 1 }
-            return 0;
-        })
-        filterProducts = Object.fromEntries(array);
+        const valor = div.children[0].name;
+        filterProducts.sort((a, b) => {
+            const valorA = String(a[valor]);
+            const valorB = String(b[valor]);
+            return valorB.localeCompare(valorA);
+        });
         paginacionProductMW(filterProducts.length, 1);
     });
 })

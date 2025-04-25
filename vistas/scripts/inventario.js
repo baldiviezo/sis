@@ -123,17 +123,30 @@ function selectInventories() {
     });
     paginacionInventory(filterInventories.length, 1);
 }
+
 //------Ordenar tabla descendente ascendente
-let orderInventories = document.querySelectorAll('.tbody__head--inventory');
+const orderInventories = document.querySelectorAll('.tbody__head--inventory');
 orderInventories.forEach(div => {
     div.children[0].addEventListener('click', function () {
         const valor = div.children[0].name;
-        filterInventories.sort((a, b) => a[valor].localeCompare(b[valor]));
+        filterInventories.sort((a, b) => {
+            const productoA = products.find(p => p.id_prod === a.fk_id_prod_inv);
+            const productoB = products.find(p => p.id_prod === b.fk_id_prod_inv);
+            const valorA = String(productoA[valor]);
+            const valorB = String(productoB[valor]);
+            return valorA.localeCompare(valorB);
+        });
         paginacionInventory(filterInventories.length, 1);
     });
     div.children[1].addEventListener('click', function () {
         const valor = div.children[0].name;
-        filterInventories.sort((a, b) => b[valor].localeCompare(a[valor]));
+        filterInventories.sort((a, b) => {
+            const productoA = products.find(p => p.id_prod === a.fk_id_prod_inv);
+            const productoB = products.find(p => p.id_prod === b.fk_id_prod_inv);
+            const valorA = String(productoA[valor]);
+            const valorB = String(productoB[valor]);
+            return valorB.localeCompare(valorA);
+        });
         paginacionInventory(filterInventories.length, 1);
     });
 })
