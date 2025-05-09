@@ -16,6 +16,7 @@ class consultas {
 		$this->cantidad = trim($conexion->real_escape_string($_POST['cantidad_invM']));
 		$this->cu = isset($_POST['cost_uni_invM'])?round(trim($conexion->real_escape_string($_POST['cost_uni_invM'])), 2):0;
 		$this->descripcion = trim($conexion->real_escape_string($_POST['descripcion_invM']));
+		$this->ubi_almacen = trim($conexion->real_escape_string($_POST['ubi_almacenM']));
 	}
 	//-------Leer inventarios
 	public function readInventories() {
@@ -65,26 +66,33 @@ class consultas {
 	//------Actualizar un inventario
 	public function updateInventory(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM inventario WHERE fk_id_prod_inv='$this->fk_id_prod'";
+		$inventario = '';
+		if ($this->ubi_almacen == "El Alto"){
+			$inventario = "inventario";
+		}else if ($this->ubi_almacen == "La Paz"){
+			$inventario = "inventario_arce";
+		}
+		$consulta = "SELECT * FROM $inventario WHERE fk_id_prod_inv='$this->fk_id_prod'";
 		$resultado = $conexion->query($consulta);
 		$numeroFilas = $resultado->num_rows;
 		if($numeroFilas > 0){
-			$inventario = $resultado->fetch_assoc();
-			$id_inv = $inventario['id_inv'];
+			$inventarioData = $resultado->fetch_assoc();
+			$id_inv = $inventarioData['id_inv'];
 			if($id_inv == $this->id_inv){
-				$this->update();
+				$this->update($inventario);
 			}else{
 				echo ("El producto ya esta en el inventario");
 			}
 		}else{
-			$this->update();
+			$this->update($inventario);
 		}
 	}
-	public function update(){
+
+	public function update($inventario){
 		include 'conexion.php';
-		$consulta = "UPDATE inventario INNER JOIN producto ON inventario.fk_id_prod_inv = id_prod set   cost_uni_inv='$this->cu', descripcion_inv='$this->descripcion' WHERE id_inv='$this->id_inv'";
+		$consulta = "UPDATE $inventario INNER JOIN producto ON $inventario.fk_id_prod_inv = id_prod set   cost_uni_inv='$this->cu', descripcion_inv='$this->descripcion' WHERE id_inv='$this->id_inv'";
 		$resultado = $conexion->query($consulta);
-		echo ("Inventario actualizado exitosamente");
+		echo ("Inventario " . $this->ubi_almacen . " actualizado exitosamente");
 	}
 	//------Borrar un inventario
 	public function deleteInventory($id){

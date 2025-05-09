@@ -5,7 +5,6 @@ if(localStorage.getItem('rol_usua')=='Gerente general' || localStorage.getItem('
 					<ul class="nav__list">
 						<li><a href="inicio.html" class="nav__link">Inicio</a></li>
 						<li><a href="usuarios.html" class="nav__link">Usuarios</a></li>
-						<li><a href="clientes.html" class="nav__link">Clientes</a></li>
 						<li><a href="productos.html" class="nav__link">Productos</a></li>
 						<li><a href="inventario.html" class="nav__link">Inventario</a></li>
 						<li><a href="proforma.html" class="nav__link">Proforma</a></li>
@@ -26,7 +25,6 @@ if(localStorage.getItem('rol_usua')=='Ingeniero' || localStorage.getItem('rol_us
 							<ul class="nav__list">
 								<li><a href="inicio.html" class="nav__link">Inicio</a></li>
 								<li><a href="usuarios.html" class="nav__link">Usuario</a></li>
-								<li><a href="clientes.html" class="nav__link">Clientes</a></li>
 								<li><a href="productos.html" class="nav__link">Productos</a></li>
 								<li><a href="inventario.html" class="nav__link">Inventario</a></li>
 								<li><a href="proforma.html" class="nav__link">Proforma</a></li>

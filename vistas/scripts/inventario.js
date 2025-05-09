@@ -255,10 +255,14 @@ function tableInventories(page) {
         }
 
         let td = document.createElement('td');
-        if (['Gerente general', 'Administrador', 'Gerente De Inventario'].includes(localStorage.getItem('rol_usua'))) {
-            td.innerHTML = `<img src='../imagenes/edit.svg' onclick='readInventory(this.parentNode.parentNode)' title='Editar en Inventario'>`;
-            tr.appendChild(td);
-        }
+        const isAdmin = ['Gerente general', 'Administrador', 'Gerente De Inventario'].includes(localStorage.getItem('rol_usua'));
+        const hasCatalog = product['catalogo_prod'] !== '';
+        const isInventory = true; // Asumo que siempre es inventario
+
+        td.innerHTML = `
+            ${isAdmin ? '<img src="../imagenes/edit.svg" onclick="readInventory(this.parentNode.parentNode)" title="Editar en Inventario">' : ''}
+            ${hasCatalog ? `<a href="${product['catalogo_prod']}" target="_blank"><img src="../imagenes/pdf.svg" title="Catálogo"></a>` : ''}`;
+        tr.appendChild(td);
         fragment.appendChild(tr);
     }
     tbody.innerHTML = '';
@@ -286,6 +290,7 @@ async function createInventory() {
             body: formData
         }).then(response => response.text()).then(data => {
             readInventories().then(() => {
+                selectAlmacenInventory.selectedIndex = 0;
                 paginacionInventory(filterInventories.length, 1);
                 preloader.classList.remove('modal__show');
                 requestInventory = false;
@@ -334,6 +339,7 @@ async function updateInventory() {
             body: formData
         }).then(response => response.text()).then(data => {
             readInventories().then(() => {
+                selectAlmacenInventory.selectedIndex = 0;
                 paginacionInventory(filterInventories.length, 1);
                 requestInventory = false;
                 preloader.classList.remove('modal__show');
