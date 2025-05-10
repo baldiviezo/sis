@@ -57,7 +57,7 @@ class consultas {
 		if($numeroFilas > 0){
 			echo ("El producto ya se encuentra en el inventario");	
 		}else{
-			$consulta = "INSERT INTO $inventario (fk_id_prod_inv, cost_uni_inv, descripcion_inv) VALUES ('$this->fk_id_prod', '$this->cu', '$this->descripcion')";
+			$consulta = "INSERT INTO $inventario (fk_id_prod_inv, cantidad_inv, cost_uni_inv, descripcion_inv) VALUES ('$this->fk_id_prod', '$this->cantidad', '$this->cu', '$this->descripcion')";
 			//Si la sentencia se ejecuto exitosamente $resultado devuelve true, si no se ejecuto devuelve false
 			$resultado = $conexion->query($consulta);
 			echo ("El producto se añadió al inventario exitosamente");
