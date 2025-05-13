@@ -101,7 +101,8 @@ function searchInventories() {
                 inventory.cost_uni_inv.toString().toLowerCase().includes(busqueda) ||
                 product.codigo_prod.toString().toLowerCase().includes(busqueda) ||
                 product.nombre_prod.toLowerCase().includes(busqueda) ||
-                product.descripcion_prod.toLowerCase().includes(busqueda)
+                product.descripcion_prod.toLowerCase().includes(busqueda) ||
+                inventory.descripcion_inv.toLowerCase().includes(busqueda)
             );
         } else if (valor in inventory) {
             return inventory[valor].toString().toLowerCase().includes(busqueda);
@@ -510,7 +511,7 @@ async function updateProduct() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            readProductsMWMW().then(() => {
+            readProductsMW().then(() => {
                 paginacionInventory(filterInventories.length, 1);
                 paginacionProductMW(products.length, 1);
                 mostrarAlerta(data);

@@ -387,19 +387,26 @@ selectStateProf.addEventListener('change', searchProforma);
 function searchProforma() {
     const valor = selectSearchProf.value;
     const busqueda = inputSearchProf.value.toLowerCase().trim();
+
     filterProformas = proformas.filter(proforma => {
+        let cliente  = customers.find(customer => customer.id_clte === proforma.fk_id_clte_prof);
+        let empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
+        let usuario = users.find(user => user.id_usua === proforma.fk_id_usua_prof);
+
         if (valor === 'todas') {
             return (
                 proforma.numero_prof.toLowerCase().includes(busqueda) ||
                 proforma.fecha_prof.toLowerCase().includes(busqueda) ||
-                proforma.nombre_emp.toLowerCase().includes(busqueda) ||
-                (proforma.nombre_usua + ' ' + proforma.apellido_usua).toLowerCase().includes(busqueda) ||
-                (proforma.apellido_clte + ' ' + proforma.nombre_clte).toLowerCase().includes(busqueda)
+                empresa.nombre_emp.toLowerCase().includes(busqueda) ||
+                (usuario.nombre_usua + ' ' + usuario.apellido_usua).toLowerCase().includes(busqueda) ||
+                (cliente.apellido_clte + ' ' + cliente.nombre_clte).toLowerCase().includes(busqueda)
             );
         } else if (valor === 'encargado') {
-            return (proforma.nombre_usua + ' ' + proforma.apellido_usua).toLowerCase().includes(busqueda);
+            return (usuario.nombre_usua + ' ' + usuario.apellido_usua).toLowerCase().includes(busqueda);
         } else if (valor === 'cliente') {
-            return (proforma.apellido_clte + ' ' + proforma.nombre_clte).toLowerCase().includes(busqueda);
+            return (cliente.apellido_clte + ' ' + cliente.nombre_clte).toLowerCase().includes(busqueda);
+        } else if (valor === 'nombre_emp') { 
+            return empresa.nombre_emp.toLowerCase().includes(busqueda); 
         } else {
             return proforma[valor].toLowerCase().includes(busqueda);
         }
@@ -2733,9 +2740,9 @@ function readProduct(id_prod) {
 document.getElementById("formProductsM").addEventListener("submit", updateProduct);
 async function updateProduct() {
     event.preventDefault();
-    if (marca_prodM.value == "todasLasMarcas") {
+    if (fk_id_mrc_prodM.value == "todasLasMarcas") {
         mostrarAlerta("Debe seleccionar una marca");
-    } else if (categoria_prodM.value == "todasLasCategorias") {
+    } else if (fk_id_ctgr_prodM.value == "todasLasCategorias") {
         mostrarAlerta("Debe seleccionar una categoria");
     } else {
         if (requestProf == false) {
@@ -2748,17 +2755,19 @@ async function updateProduct() {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                preloader.classList.remove('modal__show');
                 requestProf = false;
                 if (data == "El codigo ya existe") {
                     mostrarAlerta(data);
+                    preloader.classList.remove('modal__show');
                 } else if (data == 'El codigo SMC ya existe') {
                     mostrarAlerta(data);
+                    preloader.classList.remove('modal__show');
                 } else {
                     readProducts().then(() => {
                         productsMMW.classList.remove('modal__show');
                         modalCard.classList.remove('modal__show');
                         mostrarAlerta(data);
+                        preloader.classList.remove('modal__show');
                     })
                 }
             }).catch(err => {
@@ -3093,12 +3102,12 @@ function selectMarcaProductMW() {
     option.value = 'todasLasMarcas';
     option.innerText = 'Todas las marcas';
     selectMarcaProdMW.appendChild(option);
-    marcas.forEach(marca => {
+    for (let clave in marcas) {
         let option = document.createElement('option');
-        option.value = marca.id_mrc;
-        option.innerText = marca.nombre_mrc;
+        option.value = marcas[clave]['id_mrc'];
+        option.innerText = marcas[clave]['nombre_mrc'];
         selectMarcaProdMW.appendChild(option);
-    });
+    }
 }
 //------Select categorias
 function selectCategoriaProductMW() {
@@ -3157,41 +3166,42 @@ function selectCategoriaProdR() {
         });
     }
 }
-const marca_prodM = document.getElementById('fk_id_mrc_prodM');
-marca_prodM.addEventListener('change', selectCategoriaProdM);
-const categoria_prodM = document.getElementById('fk_id_ctgr_prodM');
+const fk_id_mrc_prodM = document.getElementById('fk_id_mrc_prodM');
+fk_id_mrc_prodM.addEventListener('change', selectCategoriaProdM);
+const fk_id_ctgr_prodM = document.getElementById('fk_id_ctgr_prodM');
 //-------Select de marcas registrar
 function selectMarcaProdM() {
-    marca_prodM.innerHTML = '';
+    fk_id_mrc_prodM.innerHTML = '';
     let option = document.createElement('option');
     option.value = 'todasLasMarcas';
     option.innerText = 'Todas las marcas';
-    marca_prodM.appendChild(option);
+    fk_id_mrc_prodM.appendChild(option);
     for (let clave in marcas) {
         let option = document.createElement('option');
         option.value = marcas[clave]['id_mrc'];
         option.innerText = marcas[clave]['nombre_mrc'];
-        marca_prodM.appendChild(option);
+        fk_id_mrc_prodM.appendChild(option);
     }
     selectCategoriaProdM();
 }
 function selectCategoriaProdM() {
-    categoria_prodM.innerHTML = '';
+    fk_id_ctgr_prodM.innerHTML = '';
     let option = document.createElement('option');
     option.value = 'todasLasCategorias';
     option.innerText = 'Todas las categorias';
-    categoria_prodM.appendChild(option);
-    if (marca_prodM.value != 'todasLasMarcas') {
-        let id_mrc = marca_prodM.value;
-        for (let clave in categorias) {
-            if (categorias[clave]['id_mrc'] == id_mrc) {
+    fk_id_ctgr_prodM.appendChild(option);
+    if (fk_id_mrc_prodM.value != 'todasLasMarcas') {
+        let id_mrc = fk_id_mrc_prodM.value;
+        categorias.forEach(categoria => {
+            if (categoria.fk_id_mrc_mccr == id_mrc) {
                 let option = document.createElement('option');
-                option.value = categorias[clave]['id_ctgr'];
-                option.innerText = categorias[clave]['nombre_ctgr'];
-                categoria_prodM.appendChild(option);
+                option.value = categoria.id_ctgr;
+                option.innerText = categoria.nombre_ctgr;
+                fk_id_ctgr_prodM.appendChild(option);
             }
-        }
+        });
     }
+    searchProducts();
 }
 //------Alert
 const modalAlerta = document.getElementById('alerta');
@@ -3213,8 +3223,8 @@ marca_prodR.addEventListener('change', () => {
         divCodigoSMCR.setAttribute('hidden', '');
     }
 });
-marca_prodM.addEventListener('change', () => {
-    if (marca_prodM.value == '15') {
+fk_id_mrc_prodM.addEventListener('change', () => {
+    if (fk_id_mrc_prodM.value == '15') {
         divCodigoSMCM.removeAttribute('hidden');
     } else {
         divCodigoSMCM.setAttribute('hidden', '');
