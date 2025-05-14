@@ -9,8 +9,6 @@ if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getIte
     buttondDeleteMarca.removeAttribute('hidden');
     openCategoriaRMW.removeAttribute('hidden');
     buttonDeleteCategoria.removeAttribute('hidden');
-    //tabla inventario
-    document.querySelector('main section.table__body tr').children[11].removeAttribute('hidden');
     //inventoryMMW
     document.getElementsByName('cantidad_invM')[0].setAttribute('readonly', 'readonly');
     //inventoryRMW
@@ -22,8 +20,6 @@ if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getIte
     //Marca y Categoria
     document.querySelector('.select__search').children[0].children[2].removeAttribute('hidden');
     document.querySelector('.select__search').children[1].children[2].removeAttribute('hidden');
-    //tabla inventario
-    document.querySelector('main section.table__body tr').children[10].removeAttribute('hidden');
     //inventoryMMW
     document.getElementsByName('cantidad_invM')[0].setAttribute('readonly', 'readonly');
 }

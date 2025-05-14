@@ -110,7 +110,7 @@ function searchProducts() {
                 product.descripcion_prod.toLowerCase().includes(busqueda)
             );
         } else {
-            return product[valor].toLowerCase().includes(busqueda);
+            return product[valor].toString().toLowerCase().includes(busqueda);
         }
     });
     selectProducts();
@@ -524,7 +524,7 @@ function tableProformas(page) {
 
     const totalProfMW = document.getElementById('totalProfMW');
     const total = filterProformas.reduce((acc, current) => acc + current.total_prof, 0);
-    totalProfMW.innerText = `Total: ${total.toFixed(2)} Bs`;
+    totalProfMW.innerText = `Total (Bs):  ${total.toFixed(2)} Bs`;
 
     const tbody = document.getElementById('tbodyProforma');
     const inicio = (page - 1) * Number(selectNumberProf.value);
@@ -532,6 +532,7 @@ function tableProformas(page) {
     const proformas = filterProformas.slice(inicio, final);
     tbody.innerHTML = '';
     proformas.forEach((proforma, index) => {
+
         const cliente = customers.find(customer => customer.id_clte === proforma.fk_id_clte_prof);
         const usuario = users.find(user => user.id_usua === proforma.fk_id_usua_prof);
         const empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
@@ -1134,9 +1135,10 @@ function paginacionPfPd(allProducts, page) {
     let totalPfPd = document.getElementById('totalPfPd');
     let total = 0;
     for (let prof_prods in filterProf_prods) {
-        total += filterProf_prods[prof_prods]['cantidad_pfpd'] * filterProf_prods[prof_prods]['cost_uni_pfpd'] * (100 - filterProf_prods[prof_prods]['descuento_prof']) / 100;
+        const proforma = filterProformas.find(proforma => proforma.id_prof == filterProf_prods[prof_prods].fk_id_prof_pfpd);
+        total += filterProf_prods[prof_prods]['cantidad_pfpd'] * filterProf_prods[prof_prods]['cost_uni_pfpd'] * (100 - proforma.descuento_prof) / 100;
     }
-    totalPfPd.innerHTML = total.toFixed(2) + ' Bs';
+    totalPfPd.innerHTML ='Total (Bs):' + total.toFixed(2) + ' Bs';
     let numberProducts = Number(selectNumberPfPd.value);
     let allPages = Math.ceil(allProducts / numberProducts);
     let ul = document.querySelector('#wrapperPfPd ul');
@@ -1171,47 +1173,59 @@ function paginacionPfPd(allProducts, page) {
 }
 //--------Tabla de prof_prods
 function tablePdPf(page) {
-    let tbody = document.getElementById('tbodyPfPd');
-    inicio = (page - 1) * Number(selectNumberPfPd.value);
-    final = inicio + Number(selectNumberPfPd.value);
-    i = 1;
+    const tbody = document.getElementById('tbodyPfPd');
+    const inicio = (page - 1) * Number(selectNumberPfPd.value);
+    const final = inicio + Number(selectNumberPfPd.value);
+    const prods = filterProf_prods.slice(inicio, final);
     tbody.innerHTML = '';
-    for (let cmp_prod in filterProf_prods) {
-        if (i > inicio && i <= final) {
-            let tr = document.createElement('tr');
-            for (let valor in filterProf_prods[cmp_prod]) {
-                let td = document.createElement('td');
-                if (valor == 'id_pfpd') {
-                    td = document.createElement('td');
-                    td.innerText = i;
-                    tr.appendChild(td);
-                    i++;
-                } else if (valor == 'cost_uni_pfpd') {
-                    td.innerText = filterProf_prods[cmp_prod][valor].toFixed(2) + ' Bs';
-                    tr.appendChild(td);
-                    let td2 = document.createElement('td');
-                    let subTotal = filterProf_prods[cmp_prod]['cost_uni_pfpd'] * filterProf_prods[cmp_prod]['cantidad_pfpd'];
-                    td2.innerText = subTotal.toFixed(2) + ' Bs';
-                    tr.appendChild(td2);
-                } else if (valor == 'descuento_prof') {
-                    let desc = filterProf_prods[cmp_prod][valor] * filterProf_prods[cmp_prod]['cost_uni_pfpd'] * filterProf_prods[cmp_prod]['cantidad_pfpd'] / 100;
-                    td.innerText = desc.toFixed(2) + ' Bs' + ' (' + filterProf_prods[cmp_prod][valor] + '%)';
-                    tr.appendChild(td);
-                    let td2 = document.createElement('td');
-                    let total = filterProf_prods[cmp_prod]['cantidad_pfpd'] * filterProf_prods[cmp_prod]['cost_uni_pfpd'] * (100 - filterProf_prods[cmp_prod]['descuento_prof']) / 100;
-                    td2.innerText = total.toFixed(2) + ' Bs';
-                    tr.appendChild(td2);
-                } else if (valor == 'fk_id_prof_pfpd' || valor == 'fk_id_prod_pfpd' || valor == 'estado_prof') {
-                } else {
-                    td.innerText = filterProf_prods[cmp_prod][valor];
-                    tr.appendChild(td);
-                }
-            }
-            tbody.appendChild(tr);
-        } else {
-            i++;
-        }
-    }
+    prods.forEach((prod, index) => {
+        const proforma = filterProformas.find(proforma => proforma.id_prof == prod.fk_id_prof_pfpd);
+        const producto = products.find(product => product.id_prod == prod.fk_id_prod_pfpd);
+
+        const tr = document.createElement('tr');
+        tr.setAttribute('id_pfpd', prod.id_pfpd);
+
+        const tdNumero = document.createElement('td');
+        tdNumero.innerText = index + 1;
+        tr.appendChild(tdNumero);
+
+        const tdNumeroProforma = document.createElement('td');
+        tdNumeroProforma.innerText = proforma.numero_prof;
+        tr.appendChild(tdNumeroProforma);
+
+        const tdFechaProforma = document.createElement('td');
+        tdFechaProforma.innerText = proforma.fecha_prof;
+        tr.appendChild(tdFechaProforma);
+
+        const tdCodigo = document.createElement('td');
+        tdCodigo.innerText = producto.codigo_prod;
+        tr.appendChild(tdCodigo);
+
+        const tdCantidad = document.createElement('td');
+        tdCantidad.innerText = prod.cantidad_pfpd;
+        tr.appendChild(tdCantidad);
+
+        const tdCostoUnitario = document.createElement('td');
+        tdCostoUnitario.innerText = prod.cost_uni_pfpd.toFixed(2) + ' Bs';
+        tr.appendChild(tdCostoUnitario);
+
+        const tdSubTotal = document.createElement('td');
+        const subTotal = prod.cost_uni_pfpd * prod.cantidad_pfpd;
+        tdSubTotal.innerText = subTotal.toFixed(2) + ' Bs';
+        tr.appendChild(tdSubTotal);
+
+        const tdDescuento = document.createElement('td');
+        const desc = proforma.descuento_prof * prod.cost_uni_pfpd * prod.cantidad_pfpd / 100;
+        tdDescuento.innerText = desc.toFixed(2) + ' Bs' + ' (' + proforma.descuento_prof + '%)';
+        tr.appendChild(tdDescuento);
+
+        const tdTotal = document.createElement('td');
+        const total = prod.cantidad_pfpd * prod.cost_uni_pfpd * (100 - proforma.descuento_prof) / 100;
+        tdTotal.innerText = total.toFixed(2) + ' Bs';
+        tr.appendChild(tdTotal);
+
+        tbody.appendChild(tr);
+    });
 }
 //------open and clode modal prof_prod
 const tablePPMW = document.querySelector('#tablePPMW');
