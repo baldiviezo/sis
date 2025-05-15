@@ -24,10 +24,12 @@
     </header>
     <main class="table">
         <div class="table__title">
-            <h1>Nota de Entrega</h1>
+            <h1>Notas de Entrega</h1>
         </div>
         <section class="table__header">
             <h1 id="totalNE">Total:</h1>
+            <img src="../imagenes/inventario.svg" id="openTableNteInv" class="icon__CRUD"
+						title="Productos de la proforma">
             <section class="select__search">
                 <div>
                     <label>Fecha Nota Entraga:</label>
@@ -137,6 +139,124 @@
             </table>
         </section>
     </main>
+    <!--Table Nte_inv-->
+	<section id="tableNteInv" class="modalTable">
+		<div class="modalTable__container">
+			<div class="table">
+				<div class="table__title">
+					<h1><img src="../imagenes/producto.svg">Productos</h1>
+					<img src="../imagenes/salir.svg" id="closeTableNteInv" class="button__close">
+				</div>
+				<section class="table__header">
+					<h1 id="totalNteInv">TOTAL:</h1>
+					<section class="select__search">
+						<div>
+							<label>Fecha proforma:</label>
+							<select id="selectYearNteInv" class="select"></select>
+						</div>
+						<div>
+							<label>Mes de venta:</label>
+							<select id="selectMonthNteInv" class="select__number">
+								<option value="todas">Todo</option>
+								<option value="01">Enero</option>
+								<option value="02">Febrero</option>
+								<option value="03">Marzo</option>
+								<option value="04">Abril</option>
+								<option value="05">Mayo</option>
+								<option value="06">Junio</option>
+								<option value="07">Julio</option>
+								<option value="08">Agosto</option>
+								<option value="09">Septiembre</option>
+								<option value="10">Octubre</option>
+								<option value="11">Noviembre</option>
+								<option value="12">Diciembre</option>
+							</select>
+                            <div>
+							<label>Estado producto:</label>
+							<select id="selectStateNteInv" class="select__number">
+								<option value="todasLasProf">Todos</option>
+								<option value="pendiente">Pendiente</option>
+								<option value="vendido">Vendido</option>
+								<option value="devolucion">Devolución</option>
+							</select>
+						</div>
+						</div>
+					</section>
+					<div class="combo__search">
+						<div class="filter__search">
+							<h3>Filtrar por:</h3>
+							<select id="selectSearchNteInv" class="select">
+								<option value="todas">Todo</option>
+								<option value="numero_prof">N° Proforma</option>
+								<option value="fecha_prof">Fecha de prforma</option>
+								<option value="codigo_prod">Codigo</option>
+							</select>
+						</div>
+						<div class="table__search">
+							<input type="search" id="inputSearchNteInv" placeholder="Buscar...">
+							<img src="../imagenes/search.png">
+						</div>
+					</div>
+				</section>
+				<div class="showPage" id="showPageNteInv">
+					<h2></h2>
+				</div>
+				<div class="container__page">
+					<div class="paginacion">
+						<div class="wrapper" id="wrapperNteInv">
+							<ul></ul>
+						</div>
+					</div>
+					<div>
+						<select id="selectNumberNteInv" class="select__number">
+							<option value="2">2</option>
+							<option value="4">4</option>
+							<option value="6">6</option>
+							<option value="10">10 </option>
+							<option value="20">20</option>
+						</select>
+					</div>
+				</div>
+				<section class="table__body">
+					<table>
+						<thead>
+							<tr>
+								<th>N°</th>
+								<th>
+									<div class="tbody__head--PfPd">N° Proforma<img src="../imagenes/sortA_Z.svg"
+											name="numero_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="numero_prof" class="icon__CRUD"></div>
+								</th>
+								<th>
+									<div class="tbody__head--PfPd">Fecha proforma<img src="../imagenes/sortA_Z.svg"
+											name="fecha_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="fecha_prof" class="icon__CRUD"></div>
+								</th>
+								<th>
+									<div class="tbody__head--PfPd">Codigo<img src="../imagenes/sortA_Z.svg"
+											name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="codigo_prod" class="icon__CRUD"></div>
+								</th>
+								<th>
+									<div class="tbody__head--PfPd">Cantidad<img src="../imagenes/sortA_Z.svg"
+											name="cantidad_pfpd" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="cantidad_pfpd" class="icon__CRUD"></div>
+								</th>
+								<th>Cost uni.</th>
+								<th>Subtotal</th>
+								<th>Descuento</th>
+								<th>Total</th>
+							</tr>
+						</thead>
+						<tbody id="tbodyNteInv">
+						</tbody>
+					</table>
+				</section>
+			</div>
+		</div>
+	</section>
+
+
     <!--Ventana modal para registrar venta-->
     <section id="saleRMW" class="modal">
         <div class="modal__container">

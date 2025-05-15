@@ -134,6 +134,19 @@ class consultas{
 		}
 		echo 'Nota de entrega eliminada correctamente';
 	}
+	//-------------------------------------------CRUD PROF_PROD---------------------------
+	//-------Read Prof_prods
+	public function readNte_invs(){
+    include 'conexion.php';
+    $consulta = "SELECT * FROM nte_inv";
+    $resultado = $conexion->query($consulta);
+    $nteInvs =  array();
+    while ($fila = $resultado->fetch_assoc()){
+        $nteInvs[] = $fila;
+    }
+    echo json_encode($nteInvs, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+}
+
 	public function addZerosGo($numero) {
 		return str_pad($numero, 4, "0", STR_PAD_LEFT);
 	}

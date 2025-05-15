@@ -22,4 +22,11 @@ if (isset($_POST['readAllNotaEntrega'])) {
 	$readAllNotaEntrega = new consultas;
 	$readAllNotaEntrega->readAllNotaEntrega();
 }
+//---------------------------------------------CRUD NTE_INV
+//-------Read Nte_invs
+	if (isset($_POST['readNte_invs'])) {
+	$readNte_invs = new consultas;
+	$readNte_invs->readNte_invs();
+}
+
 ?>
