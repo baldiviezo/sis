@@ -31,9 +31,9 @@
 			<section class="main__header">
 				<div>
 					<img src="../imagenes/folder.svg" onclick="openTableProfMW()" class="img__folder" title="Proformas">
-					<img src="../imagenes/registrar.svg" onclick="openProductsRMW()" class="img__folder"
-						title="Registrar producto">
-					<img src="../imagenes/dollarCircle.svg" onclick="openPriceList()" class="img__folder">
+					<img src="../imagenes/registrar.svg" onclick="openProductsRMW()" class="img__folder" title="Registrar producto">
+					<img src="../imagenes/dollarCircle.svg" onclick="openPriceList()" class="img__folder" title="Lista de precios">
+					<img src="../imagenes/inventario.svg" onclick="openInventorySMW()" class="icon__CRUD" title="Inventario">
 				</div>
 				<section class="select__search">
 					<div>
@@ -174,12 +174,12 @@
 							</select>
 						</div>
 						<div>
-							<label>Estado proforma:</label>
+							<label>Proformas:</label>
 							<select id="selectStateProf" class="select__number">
-								<option value="todasLasProformas">Todo</option>
-								<option value="pendiente">Pendiente</option>
-								<option value="vendido">Vendido</option>
-								<option value="devolucion">Devolución</option>
+								<option value="todasLasProformas">Todas</option>
+								<option value="pendiente">No confirmadas</option>
+								<option value="vendido">Confirmadas</option>
+								<option value="devolucion">Entregadas</option>
 							</select>
 						</div>
 					</section>
@@ -278,15 +278,6 @@
 							<select id="selectYearPfPd" class="select"></select>
 						</div>
 						<div>
-							<label>Estado producto:</label>
-							<select id="selectStatePfPd" class="select__number">
-								<option value="todasLasProf">Todos</option>
-								<option value="pendiente">Pendiente</option>
-								<option value="vendido">Vendido</option>
-								<option value="devolucion">Devolución</option>
-							</select>
-						</div>
-						<div>
 							<label>Mes de venta:</label>
 							<select id="selectMonthPfpd" class="select__number">
 								<option value="todas">Todo</option>
@@ -302,6 +293,15 @@
 								<option value="10">Octubre</option>
 								<option value="11">Noviembre</option>
 								<option value="12">Diciembre</option>
+							</select>
+						</div>
+						<div>
+							<label>Proformas:</label>
+							<select id="selectStatePfPd" class="select__number">
+								<option value="todasLasProf">Todas</option>
+								<option value="pendiente">No confirmadas</option>
+								<option value="vendido">Confirmadas</option>
+								<option value="devolucion">Entregadas</option>
 							</select>
 						</div>
 					</section>
@@ -618,8 +618,7 @@
 		<div class="modalPdpf__container">
 			<div class="modalPdpf__header">
 				<div>
-					<img src="../imagenes/p.svg" onclick="openProductSMW()" class="icon__CRUD">
-					<img src="../imagenes/i.svg" onclick="openInventorySMW()" class="icon__CRUD">
+					<img src="../imagenes/producto.svg" onclick="openProductSMW()" class="icon__CRUD" title="Buscar producto">
 				</div>
 				<h2 class="modal__title">Productos</h2>
 				<img src="../imagenes/salir.svg" id="closeProf_prodMW" class="button__close">
@@ -1034,6 +1033,7 @@
 								<option value="nombre_prod">Descripcion corta</option>
 								<option value="descripcion_prod">Descripcion</option>
 								<option value="cost_uni_inv">Precio</option>
+								<option value="descripcion_inv">Ubicación</option>
 							</select>
 						</div>
 						<div class="table__search">
@@ -1081,8 +1081,7 @@
 								<th>imagen</th>
 								<th>Stock</th>
 								<th>Costo unitario</th>
-								<th>Detalles</th>
-								<th>Acciones</th>
+								<th>Ubicacion</th>
 							</tr>
 						</thead>
 						<tbody id="tbodyInvMW"></tbody>

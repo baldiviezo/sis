@@ -13,7 +13,7 @@ if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getIte
     document.getElementsByName('cantidad_invM')[0].setAttribute('readonly', 'readonly');
     //inventoryRMW
     document.querySelector('#openInventoryRMW').removeAttribute('hidden');
-    //document.getElementsByName('cantidad_invR')[0].setAttribute('readonly', 'readonly');
+    document.getElementsByName('cantidad_invR')[0].setAttribute('readonly', 'readonly');
     //document.querySelector('#inventoryRMW .form__group--select').children[4].removeAttribute('hidden');
 
 } else if (localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
@@ -98,6 +98,7 @@ function searchInventories() {
                 product.codigo_prod.toString().toLowerCase().includes(busqueda) ||
                 product.nombre_prod.toLowerCase().includes(busqueda) ||
                 product.descripcion_prod.toLowerCase().includes(busqueda) ||
+                inventory.descripcion_inv.toLowerCase().includes(busqueda) ||
                 inventory.descripcion_inv.toLowerCase().includes(busqueda)
             );
         } else if (valor in inventory) {
@@ -120,7 +121,6 @@ function selectInventories() {
     });
     paginacionInventory(filterInventories.length, 1);
 }
-
 //------Ordenar tabla descendente ascendente
 const orderInventories = document.querySelectorAll('.tbody__head--inventory');
 orderInventories.forEach(div => {

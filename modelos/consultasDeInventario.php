@@ -55,12 +55,20 @@ class consultas {
 		$resultado = $conexion->query($consulta);
 		$numeroFilas = $resultado->num_rows;
 		if($numeroFilas > 0){
-			echo ("El producto ya se encuentra en el inventario");	
+			if ($this->ubi_almacen == "0") {
+    			echo "El producto ya se encuentra en el inventario de El Alto";
+			} else {
+    			echo "El producto ya se encuentra en el inventario de La Paz";
+		}
 		}else{
-			$consulta = "INSERT INTO $inventario (fk_id_prod_inv, cantidad_inv, cost_uni_inv, descripcion_inv) VALUES ('$this->fk_id_prod', '$this->cantidad', '$this->cu', '$this->descripcion')";
+			$consulta = "INSERT INTO $inventario (fk_id_prod_inv, cost_uni_inv, descripcion_inv) VALUES ('$this->fk_id_prod', '$this->cu', '$this->descripcion')";
 			//Si la sentencia se ejecuto exitosamente $resultado devuelve true, si no se ejecuto devuelve false
 			$resultado = $conexion->query($consulta);
-			echo ("El producto se añadió al inventario exitosamente");
+			if ($this->ubi_almacen == "0") {
+				echo "Producto registrado en el inventario de El Alto exitosamente";
+			} else {
+				echo "Producto registrado en el inventario de La Paz exitosamente";
+			}
 		}
 	}
 	//------Actualizar un inventario
@@ -87,7 +95,6 @@ class consultas {
 			$this->update($inventario);
 		}
 	}
-
 	public function update($inventario){
 		include 'conexion.php';
 		$consulta = "UPDATE $inventario INNER JOIN producto ON $inventario.fk_id_prod_inv = id_prod set   cost_uni_inv='$this->cu', descripcion_inv='$this->descripcion' WHERE id_inv='$this->id_inv'";

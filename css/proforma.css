@@ -532,7 +532,7 @@ button:hover {
 
 .cart-item .cart-item__cantInv {
 	width: 2rem;
-	color: #225c74;
+	/*color: #225c74;*/
 	text-align: left;
 }
 
@@ -694,7 +694,7 @@ button:hover {
 	grid-template-rows: 3rem 1fr 3rem;
 }
 
-.modalCard__footer{
+.modalCard__footer {
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -707,7 +707,7 @@ button:hover {
 	color: #fff
 }
 
-.modalCard--body{
+.modalCard--body {
 	overflow-y: auto;
 }
 
@@ -870,4 +870,28 @@ button:hover {
 
 .dragging :where(.indice, .row-img, p, .div__cost) {
 	opacity: 0;
+}
+
+/*****************/
+.almacen-ambos {
+  font-size: 1rem;
+  color: #ff0000; 
+  background-color: #ff7f7f; 
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+
+.almacen-alto {
+  font-size: 1rem;
+  color: #006600; 
+  background-color: #7fff7f; 
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+
+.almacen-arce {
+  font-size: 1rem;
+  color: #0000ff;
+  background-color: #7f7fff; 
+  border-radius: 2px;
 }

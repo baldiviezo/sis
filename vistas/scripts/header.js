@@ -8,17 +8,19 @@ if(localStorage.getItem('rol_usua')=='Gerente general' || localStorage.getItem('
 						<li><a href="productos.html" class="nav__link">Productos</a></li>
 						<li><a href="inventario.html" class="nav__link">Inventario</a></li>
 						<li><a href="proforma.html" class="nav__link">Proforma</a></li>
-						<li><a href="notaEntrega.html" class="nav__link">Nota de entrega</a></li>
-						<li><a href="armados.html" class="nav__link">Armados y desarmados</a></li>
-						<li><a href="compras.html" class="nav__link">Compras</a></li>
-						<li><a href="ventas.html" class="nav__link">Ventas</a></li>
-						<li><a href="ingresos.html" class="nav__link">Ingresos e egresos</a></li>
 						<li><a href="cerrar.html" class="nav__link">Cerrar sesión</a></li>
 					</ul>
 					<figure class="nav__menu">
 					<img src="../imagenes/manu.svg" alt="Imagen de muestra" class="nav__icon">
 					</figure>`;
 }
+/*
+<li><a href="notaEntrega.html" class="nav__link">Nota de entrega</a></li>
+						<li><a href="armados.html" class="nav__link">Armados y desarmados</a></li>
+						<li><a href="compras.html" class="nav__link">Compras</a></li>
+						<li><a href="ventas.html" class="nav__link">Ventas</a></li>
+						<li><a href="ingresos.html" class="nav__link">Ingresos e egresos</a></li>
+*/
 if(localStorage.getItem('rol_usua')=='Ingeniero' || localStorage.getItem('rol_usua')=='Gerente De Inventario'){
 	header.innerHTML = `
 						<div class="nav__logo"></div>
@@ -28,13 +30,13 @@ if(localStorage.getItem('rol_usua')=='Ingeniero' || localStorage.getItem('rol_us
 								<li><a href="productos.html" class="nav__link">Productos</a></li>
 								<li><a href="inventario.html" class="nav__link">Inventario</a></li>
 								<li><a href="proforma.html" class="nav__link">Proforma</a></li>
-								<li><a href="notaEntrega.html" class="nav__link">Nota de entrega</a></li>
 								<li><a href="cerrar.html" class="nav__link">Cerrar sesión</a></li>
 							</ul>
 						<figure class="nav__menu">
 							<img src="../imagenes/manu.svg" alt="Imagen de muestra" class="nav__icon">
 						</figure>`;
 };
+//								<li><a href="notaEntrega.html" class="nav__link">Nota de entrega</a></li>
 //------El logo es el apellido del usuario
 const logo = document.querySelector('.nav__logo');
 let apellido = localStorage.getItem('apellidos_usua').split(" ");
