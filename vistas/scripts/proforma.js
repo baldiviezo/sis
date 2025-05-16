@@ -159,6 +159,7 @@ function paginacionProduct(allProducts, page) {
     cardProduct(page);
 }
 function cardProduct(page) {
+    console.log('tabla: cardProduct');
     const root = document.getElementById('root');
     const inicio = (page - 1) * Number(selectNumberProduct.value);
     const final = inicio + Number(selectNumberProduct.value);
@@ -184,7 +185,6 @@ function cardProduct(page) {
         const bottom = document.createElement('div');
         bottom.classList.add('bottom');
 
-
         const p = document.createElement('p');
         p.classList.add('box__code');
         p.textContent = product.codigo_prod;
@@ -201,7 +201,7 @@ function cardProduct(page) {
     }
     root.appendChild(fragment);
 }
-//------------------------------------------------------MODAL DE UNA CARD-------------------------------------------------
+//---------------------------------------------MODAL DE UNA CARD-------------------------------------------------
 //-------Detalles de la card
 const modalCard__body = document.querySelector('.modalCard__body');
 function showDetails(id_prod) {
@@ -393,20 +393,61 @@ function totalPrice() {
     totalProfR.innerHTML = moneda + ' ' + total.toFixed(2);
     document.getElementById('count').innerHTML = divs.length;
 }
-//-------Cambio de moneda
+//-------Tipo de moneda
 const selectMoneyCart = document.getElementById('selectMoneyCart');
 const tipoDeCambioProf = document.getElementById('tipoDeCambioProf');
-selectMoneyCart.addEventListener('change', function () {
-    totalPrice();
-    //Para mostrar y ocultar el tipo de cambio
+tipoDeCambioProf.addEventListener('change', changueRelacionMoneda);
+let valorAnterior = tipoDeCambioProf.value;
+
+function changueRelacionMoneda() {
+    const valorNuevo = tipoDeCambioProf.value;
+    changueCostUni(valorAnterior, valorNuevo);
+    valorAnterior = valorNuevo;
+}
+
+selectMoneyCart.addEventListener('change', () => changueCostUni(1, valorAnterior));
+
+function changueCostUni(relacionAnterior, relacionNueva) {
+    console.log(relacionAnterior, relacionNueva);
     if (selectMoneyCart.value == '$') {
         tipoDeCambioProf.removeAttribute('hidden');
 
+        const costoUnitario = document.querySelectorAll('.cart-item__costUnit');
+
+        costoUnitario.forEach(function (costo) {
+            const valorActual = parseFloat(costo.value);
+            const valorNuevo = (valorActual * relacionAnterior) / relacionNueva;
+            costo.value = valorNuevo.toFixed(2);
+
+            // Multiplicar por la cantidad
+            const cantidad = costo.parentNode.querySelector('.cart-item__cantidad').value;
+            const costoTotal = valorNuevo * cantidad;
+            costo.parentNode.querySelector('.cart-item__costTotal').value = costoTotal.toFixed(2);
+
+        });
+
     } else {
         tipoDeCambioProf.setAttribute('hidden', '');
+        const costoUnitario = document.querySelectorAll('.cart-item__costUnit');
+        costoUnitario.forEach(function (costo) {
+            const valorActual = parseFloat(costo.value);
+            const valorNuevo = (valorActual * relacionNueva) / relacionAnterior;
+            costo.value = valorNuevo.toFixed(2);
+
+            // Multiplicar por la cantidad
+            const cantidad = costo.parentNode.querySelector('.cart-item__cantidad').value;
+            const costoTotal = valorNuevo * cantidad;
+            costo.parentNode.querySelector('.cart-item__costTotal').value = costoTotal.toFixed(2);
+        });
     }
-})
-//------------------------------------------------------------PROFORMA-----------------------------------------------------
+    // Llamar a la función totalPrice()
+    totalPrice();
+
+}
+
+
+
+//--------------------------------------------PROFORMA-----------------------------------------------------
 let proformas = [];
 let filterProformas = [];
 let formProformas;
@@ -1442,12 +1483,6 @@ const initSortableListM = (e) => {
     });
 
     modalProf_prod.insertBefore(draggingItem, nextSibling);
-}
-//-------Eliminar producto 
-function remove_pfpd(product) {
-    let listProducts = document.querySelector('#cartsProf_prodMW');
-    listProducts.removeChild(product);
-    totalPrice_pfpd();
 }
 //-------Cuando cambia la cantidad
 function changeQuantity_pfpd(product) {
@@ -3098,7 +3133,7 @@ async function readAllMarcas() {
             selectMarcaProd();
             selectMarcaProdR();
             //selectMarcaInv();
-            selectMarcaProdM()
+            selectMarcaProdM();
             selectMarcaProductMW();
             selectMarcaInventoryMW();
             resolve();
@@ -3313,7 +3348,6 @@ function selectMarcaProdM() {
         option.innerText = marcas[clave]['nombre_mrc'];
         fk_id_mrc_prodM.appendChild(option);
     }
-    selectCategoriaProdM();
 }
 function selectCategoriaProdM() {
     fk_id_ctgr_prodM.innerHTML = '';
