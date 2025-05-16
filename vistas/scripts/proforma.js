@@ -62,7 +62,7 @@ const dateFormat = new Intl.DateTimeFormat('es-ES', {
 const formattedDate = dateFormat.format(date);
 const datePart = formattedDate.split(', ');
 const dateActual = datePart[0].split('/');
-//---------------------------------------------------- CARDS PRODUCTS---------------------------------------------------------
+//----------------------------------------------- CARDS PRODUCTS----------------------------------------------
 let products = [];
 let filterProducts = [];
 let filterProductsMW = [];
@@ -204,7 +204,6 @@ function cardProduct(page) {
 //------------------------------------------------------MODAL DE UNA CARD-------------------------------------------------
 //-------Detalles de la card
 const modalCard__body = document.querySelector('.modalCard__body');
-
 function showDetails(id_prod) {
     const product = filterProducts.find(product => product['id_prod'] == id_prod);
 
@@ -249,7 +248,7 @@ function addCard(id_prod) {
         if (id_prod == cart.getAttribute('id_prod')) { i++ }
     })
     if (i == 0) {
-        const card = cartProduct(id_prod, cartItem);
+        const card = cartProduct(id_prod, cartItem, totalPrice);
         cartItem.appendChild(card);
         //Drang and drop
         const items = cartItem.querySelectorAll(".cart-item");
@@ -266,8 +265,7 @@ function addCard(id_prod) {
         mostrarAlerta('El producto ya se encuentra en el carrito');
     }
 }
-
-function cartProduct(id_prod, contenedor) {
+function cartProduct(id_prod, contenedor, total) {
     const product = filterProducts.find(product => product['id_prod'] == id_prod);
     if (product) {
         const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === id_prod && inventory.ubi_almacen === 0);
@@ -317,14 +315,30 @@ function cartProduct(id_prod, contenedor) {
         cantidadInput.value = '1';
         cantidadInput.min = '1';
         cantidadInput.classList.add('cart-item__cantidad');
-        cantidadInput.addEventListener('change', changeQuantity);
+        cantidadInput.addEventListener('change', (e) => {
+            const costUnitInput = e.target.parentNode.querySelector('.cart-item__costUnit');
+            const costTotalInput = e.target.parentNode.querySelector('.cart-item__costTotal');
+            const cantidad = parseInt(e.target.value);
+            const costUnit = parseFloat(costUnitInput.value);
+            const costTotal = cantidad * costUnit;
+            costTotalInput.value = costTotal;
+            total();
+        });
         card.appendChild(cantidadInput);
 
         const costUnitInput = document.createElement('input');
         costUnitInput.type = 'number';
         costUnitInput.value = cost_uni;
         costUnitInput.classList.add('cart-item__costUnit');
-        costUnitInput.addEventListener('change', changeQuantity);
+        costUnitInput.addEventListener('change', (e) => {
+            const cantidadInput = e.target.parentNode.querySelector('.cart-item__cantidad');
+            const costTotalInput = e.target.parentNode.querySelector('.cart-item__costTotal');
+            const cantidad = parseInt(cantidadInput.value);
+            const costUnit = parseFloat(e.target.value);
+            const costTotal = cantidad * costUnit;
+            costTotalInput.value = costTotal;
+            total();
+        });
         card.appendChild(costUnitInput);
 
         const costTotalInput = document.createElement('input');
@@ -361,26 +375,23 @@ function removeCardFromCart(e, container) {
     container.removeChild(card);
     totalPrice();
 }
-//------Al cambia la cantidad
-function changeQuantity(product) {
-    let cantidad_prod = product.children[3].value;
-    let costo_uni = product.children[4].value;
-    let cost_uni_total = cantidad_prod * costo_uni;
-    product.children[5].value = cost_uni_total.toFixed(2);
-    totalPrice();
-}
 //-------Precio total y moneda
 const totalProfR = document.getElementById('total');
 function totalPrice() {
-    let divs = cartItem.querySelectorAll('div.cart-item');
-    let moneda = selectMoneyCart.value;
+    const divs = cartItem.querySelectorAll('div.cart-item');
+    const moneda = selectMoneyCart.value;
     let total = 0;
-    divs.forEach(div => {
-        costo = Number(div.children[5].value);
-        total = total + costo;
-    })
+    if (divs.length > 0) {
+        divs.forEach(div => {
+            const costoTotal = div.querySelector('.cart-item__costTotal').value;
+            const costo = parseFloat(costoTotal);
+            if (!isNaN(costo)) {
+                total += costo;
+            }
+        });
+    }
     totalProfR.innerHTML = moneda + ' ' + total.toFixed(2);
-    document.getElementById('count').innerHTML = cartItem.querySelectorAll('div.cart-item').length;
+    document.getElementById('count').innerHTML = divs.length;
 }
 //-------Cambio de moneda
 const selectMoneyCart = document.getElementById('selectMoneyCart');
@@ -1309,67 +1320,10 @@ function readProf_prod() {
     const id_prof = document.getElementById('id_profM').value;
     const prof_prods_filtered = prof_prods.filter(prof_prod => prof_prod['fk_id_prof_pfpd'] == id_prof);
     prof_prods_filtered.forEach(prof_prod => {
-        cartProduct_pfpd(prof_prod, 'read');
+        const card = cartProduct_pfpd(prof_prod, modalProf_prod, totalPrice_pfpd);
+        modalProf_prod.appendChild(card);
+
     })
-}
-//--------Muestra la lista de los productos de la proforma
-function cartProduct_pfpd(product, action) {
-    let stock = undefined;
-    let imagen = undefined;
-    let codigo = undefined;
-    let cost_uni = undefined;
-    let cantidad_prod = undefined;
-    let id_prod = undefined;
-
-    if (action == 'sendProduct') {
-        const inventory = inventories.find(inv => inv['fk_id_prod_inv'] === product['id_prod']);
-        stock = inventory ? inventory['cantidad_inv'] : 0;
-        imagen = product.imagen_prod;
-        codigo = product['codigo_prod'];
-        const cost_uni2 = prices.find(price => price.modelo.trim() === product['codigo_prod']);
-        cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio) * 1.1) : (inventory ? Math.round(inventory.cost_uni_inv * 1.1) : 0);
-        cantidad_prod = 1;
-        id_prod = product['id_prod'];
-    } else if (action == 'read') {
-        const inventory = inventories.find(inv => inv['fk_id_prod_inv'] === product['fk_id_prod_pfpd']);
-        stock = inventory ? inventory['cantidad_inv'] : 0;
-        const producto = products.find(prod => prod['id_prod'] == product['fk_id_prod_pfpd']);
-        imagen = producto.imagen_prod;
-        codigo = producto['codigo_prod'];
-        cost_uni = product['cost_uni_pfpd'];
-        cantidad_prod = product['cantidad_pfpd'];
-        id_prod = product['fk_id_prod_pfpd'];
-    } else if (action == 'sendInventory') {
-        stock = product['cantidad_inv'];
-        const producto = products.find(prod => prod['id_prod'] == product['fk_id_prod_inv']);
-        imagen = producto.imagen_prod;
-        codigo = producto['codigo_prod'];
-        const cost_uni2 = prices.find(price => price.modelo.trim() === producto['codigo_prod']);
-        cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio) * 1.1) : (product ? Math.round(product.cost_uni_inv * 1.1) : 0);
-        cantidad_prod = 1;
-        id_prod = product['fk_id_prod_inv'];
-    }
-
-    const item = document.createElement('div');
-    item.classList.add('cart-item');
-    item.setAttribute('draggable', 'true');
-
-    const html = `
-        <p class="cart-item__cantInv">${stock}</p>
-        <div class="row-img">
-            <img src="../modelos/imagenes/${imagen}" class="rowimg">
-        </div>  
-        <p class="cart-item__codigo">${codigo}</p>
-        <input type="number" value="${cantidad_prod}" min="1" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__cantidad">
-        <input type="number" value="${cost_uni}" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__costUnit">
-        <input type="number" value="${cantidad_prod * cost_uni}" class="cart-item__costTotal" readonly>
-        <img src="../imagenes/trash.svg" onClick="remove_pfpd(this.parentNode)" class='icon__CRUD'>`;
-    item.innerHTML = html;
-
-    item.setAttribute('id_prod', id_prod);
-    modalProf_prod.appendChild(item);
-    totalPrice_pfpd();
-
     //Drang and drop
     const items = modalProf_prod.querySelectorAll(".cart-item");
     items.forEach(item => {
@@ -1378,10 +1332,103 @@ function cartProduct_pfpd(product, action) {
         });
         item.addEventListener("dragend", () => item.classList.remove("dragging"));
     });
-
     modalProf_prod.addEventListener("dragover", initSortableListM);
     modalProf_prod.addEventListener("dragenter", e => e.preventDefault());
 
+    totalPrice_pfpd();
+
+}
+//--------Muestra la lista de los productos de la proforma
+function cartProduct_pfpd(prof_prod, contenedor, total) {
+    const product = products.find(product => product.id_prod === prof_prod.fk_id_prod_pfpd);
+    if (product) {
+        const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 0);
+        const inventoriesArce = inventories.filter(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 1);
+
+        const cantidad_invAlto = inventoriesAlto.length > 0 ? inventoriesAlto[0].cantidad_inv : 0;
+        const cantidad_invArce = inventoriesArce.length > 0 ? inventoriesArce[0].cantidad_inv : 0;
+        const cantidad_invTotal = cantidad_invAlto + cantidad_invArce;
+
+        const cost_uni2 = prices.find(price => price.modelo.trim() === product.codigo_prod);
+        const cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio) * 1.1) : (inventoriesAlto.length > 0 ? Math.round(inventoriesAlto[0].cost_uni_inv * 1.1) : (inventoriesArce.length > 0 ? Math.round(inventoriesArce[0].cost_uni_inv * 1.1) : 0));
+
+        const card = document.createElement('div');
+        card.classList.add('cart-item');
+        card.setAttribute('id_prod', product.id_prod);
+        card.setAttribute('draggable', 'true');
+
+        const cantidadInvParagraph = document.createElement('p');
+        cantidadInvParagraph.classList.add('cart-item__cantInv');
+
+        if (cantidad_invAlto > 0 && cantidad_invArce > 0) {
+            cantidadInvParagraph.classList.add('almacen-ambos');
+        } else if (cantidad_invAlto > 0) {
+            cantidadInvParagraph.classList.add('almacen-alto');
+        } else if (cantidad_invArce > 0) {
+            cantidadInvParagraph.classList.add('almacen-arce');
+        }
+
+        cantidadInvParagraph.textContent = cantidad_invTotal;
+        card.appendChild(cantidadInvParagraph);
+
+        const rowImgDiv = document.createElement('div');
+        rowImgDiv.classList.add('row-img');
+        const img = document.createElement('img');
+        img.src = `../modelos/imagenes/${product.imagen_prod}`;
+        img.classList.add('rowimg');
+        rowImgDiv.appendChild(img);
+        card.appendChild(rowImgDiv);
+
+        const codigoParagraph = document.createElement('p');
+        codigoParagraph.classList.add('cart-item__codigo');
+        codigoParagraph.textContent = product.codigo_prod;
+        card.appendChild(codigoParagraph);
+
+        const cantidadInput = document.createElement('input');
+        cantidadInput.type = 'number';
+        cantidadInput.value = prof_prod.cantidad_pfpd;
+        cantidadInput.min = '1';
+        cantidadInput.classList.add('cart-item__cantidad');
+        cantidadInput.addEventListener('change', (e) => {
+            const costUnitInput = e.target.parentNode.querySelector('.cart-item__costUnit');
+            const costTotalInput = e.target.parentNode.querySelector('.cart-item__costTotal');
+            const cantidad = parseInt(e.target.value);
+            const costUnit = parseFloat(costUnitInput.value);
+            const costTotal = cantidad * costUnit;
+            costTotalInput.value = costTotal;
+            total();
+        });
+        card.appendChild(cantidadInput);
+
+        const costUnitInput = document.createElement('input');
+        costUnitInput.type = 'number';
+        costUnitInput.value = prof_prod.cost_uni_pfpd;
+        costUnitInput.classList.add('cart-item__costUnit');
+        costUnitInput.addEventListener('change', (e) => {
+            const cantidadInput = e.target.parentNode.querySelector('.cart-item__cantidad');
+            const costTotalInput = e.target.parentNode.querySelector('.cart-item__costTotal');
+            const cantidad = parseInt(cantidadInput.value);
+            const costUnit = parseFloat(e.target.value);
+            const costTotal = cantidad * costUnit;
+            costTotalInput.value = costTotal;
+            total();
+        });
+        card.appendChild(costUnitInput);
+
+        const costTotalInput = document.createElement('input');
+        costTotalInput.type = 'number';
+        costTotalInput.value = prof_prod.cost_uni_pfpd * prof_prod.cantidad_pfpd;
+        costTotalInput.classList.add('cart-item__costTotal');
+        costTotalInput.readOnly = true;
+        card.appendChild(costTotalInput);
+
+        const trashImg = document.createElement('img');
+        trashImg.src = '../imagenes/trash.svg';
+        trashImg.classList.add('icon__CRUD');
+        trashImg.addEventListener('click', (e) => removeCardFromCart(e, contenedor));
+        card.appendChild(trashImg);
+        return card;
+    }
 }
 const initSortableListM = (e) => {
     e.preventDefault();
@@ -2721,7 +2768,7 @@ function sendProduct(id_prod) {
         const existe = Array.from(prof_prods).some(prod => prod.children[2].innerText === codigo);
         if (!existe) {
 
-            const card = cartProduct(id_prod, modalProf_prod);
+            const card = cartProduct(id_prod, modalProf_prod, totalPrice_pfpd);
             modalProf_prod.appendChild(card);
 
             //Drang and drop
@@ -2735,8 +2782,6 @@ function sendProduct(id_prod) {
 
             modalProf_prod.addEventListener("dragover", initSortableListM);
             modalProf_prod.addEventListener("dragenter", e => e.preventDefault());
-
-
 
             totalPrice_pfpd();
         } else {
