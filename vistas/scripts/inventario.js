@@ -98,7 +98,6 @@ function searchInventories() {
                 product.codigo_prod.toString().toLowerCase().includes(busqueda) ||
                 product.nombre_prod.toLowerCase().includes(busqueda) ||
                 product.descripcion_prod.toLowerCase().includes(busqueda) ||
-                inventory.descripcion_inv.toLowerCase().includes(busqueda) ||
                 inventory.descripcion_inv.toLowerCase().includes(busqueda)
             );
         } else if (valor in inventory) {
@@ -121,6 +120,7 @@ function selectInventories() {
     });
     paginacionInventory(filterInventories.length, 1);
 }
+
 //------Ordenar tabla descendente ascendente
 const orderInventories = document.querySelectorAll('.tbody__head--inventory');
 orderInventories.forEach(div => {

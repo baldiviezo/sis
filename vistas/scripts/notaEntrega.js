@@ -325,7 +325,7 @@ function pdfNotaEntrega(tr) {
                 if (products[product]['id_prod'] == prof_prods[prof_prod]['fk_id_prod_pfpd']) {
                     let cart = {
                         'codigo_prod': products[product]['codigo_prod'],
-                        'descripcion_prod': products[product]['descripcion_prod'],
+                        'descripcion_prod': products[product]['nombre_prod'],
                         'cantidad_pfpd': prof_prods[prof_prod]['cantidad_pfpd'],
                         'cost_uni_pfpd': prof_prods[prof_prod]['cost_uni_pfpd'],
                         'imagen_prod': products[product]['imagen_prod']

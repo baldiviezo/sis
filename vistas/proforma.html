@@ -125,7 +125,7 @@
 				</div>
 				<div class="foot">
 					<button class="sidebar__button" id="openProformaRMW">Proforma</button>
-					<h2 id="total">Bs 0.00</h2>
+					<h2 id="totalProfR">Bs 0.00</h2>
 				</div>
 			</div>
 		</div>
@@ -191,7 +191,7 @@
 								<option value="numero_prof">N° Proforma</option>
 								<option value="fecha_prof">Fecha proforma</option>
 								<option value="encargado">Encargado</option>
-								<option vaDescripcion corta_emp">Empresa</option>
+								<option value="nombre_emp">Empresa</option>
 								<option value="cliente">Cliente</option>
 							</select>
 						</div>
@@ -239,12 +239,7 @@
 									</div>
 								</th>
 								<th>Encargado</th>
-								<th>
-									<div class="tbody__head--proforma">Empresa <img src="../imagenes/sortA_Z.svg"
-											name="nombre_emp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-											name="nombre_emp" class="icon__CRUD">
-									</div>
-								</th>
+								<th>Empresa</th>
 								<th>Cliente</th>
 								<th>
 									<div class="tbody__head--proforma">Total<img src="../imagenes/sortA_Z.svg"
@@ -311,7 +306,7 @@
 							<select id="selectSearchPfPd" class="select">
 								<option value="todas">Todo</option>
 								<option value="numero_prof">N° Proforma</option>
-								<option value="fecha_prof">Fecha de prforma</option>
+								<option value="fecha_prof">Fecha de proforma</option>
 								<option value="codigo_prod">Codigo</option>
 							</select>
 						</div>
@@ -355,16 +350,8 @@
 											name="fecha_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
 											name="fecha_prof" class="icon__CRUD"></div>
 								</th>
-								<th>
-									<div class="tbody__head--PfPd">Codigo<img src="../imagenes/sortA_Z.svg"
-											name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-											name="codigo_prod" class="icon__CRUD"></div>
-								</th>
-								<th>
-									<div class="tbody__head--PfPd">Cantidad<img src="../imagenes/sortA_Z.svg"
-											name="cantidad_pfpd" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-											name="cantidad_pfpd" class="icon__CRUD"></div>
-								</th>
+								<th>Codigo</th>
+								<th>Cantidad</th>
 								<th>Cost uni.</th>
 								<th>Subtotal</th>
 								<th>Descuento</th>
@@ -530,7 +517,7 @@
 							<textarea name="observacion_profR" placeholder="Observacion..."></textarea>
 						</div>
 						<div class="form__group">
-							<input type="number" name="descuento_profR" placeholder="" min="0" max="100"
+							<input type="number" name="descuento_profR" id="descuento_profR" placeholder="" min="0" max="100"
 								class="form__input">
 							<label for="descuento_profR" class="form__label">Descuento:</label>
 						</div>
@@ -592,18 +579,18 @@
 							<textarea name="observacion_profM" placeholder="Observacion..."></textarea>
 						</div>
 						<div class="form__group">
-							<input type="number" name="descuento_profM" placeholder="" min="0" max="100"
+							<input type="number" name="descuento_profM"  id="descuento_profM" placeholder="" min="0" max="100"
 								class="form__input">
 							<label for="descuento_profM" class="form__label">Descuento:</label>
 						</div>
 						<label class="form__label--only">Moneda:</label>
 						<div class="form__group--select">
-							<select name="moneda_profM">
+							<select name="moneda_profM" id="moneda_profM">
 								<option value="Bs">Bs</option>
 								<option value="$">$</option>
 							</select>
 						</div>
-						<div class="form__group" id="tipoDeCambioProfM" class="hide">
+						<div class="form__group" id="tipoDeCambioProfM">
 							<input type="text" name="tipo_cambio_profM" placeholder="" class="form__input">
 							<label for="tipo_cambio_profM" class="form__label">Cambio de moneda:</label>
 						</div>

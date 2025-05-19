@@ -265,6 +265,19 @@ function addCard(id_prod) {
         mostrarAlerta('El producto ya se encuentra en el carrito');
     }
 }
+const initSortableList = (e) => {
+    e.preventDefault();
+    const draggingItem = document.querySelector(".dragging");
+
+    let siblings = [...cartItem.querySelectorAll(".cart-item:not(.dragging)")];
+
+    let nextSibling = siblings.find(sibling => {
+        const rect = sibling.getBoundingClientRect();
+        return e.clientY <= rect.top + rect.height / 2;
+    });
+
+    cartItem.insertBefore(draggingItem, nextSibling);
+}
 function cartProduct(id_prod, contenedor, total) {
     const product = filterProducts.find(product => product['id_prod'] == id_prod);
     if (product) {
@@ -310,6 +323,14 @@ function cartProduct(id_prod, contenedor, total) {
         codigoParagraph.textContent = product['codigo_prod'];
         card.appendChild(codigoParagraph);
 
+        function updateCostTotal(cantidadInput, costUnitInput, costTotalInput) {
+            const cantidad = parseInt(cantidadInput.value);
+            const costUnit = parseFloat(costUnitInput.value);
+            const costTotal = cantidad * costUnit;
+            costTotalInput.value = costTotal;
+            total();
+        }
+
         const cantidadInput = document.createElement('input');
         cantidadInput.type = 'number';
         cantidadInput.value = '1';
@@ -318,12 +339,9 @@ function cartProduct(id_prod, contenedor, total) {
         cantidadInput.addEventListener('change', (e) => {
             const costUnitInput = e.target.parentNode.querySelector('.cart-item__costUnit');
             const costTotalInput = e.target.parentNode.querySelector('.cart-item__costTotal');
-            const cantidad = parseInt(e.target.value);
-            const costUnit = parseFloat(costUnitInput.value);
-            const costTotal = cantidad * costUnit;
-            costTotalInput.value = costTotal;
-            total();
+            updateCostTotal(e.target, costUnitInput, costTotalInput);
         });
+
         card.appendChild(cantidadInput);
 
         const costUnitInput = document.createElement('input');
@@ -333,11 +351,7 @@ function cartProduct(id_prod, contenedor, total) {
         costUnitInput.addEventListener('change', (e) => {
             const cantidadInput = e.target.parentNode.querySelector('.cart-item__cantidad');
             const costTotalInput = e.target.parentNode.querySelector('.cart-item__costTotal');
-            const cantidad = parseInt(cantidadInput.value);
-            const costUnit = parseFloat(e.target.value);
-            const costTotal = cantidad * costUnit;
-            costTotalInput.value = costTotal;
-            total();
+            updateCostTotal(cantidadInput, e.target, costTotalInput);
         });
         card.appendChild(costUnitInput);
 
@@ -356,19 +370,6 @@ function cartProduct(id_prod, contenedor, total) {
         return card;
     }
 }
-const initSortableList = (e) => {
-    e.preventDefault();
-    const draggingItem = document.querySelector(".dragging");
-
-    let siblings = [...cartItem.querySelectorAll(".cart-item:not(.dragging)")];
-
-    let nextSibling = siblings.find(sibling => {
-        const rect = sibling.getBoundingClientRect();
-        return e.clientY <= rect.top + rect.height / 2;
-    });
-
-    cartItem.insertBefore(draggingItem, nextSibling);
-}
 //------Eliminar cart
 function removeCardFromCart(e, container) {
     const card = e.target.parentNode;
@@ -376,7 +377,7 @@ function removeCardFromCart(e, container) {
     totalPrice();
 }
 //-------Precio total y moneda
-const totalProfR = document.getElementById('total');
+const totalProfR = document.getElementById('totalProfR');
 function totalPrice() {
     const divs = cartItem.querySelectorAll('div.cart-item');
     const moneda = selectMoneyCart.value;
@@ -398,15 +399,12 @@ const selectMoneyCart = document.getElementById('selectMoneyCart');
 const tipoDeCambioProf = document.getElementById('tipoDeCambioProf');
 tipoDeCambioProf.addEventListener('change', changueRelacionMoneda);
 let valorAnterior = tipoDeCambioProf.value;
-
 function changueRelacionMoneda() {
     const valorNuevo = tipoDeCambioProf.value;
     changueCostUni(valorAnterior, valorNuevo);
     valorAnterior = valorNuevo;
 }
-
 selectMoneyCart.addEventListener('change', () => changueCostUni(1, valorAnterior));
-
 function changueCostUni(relacionAnterior, relacionNueva) {
     console.log(relacionAnterior, relacionNueva);
     if (selectMoneyCart.value == '$') {
@@ -442,11 +440,7 @@ function changueCostUni(relacionAnterior, relacionNueva) {
     }
     // Llamar a la función totalPrice()
     totalPrice();
-
 }
-
-
-
 //--------------------------------------------PROFORMA-----------------------------------------------------
 let proformas = [];
 let filterProformas = [];
@@ -745,14 +739,14 @@ async function createProforma() {
         for (let div of cartItem.querySelectorAll('div.cart-item')) {
             productos.push({
                 id_prod: div.getAttribute('id_prod'),
-                cantidad: div.children[3].value,
-                costoUnitario: div.children[4].value
+                cantidad: div.querySelector('.cart-item__cantidad').value,
+                costoUnitario: div.querySelector('.cart-item__costUnit').value
             })
         }
 
-
         let formData = new FormData(formProformaR);
-        formData.set("total_profR", Number(totalProfR.innerHTML.split(' ')[1]));
+        const total = (Number(totalProfR.innerHTML.split(' ')[1]) * Number(1 - document.getElementById('descuento_profR').value / 100)).toFixed(2);
+        formData.set("total_profR", total);
         formData.append('createProforma', JSON.stringify(productos));
         formData.append('moneda_profR', selectMoneyCart.value);
         formData.append('tipo_cambio_profR', tipoDeCambioProf.value);
@@ -763,6 +757,7 @@ async function createProforma() {
         }).then(response => response.text()).then(data => {
             Promise.all([readProformas(), readProf_prods()]).then(() => {
                 paginacionProforma(proformas.length, 1);
+                paginacionPfPd(filterProf_prods.length, 1);
                 requestProf = false;
                 preloader.classList.remove('modal__show');
                 cartItem.innerHTML = '';
@@ -797,6 +792,161 @@ function readProforma(id_prof) {
     proformaMMW.classList.add('modal__show');
     readProf_prod();
 }
+//------read prof_prod
+const modalProf_prod = document.querySelector('#cartsProf_prodMW');
+function readProf_prod() {
+    modalProf_prod.innerHTML = '';
+    const id_prof = document.getElementById('id_profM').value;
+    const prof_prods_filtered = prof_prods.filter(prof_prod => prof_prod['fk_id_prof_pfpd'] == id_prof);
+    prof_prods_filtered.forEach(prof_prod => {
+        const card = cartProduct_pfpd(prof_prod, modalProf_prod, totalPrice_pfpd);
+        modalProf_prod.appendChild(card);
+
+    })
+    //Drang and drop
+    const items = modalProf_prod.querySelectorAll(".cart-item");
+    items.forEach(item => {
+        item.addEventListener("dragstart", () => {
+            setTimeout(() => item.classList.add("dragging"), 0);
+        });
+        item.addEventListener("dragend", () => item.classList.remove("dragging"));
+    });
+    modalProf_prod.addEventListener("dragover", initSortableListM);
+    modalProf_prod.addEventListener("dragenter", e => e.preventDefault());
+
+    totalPrice_pfpd();
+}
+const initSortableListM = (e) => {
+    e.preventDefault();
+    const draggingItem = document.querySelector(".dragging");
+
+    let siblings = [...modalProf_prod.querySelectorAll(".cart-item:not(.dragging)")];
+
+    let nextSibling = siblings.find(sibling => {
+        const rect = sibling.getBoundingClientRect();
+        return e.clientY <= rect.top + rect.height / 2;
+    });
+
+    modalProf_prod.insertBefore(draggingItem, nextSibling);
+}
+//--------Muestra la lista de los productos de la proforma
+function cartProduct_pfpd(prof_prod, contenedor, total) {
+    const product = products.find(product => product.id_prod === prof_prod.fk_id_prod_pfpd);
+    if (product) {
+        const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 0);
+        const inventoriesArce = inventories.filter(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 1);
+
+        const cantidad_invAlto = inventoriesAlto.length > 0 ? inventoriesAlto[0].cantidad_inv : 0;
+        const cantidad_invArce = inventoriesArce.length > 0 ? inventoriesArce[0].cantidad_inv : 0;
+        const cantidad_invTotal = cantidad_invAlto + cantidad_invArce;
+
+        const cost_uni2 = prices.find(price => price.modelo.trim() === product.codigo_prod);
+        const cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio) * 1.1) : (inventoriesAlto.length > 0 ? Math.round(inventoriesAlto[0].cost_uni_inv * 1.1) : (inventoriesArce.length > 0 ? Math.round(inventoriesArce[0].cost_uni_inv * 1.1) : 0));
+
+        const card = document.createElement('div');
+        card.classList.add('cart-item');
+        card.setAttribute('id_prod', product.id_prod);
+        card.setAttribute('draggable', 'true');
+
+        const cantidadInvParagraph = document.createElement('p');
+        cantidadInvParagraph.classList.add('cart-item__cantInv');
+
+        if (cantidad_invAlto > 0 && cantidad_invArce > 0) {
+            cantidadInvParagraph.classList.add('almacen-ambos');
+        } else if (cantidad_invAlto > 0) {
+            cantidadInvParagraph.classList.add('almacen-alto');
+        } else if (cantidad_invArce > 0) {
+            cantidadInvParagraph.classList.add('almacen-arce');
+        }
+
+        cantidadInvParagraph.textContent = cantidad_invTotal;
+        card.appendChild(cantidadInvParagraph);
+
+        const rowImgDiv = document.createElement('div');
+        rowImgDiv.classList.add('row-img');
+        const img = document.createElement('img');
+        img.src = `../modelos/imagenes/${product.imagen_prod}`;
+        img.classList.add('rowimg');
+        rowImgDiv.appendChild(img);
+        card.appendChild(rowImgDiv);
+
+        const codigoParagraph = document.createElement('p');
+        codigoParagraph.classList.add('cart-item__codigo');
+        codigoParagraph.textContent = product.codigo_prod;
+        card.appendChild(codigoParagraph);
+
+        function updateCostTotal(cantidadInput, costUnitInput, costTotalInput) {
+            const cantidad = parseInt(cantidadInput.value);
+            const costUnit = parseFloat(costUnitInput.value);
+            const costTotal = cantidad * costUnit;
+            costTotalInput.value = costTotal;
+            total();
+        }
+
+        const cantidadInput = document.createElement('input');
+        cantidadInput.type = 'number';
+        cantidadInput.value = prof_prod.cantidad_pfpd;
+        cantidadInput.min = '1';
+        cantidadInput.classList.add('cart-item__cantidad');
+        cantidadInput.addEventListener('change', (e) => {
+            const costUnitInput = e.target.parentNode.querySelector('.cart-item__costUnit');
+            const costTotalInput = e.target.parentNode.querySelector('.cart-item__costTotal');
+            updateCostTotal(e.target, costUnitInput, costTotalInput);
+        });
+        card.appendChild(cantidadInput);
+
+        const costUnitInput = document.createElement('input');
+        costUnitInput.type = 'number';
+        costUnitInput.value = prof_prod.cost_uni_pfpd;
+        costUnitInput.classList.add('cart-item__costUnit');
+        costUnitInput.addEventListener('change', (e) => {
+            const cantidadInput = e.target.parentNode.querySelector('.cart-item__cantidad');
+            const costTotalInput = e.target.parentNode.querySelector('.cart-item__costTotal');
+            updateCostTotal(cantidadInput, e.target, costTotalInput);
+        });
+        card.appendChild(costUnitInput);
+
+        const costTotalInput = document.createElement('input');
+        costTotalInput.type = 'number';
+        costTotalInput.value = prof_prod.cost_uni_pfpd * prof_prod.cantidad_pfpd;
+        costTotalInput.classList.add('cart-item__costTotal');
+        costTotalInput.readOnly = true;
+        card.appendChild(costTotalInput);
+
+        const trashImg = document.createElement('img');
+        trashImg.src = '../imagenes/trash.svg';
+        trashImg.classList.add('icon__CRUD');
+        trashImg.addEventListener('click', (e) => removeCardFromCart(e, contenedor));
+        card.appendChild(trashImg);
+        return card;
+    }
+}
+const moneda_profM = document.getElementById('moneda_profM');
+function totalPrice_pfpd() {
+    const divs = document.querySelectorAll('#cartsProf_prodMW div.cart-item');
+    const moneda = moneda_profM.value;
+    let total = 0;
+    divs.forEach(div => {
+        costo = Number(div.querySelector('.cart-item__costTotal').value);
+        total = total + costo;
+    })
+    const descuento = Number(document.getElementById('descuento_profM').value);
+    document.getElementById('subTotal_pfpd').innerHTML = `Sub-Total(${moneda}): ${total.toFixed(2)} ${moneda}`;
+    document.getElementById('desc_pfpd').innerHTML = `Desc. ${descuento}% (${moneda}):   ${((total * descuento) / 100).toFixed(2)} ${moneda}`;
+    document.getElementById('total_pfpd').innerHTML = `Total(${moneda}): ${((total - (total * descuento) / 100)).toFixed(2)} ${moneda}`;
+    document.getElementById('count_pfpd').innerHTML = divs.length;
+}
+//-------Tipo de moneda
+const tipoDeCambioProfM = document.getElementById('tipoDeCambioProfM');
+tipoDeCambioProfM.classList.add('hide');
+moneda_profM.addEventListener('change', function () {
+    totalPrice_pfpd();
+    if (moneda_profM.value == '$') {
+        tipoDeCambioProfM.classList.remove('hide');
+    } else {
+        tipoDeCambioProfM.classList.add('hide');
+    }
+});
 //------Update una proforma
 let formProformaM = document.getElementById('formProformaM');
 formProformaM.addEventListener('submit', updateProforma)
@@ -857,6 +1007,7 @@ async function deleteProforma(id_prof) {
             }).then(response => response.text()).then(data => {
                 Promise.all([readProformas(), readProf_prods()]).then(() => {
                     paginacionProforma(proformas.length, 1);
+                    paginacionPfPd(filterProf_prods.length, 1);
                     requestProf = false;
                     preloader.classList.remove('modal__show');
                     mostrarAlerta(data);
@@ -867,6 +1018,157 @@ async function deleteProforma(id_prof) {
             });
         }
     }
+}
+//------------------------------------MOSTRAR LOS PRODUCTOS PREVIAMENTE--------------------------------------------
+function openPreviwProducts() {
+    let cart;
+    if (formProformas === 'R') {
+        cart = document.querySelectorAll('#cartItem .cart-item')
+    } else if (formProformas === 'M') {
+        cart = document.querySelectorAll('#cartsProf_prodMW .cart-item')
+    }
+    if (fk_id_emp_clteR.value == '' && formProformas == 'R') {
+        mostrarAlerta('Selecciona una empresa');
+        return;
+    }
+    if (cart.length > 0) {
+        const tbody = document.getElementById('tbodyPreviewProd');
+        const productos = getProducts();
+        const moneda = getMoneda();
+        const total = calculateTotal(productos);
+        const desc = getDescuento();
+        createTable(tbody, productos, moneda);
+        updateTotales(total, desc, moneda);
+        createButton(tbody, formProformas);
+        previewProducts.classList.add('modal__show');
+    } else {
+        mostrarAlerta('No a seleccionado ningun producto');
+    }
+}
+const titleEnterprise = document.getElementById('titleEnterprise');
+const titleCustomer = document.getElementById('titleCustomer');
+function getProducts() {
+    if (formProformas === 'R') {
+        const empresa = enterprises.find(enterprise => enterprise.id_emp == fk_id_emp_clteR.value);
+        const cliente = customers.find(customer => customer.id_clte == fk_id_clte_profR.value);
+
+        titleEnterprise.innerText = `EMPRESA: ${empresa.nombre_emp}`;
+        titleCustomer.innerText = `CLIENTE: ${cliente.apellido_clte + ' ' + cliente.nombre_clte}`;
+
+        return document.querySelectorAll('#cartItem .cart-item');
+    } else if (formProformas === 'M') {
+
+        const empresa = enterprises.find(enterprise => enterprise.id_emp == fk_id_emp_clteM.value);
+        const cliente = customers.find(customer => customer.id_clte == fk_id_clte_profM.value);
+
+        titleEnterprise.innerText = `EMPRESA: ${empresa.nombre_emp}`;
+        titleCustomer.innerText = `CLIENTE: ${cliente.apellido_clte + ' ' + cliente.nombre_clte}`;
+        return document.querySelectorAll('#cartsProf_prodMW .cart-item');
+    }
+}
+function getMoneda() {
+    if (formProformas === 'R') {
+        return document.getElementById('selectMoneyCart').value;
+    } else if (formProformas === 'M') {
+        return document.getElementsByName('moneda_profM')[0].value;
+    }
+}
+function calculateTotal(productos) {
+    let total = 0;
+    productos.forEach(producto => {
+        total += Number(producto.querySelector('.cart-item__costTotal').value);
+    });
+    return total;
+}
+function getDescuento() {
+    return Number(document.getElementsByName('descuento_prof' + formProformas)[0].value);
+}
+function createTable(tbody, productos, moneda) {
+    const fragment = document.createDocumentFragment();
+
+    productos.forEach((producto, index) => {
+
+        const row = products.find(product => product.id_prod == producto.getAttribute('id_prod'));
+        const monedaSymbol = `<b>${moneda}</b>`;
+
+        const tr = document.createElement('tr');
+        tr.setAttribute('id_prod', producto.getAttribute('id_prod'));
+
+        const tdIndex = document.createElement('td');
+        tdIndex.innerText = index + 1;
+        tr.appendChild(tdIndex);
+
+        const tdDescripcion = document.createElement('td');
+        tdDescripcion.innerText = row.descripcion_prod;
+        tr.appendChild(tdDescripcion);
+
+        const tdImagen = document.createElement('td');
+        const img = document.createElement('img');
+        img.classList.add('tbody__img');
+        img.setAttribute('src', `../modelos/imagenes/${row.imagen_prod}`);
+        tdImagen.appendChild(img);
+        tr.appendChild(tdImagen);
+
+        const tdCantidad = document.createElement('td');
+        tdCantidad.innerText = producto.querySelector('.cart-item__cantidad').value;
+        tr.appendChild(tdCantidad);
+
+        const tdPrecio = document.createElement('td');
+        tdPrecio.innerHTML = `${producto.querySelector('.cart-item__costUnit').value} ${monedaSymbol}`;
+        tr.appendChild(tdPrecio);
+
+        const tdTotal = document.createElement('td');
+        tdTotal.innerHTML = `${producto.querySelector('.cart-item__costTotal').value} ${monedaSymbol}`;
+        tr.appendChild(tdTotal);
+
+        fragment.appendChild(tr);
+    });
+
+    tbody.innerHTML = '';
+    tbody.appendChild(fragment);
+}
+function updateTotales(total, desc, moneda) {
+
+    const tbody = document.getElementById('tbodyPreviewProd');
+
+    const footerData = [
+        { value: `Sub-Total: ${total.toFixed(2)}` },
+        { value: `Desc. ${desc}%: ${(total * desc / 100).toFixed(2)}` },
+        { value: `Total: ${(total - (total * desc / 100)).toFixed(2)}` }
+    ];
+
+    footerData.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        const tdLabel = document.createElement('td');
+        tdLabel.setAttribute('colspan', '5');
+
+        const tdValue = document.createElement('td');
+        tdValue.classList.add('footer__tbody');
+        tdValue.innerText = `${item.value} ${moneda}`;
+
+        tr.appendChild(tdLabel);
+        tr.appendChild(tdValue);
+        tbody.appendChild(tr);
+    });
+}
+function createButton(tbody, formProformas) {
+    const tr = document.createElement('tr');
+    const tdLabel = document.createElement('td');
+    const tdValue = document.createElement('td');
+    const button = document.createElement('button');
+    button.classList.add('button__sell--previw');
+    button.innerText = 'Registrar';
+    if (formProformas === 'R') {
+        button.setAttribute('onclick', 'createProforma();');
+    } else if (formProformas === 'M') {
+        button.setAttribute('onclick', 'updateProforma();');
+    }
+
+    tdLabel.setAttribute('colspan', '5');
+    tdValue.appendChild(button);
+    tr.appendChild(tdLabel);
+    tr.appendChild(tdValue);
+    tbody.appendChild(tr);
 }
 //<------------------------------------------MODAL PROFORMA--------------------------------------------
 const openProformaRMW = document.getElementById('openProformaRMW');
@@ -1206,35 +1508,34 @@ function selectStateProductOC() {
     paginacionPfPd(filterProf_prods.length, 1);
 }
 //------Ordenar tabla descendente ascendente
-let orderPfPd = document.querySelectorAll('.tbody__head--PfPd');
+const orderPfPd = document.querySelectorAll('.tbody__head--PfPd');
 orderPfPd.forEach(div => {
     div.children[0].addEventListener('click', function () {
+        const valor = div.children[0].name;
         filterProf_prods.sort((a, b) => {
-            let first = a[div.children[0].name];
-            let second = b[div.children[0].name];
-            if (typeof first === 'number' && typeof second === 'number') {
-                return first - second;
-            } else {
-                return String(first).localeCompare(String(second));
-            }
+            const proformaA = proformas.find(proforma => proforma.id_prof == a.fk_id_prof_pfpd);
+            const proformaB = proformas.find(proforma => proforma.id_prof == b.fk_id_prof_pfpd);
+            const valorA = String(proformaA[valor]);
+            const valorB = String(proformaB[valor]);
+            return valorA.localeCompare(valorB);
         });
         paginacionPfPd(filterProf_prods.length, 1);
     });
     div.children[1].addEventListener('click', function () {
+        const valor = div.children[0].name;
         filterProf_prods.sort((a, b) => {
-            let first = a[div.children[0].name];
-            let second = b[div.children[0].name];
-            if (typeof first === 'number' && typeof second === 'number') {
-                return second - first;
-            } else {
-                return String(second).localeCompare(String(first));
-            }
+            const proformaA = proformas.find(proforma => proforma.id_prof == a.fk_id_prof_pfpd);
+            const proformaB = proformas.find(proforma => proforma.id_prof == b.fk_id_prof_pfpd);
+            const valorA = String(proformaA[valor]);
+            const valorB = String(proformaB[valor]);
+            return valorB.localeCompare(valorA);
         });
         paginacionPfPd(filterProf_prods.length, 1);
     });
 });
 //------paginacionPfPd
 function paginacionPfPd(allProducts, page) {
+    console.log('Tabla de proforma-productos');
     let totalPfPd = document.getElementById('totalPfPd');
     let total = 0;
     for (let prof_prods in filterProf_prods) {
@@ -1354,170 +1655,7 @@ async function readmProf_prods() {
         }).catch(err => console.log(err));
     });
 }
-//------read prof_prod
-let modalProf_prod = document.querySelector('#cartsProf_prodMW');
-function readProf_prod() {
-    modalProf_prod.innerHTML = '';
-    const id_prof = document.getElementById('id_profM').value;
-    const prof_prods_filtered = prof_prods.filter(prof_prod => prof_prod['fk_id_prof_pfpd'] == id_prof);
-    prof_prods_filtered.forEach(prof_prod => {
-        const card = cartProduct_pfpd(prof_prod, modalProf_prod, totalPrice_pfpd);
-        modalProf_prod.appendChild(card);
-
-    })
-    //Drang and drop
-    const items = modalProf_prod.querySelectorAll(".cart-item");
-    items.forEach(item => {
-        item.addEventListener("dragstart", () => {
-            setTimeout(() => item.classList.add("dragging"), 0);
-        });
-        item.addEventListener("dragend", () => item.classList.remove("dragging"));
-    });
-    modalProf_prod.addEventListener("dragover", initSortableListM);
-    modalProf_prod.addEventListener("dragenter", e => e.preventDefault());
-
-    totalPrice_pfpd();
-
-}
-//--------Muestra la lista de los productos de la proforma
-function cartProduct_pfpd(prof_prod, contenedor, total) {
-    const product = products.find(product => product.id_prod === prof_prod.fk_id_prod_pfpd);
-    if (product) {
-        const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 0);
-        const inventoriesArce = inventories.filter(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 1);
-
-        const cantidad_invAlto = inventoriesAlto.length > 0 ? inventoriesAlto[0].cantidad_inv : 0;
-        const cantidad_invArce = inventoriesArce.length > 0 ? inventoriesArce[0].cantidad_inv : 0;
-        const cantidad_invTotal = cantidad_invAlto + cantidad_invArce;
-
-        const cost_uni2 = prices.find(price => price.modelo.trim() === product.codigo_prod);
-        const cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio) * 1.1) : (inventoriesAlto.length > 0 ? Math.round(inventoriesAlto[0].cost_uni_inv * 1.1) : (inventoriesArce.length > 0 ? Math.round(inventoriesArce[0].cost_uni_inv * 1.1) : 0));
-
-        const card = document.createElement('div');
-        card.classList.add('cart-item');
-        card.setAttribute('id_prod', product.id_prod);
-        card.setAttribute('draggable', 'true');
-
-        const cantidadInvParagraph = document.createElement('p');
-        cantidadInvParagraph.classList.add('cart-item__cantInv');
-
-        if (cantidad_invAlto > 0 && cantidad_invArce > 0) {
-            cantidadInvParagraph.classList.add('almacen-ambos');
-        } else if (cantidad_invAlto > 0) {
-            cantidadInvParagraph.classList.add('almacen-alto');
-        } else if (cantidad_invArce > 0) {
-            cantidadInvParagraph.classList.add('almacen-arce');
-        }
-
-        cantidadInvParagraph.textContent = cantidad_invTotal;
-        card.appendChild(cantidadInvParagraph);
-
-        const rowImgDiv = document.createElement('div');
-        rowImgDiv.classList.add('row-img');
-        const img = document.createElement('img');
-        img.src = `../modelos/imagenes/${product.imagen_prod}`;
-        img.classList.add('rowimg');
-        rowImgDiv.appendChild(img);
-        card.appendChild(rowImgDiv);
-
-        const codigoParagraph = document.createElement('p');
-        codigoParagraph.classList.add('cart-item__codigo');
-        codigoParagraph.textContent = product.codigo_prod;
-        card.appendChild(codigoParagraph);
-
-        const cantidadInput = document.createElement('input');
-        cantidadInput.type = 'number';
-        cantidadInput.value = prof_prod.cantidad_pfpd;
-        cantidadInput.min = '1';
-        cantidadInput.classList.add('cart-item__cantidad');
-        cantidadInput.addEventListener('change', (e) => {
-            const costUnitInput = e.target.parentNode.querySelector('.cart-item__costUnit');
-            const costTotalInput = e.target.parentNode.querySelector('.cart-item__costTotal');
-            const cantidad = parseInt(e.target.value);
-            const costUnit = parseFloat(costUnitInput.value);
-            const costTotal = cantidad * costUnit;
-            costTotalInput.value = costTotal;
-            total();
-        });
-        card.appendChild(cantidadInput);
-
-        const costUnitInput = document.createElement('input');
-        costUnitInput.type = 'number';
-        costUnitInput.value = prof_prod.cost_uni_pfpd;
-        costUnitInput.classList.add('cart-item__costUnit');
-        costUnitInput.addEventListener('change', (e) => {
-            const cantidadInput = e.target.parentNode.querySelector('.cart-item__cantidad');
-            const costTotalInput = e.target.parentNode.querySelector('.cart-item__costTotal');
-            const cantidad = parseInt(cantidadInput.value);
-            const costUnit = parseFloat(e.target.value);
-            const costTotal = cantidad * costUnit;
-            costTotalInput.value = costTotal;
-            total();
-        });
-        card.appendChild(costUnitInput);
-
-        const costTotalInput = document.createElement('input');
-        costTotalInput.type = 'number';
-        costTotalInput.value = prof_prod.cost_uni_pfpd * prof_prod.cantidad_pfpd;
-        costTotalInput.classList.add('cart-item__costTotal');
-        costTotalInput.readOnly = true;
-        card.appendChild(costTotalInput);
-
-        const trashImg = document.createElement('img');
-        trashImg.src = '../imagenes/trash.svg';
-        trashImg.classList.add('icon__CRUD');
-        trashImg.addEventListener('click', (e) => removeCardFromCart(e, contenedor));
-        card.appendChild(trashImg);
-        return card;
-    }
-}
-const initSortableListM = (e) => {
-    e.preventDefault();
-    const draggingItem = document.querySelector(".dragging");
-
-    let siblings = [...modalProf_prod.querySelectorAll(".cart-item:not(.dragging)")];
-
-    let nextSibling = siblings.find(sibling => {
-        const rect = sibling.getBoundingClientRect();
-        return e.clientY <= rect.top + rect.height / 2;
-    });
-
-    modalProf_prod.insertBefore(draggingItem, nextSibling);
-}
-//-------Cuando cambia la cantidad
-function changeQuantity_pfpd(product) {
-    let cantidad_prod = product.children[3].value;
-    let costo_uni = product.children[4].value;
-    let cost_uni_total = cantidad_prod * costo_uni;
-    product.children[5].value = cost_uni_total.toFixed(2);
-    totalPrice_pfpd();
-}
-function totalPrice_pfpd() {
-    let divs = document.querySelectorAll('#cartsProf_prodMW div.cart-item');
-    let moneda = document.getElementsByName('moneda_profM')[0].value;
-    let total = 0;
-    divs.forEach(div => {
-        costo = Number(div.children[5].value);
-        total = total + costo;
-    })
-    let descuento = Number(document.getElementsByName('descuento_profM')[0].value);
-    document.getElementById('subTotal_pfpd').innerHTML = `Sub-Total(${moneda}): ${total.toFixed(2)} ${moneda}`;
-    document.getElementById('desc_pfpd').innerHTML = `Desc. ${descuento}% (${moneda}):   ${((total * descuento) / 100).toFixed(2)} ${moneda}`;
-    document.getElementById('total_pfpd').innerHTML = `Total(${moneda}): ${((total - (total * descuento) / 100)).toFixed(2)} ${moneda}`;
-    document.getElementById('count_pfpd').innerHTML = divs.length;
-}
-//-------Tipo de moneda
-let moneda_profM = document.getElementsByName('moneda_profM')[0];
-moneda_profM.addEventListener('change', function () {
-    totalPrice_pfpd();
-    let tipoDeCambioProfM = document.getElementById('tipoDeCambioProfM');
-    if (moneda_profM.value == '$') {
-        tipoDeCambioProfM.classList.remove('hide');
-    } else {
-        tipoDeCambioProfM.classList.add('hide');
-    }
-});
-//-------------------------------------MODAL DE PRODUCTS DE UNA PROFORMA MODIFICAR--------------------------------------------
+//---------------------------------MODAL DE PRODUCTS DE UNA PROFORMA MODIFICADA--------------------------------------------
 const closeProf_prodMW = document.getElementById('closeProf_prodMW');
 const prof_prodMW = document.getElementById('prof_prodMW');
 function openProf_prodMW() {
@@ -1527,292 +1665,11 @@ function openProf_prodMW() {
 closeProf_prodMW.addEventListener('click', (e) => {
     prof_prodMW.classList.remove('modal__show');
 });
-//-------------------------------------------MOSTRAR LOS PRODUCTOS PREVIAMENTE---------------------------------------------------
-function openPreviwProducts() {
-    let cart;
-    if (formProformas == 'R') {
-        cart = document.querySelectorAll('#cartItem .cart-item')
-    } else if (formProformas == 'M') {
-        cart = document.querySelectorAll('#cartsProf_prodMW .cart-item')
-    }
-    if (fk_id_emp_clteR.value == '' && formProformas == 'R') {
-        mostrarAlerta('Selecciona una empresa');
-        return;
-    }
-    if (cart.length > 0) {
-        const tbody = document.getElementById('tbodyPreviewProd');
-        const productos = getProducts();
-        const moneda = getMoneda();
-        const total = calculateTotal(productos);
-        const desc = getDescuento();
-        createTable(tbody, productos, moneda);
-        updateTotales(total, desc, moneda);
-        createButton(tbody, formProformas);
-        previewProducts.classList.add('modal__show');
-    } else {
-        mostrarAlerta('No a seleccionado ningun producto');
-    }
-}
-const titleEnterprise = document.getElementById('titleEnterprise');
-const titleCustomer = document.getElementById('titleCustomer');
-function getProducts() {
-    if (formProformas === 'R') {
-        const empresa = enterprises.find(enterprise => enterprise.id_emp == fk_id_emp_clteR.value);
-        const cliente = customers.find(customer => customer.id_clte == fk_id_clte_profR.value);
-
-        titleEnterprise.innerText = `EMPRESA: ${empresa.nombre_emp}`;
-        titleCustomer.innerText = `CLIENTE: ${cliente.apellido_clte + ' ' + cliente.nombre_clte}`;
-
-        return document.querySelectorAll('#cartItem .cart-item');
-    } else if (formProformas === 'M') {
-
-        const empresa = enterprises.find(enterprise => enterprise.id_emp == fk_id_emp_clteM.value);
-        const cliente = customers.find(customer => customer.id_clte == fk_id_clte_profM.value);
-
-        titleEnterprise.innerText = `EMPRESA: ${empresa.nombre_emp}`;
-        titleCustomer.innerText = `CLIENTE: ${cliente.apellido_clte + ' ' + cliente.nombre_clte}`;
-        return document.querySelectorAll('#cartsProf_prodMW .cart-item');
-    }
-}
-function getMoneda() {
-    if (formProformas === 'R') {
-        return document.getElementById('selectMoneyCart').value;
-    } else if (formProformas === 'M') {
-        return document.getElementsByName('moneda_profM')[0].value;
-    }
-}
-function calculateTotal(productos) {
-    let total = 0;
-    productos.forEach(producto => {
-        total += Number(producto.children[5].value);
-    });
-    return total;
-}
-function getDescuento() {
-    return Number(document.getElementsByName('descuento_prof' + formProformas)[0].value);
-}
-function createTable(tbody, productos, moneda) {
-
-    let fragment = document.createDocumentFragment();
-
-    productos.forEach((producto, index) => {
-
-        const row = products.find(product => product.id_prod == producto.getAttribute('id_prod'));
-
-        const monedaSymbol = `<b>${moneda}</b>`;
-
-        let tr = document.createElement('tr');
-        tr.setAttribute('id_prod', producto.getAttribute('id_prod'));
-
-        let tdIndex = document.createElement('td');
-        tdIndex.innerText = index + 1;
-        tr.appendChild(tdIndex);
-
-        let tdDescripcion = document.createElement('td');
-        tdDescripcion.innerText = row.descripcion_prod;
-        tr.appendChild(tdDescripcion);
-
-        let tdImagen = document.createElement('td');
-        let img = document.createElement('img');
-        img.classList.add('tbody__img');
-        img.setAttribute('src', `../modelos/imagenes/${row.imagen_prod}`);
-        tdImagen.appendChild(img);
-        tr.appendChild(tdImagen);
-
-        let tdCantidad = document.createElement('td');
-        tdCantidad.innerText = producto.children[3].value;
-        tr.appendChild(tdCantidad);
-
-        let tdPrecio = document.createElement('td');
-        tdPrecio.innerHTML = `${producto.children[4].value} ${monedaSymbol}`;
-        tr.appendChild(tdPrecio);
-
-        let tdTotal = document.createElement('td');
-        tdTotal.innerHTML = `${producto.children[5].value} ${monedaSymbol}`;
-        tr.appendChild(tdTotal);
-
-        fragment.appendChild(tr);
-    });
-
-    tbody.innerHTML = '';
-    tbody.appendChild(fragment);
-}
-function updateTotales(total, desc, moneda) {
-
-    const tbody = document.getElementById('tbodyPreviewProd');
-
-    const footerData = [
-        { value: `Sub-Total: ${total.toFixed(2)}` },
-        { value: `Desc. ${desc}%: ${(total * desc / 100).toFixed(2)}%` },
-        { value: `Total: ${(total - (total * desc / 100)).toFixed(2)}` }
-    ];
-
-    footerData.forEach((item, index) => {
-        const tr = document.createElement('tr');
-        const tdLabel = document.createElement('td');
-        tdLabel.setAttribute('colspan', '5');
-
-        const tdValue = document.createElement('td');
-        tdValue.classList.add('footer__tbody');
-        tdValue.innerText = `${item.value} ${moneda}`;
-
-        tr.appendChild(tdLabel);
-        tr.appendChild(tdValue);
-        tbody.appendChild(tr);
-    });
-}
-function createButton(tbody, formProformas) {
-    const tr = document.createElement('tr');
-    const tdLabel = document.createElement('td');
-    const tdValue = document.createElement('td');
-    const button = document.createElement('button');
-    button.classList.add('button__sell--previw');
-    button.innerText = 'Registrar';
-    if (formProformas === 'R') {
-        button.setAttribute('onclick', 'createProforma();');
-    } else if (formProformas === 'M') {
-        button.setAttribute('onclick', 'updateProforma();');
-    }
-
-    tdLabel.setAttribute('colspan', '5');
-    tdValue.appendChild(button);
-    tr.appendChild(tdLabel);
-    tr.appendChild(tdValue);
-    tbody.appendChild(tr);
-}
 //-----------------------------MODAL VISTA PREVIA DE LOS PRODUCTOS DE LA PROFORMA
 const previewProducts = document.getElementById('previewProducts');
 const closePreviewProducts = document.getElementById('closePreviewProducts');
 closePreviewProducts.addEventListener('click', () => {
     previewProducts.classList.remove('modal__show');
-});
-//---------------------------------------------------------CRUD NOTA DE ENTREGA------------------------------------------
-//-------Crate Nota de entrega
-const productsSold = document.querySelector('#productsSold');
-const closeProductsSold = document.querySelector('#closeProductsSold');
-function openPreviwProductsSold() {
-    const id_prof = Number(document.getElementById('id_prof').value);
-    const prof_prodsFiltered = prof_prods.filter(prof_prod => prof_prod['fk_id_prof_pfpd'] === id_prof);
-    const inventoriesMap = new Map(inventories.map(inventory => [inventory['fk_id_prod_inv'], inventory]));
-    const productsMap = new Map(products.map(product => [product['id_prod'], product]));
-    const nuevo_array = prof_prodsFiltered.map(prof_prod => {
-        const product = productsMap.get(prof_prod['fk_id_prod_pfpd']);
-        const inventory = inventoriesMap.get(product['id_prod']) || { id_inv: 0, cantidad_inv: 0 };
-        return {
-            id_inv: inventory.id_inv,
-            cantidad_inv: inventory.cantidad_inv,
-            imagen_prod: product.imagen_prod,
-            codigo_prod: product.codigo_prod,
-            cantidad_pfpd: prof_prod.cantidad_pfpd,
-            cost_uni_pfpd: prof_prod.cost_uni_pfpd
-        };
-    });
-    readProductsSold(nuevo_array);
-}
-closeProductsSold.addEventListener('click', (e) => {
-    productsSold.classList.remove('modal__show');
-});
-function readProductsSold(products) {
-    const item = productsSold.querySelector('#cartsProductsSold');
-    item.textContent = '';
-    const cartTemplate = document.createElement('template');
-    cartTemplate.innerHTML = `
-        <div class="cart-item">
-            <p class="cart-item__cantInv"></p>
-            <div class="row-img">
-                <img src="" class="rowimg">
-            </div>
-            <p class="cart-item__codigo"></p>
-            <input type="number" value="" min="1" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__cantidad">
-            <input type="number" value="" onChange="changeQuantity_pfpd(this.parentNode)" class="cart-item__costUnit">
-            <input type="number" value="" class="cart-item__costTotal" readonly>
-            <p hidden></p>
-        </div>`;
-    let costTotal = 0;
-    products.forEach(product => {
-        const cart = cartTemplate.content.cloneNode(true);
-        cart.querySelector('.cart-item__cantInv').textContent = product['cantidad_inv'];
-        cart.querySelector('.row-img img').src = `../modelos/imagenes/${product['imagen_prod']}`;
-        cart.querySelector('.cart-item__codigo').textContent = product['codigo_prod'];
-        cart.querySelector('.cart-item__cantidad').value = product['cantidad_pfpd'];
-        cart.querySelector('.cart-item__costUnit').value = parseFloat(product['cost_uni_pfpd']).toFixed(2);
-        cart.querySelector('.cart-item__costTotal').value = (product['cantidad_pfpd'] * parseFloat(product['cost_uni_pfpd'])).toFixed(2);
-        cart.querySelector('p[hidden]').textContent = product['id_inv'];
-        item.appendChild(cart);
-        costTotal += parseFloat(product['cost_uni_pfpd']) * product['cantidad_pfpd'];
-    });
-    document.getElementById('subTotalNE').innerText = `Sub-Total(Bs): ${costTotal.toFixed(2)} Bs`;
-    let desc = (costTotal * Number(document.getElementById('descuento_prof').value) / 100).toFixed(2);
-    document.getElementById('descNE').innerText = `Desc. ${Number(document.getElementById('descuento_prof').value)}% (Bs): ${desc} Bs`;
-    document.getElementById('totalNE').innerText = `Total(Bs): ${(costTotal - desc).toFixed(2)} Bs`;
-    document.getElementById('quantityNE').innerText = products.length;
-    document.getElementById('btnBuy').removeAttribute('hidden');
-    productsSold.classList.add('modal__show');
-}
-async function createNotaEntrega() {
-    const carts = productsSold.querySelectorAll('#cartsProductsSold div.cart-item');
-    const arrayObjetos = [];
-    let count = true;
-    for (const cart of carts) {
-
-        const cantidadInv = Number(cart.children[0].innerText);
-        const cantidadPedida = Number(cart.children[3].value);
-        if (cantidadInv < cantidadPedida) {
-            mostrarAlerta(`No hay la cantidad suficiente en inventario del producto: ${cart.children[2].innerText}`);
-            count = false;
-            break;
-        }
-        arrayObjetos.push({
-            id_inv: parseInt(cart.children[6].innerText),
-            codigo_neiv: cart.children[2].innerText,
-            cantidad_neiv: parseInt(cart.children[3].value),
-            cost_uni_neiv: parseFloat(cart.children[4].value)
-        });
-        console.log(arrayObjetos)
-    }
-    if (count == true) {
-        if (confirm('¿Esta usted seguro?')) {
-            if (requestProf == false) {
-                requestProf = true;
-                notaEntregaRMW.classList.remove('modal__show');
-                productsSold.classList.remove('modal__show');
-                const form = document.getElementById('formNotaEntregaR');
-                let formData = new FormData(form);
-                formData.append('createNotaEntrega', '');
-                formData.append('arrayObjetos', JSON.stringify(arrayObjetos));
-                formData.append('id_usua', localStorage.getItem('id_usua'));
-                preloader.classList.add('modal__show');
-                fetch('../controladores/notaEntrega.php', {
-                    method: "POST",
-                    body: formData
-                }).then(response => response.text()).then(data => {
-                    Promise.all([readProformas(), readProf_prods(), readInventories()]).then(() => {
-                        requestProf = false;
-                        mostrarAlerta(data);
-                        form.reset();
-                        preloader.classList.remove('modal__show');
-                    })
-                }).catch(err => {
-                    requestProf = false;
-                    mostrarAlerta(err);
-                });
-            }
-        }
-    }
-}
-//-----------------------------------------------MODAL DE NOTA DE ENTREGA--------------------------------------------
-const closeNotaEntregaRMW = document.getElementById('closeNotaEntregaRMW');
-const notaEntregaRMW = document.getElementById('notaEntregaRMW');
-function openNotaEntregaRMW(tr) {
-    console.log(tr)
-    document.getElementById('fecha_ne').value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
-    document.getElementById('id_prof').value = tr.getAttribute('id_prof');
-    document.getElementById('descuento_prof').value = filterProformas.find(proforma => proforma['id_prof'] == tr.children[0].innerText)['descuento_prof'];
-    document.getElementById('numero_prof').value = tr.children[1].innerText;
-    notaEntregaRMW.classList.add('modal__show');
-}
-closeNotaEntregaRMW.addEventListener('click', (e) => {
-    notaEntregaRMW.classList.remove('modal__show');
 });
 //<<---------------------------------------------EMPRESA---------------------------------------------->>
 const fk_id_emp_clteR = document.getElementById('fk_id_emp_clteR');
