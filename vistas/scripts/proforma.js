@@ -771,7 +771,6 @@ async function createProforma() {
 }
 //------Read una proforma
 function readProforma(id_prof) {
-    console.log('readProforma');
     formProformas = 'M';
     const proforma = filterProformas.find(proforma => proforma.id_prof == id_prof);
 
@@ -779,7 +778,6 @@ function readProforma(id_prof) {
         if (valor != 'fk_id_usua_prof' && valor != 'estado_prof') {
             document.getElementsByName(valor + 'M')[0].value = proforma[valor];
             if (valor == 'moneda_prof') {
-                console.log(proforma[valor]);
                 if (proforma[valor] == '$') {
                     tipoDeCambioProfM.classList.remove('hide');
                 } else {
@@ -806,7 +804,7 @@ function readProf_prod() {
     const id_prof = document.getElementById('id_profM').value;
     const prof_prods_filtered = prof_prods.filter(prof_prod => prof_prod['fk_id_prof_pfpd'] == id_prof);
     prof_prods_filtered.forEach(prof_prod => {
-        const card = cartProduct_pfpd(prof_prod, modalProf_prod, totalPrice_pfpd);
+        const card = cartProduct_pfpd(prof_prod, modalProf_prod, totalPriceM);
         modalProf_prod.appendChild(card);
 
     })
@@ -821,7 +819,7 @@ function readProf_prod() {
     modalProf_prod.addEventListener("dragover", initSortableListM);
     modalProf_prod.addEventListener("dragenter", e => e.preventDefault());
 
-    totalPrice_pfpd();
+    totalPriceM();
 }
 const initSortableListM = (e) => {
     e.preventDefault();
@@ -928,7 +926,7 @@ function cartProduct_pfpd(prof_prod, contenedor, total) {
         return card;
     }
 }
-function totalPrice_pfpd() {
+function totalPriceM() {
     const divs = document.querySelectorAll('#cartsProf_prodMW div.cart-item');
     const moneda = moneda_profM.value;
     let total = 0;
@@ -944,58 +942,52 @@ function totalPrice_pfpd() {
 }
 //-------Tipo de moneda
 const moneda_profM = document.getElementById('moneda_profM');
-const tipoDeCambioProfM = document.getElementById('tipoDeCambioProfM');
-let valorAnteriorM = tipoDeCambioProfM.value;
+const tipo_cambio_profM = document.getElementById('tipo_cambio_profM');
+tipo_cambio_profM.addEventListener('change', changueRelacionMonedaM);
+let valorAnteriorM = tipo_cambio_profM.value;
 
 function changueRelacionMonedaM() {
-    const valorNuevoM = tipoDeCambioProfM.value;
-    changueCostUniM(valorAnteriorM, valorNuevoM);
-    valorAnteriorM = valorNuevoM;
+    console.log('sdasd')
+    const valorNuevo = tipo_cambio_profM.value;
+    changueCostUniM(valorAnterior, valorNuevo);
+    valorAnterior = valorNuevo;
 }
-
-moneda_profM.addEventListener('change', function () {
-    totalPrice_pfpd();
-    if (moneda_profM.value == '$') {
-        tipoDeCambioProfM.classList.remove('hide');
-        valorAnteriorM = tipoDeCambioProfM.value;
-    } else {
-        tipoDeCambioProfM.classList.add('hide');
-    }
-});
-
-tipoDeCambioProfM.addEventListener('change', changueRelacionMonedaM);
-
+moneda_profM.addEventListener('change', () => changueCostUniM(1, valorAnterior));
+const tipoDeCambioProfM = document.getElementById('tipoDeCambioProfM');
 function changueCostUniM(relacionAnterior, relacionNueva) {
     if (moneda_profM.value == '$') {
-        const costoUnitarioM = document.querySelectorAll('.cart-item__costUnitM');
-        costoUnitarioM.forEach(function (costo) {
+        tipoDeCambioProfM.classList.remove('hide')
+
+        const costoUnitario = document.querySelectorAll('.cart-item__costUnit');
+        costoUnitario.forEach(function (costo) {
             const valorActual = parseFloat(costo.value);
             const valorNuevo = (valorActual * relacionAnterior) / relacionNueva;
             costo.value = valorNuevo.toFixed(2);
 
             // Multiplicar por la cantidad
-            const cantidad = costo.parentNode.querySelector('.cart-item__cantidadM').value;
+            const cantidad = costo.parentNode.querySelector('.cart-item__cantidad').value;
             const costoTotal = valorNuevo * cantidad;
-            costo.parentNode.querySelector('.cart-item__costTotalM').value = costoTotal.toFixed(2);
+            costo.parentNode.querySelector('.cart-item__costTotal').value = costoTotal.toFixed(2);
+
         });
+
     } else {
-        const costoUnitarioM = document.querySelectorAll('.cart-item__costUnitM');
-        costoUnitarioM.forEach(function (costo) {
+        tipoDeCambioProfM.classList.add('hide');
+        const costoUnitario = document.querySelectorAll('.cart-item__costUnit');
+        costoUnitario.forEach(function (costo) {
             const valorActual = parseFloat(costo.value);
             const valorNuevo = (valorActual * relacionNueva) / relacionAnterior;
             costo.value = valorNuevo.toFixed(2);
 
             // Multiplicar por la cantidad
-            const cantidad = costo.parentNode.querySelector('.cart-item__cantidadM').value;
+            const cantidad = costo.parentNode.querySelector('.cart-item__cantidad').value;
             const costoTotal = valorNuevo * cantidad;
-            costo.parentNode.querySelector('.cart-item__costTotalM').value = costoTotal.toFixed(2);
+            costo.parentNode.querySelector('.cart-item__costTotal').value = costoTotal.toFixed(2);
         });
     }
-    // Llamar a la función totalPrice_pfpd()
-    totalPrice_pfpd();
+    // Llamar a la función totalPrice()
+    totalPriceM();
 }
-
-
 
 
 //------Update una proforma
@@ -1711,7 +1703,6 @@ const closeProf_prodMW = document.getElementById('closeProf_prodMW');
 const prof_prodMW = document.getElementById('prof_prodMW');
 function openProf_prodMW() {
     prof_prodMW.classList.add('modal__show');
-    totalPrice_pfpd();
 }
 closeProf_prodMW.addEventListener('click', (e) => {
     prof_prodMW.classList.remove('modal__show');
@@ -2711,7 +2702,7 @@ function sendProduct(id_prod) {
         const existe = Array.from(prof_prods).some(prod => prod.children[2].innerText === codigo);
         if (!existe) {
 
-            const card = cartProduct(id_prod, modalProf_prod, totalPrice_pfpd);
+            const card = cartProduct(id_prod, modalProf_prod, totalPriceM);
             modalProf_prod.appendChild(card);
 
             //Drang and drop
@@ -2726,7 +2717,7 @@ function sendProduct(id_prod) {
             modalProf_prod.addEventListener("dragover", initSortableListM);
             modalProf_prod.addEventListener("dragenter", e => e.preventDefault());
 
-            totalPrice_pfpd();
+            totalPriceM();
         } else {
             mostrarAlerta("El producto ya se encuentra en la lista");
         }
