@@ -613,7 +613,6 @@ dropAreaR.addEventListener('dragover', (e) => {
     e.preventDefault();
     dropAreaR.classList.add('active');
     dragTextR.textContent = 'Suelta para subir el archivo';
-
 });
 /*Cunado estemos arrastrando pero no estamos dentro de la zona*/
 dropAreaR.addEventListener('dragleave', (e) => {

@@ -409,7 +409,7 @@ function changueCostUni(relacionAnterior, relacionNueva) {
     if (selectMoneyCart.value == '$') {
         tipoDeCambioProf.removeAttribute('hidden');
 
-        const costoUnitario = document.querySelectorAll('.cart-item__costUnit');
+        const costoUnitario = cartItem.querySelectorAll('.cart-item__costUnit');
         costoUnitario.forEach(function (costo) {
             const valorActual = parseFloat(costo.value);
             const valorNuevo = (valorActual * relacionAnterior) / relacionNueva;
@@ -424,7 +424,7 @@ function changueCostUni(relacionAnterior, relacionNueva) {
 
     } else {
         tipoDeCambioProf.setAttribute('hidden', '');
-        const costoUnitario = document.querySelectorAll('.cart-item__costUnit');
+        const costoUnitario = cartItem.querySelectorAll('.cart-item__costUnit');
         costoUnitario.forEach(function (costo) {
             const valorActual = parseFloat(costo.value);
             const valorNuevo = (valorActual * relacionNueva) / relacionAnterior;
@@ -724,9 +724,6 @@ closeTableProfMW.addEventListener('click', (e) => {
 const formProformaR = document.getElementById('formProformaR')
 formProformaR.addEventListener('submit', createProforma);
 async function createProforma() {
-    const tbodyPreviewProd = document.getElementById('tbodyPreviewProd');
-    const trs = document.querySelectorAll('#tbodyPreviewProd tr');
-
     if (requestProf === false) {
         requestProf = true;
         preloader.classList.add('modal__show');
@@ -759,6 +756,7 @@ async function createProforma() {
                 requestProf = false;
                 preloader.classList.remove('modal__show');
                 cartItem.innerHTML = '';
+                formProformaR.reset();
                 totalPrice();
                 fillFormProfR();
                 mostrarAlerta(data);
@@ -945,9 +943,7 @@ const moneda_profM = document.getElementById('moneda_profM');
 const tipo_cambio_profM = document.getElementById('tipo_cambio_profM');
 tipo_cambio_profM.addEventListener('change', changueRelacionMonedaM);
 let valorAnteriorM = tipo_cambio_profM.value;
-
 function changueRelacionMonedaM() {
-    console.log('sdasd')
     const valorNuevo = tipo_cambio_profM.value;
     changueCostUniM(valorAnterior, valorNuevo);
     valorAnterior = valorNuevo;
@@ -958,7 +954,7 @@ function changueCostUniM(relacionAnterior, relacionNueva) {
     if (moneda_profM.value == '$') {
         tipoDeCambioProfM.classList.remove('hide')
 
-        const costoUnitario = document.querySelectorAll('.cart-item__costUnit');
+        const costoUnitario = modalProf_prod.querySelectorAll('.cart-item__costUnit');
         costoUnitario.forEach(function (costo) {
             const valorActual = parseFloat(costo.value);
             const valorNuevo = (valorActual * relacionAnterior) / relacionNueva;
@@ -973,7 +969,7 @@ function changueCostUniM(relacionAnterior, relacionNueva) {
 
     } else {
         tipoDeCambioProfM.classList.add('hide');
-        const costoUnitario = document.querySelectorAll('.cart-item__costUnit');
+        const costoUnitario = modalProf_prod.querySelectorAll('.cart-item__costUnit');
         costoUnitario.forEach(function (costo) {
             const valorActual = parseFloat(costo.value);
             const valorNuevo = (valorActual * relacionNueva) / relacionAnterior;
@@ -985,36 +981,31 @@ function changueCostUniM(relacionAnterior, relacionNueva) {
             costo.parentNode.querySelector('.cart-item__costTotal').value = costoTotal.toFixed(2);
         });
     }
-    // Llamar a la función totalPrice()
-    totalPriceM();
 }
-
-
 //------Update una proforma
-let formProformaM = document.getElementById('formProformaM');
+const formProformaM = document.getElementById('formProformaM');
 formProformaM.addEventListener('submit', updateProforma)
 async function updateProforma() {
-    const modal = document.querySelector('#cartsProf_prodMW');
-    const cartItems = modal.querySelectorAll('div.cart-item');
-    if (cartItems.length > 0) {
+    if (modalProf_prod.querySelectorAll('div.cart-item').length > 0) {
         if (requestProf == false) {
             requestProf = true;
             proformaMMW.classList.remove('modal__show');
             prof_prodMW.classList.remove('modal__show');
             previewProducts.classList.remove('modal__show');
-            let array = [];
-            cartItems.forEach(product => {
-                let valor = {};
-                valor['id_prod'] = product.getAttribute('id_prod');
-                valor['cantidad'] = product.children[3].value;
-                valor['costoUnitario'] = product.children[4].value;
-                array.push(valor);
-            });
-            let productos = JSON.stringify(array); //string json
-            let form = document.getElementById('formProformaM');
-            let formData = new FormData(form);
-            formData.set("total_profM", Number(document.getElementById('total_pfpd').innerHTML.split(' ')[1]));
-            formData.append('updateProforma', productos);
+
+            const productos = [];
+            for (let div of modalProf_prod.querySelectorAll('div.cart-item')) {
+                productos.push({
+                    id_prod: div.getAttribute('id_prod'),
+                    cantidad: div.querySelector('.cart-item__cantidad').value,
+                    costoUnitario: div.querySelector('.cart-item__costUnit').value
+                })
+            }
+
+            let formData = new FormData(formProformaM);
+            const total = (Number(totalProfM.innerHTML.split(' ')[1]) * Number(1 - document.getElementById('descuento_profM').value / 100)).toFixed(2);
+            formData.set("total_profM", total);
+            formData.append('updateProforma', JSON.stringify(productos));
             formData.append('id_usua', localStorage.getItem('id_usua'));
             preloader.classList.add('modal__show');
             fetch('../controladores/proforma.php', {
@@ -1063,6 +1054,7 @@ async function deleteProforma(id_prof) {
     }
 }
 //------------------------------------MOSTRAR LOS PRODUCTOS PREVIAMENTE--------------------------------------------
+const tbodyPreviewProd = document.getElementById('tbodyPreviewProd');
 function openPreviwProducts() {
     let cart;
     if (formProformas === 'R') {
@@ -1075,14 +1067,13 @@ function openPreviwProducts() {
         return;
     }
     if (cart.length > 0) {
-        const tbody = document.getElementById('tbodyPreviewProd');
         const productos = getProducts();
         const moneda = getMoneda();
         const total = calculateTotal(productos);
         const desc = getDescuento();
-        createTable(tbody, productos, moneda);
+        createTable(tbodyPreviewProd, productos, moneda);
         updateTotales(total, desc, moneda);
-        createButton(tbody, formProformas);
+        createButton(tbodyPreviewProd, formProformas);
         previewProducts.classList.add('modal__show');
     } else {
         mostrarAlerta('No a seleccionado ningun producto');
@@ -1172,8 +1163,6 @@ function createTable(tbody, productos, moneda) {
 }
 function updateTotales(total, desc, moneda) {
 
-    const tbody = document.getElementById('tbodyPreviewProd');
-
     const footerData = [
         { value: `Sub-Total: ${total.toFixed(2)}` },
         { value: `Desc. ${desc}%: ${(total * desc / 100).toFixed(2)}` },
@@ -1191,7 +1180,7 @@ function updateTotales(total, desc, moneda) {
 
         tr.appendChild(tdLabel);
         tr.appendChild(tdValue);
-        tbody.appendChild(tr);
+        tbodyPreviewProd.appendChild(tr);
     });
 }
 function createButton(tbody, formProformas) {
@@ -1255,6 +1244,16 @@ closeProformaRMW.addEventListener('click', (e) => {
 });
 closeProformaMMW.addEventListener('click', (e) => {
     proformaMMW.classList.remove('modal__show');
+});
+//---------------------------------MODAL DE PRODUCTS DE UNA PROFORMA MODIFICADA--------------------------------------------
+const closeProf_prodMW = document.getElementById('closeProf_prodMW');
+const prof_prodMW = document.getElementById('prof_prodMW');
+function openProf_prodMW() {
+    totalPriceM();
+    prof_prodMW.classList.add('modal__show');
+}
+closeProf_prodMW.addEventListener('click', (e) => {
+    prof_prodMW.classList.remove('modal__show');
 });
 //---------------------------------------------------------CAMPOS DE FORMULARIO-------------------------------------------
 //-----Llenar campos de la porforma
@@ -1698,15 +1697,6 @@ async function readmProf_prods() {
         }).catch(err => console.log(err));
     });
 }
-//---------------------------------MODAL DE PRODUCTS DE UNA PROFORMA MODIFICADA--------------------------------------------
-const closeProf_prodMW = document.getElementById('closeProf_prodMW');
-const prof_prodMW = document.getElementById('prof_prodMW');
-function openProf_prodMW() {
-    prof_prodMW.classList.add('modal__show');
-}
-closeProf_prodMW.addEventListener('click', (e) => {
-    prof_prodMW.classList.remove('modal__show');
-});
 //-----------------------------MODAL VISTA PREVIA DE LOS PRODUCTOS DE LA PROFORMA
 const previewProducts = document.getElementById('previewProducts');
 const closePreviewProducts = document.getElementById('closePreviewProducts');
