@@ -242,7 +242,7 @@ function closeModalCard() {
 //-------Añadir card al cart
 const cartItem = document.getElementById('cartItem');
 function addCard(id_prod) {
-    let carts = cartItem.querySelectorAll('div.cart-item');
+    const carts = cartItem.querySelectorAll('div.cart-item');
     let i = 0;
     carts.forEach(cart => {
         if (id_prod == cart.getAttribute('id_prod')) { i++ }
@@ -1003,7 +1003,7 @@ async function updateProforma() {
             }
 
             let formData = new FormData(formProformaM);
-            const total = (Number(totalProfM.innerHTML.split(' ')[1]) * Number(1 - document.getElementById('descuento_profM').value / 100)).toFixed(2);
+            const total = Number(document.getElementById('total_pfpd').innerHTML.split(' ')[1]).toFixed(2);
             formData.set("total_profM", total);
             formData.append('updateProforma', JSON.stringify(productos));
             formData.append('id_usua', localStorage.getItem('id_usua'));
@@ -1014,6 +1014,7 @@ async function updateProforma() {
             }).then(response => response.text()).then(data => {
                 Promise.all([readProformas(), readProf_prods(), readMdfProforma(), readmProf_prods()]).then(() => {
                     paginacionProforma(proformas.length, 1);
+                    paginacionPfPd(filterProf_prods.length, 1);
                     requestProf = false;
                     preloader.classList.remove('modal__show');
                     mostrarAlerta(data);
@@ -1162,7 +1163,6 @@ function createTable(tbody, productos, moneda) {
     tbody.appendChild(fragment);
 }
 function updateTotales(total, desc, moneda) {
-
     const footerData = [
         { value: `Sub-Total: ${total.toFixed(2)}` },
         { value: `Desc. ${desc}%: ${(total * desc / 100).toFixed(2)}` },
@@ -1218,33 +1218,38 @@ openProformaRMW.addEventListener('click', () => {
         mostrarAlerta(findOutCartItem() + findCostUni());
     }
 });
-function findOutCartItem() {
-    let cartItem = document.querySelectorAll('#cartItem div.cart-item');
-    let errorMessage = '';
-    cartItem.forEach(cart => {
-        if (!isInteger(cart.children[3].value)) {
-            errorMessage += `La cantidad de "${cart.children[2].innerText}" no es un valor entero\n`;
-        }
-    });
-    return errorMessage;
-}
-//------Mostrar una alerta si el cost uni es menor a 0
-function findCostUni() {
-    let cartItem = document.querySelectorAll('#cartItem div.cart-item');
-    let errorMessage = '';
-    cartItem.forEach(cart => {
-        if (Number(cart.children[4].value) <= 0) {
-            errorMessage += `El costo unitario de "${cart.children[2].innerText}" no es un valor valido\n`;
-        }
-    })
-    return errorMessage;
-}
 closeProformaRMW.addEventListener('click', (e) => {
     proformaRMW.classList.remove('modal__show');
 });
 closeProformaMMW.addEventListener('click', (e) => {
     proformaMMW.classList.remove('modal__show');
 });
+//--------------------------------------------ALERTA DE CANTIDAD Y COSTO UNITARIO---------------------------------
+//------Mostrar una alerta si la cantidad es menor a 0
+function findOutCartItem() {
+    const carts = cartItem.querySelectorAll('div.cart-item');
+    let errorMessage = '';
+    carts.forEach(cart => {
+        if (!isInteger(cart.querySelector('.cart-item__cantidad').value)) {
+            errorMessage += `La cantidad de "${cart.querySelector('.cart-item__codigo').innerText}" no es un valor entero\n`;
+        } else if (Number(cart.querySelector('.cart-item__cantidad').value) <= 0) {
+            errorMessage += `La cantidad de "${cart.querySelector('.cart-item__codigo').innerText}" no es un valor valido\n`;
+        }
+    });
+    return errorMessage;
+}
+//------Mostrar una alerta si el cost uni es menor a 0
+function findCostUni() {
+    const carts = cartItem.querySelectorAll('div.cart-item');
+    let errorMessage = '';
+    carts.forEach(cart => {
+        if (Number(cart.querySelector('.cart-item__costUnit').value) <= 0) {
+            errorMessage += `El costo unitario de "${cart.querySelector('.cart-item__codigo').innerText}" no es un valor valido\n`;
+        }
+    })
+    return errorMessage;
+}
+
 //---------------------------------MODAL DE PRODUCTS DE UNA PROFORMA MODIFICADA--------------------------------------------
 const closeProf_prodMW = document.getElementById('closeProf_prodMW');
 const prof_prodMW = document.getElementById('prof_prodMW');
@@ -1401,7 +1406,6 @@ closemTableProfMW.addEventListener('click', (e) => {
 //---------------------------------------------------------------GENERAR PDF-----------------------------------------------------
 //-------Pide la informacion del pdf que se va a mostrar (prof, mprof, ne)
 function selectPDFInformation(id, pdf) {
-
     if (pdf == 'prof') {
         const proforma = filterProformas.find(proforma => proforma['id_prof'] == id);
         if (proforma) {
@@ -1419,7 +1423,6 @@ function selectPDFInformation(id, pdf) {
             showPDF(proforma, objects, pdf);
         }
     } else if (pdf == 'mprof') {
-
         const proforma = mdfPproforma.find(proforma => proforma['id_mprof'] == id);
         if (proforma) {
             const objects = mProf_prods.filter(pf_pd => pf_pd['fk_id_mprof_mpfpd'] == id)
@@ -1652,22 +1655,22 @@ function tablePdPf(page) {
         tr.appendChild(tdCantidad);
 
         const tdCostoUnitario = document.createElement('td');
-        tdCostoUnitario.innerText = prod.cost_uni_pfpd.toFixed(2) + ' Bs';
+        tdCostoUnitario.innerText = `${prod.cost_uni_pfpd} ${proforma.moneda_prof}`;
         tr.appendChild(tdCostoUnitario);
 
         const tdSubTotal = document.createElement('td');
         const subTotal = prod.cost_uni_pfpd * prod.cantidad_pfpd;
-        tdSubTotal.innerText = subTotal.toFixed(2) + ' Bs';
+        tdSubTotal.innerText = `${subTotal.toFixed(2)} ${proforma.moneda_prof}`;
         tr.appendChild(tdSubTotal);
 
         const tdDescuento = document.createElement('td');
         const desc = proforma.descuento_prof * prod.cost_uni_pfpd * prod.cantidad_pfpd / 100;
-        tdDescuento.innerText = desc.toFixed(2) + ' Bs' + ' (' + proforma.descuento_prof + '%)';
+        tdDescuento.innerText = `-${desc.toFixed(2)} ${proforma.moneda_prof} (${proforma.descuento_prof}%)`;
         tr.appendChild(tdDescuento);
 
         const tdTotal = document.createElement('td');
         const total = prod.cantidad_pfpd * prod.cost_uni_pfpd * (100 - proforma.descuento_prof) / 100;
-        tdTotal.innerText = total.toFixed(2) + ' Bs';
+        tdTotal.innerText = `${total.toFixed(2)} ${proforma.moneda_prof}`;
         tr.appendChild(tdTotal);
 
         tbody.appendChild(tr);
@@ -1754,7 +1757,7 @@ function searchEnterprisesMW() {
     paginacionEnterpriseMW(filterEnterprises.length, 1);
 }
 //------Ordenar tabla descendente ascendente
-let orderEnterprises = document.querySelectorAll('.tbody__head--empMW');
+const orderEnterprises = document.querySelectorAll('.tbody__head--empMW');
 orderEnterprises.forEach(div => {
     div.children[0].addEventListener('click', function () {
         const valor = div.children[0].name;
@@ -1871,7 +1874,6 @@ function sendEnterprise(id_emp) {
         }
 
         filterCustomers = customers.filter(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte !== '' && customer.apellido_clte !== '');
-
     } else if (formProformas === 'M') {
         const empresa = enterprises.find(enterprise => enterprise.id_emp === id_emp);
         const cliente = customers.find(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte === '' && customer.apellido_clte === '');
@@ -1890,6 +1892,7 @@ function sendEnterprise(id_emp) {
 
         filterCustomers = customers.filter(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte !== '' && customer.apellido_clte !== '');
     }
+    chosenCustomer = filterCustomers;
     paginacionCustomerMW(filterCustomers.length, 1);
 }
 //----------------------------------ventana modal EnterpriseSMW-------------------------------------------
@@ -1949,7 +1952,7 @@ async function createEnterprise() {
     }
 }
 //------Actualizar una empresa
-let formEmpresaM = document.getElementById('formEmpresaM');
+const formEmpresaM = document.getElementById('formEmpresaM');
 formEmpresaM.addEventListener('submit', updateEnterprise);
 async function updateEnterprise() {
     event.preventDefault();
@@ -2022,6 +2025,7 @@ const fk_id_clte_profR = document.getElementById('fk_id_clte_profR');
 const fk_id_clte_profM = document.getElementById('fk_id_clte_profM');
 let customers = [];
 let filterCustomers = [];
+let chosenCustomer = [];
 let formCustomer;
 async function readCustomers() {
     return new Promise((resolve, reject) => {
@@ -2054,14 +2058,15 @@ selectNumberClteSMW.addEventListener('change', function () {
 function searchCustomersSMW() {
     const busqueda = inputSearchClteSMW.value.toLowerCase();
     const valor = selectSearchClteSMW.value.toLowerCase().trim();
-    filterCustomers = filterCustomers.filter(customer => {
+    filterCustomers = chosenCustomer.filter(customer => {
+        const empresa = enterprises.find(enterprise => enterprise.id_emp === customer.fk_id_emp_clte);
         if (valor === 'todas') {
             return (
-                customer.nit_clte.toLowerCase().includes(busqueda) ||
-                customer.nombre_emp.toLowerCase().includes(busqueda) ||
+                customer.nit_clte.toString().toLowerCase().includes(busqueda) ||
+                empresa.nombre_emp.toLowerCase().includes(busqueda) ||
                 customer.email_clte.toLowerCase().includes(busqueda) ||
                 customer.direccion_clte.toLowerCase().includes(busqueda) ||
-                customer.celular_clte.toLowerCase().includes(busqueda) ||
+                customer.celular_clte.toString().toLowerCase().includes(busqueda) ||
                 (customer.apellido_clte + ' ' + customer.nombre_clte).toLowerCase().includes(busqueda)
             );
         } else if (valor === 'cliente') {
@@ -2103,12 +2108,11 @@ function paginacionCustomerMW(allEnterprises, page) {
     }
     ul.innerHTML = li;
     let h2 = document.querySelector('#showPageClteSMW h2');
-    h2.innerHTML = `Pagina ${page}/${allPages}, ${allEnterprises} Empresas`;
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${allEnterprises} Clientes`;
     tableCustomersMW(page);
 }
 //------Crear la tabla
 function tableCustomersMW(page) {
-
     const tbody = document.getElementById('tbodyClteSMW');
     const inicio = (page - 1) * Number(selectNumberClteSMW.value);
     const final = inicio + Number(selectNumberClteSMW.value);
@@ -2500,32 +2504,10 @@ function tableInventoriesMW(page) {
             }
             tr.appendChild(td);
         }
-        /*
-                let td = document.createElement('td');
-                if (['Gerente general', 'Administrador', 'Gerente De Inventario'].includes(localStorage.getItem('rol_usua'))) {
-                    td.innerHTML = `<img src='../imagenes/send.svg' onclick='sendInventory(${inventory.id_inv})' title='Seleccionar'>`;
-                    tr.appendChild(td);
-                }*/
         fragment.appendChild(tr);
     }
     tbody.innerHTML = '';
     tbody.appendChild(fragment);
-}
-function sendInventory(id_inv) {
-    const inventory = filterInventoriesMW.find(inv => inv['id_inv'] === id_inv);
-    const prof_prods = modalProf_prod.querySelectorAll('.cart-item');
-    if (inventory) {
-        inventory.id_prod = inventory.fk_id_prod_inv;
-        const product = products.find(product => product.id_prod === inventory.fk_id_prod_inv);
-        inventory.codigo_prod = product.codigo_prod;
-        const codigo = inventory.codigo_prod;
-        const existe = Array.from(prof_prods).some(prod => prod.children[2].innerText === codigo);
-        if (!existe) {
-            cartProduct_pfpd(inventory, 'sendInventory');
-        } else {
-            mostrarAlerta("El producto ya se encuentra en la lista");
-        }
-    }
 }
 //---------------------------MODAL TABLA BUSCAR INVENTARIO
 const inventorySMW = document.getElementById('inventorySMW');
@@ -2644,6 +2626,7 @@ function tableProductsMW(page) {
     let fragment = document.createDocumentFragment();
 
     for (let product of filterProducts.slice(inicio, final)) {
+        console.log(product);
         let tr = document.createElement('tr');
         tr.setAttribute('id_prod', product.id_prod);
 

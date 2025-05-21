@@ -126,3 +126,30 @@ function openNotaEntregaRMW(tr) {
 closeNotaEntregaRMW.addEventListener('click', (e) => {
     notaEntregaRMW.classList.remove('modal__show');
 });
+
+
+
+/////////////////////////////////////////////////////////////////////////////
+        /*
+                let td = document.createElement('td');
+                if (['Gerente general', 'Administrador', 'Gerente De Inventario'].includes(localStorage.getItem('rol_usua'))) {
+                    td.innerHTML = `<img src='../imagenes/send.svg' onclick='sendInventory(${inventory.id_inv})' title='Seleccionar'>`;
+                    tr.appendChild(td);
+                }*/
+
+                    function sendInventory(id_inv) {
+    const inventory = filterInventoriesMW.find(inv => inv['id_inv'] === id_inv);
+    const prof_prods = modalProf_prod.querySelectorAll('.cart-item');
+    if (inventory) {
+        inventory.id_prod = inventory.fk_id_prod_inv;
+        const product = products.find(product => product.id_prod === inventory.fk_id_prod_inv);
+        inventory.codigo_prod = product.codigo_prod;
+        const codigo = inventory.codigo_prod;
+        const existe = Array.from(prof_prods).some(prod => prod.children[2].innerText === codigo);
+        if (!existe) {
+            cartProduct_pfpd(inventory, 'sendInventory');
+        } else {
+            mostrarAlerta("El producto ya se encuentra en la lista");
+        }
+    }
+}
