@@ -120,7 +120,6 @@ function selectInventories() {
     });
     paginacionInventory(filterInventories.length, 1);
 }
-
 //------Ordenar tabla descendente ascendente
 const orderInventories = document.querySelectorAll('.tbody__head--inventory');
 orderInventories.forEach(div => {
@@ -865,7 +864,7 @@ closeProductSMW.addEventListener('click', () => {
 });
 /*-----------------------------------------Marca y categoria producto-------------------------------------------------*/
 //-------Read all Marcas
-let marcas = {};
+let marcas = [];
 async function readAllMarcas() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
@@ -884,7 +883,7 @@ async function readAllMarcas() {
     })
 }
 //-------Read all categorias
-let categorias = {};
+let categorias = [];
 async function readAllCategorias() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
@@ -900,36 +899,96 @@ async function readAllCategorias() {
 }
 /*----------------------------------------------Marca y categoria inventario-------------------------------------------------*/
 //-------Create Marca
-let formMarcaR = document.getElementById('formMarcaR');
+const formMarcaR = document.getElementById('formMarcaR');
 formMarcaR.addEventListener('submit', createMarcaInv);
 function createMarcaInv() {
     event.preventDefault();
-    marcaRMW.classList.remove('modal__show');
-    let formData = new FormData(formMarcaR);
-    formData.append('createMarca', '');
-    fetch('../controladores/productos.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.text()).then(data => {
-        mostrarAlerta(data);
-        readAllMarcas();
-    }).catch(err => console.log(err));
-}
-//-------Eliminar Marca
-function deleteMarcaInv() {
-    let id_mrc = selectMarcaInventory.value;
-    if (confirm('¿Esta usted seguro?')) {
-        let formData = new FormData();
-        formData.append('deleteMarca', id_mrc);
+    if (requestInventory == false) {
+        requestInventory = true;
+        preloader.classList.add('modal__show');
+        let formData = new FormData(formMarcaR);
+        formData.append('createMarca', '');
         fetch('../controladores/productos.php', {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            mostrarAlerta(data);
-            readAllMarcas();
-        }).catch(err => console.log(err));
+            readAllMarcas().then(() => {
+                mostrarAlerta(data);
+                requestInventory = false;
+                formMarcaR.reset();
+                preloader.classList.remove('modal__show');
+                marcaRMW.classList.remove('modal__show');
+            })
+        }).catch(err => mostrarAlerta('Ocurrio un error al crear la marca. Cargue nuevamente la pagina.'));
     }
-    selectMarcaInventory.selectedIndex = 0;
+}
+//-------Eliminar Marca
+function deleteMarcaInv() {
+    if (confirm('¿Esta usted seguro?')) {
+        if (requestInventory == false) {
+            requestInventory = true;
+            preloader.classList.add('modal__show');
+            let formData = new FormData();
+            formData.append('deleteMarca', selectMarcaInventory.value);
+            fetch('../controladores/productos.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                readAllMarcas().then(() => {
+                    searchInventories();
+                    searchProductsMW();
+                    mostrarAlerta(data);
+                    requestInventory = false;
+                    preloader.classList.remove('modal__show');
+                })
+            }).catch(err => mostrarAlerta('Ocurrio un error al eliminar la marca. Cargue nuevamente la pagina.'));
+        }
+    }
+}
+//-------registrar categoria
+const formCategoriaR = document.getElementById('formCategoriaR');
+formCategoriaR.addEventListener('submit', createCategoriaInv);
+async function createCategoriaInv() {
+    event.preventDefault();
+    if (selectMarcaInventory.value != 'todasLasMarcas') {
+        categoriaRMW.classList.remove('modal__show');
+        let formData = new FormData(formCategoriaR);
+        formData.append('id_mrc', selectMarcaInventory.value);
+        formData.append('createCategoria', '');
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            readAllCategorias().then(() => {
+                selectCategoriaInv();
+                selectCategoriaProd();
+                selectCategoriaProdM();
+
+                formCategoriaR.reset();
+                mostrarAlerta(data);
+            })
+        }).catch(err => mostrarAlerta('Ocurrio un error al crear la categoria. Cargue nuevamente la pagina.'));
+    } else {
+        mostrarAlerta('Seleccione una marca');
+    }
+}
+//-------Eliminar Categoria
+async function deleteCategoriaInv() {
+    if (confirm('¿Esta usted seguro?')) {
+        let formData = new FormData();
+        formData.append('id_mrc', selectMarcaInventory.value);
+        formData.append('deleteCategoria', selectCategoriaInventory.value);
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            readAllCategorias().then(() => {
+                selectCategoriaInv();
+                mostrarAlerta(data);
+            })
+        }).catch(err => mostrarAlerta('Ocurrio un error al eliminar la categoria. Cargue nuevamente la pagina.'));
+    }
+    selectCategoriaInventory.selectedIndex = 0;
 }
 //-------Select de marcas
 function selectMarcaInv() {
@@ -945,44 +1004,7 @@ function selectMarcaInv() {
         selectMarcaInventory.appendChild(option);
     });
 }
-//-------registrar categoria
-let formCategoriaR = document.getElementById('formCategoriaR');
-formCategoriaR.addEventListener('submit', createCategoriaInv);
-function createCategoriaInv() {
-    event.preventDefault();
-    if (selectMarcaInventory.value != 'todasLasMarcas') {
-        categoriaRMW.classList.remove('modal__show');
-        let formData = new FormData(formCategoriaR);
-        formData.append('id_mrc', selectMarcaInventory.value);
-        formData.append('createCategoria', '');
-        fetch('../controladores/productos.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            mostrarAlerta(data);
-            readAllCategorias();
-        }).catch(err => console.log(err));
-    } else {
-        mostrarAlerta('Seleccione una marca');
-    }
-}
-//-------Eliminar Categoria
-function deleteCategoriaInv() {
-    let id_ctgr = selectCategoriaInventory.value;
-    if (confirm('¿Esta usted seguro?')) {
-        let formData = new FormData();
-        formData.append('id_mrc', selectMarcaInventory.value);
-        formData.append('deleteCategoria', id_ctgr);
-        fetch('../controladores/productos.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            mostrarAlerta(data)
-            readAllCategorias();
-        }).catch(err => console.log(err));
-    }
-    selectCategoriaInventory.selectedIndex = 0;
-}
+
 //------Select categorias
 function selectCategoriaInv() {
     selectCategoriaInventory.innerHTML = '';

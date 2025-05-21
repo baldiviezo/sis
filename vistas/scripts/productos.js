@@ -155,6 +155,7 @@ function paginacionProduct(allProducts, page) {
 }
 //------Crear la tabla
 function tableProducts(page) {
+    console.log('Tabla de productos');
     let tbody = document.getElementById('tbodyProduct');
     let inicio = (page - 1) * Number(selectNumberProduct.value);
     let final = inicio + Number(selectNumberProduct.value);
@@ -538,54 +539,53 @@ async function readAllCategorias() {
 }
 /*---------------------------------------------- CRUD Marca y categoria-------------------------------------------------*/
 //-------Create Marca
-let formMarcaR = document.getElementById('formMarcaR');
+const formMarcaR = document.getElementById('formMarcaR');
 formMarcaR.addEventListener('submit', createMarcaProd);
 async function createMarcaProd() {
-    marcaRMW.classList.remove('modal__show');
     event.preventDefault();
-    let formData = new FormData(formMarcaR);
-    formData.append('createMarca', '');
-    fetch('../controladores/productos.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.text()).then(data => {
-        readAllMarcas().then(() => {
-            mostrarAlerta(data);
-        })
-    }).catch(err => mostrarAlerta('Ocurrio un error al crear la marca. Cargue nuevamente la pagina.'));
-}
-//-------Eliminar Marca
-async function deleteMarcaProd() {
-    let id_mrc = selectMarcaProduct.value;
-    if (confirm('¿Esta usted seguro?')) {
-        let formData = new FormData();
-        formData.append('deleteMarca', id_mrc);
+    if (requestProducts == false) {
+        requestProducts = true;
+        preloader.classList.add('modal__show');
+        let formData = new FormData(formMarcaR);
+        formData.append('createMarca', '');
         fetch('../controladores/productos.php', {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
             readAllMarcas().then(() => {
                 mostrarAlerta(data);
+                requestProducts = false;
+                formMarcaR.reset();
+                preloader.classList.remove('modal__show');
+                marcaRMW.classList.remove('modal__show');
             })
-        }).catch(err => mostrarAlerta('Ocurrio un error al eliminar la marca. Cargue nuevamente la pagina.'));
+        }).catch(err => mostrarAlerta('Ocurrio un error al crear la marca. Cargue nuevamente la pagina.'));
     }
 }
-//-------Select de marcas
-function selectMarcaProd() {
-    selectMarcaProduct.innerHTML = '';
-    let option = document.createElement('option');
-    option.value = 'todasLasMarcas';
-    option.innerText = 'Todas las marcas';
-    selectMarcaProduct.appendChild(option);
-    marcas.forEach(marca => {
-        let option = document.createElement('option');
-        option.value = marca.id_mrc;
-        option.innerText = marca.nombre_mrc;
-        selectMarcaProduct.appendChild(option);
-    });
+//-------Eliminar Marca
+async function deleteMarcaProd() {
+    if (confirm('¿Esta usted seguro?')) {
+        if (requestProducts == false) {
+            requestProducts = true;
+            preloader.classList.add('modal__show');
+            let formData = new FormData();
+            formData.append('deleteMarca', selectMarcaProduct.value);
+            fetch('../controladores/productos.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                readAllMarcas().then(() => {
+                    searchProducts();
+                    mostrarAlerta(data);
+                    requestProducts = false;
+                    preloader.classList.remove('modal__show');
+                })
+            }).catch(err => mostrarAlerta('Ocurrio un error al eliminar la marca. Cargue nuevamente la pagina.'));
+        }
+    }
 }
 //-------registrar categoria
-let formCategoriaR = document.getElementById('formCategoriaR');
+const formCategoriaR = document.getElementById('formCategoriaR');
 formCategoriaR.addEventListener('submit', createCategoriaProd);
 async function createCategoriaProd() {
     event.preventDefault();
@@ -599,6 +599,10 @@ async function createCategoriaProd() {
             body: formData
         }).then(response => response.text()).then(data => {
             readAllCategorias().then(() => {
+                selectCategoriaProd();
+                selectCategoriaProdR();
+                selectCategoriaProdM();
+                formCategoriaR.reset();
                 mostrarAlerta(data);
             })
         }).catch(err => mostrarAlerta('Ocurrio un error al crear la categoria. Cargue nuevamente la pagina.'));
@@ -608,21 +612,43 @@ async function createCategoriaProd() {
 }
 //-------Eliminar Categoria
 async function deleteCategoriaProd() {
-    let id_ctgr = selectCategoriaProduct.value;
     if (confirm('¿Esta usted seguro?')) {
-        let formData = new FormData();
-        formData.append('id_mrc', selectMarcaProduct.value);
-        formData.append('deleteCategoria', id_ctgr);
-        fetch('../controladores/productos.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            readAllCategorias().then(() => {
-                mostrarAlerta(data);
-            })
-        }).catch(err => mostrarAlerta('Ocurrio un error al eliminar la categoria. Cargue nuevamente la pagina.'));
+        if (requestProducts == false) {
+            requestProducts = true;
+            preloader.classList.add('modal__show');
+            let formData = new FormData();
+            formData.append('id_mrc', selectMarcaProduct.value);
+            formData.append('deleteCategoria', selectCategoriaProduct.value);
+            fetch('../controladores/productos.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                readAllCategorias().then(() => {
+                    selectCategoriaProd();
+                    selectCategoriaProdR();
+                    selectCategoriaProdM();
+                    mostrarAlerta(data);
+                    requestProducts = false;
+                    preloader.classList.remove('modal__show');
+                })
+            }).catch(err => mostrarAlerta('Ocurrio un error al eliminar la categoria. Cargue nuevamente la pagina.'));
+        }
     }
-    selectCategoriaProduct.selectedIndex = 0;
+}
+//--------------------------------------------MARCA CATEGORIA PARA TABLA DE PRODUCTOS---------------------------------
+//-------Select de marcas
+function selectMarcaProd() {
+    selectMarcaProduct.innerHTML = '';
+    let option = document.createElement('option');
+    option.value = 'todasLasMarcas';
+    option.innerText = 'Todas las marcas';
+    selectMarcaProduct.appendChild(option);
+    marcas.forEach(marca => {
+        let option = document.createElement('option');
+        option.value = marca.id_mrc;
+        option.innerText = marca.nombre_mrc;
+        selectMarcaProduct.appendChild(option);
+    });
 }
 //------Select categorias
 function selectCategoriaProd() {

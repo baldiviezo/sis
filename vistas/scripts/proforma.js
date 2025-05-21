@@ -1249,7 +1249,6 @@ function findCostUni() {
     })
     return errorMessage;
 }
-
 //---------------------------------MODAL DE PRODUCTS DE UNA PROFORMA MODIFICADA--------------------------------------------
 const closeProf_prodMW = document.getElementById('closeProf_prodMW');
 const prof_prodMW = document.getElementById('prof_prodMW');
@@ -2626,7 +2625,6 @@ function tableProductsMW(page) {
     let fragment = document.createDocumentFragment();
 
     for (let product of filterProducts.slice(inicio, final)) {
-        console.log(product);
         let tr = document.createElement('tr');
         tr.setAttribute('id_prod', product.id_prod);
 
@@ -2990,7 +2988,7 @@ function processFileM(file) {
         mostrarAlerta('No es una archivo valido');
     }
 }
-/*-----------------------------------------Marca y categoria producto-------------------------------------------------*/
+/*------------------------------------Marca y categoria producto-------------------------------------------------*/
 //-------Read all Marcas
 let marcas = [];
 async function readAllMarcas() {
@@ -3004,7 +3002,6 @@ async function readAllMarcas() {
             marcas = data;
             selectMarcaProd();
             selectMarcaProdR();
-            //selectMarcaInv();
             selectMarcaProdM();
             selectMarcaProductMW();
             selectMarcaInventoryMW();
