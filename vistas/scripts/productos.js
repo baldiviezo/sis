@@ -590,22 +590,28 @@ formCategoriaR.addEventListener('submit', createCategoriaProd);
 async function createCategoriaProd() {
     event.preventDefault();
     if (selectMarcaProduct.value != 'todasLasMarcas') {
-        categoriaRMW.classList.remove('modal__show');
-        let formData = new FormData(formCategoriaR);
-        formData.append('id_mrc', selectMarcaProduct.value);
-        formData.append('createCategoria', '');
-        fetch('../controladores/productos.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            readAllCategorias().then(() => {
-                selectCategoriaProd();
-                selectCategoriaProdR();
-                selectCategoriaProdM();
-                formCategoriaR.reset();
-                mostrarAlerta(data);
-            })
-        }).catch(err => mostrarAlerta('Ocurrio un error al crear la categoria. Cargue nuevamente la pagina.'));
+        if (requestProducts == false) {
+            requestProducts = true;
+            preloader.classList.add('modal__show');
+            categoriaRMW.classList.remove('modal__show');
+            let formData = new FormData(formCategoriaR);
+            formData.append('id_mrc', selectMarcaProduct.value);
+            formData.append('createCategoria', '');
+            fetch('../controladores/productos.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                readAllCategorias().then(() => {
+                    selectCategoriaProd();
+                    selectCategoriaProdR();
+                    selectCategoriaProdM();
+                    formCategoriaR.reset();
+                    requestProducts = false;
+                    preloader.classList.remove('modal__show');
+                    mostrarAlerta(data);
+                })
+            }).catch(err => mostrarAlerta('Ocurrio un error al crear la categoria. Cargue nuevamente la pagina.'));
+        }
     } else {
         mostrarAlerta('Seleccione una marca');
     }
@@ -627,9 +633,9 @@ async function deleteCategoriaProd() {
                     selectCategoriaProd();
                     selectCategoriaProdR();
                     selectCategoriaProdM();
-                    mostrarAlerta(data);
                     requestProducts = false;
                     preloader.classList.remove('modal__show');
+                    mostrarAlerta(data);
                 })
             }).catch(err => mostrarAlerta('Ocurrio un error al eliminar la categoria. Cargue nuevamente la pagina.'));
         }

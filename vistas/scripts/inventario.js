@@ -951,23 +951,29 @@ formCategoriaR.addEventListener('submit', createCategoriaInv);
 async function createCategoriaInv() {
     event.preventDefault();
     if (selectMarcaInventory.value != 'todasLasMarcas') {
-        categoriaRMW.classList.remove('modal__show');
-        let formData = new FormData(formCategoriaR);
-        formData.append('id_mrc', selectMarcaInventory.value);
-        formData.append('createCategoria', '');
-        fetch('../controladores/productos.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            readAllCategorias().then(() => {
-                selectCategoriaInv();
-                selectCategoriaProd();
-                selectCategoriaProdM();
-
-                formCategoriaR.reset();
-                mostrarAlerta(data);
-            })
-        }).catch(err => mostrarAlerta('Ocurrio un error al crear la categoria. Cargue nuevamente la pagina.'));
+        if (requestInventory == false) {
+            requestInventory = true;
+            preloader.classList.add('modal__show');
+            categoriaRMW.classList.remove('modal__show');
+            let formData = new FormData(formCategoriaR);
+            formData.append('id_mrc', selectMarcaInventory.value);
+            formData.append('createCategoria', '');
+            fetch('../controladores/productos.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                readAllCategorias().then(() => {
+                    selectCategoriaInv();
+                    selectCategoriaProd();
+                    selectCategoriaProdR();
+                    selectCategoriaProdM();
+                    formCategoriaR.reset();
+                    requestInventory = false;
+                    preloader.classList.remove('modal__show');
+                    mostrarAlerta(data);
+                })
+            }).catch(err => mostrarAlerta('Ocurrio un error al crear la categoria. Cargue nuevamente la pagina.'));
+        }
     } else {
         mostrarAlerta('Seleccione una marca');
     }
@@ -975,21 +981,30 @@ async function createCategoriaInv() {
 //-------Eliminar Categoria
 async function deleteCategoriaInv() {
     if (confirm('¿Esta usted seguro?')) {
-        let formData = new FormData();
-        formData.append('id_mrc', selectMarcaInventory.value);
-        formData.append('deleteCategoria', selectCategoriaInventory.value);
-        fetch('../controladores/productos.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            readAllCategorias().then(() => {
-                selectCategoriaInv();
-                mostrarAlerta(data);
-            })
-        }).catch(err => mostrarAlerta('Ocurrio un error al eliminar la categoria. Cargue nuevamente la pagina.'));
+        if (requestInventory == false) {
+            requestInventory = true;
+            preloader.classList.add('modal__show');
+            let formData = new FormData();
+            formData.append('id_mrc', selectMarcaInventory.value);
+            formData.append('deleteCategoria', selectCategoriaInventory.value);
+            fetch('../controladores/productos.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                readAllCategorias().then(() => {
+                    selectCategoriaInv();
+                    selectCategoriaProd();
+                    selectCategoriaProdR();
+                    selectCategoriaProdM();
+                    requestInventory = false;
+                    preloader.classList.remove('modal__show');
+                    mostrarAlerta(data);
+                })
+            }).catch(err => mostrarAlerta('Ocurrio un error al eliminar la categoria. Cargue nuevamente la pagina.'));
+        }
     }
-    selectCategoriaInventory.selectedIndex = 0;
 }
+//------------------------------------MARCA Y CATEGORIA DE INVENTARIO--------------------------------->
 //-------Select de marcas
 function selectMarcaInv() {
     selectMarcaInventory.innerHTML = '';
@@ -1004,7 +1019,6 @@ function selectMarcaInv() {
         selectMarcaInventory.appendChild(option);
     });
 }
-
 //------Select categorias
 function selectCategoriaInv() {
     selectCategoriaInventory.innerHTML = '';

@@ -159,7 +159,6 @@ function paginacionProduct(allProducts, page) {
     cardProduct(page);
 }
 function cardProduct(page) {
-    console.log('tabla: cardProduct');
     const root = document.getElementById('root');
     const inicio = (page - 1) * Number(selectNumberProduct.value);
     const final = inicio + Number(selectNumberProduct.value);
@@ -1579,7 +1578,6 @@ orderPfPd.forEach(div => {
 });
 //------paginacionPfPd
 function paginacionPfPd(allProducts, page) {
-    console.log('Tabla de proforma-productos');
     let totalPfPd = document.getElementById('totalPfPd');
     let total = 0;
     for (let prof_prods in filterProf_prods) {
