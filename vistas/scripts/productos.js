@@ -155,7 +155,6 @@ function paginacionProduct(allProducts, page) {
 }
 //------Crear la tabla
 function tableProducts(page) {
-    console.log('Tabla de productos');
     let tbody = document.getElementById('tbodyProduct');
     let inicio = (page - 1) * Number(selectNumberProduct.value);
     let final = inicio + Number(selectNumberProduct.value);

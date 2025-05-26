@@ -150,6 +150,13 @@ class consultas{
 		$resultado = $conexion->query($consulta);
 		echo 'Proforma eliminada exitosamente!';
 	}
+	//-------Change state proforma
+	public function changeStateProforma($id_prof){
+		include 'conexion.php';
+		$consulta = "UPDATE proforma set estado_prof = 'confirmada' WHERE id_prof = '$id_prof'";
+		$resultado = $conexion->query($consulta);
+		echo 'Proforma confirmada exitosamente!';
+	}
 	//-------------------------------------------CRUD PROF_PROD---------------------------
 	//-------Read Prof_prods
 	public function readProf_prods(){
@@ -171,11 +178,6 @@ class consultas{
 			$mprofProds[] = $fila;
 		}
 		echo json_encode($mprofProds, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
-	}
-	//-------Create Prof_prod
-	public function createProf_prod($productos){
-		include 'conexion.php';
-		
 	}
 	//-----------------------------------------------CRUD MDF_PROFORMA------------------------------
 	public function read_mdf_Proforma() {

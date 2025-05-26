@@ -50,4 +50,9 @@ if (isset($_POST['readPrices'])) {
 	$readPrices = new consultas;
 	$readPrices->readPrices();
 }
+//------------------------------------------Estado de proforma
+if (isset($_POST['changeStateProforma'])) {
+	$changeStateProforma = new consultas;
+	$changeStateProforma->changeStateProforma($_POST['changeStateProforma']);
+}
 ?>

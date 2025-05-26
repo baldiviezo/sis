@@ -31,9 +31,12 @@
 			<section class="main__header">
 				<div>
 					<img src="../imagenes/folder.svg" onclick="openTableProfMW()" class="img__folder" title="Proformas">
-					<img src="../imagenes/registrar.svg" onclick="openProductsRMW()" class="img__folder" title="Registrar producto">
-					<img src="../imagenes/dollarCircle.svg" onclick="openPriceList()" class="img__folder" title="Lista de precios">
-					<img src="../imagenes/inventario.svg" onclick="openInventorySMW()" class="icon__CRUD" title="Inventario">
+					<img src="../imagenes/registrar.svg" onclick="openProductsRMW()" class="img__folder"
+						title="Registrar producto">
+					<img src="../imagenes/dollarCircle.svg" onclick="openPriceList()" class="img__folder"
+						title="Lista de precios">
+					<img src="../imagenes/inventario.svg" onclick="openInventorySMW()" class="icon__CRUD"
+						title="Inventario">
 				</div>
 				<section class="select__search">
 					<div>
@@ -178,8 +181,8 @@
 							<select id="selectStateProf" class="select__number">
 								<option value="todasLasProformas">Todas</option>
 								<option value="pendiente">No confirmadas</option>
-								<option value="vendido">Confirmadas</option>
-								<option value="devolucion">Entregadas</option>
+								<option value="confirmada">Confirmadas</option>
+								<option value="vendido">Vendida</option>
 							</select>
 						</div>
 					</section>
@@ -295,8 +298,8 @@
 							<select id="selectStatePfPd" class="select__number">
 								<option value="todasLasProf">Todas</option>
 								<option value="pendiente">No confirmadas</option>
-								<option value="vendido">Confirmadas</option>
-								<option value="devolucion">Entregadas</option>
+								<option value="confirmada">Confirmadas</option>
+								<option value="vendido">Vendida</option>
 							</select>
 						</div>
 					</section>
@@ -485,8 +488,8 @@
 							<textarea name="observacion_profR" placeholder="Observacion..."></textarea>
 						</div>
 						<div class="form__group">
-							<input type="number" name="descuento_profR" id="descuento_profR" placeholder="" min="0" max="100"
-								class="form__input">
+							<input type="number" name="descuento_profR" id="descuento_profR" placeholder="" min="0"
+								max="100" class="form__input">
 							<label for="descuento_profR" class="form__label">Descuento:</label>
 						</div>
 					</div>
@@ -508,12 +511,12 @@
 						<input type="text" name="fk_id_emp_clteM" id="fk_id_emp_clteM" class="form__input" hidden>
 						<input type="text" name="fk_id_clte_profM" id="fk_id_clte_profM" class="form__input" hidden>
 						<div class="form__group">
-							<input type="date" name="fecha_profM" placeholder=" " class="form__input">
-							<label for="fecha_profM" class="form__label">Fecha:</label>
-						</div>
-						<div class="form__group">
 							<input type="text" name="numero_profM" placeholder=" " class="form__input" readonly>
 							<label for="numero_profM" class="form__label">Proforma:</label>
+						</div>
+						<div class="form__group">
+							<input type="date" name="fecha_profM" placeholder=" " class="form__input">
+							<label for="fecha_profM" class="form__label">Fecha:</label>
 						</div>
 						<div class="form__group--img">
 							<div class="form__group">
@@ -547,8 +550,8 @@
 							<textarea name="observacion_profM" placeholder="Observacion..."></textarea>
 						</div>
 						<div class="form__group">
-							<input type="number" name="descuento_profM"  id="descuento_profM" placeholder="" min="0" max="100"
-								class="form__input">
+							<input type="number" name="descuento_profM" id="descuento_profM" placeholder="" min="0"
+								max="100" class="form__input">
 							<label for="descuento_profM" class="form__label">Descuento:</label>
 						</div>
 						<label class="form__label--only">Moneda:</label>
@@ -559,7 +562,8 @@
 							</select>
 						</div>
 						<div class="form__group" id="tipoDeCambioProfM">
-							<input type="text" name="tipo_cambio_profM" id="tipo_cambio_profM" placeholder="" class="form__input">
+							<input type="text" name="tipo_cambio_profM" id="tipo_cambio_profM" placeholder=""
+								class="form__input">
 							<label for="tipo_cambio_profM" class="form__label">Cambio de moneda:</label>
 						</div>
 					</div>
@@ -568,12 +572,70 @@
 			</div>
 		</div>
 	</section>
+	<!--formulario de orden de compra-->
+	<!--CREATE TABLE `orden_compra` (
+  `id_oc` int(11) NOT NULL,
+  `fk_id_prof_oc` int(11) NOT NULL,
+  `fk_id_clte_oc` int(11) NOT NULL,
+  `fk_id_usua_oc` int(11) NOT NULL,
+  `fecha_oc` date NOT NULL,
+  `descuento_oc` int(11) NOT NULL,
+  `total_oc` double NOT NULL,
+  `moneda_oc` varchar(10) NOT NULL,
+  `tipo_cambio_oc` float NOT NULL,
+  `orden_oc` varchar(100) NOT NULL,
+  `observacion_oc` varchar(500) NOT NULL,
+  `estado_oc` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;-->
+	<section id="formOrderBuy" class="modalProf">
+		<div class="modalProf__container">
+			<div class="modal__header">
+				<h2 class="modal__title">Orden de compra</h2>
+				<img src="../imagenes/salir.svg" id="closeFormOrderBuy" class="button__close" title="Minimizar">
+			</div>
+			<div class="form">
+				<form id="formOrderBuyR">
+					<div class="form__container">
+						<input type="text" name="fk_id_prof_oc" id="fk_id_prof_oc" class="form__input" hidden>
+						<input type="text" name="fk_id_clte_oc" id="fk_id_clte_oc" class="form__input" hidden>
+						<input type="text" name="fk_id_usua_oc" id="fk_id_usua_oc" class="form__input" hidden>
+						<div class="form__group">
+							<input type="text" name="numero_prof_oc" id="numero_prof_oc" placeholder=" " class="form__input" readonly>
+							<label for="numero_prof_oc" class="form__label">Numero de proforma:</label>
+						</div>
+						<div class="form__group">
+							<input type="date" name="fecha_oc" id="fecha_oc" placeholder=" " class="form__input">
+							<label for="fecha_oc" class="form__label">Fecha:</label>
+						</div>
+						<div class="form__group">
+							<input type="text" name="empresa_oc" id="empresa_oc" class="form__input" readonly>
+							<label for="empresa_oc" class="form__label">Empresa:</label>
+						</div>
+						<div class="form__group">
+							<input type="text" name="cliente_oc" id="cliente_oc" class="form__input" readonly>
+							<label for="cliente_oc" class="form__label">Cliente:</label>
+						</div>
+						<div class="form__group">
+							<input type="text" name="orden_oc" placeholder=" " class="form__input">
+							<label for="orden_oc" class="form__label">Numero de orden:</label>
+						</div>
+						<div class="form__group">
+							<input type="text" name="observacion_oc" placeholder=" " class="form__input">
+							<label for="observacion_oc" class="form__label">Observacion:</label>
+						</div>
+					</div>
+				</form>
+				<button class="form__submit" onclick="openPreviewOC()">Productos</button>
+			</div>
+		</div>
+	</section>
 	<!--Modal of product of a proforma-->
 	<section id="prof_prodMW" class="modal">
 		<div class="modalPdpf__container">
 			<div class="modalPdpf__header">
 				<div>
-					<img src="../imagenes/producto.svg" onclick="openProductSMW()" class="icon__CRUD" title="Buscar producto">
+					<img src="../imagenes/producto.svg" onclick="openProductSMW()" class="icon__CRUD"
+						title="Buscar producto">
 				</div>
 				<h2 class="modal__title">Productos</h2>
 				<img src="../imagenes/salir.svg" id="closeProf_prodMW" class="button__close">

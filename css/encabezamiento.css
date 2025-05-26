@@ -89,3 +89,8 @@
 	}
 	
 }
+.nav__link.active {
+  color: #225c74; /* Cambia el color a azul */
+  background-color: #fff; /* Cambia el fondo a gris claro */
+  border: .2rem solid #225c74; /* Cambia el borde a azul */
+}

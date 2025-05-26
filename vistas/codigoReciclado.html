@@ -1,0 +1,32 @@
+<!--Modal nota de entrega-->
+	<section id="notaEntregaRMW" class="modal">
+		<div class="modal__container">
+			<div class="modal__header">
+				<h2>Nota de entrega</h2>
+				<img src="../imagenes/salir.svg" id="closeNotaEntregaRMW" class="button__close">
+			</div>
+			<form id="formNotaEntregaR" class="form">
+				<div class="form__container">
+					<input type="hidden" id="id_prof" name="id_prof" placeholder=" " class="form__input">
+					<input type="hidden" id="descuento_prof">
+					<div class="form__group">
+						<input type="text" id="numero_prof" placeholder=" " class="form__input" readonly>
+						<label class="form__label">Proforma:</label>
+					</div>
+					<div class="form__group">
+						<input type="date" name="fecha_ne" id="fecha_ne" placeholder=" " class="form__input">
+						<label for="fecha_ne" class="form__label">Fecha nota de entrega:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="orden_ne" placeholder=" " class="form__input">
+						<label for="orden_ne" class="form__label">Según Orden/Invit:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="observacion_ne" placeholder=" " class="form__input">
+						<label for="observacion_ne" class="form__label">Observacion:</label>
+					</div>
+				</div>
+			</form>
+			<button class="form__submit" onclick="openPreviwProductsSold()">Registrar</button>
+		</div>
+	</section>

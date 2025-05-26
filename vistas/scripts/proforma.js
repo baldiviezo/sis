@@ -548,7 +548,7 @@ function selectStateProformas() {
     paginacionProforma(filterProformas.length, 1);
 }
 //------Ordenar tabla descendente ascendente
-let orderProforma = document.querySelectorAll('.tbody__head--proforma');
+const orderProforma = document.querySelectorAll('.tbody__head--proforma');
 orderProforma.forEach(div => {
     div.children[0].addEventListener('click', function () {
         filterProformas.sort((a, b) => {
@@ -666,35 +666,30 @@ function tableProformas(page) {
             imgs = [
                 { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_prof}, "prof")`, title: 'Mostrar PDF' }
             ];
-            const hasMdfProforma = mdfPproforma.filter(mdfProforma => mdfProforma.id_prof_mprof == proforma.id_prof).length > 0;
-            if (hasMdfProforma) {
-                imgs.push({ src: '../imagenes/folder.svg', onclick: `showMdfProforma(${proforma.id_prof})`, title: 'Proformas anteriores' });
-            }
         } else if (proforma.estado_prof == 'pendiente') {
             if (['Administrador', 'Gerente general'].includes(localStorage.getItem('rol_usua'))) {
                 imgs = [
-                    //{ src: '../imagenes/notaEntrega.svg', onclick: 'openNotaEntregaRMW(this.parentNode.parentNode)', title: 'Generar Nota de Entrega' },
+                    { src: '../imagenes/notaEntrega.svg', onclick: `openOrdenBuy(${proforma.id_prof})`, title: 'Proforma confirmada' },
                     { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_prof}, "prof")`, title: 'Mostrar PDF' },
                     { src: '../imagenes/edit.svg', onclick: `readProforma(${proforma.id_prof})`, title: 'Editar Proforma' },
                     { src: '../imagenes/trash.svg', onclick: `deleteProforma(${proforma.id_prof})`, title: 'Eliminar Proforma' }
                 ];
             } else if (['Ingeniero', 'Gerente De Inventario'].includes(localStorage.getItem('rol_usua'))) {
                 imgs = [
-                    //{ src: '../imagenes/notaEntrega.svg', onclick: 'openNotaEntregaRMW(this.parentNode.parentNode)', title: 'Generar Nota de Entrega' },
+                    { src: '../imagenes/notaEntrega.svg', onclick: `openOrdenBuy(${proforma.id_prof})`, title: 'Proforma confirmada' },
                     { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_prof}, "prof")`, title: 'Mostrar PDF' },
                     { src: '../imagenes/edit.svg', onclick: `readProforma(${proforma.id_prof})`, title: 'Editar Proforma' }
                 ];
             }
-            const hasMdfProforma = mdfPproforma.filter(mdfProforma => mdfProforma.id_prof_mprof == proforma.id_prof).length > 0;
-            if (hasMdfProforma) {
-                imgs.push({ src: '../imagenes/folder.svg', onclick: `showMdfProforma(${proforma.id_prof})`, title: 'Proformas anteriores' });
-            }
-        } else if (proforma.estado_prof == 'devolucion') {
+        } else if (proforma.estado_prof == 'confirmada') {
             imgs = [
                 { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_prof}, "prof")`, title: 'Mostrar PDF' }
             ]
         }
-
+        const hasMdfProforma = mdfPproforma.filter(mdfProforma => mdfProforma.id_prof_mprof == proforma.id_prof).length > 0;
+        if (hasMdfProforma) {
+            imgs.push({ src: '../imagenes/folder.svg', onclick: `showMdfProforma(${proforma.id_prof})`, title: 'Proformas anteriores' });
+        }
         imgs.forEach((img) => {
             const imgElement = document.createElement('img');
             imgElement.src = img.src;
@@ -1193,6 +1188,8 @@ function createButton(tbody, formProformas) {
         button.setAttribute('onclick', 'createProforma();');
     } else if (formProformas === 'M') {
         button.setAttribute('onclick', 'updateProforma();');
+    } else if (formProformas === 'OC') {
+        button.setAttribute('onclick', 'createProformaP();');
     }
 
     tdLabel.setAttribute('colspan', '5');
@@ -1480,6 +1477,54 @@ function showPDF(prof_mprof_ne, pf_pd, pdf) {
     document.body.appendChild(form);
     // Submitir el formulario
     form.submit();
+}
+//--------------------------------ORDEN DE COMPRA------------------------------------------------
+function ordenBuy(id_prof) {
+    if (confirm('¿Esta usted seguro?')) {
+        if (requestProf == false) {
+            requestProf = true;
+            let formData = new FormData();
+            formData.append('ordenBuy', id_prof);
+            preloader.classList.add('modal__show');
+            fetch('../controladores/proforma.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                Promise.all([readProformas(), readProf_prods()]).then(() => {
+                    paginacionProforma(proformas.length, 1);
+                    paginacionPfPd(filterProf_prods.length, 1);
+                    requestProf = false;
+                    preloader.classList.remove('modal__show');
+                    mostrarAlerta(data);
+                })
+            }).catch(err => {
+                requestProf = false;
+                mostrarAlerta(err);
+            });
+        }
+    }
+}
+//------OPEN Y CLOSE FORM OC
+const formOrderBuy = document.getElementById('formOrderBuy');
+const closeFormOrderBuy = document.getElementById('closeFormOrderBuy');
+closeFormOrderBuy.addEventListener('click', () => {
+    formOrderBuy.classList.remove('modal__show');
+});
+function openOrdenBuy(id_prof) {
+    formOrderBuy.classList.add('modal__show');
+    const proforma = filterProformas.find(proforma => proforma.id_prof === id_prof);
+    const cliente = customers.find(customer => customer.id_clte === proforma.fk_id_clte_prof);
+    const empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
+    document.getElementById('fk_id_prof_oc').value = proforma.id_prof;
+    document.getElementById('fk_id_clte_oc').value = proforma.fk_id_clte_prof;
+    document.getElementById('fk_id_usua_oc').value = proforma.fk_id_usua_prof;
+    document.getElementById('numero_prof_oc').value = proforma.numero_prof;
+    document.getElementById('fecha_oc').value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
+    document.getElementById('empresa_oc').value = empresa.nombre_emp;
+    document.getElementById('cliente_oc').value = cliente.apellido_clte + ' ' + cliente.nombre_clte;
+}
+function openPreviewOC() {
+
 }
 //-----------------------------------------------CRUD PROF_PROD-----------------------------------------------
 let prof_prods = [];
@@ -3235,7 +3280,7 @@ function selectCategoriaProdM() {
     }
     searchProducts();
 }
-//------Alert
+//---------------------------MODAL ALERT----------------------------------------
 const modalAlerta = document.getElementById('alerta');
 const botonAceptar = document.getElementById('botonAceptar');
 function mostrarAlerta(message) {
