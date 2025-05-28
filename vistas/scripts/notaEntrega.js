@@ -28,12 +28,13 @@ async function init() {
         preloader.classList.add('modal__show');
         try {
             await Promise.all([
-                readProformas(),
                 readCustomers(),
+                readOrderBuys(),
+                readOcProd(),                                                                                           
                 readUsers(),
                 readEnterprises()
             ]);
-            paginacionProforma(proformas.length, 1);
+            paginacionOrdenCompra(proformas.length, 1);
             rqstNotaEntrega = false;
             preloader.classList.remove('modal__show');
         } catch (error) {
@@ -42,57 +43,69 @@ async function init() {
         }
     }
 }
-//--------------------------------------------PROFORMA-----------------------------------------------------
-let proformas = [];
-let filterProformas = [];
-let formProformas;
-async function readProformas() {
+//--------------------------------ORDEN DE COMPRA---------------------------------------------------
+let orderBuys = [];
+let filterOrderBuys = [];
+async function readOrderBuys() {
     return new Promise((resolve, reject) => {
-        let formData = new FormData();
-        formData.append('readProformas', '');
-        fetch('../controladores/proforma.php', {
+        let formData = new FormData();        
+        formData.append('readOrderBuys', '');
+        fetch('../controladores/notaEntrega.php', {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            data = data.filter(proforma => proforma.estado_prof !== 'pendiente');
-            const isAdmin = ['Gerente general', 'Administrador'].includes(localStorage.getItem('rol_usua'));
-            proformas = isAdmin ? data : data.filter(proforma => proforma.fk_id_usua_prof === localStorage.getItem('id_usua'));
-            
-            filterProformas = proformas;
+            console.log(data);
+            orderBuys = data;
             resolve();
-            createYearProforma();
+        }).catch(err => console.log(err));
+    })
+}
+
+//-----------------------------------------READ OC_PROD
+let oc_prods = [];
+function readOcProd() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readOcProd', '');
+        fetch('../controladores/notaEntrega.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            console.log(data)
+            oc_prods = data;
+            resolve();
         }).catch(err => console.log(err));
     })
 }
 //------Select utilizado para buscar por columnas
-const selectSearchProf = document.getElementById('selectSearchProf');
-selectSearchProf.addEventListener('change', searchProforma);
+const selectSearchOC = document.getElementById('selectSearchOC');
+selectSearchOC.addEventListener('change', searchOrdenCompra);
 //------buscar por input
-const inputSearchProf = document.getElementById("inputSearchProf");
-inputSearchProf.addEventListener("keyup", searchProforma);
+const inputSearchOC = document.getElementById("inputSearchOC");
+inputSearchOC.addEventListener("keyup", searchOrdenCompra);
 //------Proformas por pagina
-const selectNumberProf = document.getElementById('selectNumberProf');
-selectNumberProf.selectedIndex = 3;
-selectNumberProf.addEventListener('change', function () {
-    paginacionProforma(filterProformas.length, 1);
+const selectNumberOC = document.getElementById('selectNumberOC');
+selectNumberOC.selectedIndex = 3;
+selectNumberOC.addEventListener('change', function () {
+    paginacionOrdenCompra(filterProformas.length, 1);
 });
 //-------Estado de proforma
-const selectStateProf = document.getElementById('selectStateProf');
-selectStateProf.addEventListener('change', searchProforma);
+const selectStateOC = document.getElementById('selectStateOC');
+selectStateOC.addEventListener('change', searchOrdenCompra);
 //------buscar por:
-function searchProforma() {
-    const valor = selectSearchProf.value;
-    const busqueda = inputSearchProf.value.toLowerCase().trim();
+function searchOrdenCompra() {
+    const valor = selectSearchOC.value;
+    const busqueda = inputSearchOC.value.toLowerCase().trim();
 
-    filterProformas = proformas.filter(proforma => {
-        let cliente = customers.find(customer => customer.id_clte === proforma.fk_id_clte_prof);
+    filterOrderBuys = orderBuys.filter(ordenBuy => {
+        let cliente = customers.find(customer => customer.id_clte === ordenBuy.fk_id_clte_oc);
         let empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
-        let usuario = users.find(user => user.id_usua === proforma.fk_id_usua_prof);
+        let usuario = users.find(user => user.id_usua === ordenBuy.fk_id_usua_oc);
 
         if (valor === 'todas') {
             return (
-                proforma.numero_prof.toLowerCase().includes(busqueda) ||
-                proforma.fecha_prof.toLowerCase().includes(busqueda) ||
+                ordenBuy.numero_oc.toLowerCase().includes(busqueda) ||
+                ordenBuy.fecha_oc.toLowerCase().includes(busqueda) ||
                 empresa.nombre_emp.toLowerCase().includes(busqueda) ||
                 (usuario.nombre_usua + ' ' + usuario.apellido_usua).toLowerCase().includes(busqueda) ||
                 (cliente.apellido_clte + ' ' + cliente.nombre_clte).toLowerCase().includes(busqueda)
@@ -104,47 +117,47 @@ function searchProforma() {
         } else if (valor === 'nombre_emp') {
             return empresa.nombre_emp.toLowerCase().includes(busqueda);
         } else {
-            return proforma[valor].toLowerCase().includes(busqueda);
+            return ordenBuy[valor].toLowerCase().includes(busqueda);
         }
     });
-    selectStateProformas();
+    selectStateOrdenCompra();
 }
 function createYearProforma() {
-    const anios = Array.from(new Set(proformas.map(proforma => proforma.fecha_prof.split('-')[0])));
+    const anios = Array.from(new Set(orderBuys.map(orderBuy => orderBuy.fecha_oc.split('-')[0])));
 
-    // Crear opciones para selectYearProf
-    selectYearProf.innerHTML = '';
+    // Crear opciones para selectYearOC
+    selectYearOC.innerHTML = '';
     let optionFirst = document.createElement('option');
     optionFirst.value = 'todas';
     optionFirst.innerText = 'Todos los años';
-    selectYearProf.appendChild(optionFirst);
+    selectYearOC.appendChild(optionFirst);
     for (let anio of anios) {
         const option = document.createElement('option');
         option.value = anio;
         option.textContent = anio;
-        selectYearProf.appendChild(option);
+        selectYearOC.appendChild(option);
     }
 }
 //------seleccionar el año
-const selectYearProf = document.getElementById('selectYearProf');
-selectYearProf.addEventListener('change', searchProforma);
-const selectMonthProf = document.getElementById('selectMonthProf');
-selectMonthProf.addEventListener('change', searchProforma);
+const selectYearOC = document.getElementById('selectYearOC');
+selectYearOC.addEventListener('change', searchOrdenCompra);
+const selectMonthOC = document.getElementById('selectMonthOC');
+selectMonthOC.addEventListener('change', searchOrdenCompra);
 //------buscar por marca y categoria:
-function selectStateProformas() {
-    filterProformas = filterProformas.filter(proforma => {
-        const estado = selectStateProf.value === 'todasLasProformas' ? true : proforma.estado_prof === selectStateProf.value;
-        const fecha = selectYearProf.value === 'todas' ? true : proforma.fecha_prof.split('-')[0] === selectYearProf.value;
-        const mes = selectMonthProf.value === 'todas' ? true : proforma.fecha_prof.split('-')[1] === selectMonthProf.value;
+function selectStateOrdenCompra() {
+    filterOrderBuys = filterOrderBuys.filter(orderBuy => {
+        const estado = selectStateOC.value === 'todasLasOC' ? true : orderBuy.estado_oc === selectStateOC.value;
+        const fecha = selectYearOC.value === 'todas' ? true : orderBuy.fecha_oc.split('-')[0] === selectYearOC.value;
+        const mes = selectMonthOC.value === 'todas' ? true : orderBuy.fecha_oc.split('-')[1] === selectMonthOC.value;
         return estado && fecha && mes;
     });
-    paginacionProforma(filterProformas.length, 1);
+    paginacionOrdenCompra(filterOrderBuys.length, 1);
 }
 //------Ordenar tabla descendente ascendente
-const orderProforma = document.querySelectorAll('.tbody__head--proforma');
-orderProforma.forEach(div => {
+const orderOrdenCompra = document.querySelectorAll('.tbody__head--OC');
+orderOrdenCompra.forEach(div => {
     div.children[0].addEventListener('click', function () {
-        filterProformas.sort((a, b) => {
+        filterOrderBuys.sort((a, b) => {
             let first = a[div.children[0].name];
             let second = b[div.children[0].name];
             if (typeof first === 'number' && typeof second === 'number') {
@@ -153,10 +166,10 @@ orderProforma.forEach(div => {
                 return String(first).localeCompare(String(second));
             }
         });
-        paginacionProforma(filterProformas.length, 1);
+        paginacionOrdenCompra(filterOrderBuys.length, 1);
     });
     div.children[1].addEventListener('click', function () {
-        filterProformas.sort((a, b) => {
+        filterOrderBuys.sort((a, b) => {
             let first = a[div.children[0].name];
             let second = b[div.children[0].name];
             if (typeof first === 'number' && typeof second === 'number') {
@@ -165,20 +178,20 @@ orderProforma.forEach(div => {
                 return String(second).localeCompare(String(first));
             }
         });
-        paginacionProforma(filterProformas.length, 1);
+        paginacionOrdenCompra(filterOrderBuys.length, 1);
     });
 });
-//------PaginacionProforma
-function paginacionProforma(allProducts, page) {
-    let numberProducts = Number(selectNumberProf.value);
+//------PaginacionOrdenCompra
+function paginacionOrdenCompra(allProducts, page) {
+    let numberProducts = Number(selectNumberOC.value);
     let allPages = Math.ceil(allProducts / numberProducts);
-    let ul = document.querySelector('#wrapperProf ul');
+    let ul = document.querySelector('#wrapperOC ul');
     let li = '';
     let beforePages = page - 1;
     let afterPages = page + 1;
     let liActive;
     if (page > 1) {
-        li += `<li class="btn" onclick="paginacionProforma(${allProducts}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
+        li += `<li class="btn" onclick="paginacionOrdenCompra(${allProducts}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
     }
     for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
         if (pageLength > allPages) {
@@ -192,42 +205,42 @@ function paginacionProforma(allProducts, page) {
         } else {
             liActive = '';
         }
-        li += `<li class="numb ${liActive}" onclick="paginacionProforma(${allProducts}, ${pageLength})"><span>${pageLength}</span></li>`;
+        li += `<li class="numb ${liActive}" onclick="paginacionOrdenCompra(${allProducts}, ${pageLength})"><span>${pageLength}</span></li>`;
     }
     if (page < allPages) {
-        li += `<li class="btn" onclick="paginacionProforma(${allProducts}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
+        li += `<li class="btn" onclick="paginacionOrdenCompra(${allProducts}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
     }
     ul.innerHTML = li;
-    let h2 = document.querySelector('#showPageProf h2');
-    h2.innerHTML = `Pagina ${page}/${allPages}, ${allProducts} Proformas`;
-    tableProformas(page);
+    let h2 = document.querySelector('#showPageOC h2');
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${allProducts} Ordens de Compra`;
+    tableOrdenCompra(page);
 }
 //--------Tabla de proforma
-function tableProformas(page) {
-    const tbody = document.getElementById('tbodyProforma');
-    const inicio = (page - 1) * Number(selectNumberProf.value);
-    const final = inicio + Number(selectNumberProf.value);
-    const proformas = filterProformas.slice(inicio, final);
+function tableOrdenCompra(page) {
+    const tbody = document.getElementById('tbodyOC');
+    const inicio = (page - 1) * Number(selectNumberOC.value);
+    const final = inicio + Number(selectNumberOC.value);
+    const proformas = filterOrderBuys.slice(inicio, final);
     tbody.innerHTML = '';
     proformas.forEach((proforma, index) => {
 
-        const cliente = customers.find(customer => customer.id_clte === proforma.fk_id_clte_prof);
-        const usuario = users.find(user => user.id_usua === proforma.fk_id_usua_prof);
+        const cliente = customers.find(customer => customer.id_clte === proforma.fk_id_clte_oc);
+        const usuario = users.find(user => user.id_usua === proforma.fk_id_usua_oc);
         const empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
         const tr = document.createElement('tr');
 
-        tr.setAttribute('id_prof', proforma.id_prof);
+        tr.setAttribute('id_oc', proforma.id_oc);
 
         const tdNumero = document.createElement('td');
         tdNumero.innerText = index + 1;
         tr.appendChild(tdNumero);
 
         const tdNumeroProforma = document.createElement('td');
-        tdNumeroProforma.innerText = proforma.numero_prof;
+        tdNumeroProforma.innerText = proforma.numero_oc;
         tr.appendChild(tdNumeroProforma);
 
         const tdFecha = document.createElement('td');
-        tdFecha.innerText = proforma.fecha_prof;
+        tdFecha.innerText = proforma.fecha_oc;
         tr.appendChild(tdFecha);
 
         const tdEncargado = document.createElement('td');
@@ -243,7 +256,7 @@ function tableProformas(page) {
         tr.appendChild(tdCliente);
 
         const tdTotal = document.createElement('td');
-        tdTotal.innerText = proforma.total_prof + ' ' + proforma.moneda_prof;
+        tdTotal.innerText = proforma.total_oc + ' ' + proforma.moneda_oc;
         tr.appendChild(tdTotal);
 
         const tdAcciones = document.createElement('td');
@@ -251,28 +264,28 @@ function tableProformas(page) {
 
         let imgs = [];
 
-        if (proforma.estado_prof == 'vendido') {
+        if (proforma.estado_oc == 'vendido') {
             imgs = [
-                { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_prof}, "prof")`, title: 'Mostrar PDF' }
+                { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_oc}, "prof")`, title: 'Mostrar PDF' }
             ];
-        } else if (proforma.estado_prof == 'pendiente') {
+        } else if (proforma.estado_oc == 'pendiente') {
             if (['Administrador', 'Gerente general'].includes(localStorage.getItem('rol_usua'))) {
                 imgs = [
                     //{ src: '../imagenes/notaEntrega.svg', onclick: 'openNotaEntregaRMW(this.parentNode.parentNode)', title: 'Generar Nota de Entrega' },
-                    { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_prof}, "prof")`, title: 'Mostrar PDF' },
-                    { src: '../imagenes/edit.svg', onclick: `readProforma(${proforma.id_prof})`, title: 'Editar Proforma' },
-                    { src: '../imagenes/trash.svg', onclick: `deleteProforma(${proforma.id_prof})`, title: 'Eliminar Proforma' }
+                    { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_oc}, "prof")`, title: 'Mostrar PDF' },
+                    { src: '../imagenes/edit.svg', onclick: `readProforma(${proforma.id_oc})`, title: 'Editar Proforma' },
+                    { src: '../imagenes/trash.svg', onclick: `deleteProforma(${proforma.id_oc})`, title: 'Eliminar Proforma' }
                 ];
             } else if (['Ingeniero', 'Gerente De Inventario'].includes(localStorage.getItem('rol_usua'))) {
                 imgs = [
                     //{ src: '../imagenes/notaEntrega.svg', onclick: 'openNotaEntregaRMW(this.parentNode.parentNode)', title: 'Generar Nota de Entrega' },
-                    { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_prof}, "prof")`, title: 'Mostrar PDF' },
-                    { src: '../imagenes/edit.svg', onclick: `readProforma(${proforma.id_prof})`, title: 'Editar Proforma' }
+                    { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_oc}, "prof")`, title: 'Mostrar PDF' },
+                    { src: '../imagenes/edit.svg', onclick: `readProforma(${proforma.id_oc})`, title: 'Editar Proforma' }
                 ];
             }
-        } else if (proforma.estado_prof == 'devolucion') {
+        } else if (proforma.estado_oc == 'devolucion') {
             imgs = [
-                { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_prof}, "prof")`, title: 'Mostrar PDF' }
+                { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_oc}, "prof")`, title: 'Mostrar PDF' }
             ]
         }
 
@@ -290,6 +303,29 @@ function tableProformas(page) {
         tbody.appendChild(tr);
     });
 }
+//--------------------------------------------PROFORMA-----------------------------------------------------
+let proformas = [];
+let filterProformas = [];
+let formProformas;
+async function readProformas() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readProformas', '');
+        fetch('../controladores/proforma.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            data = data.filter(proforma => proforma.estado_oc !== 'pendiente');
+            const isAdmin = ['Gerente general', 'Administrador'].includes(localStorage.getItem('rol_usua'));
+            proformas = isAdmin ? data : data.filter(proforma => proforma.fk_id_usua_oc === localStorage.getItem('id_usua'));
+            
+            filterProformas = proformas;
+            resolve();
+            createYearProforma();
+        }).catch(err => console.log(err));
+    })
+}
+
 //----------------------------------------------TABLA DE NOTA DE ENTREGA------------------------------------------------
 const tableNEMW = document.getElementById('tableNEMW');
 //------------------------------------------OPEN AND CLOSE TABLA NOTA DE ENTREGA-----------------------------------
@@ -303,7 +339,7 @@ closeTableNEMW.addEventListener('click', () => {
 })
 //---------------------------------------------------CLIENTES----------------------------------------------
 let customers = [];
-let formCustomer;
+let formCustomer = [];
 async function readCustomers() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
@@ -317,7 +353,7 @@ async function readCustomers() {
         }).catch(err => console.log(err));
     })
 }
-//********* USUARIO ***********/
+//----------------------------------------------USUARIO --------------------------------------------------/
 //------Leer tabla de usuarios
 let users = [];
 async function readUsers() {
@@ -337,7 +373,7 @@ async function readUsers() {
 }
 //<<---------------------------------------------EMPRESA---------------------------------------------->>
 let enterprises = [];
-async function readEnterprises() {
+async function readEnterprises() {  
     return new Promise((resolve, reject) => {
         let formData = new FormData();
         formData.append('readEnterprises', '');

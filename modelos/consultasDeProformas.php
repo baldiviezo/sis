@@ -33,6 +33,20 @@ class consultas{
 		$this->moneda = trim($conexion->real_escape_string($_POST['moneda_profM']));
 		$this->tipo_cambio_prof = trim($conexion->real_escape_string($_POST['tipo_cambio_profM']));
 	}
+	public function asignarValoresOC ($id_usua){
+		//protegemos al servidor de los valores que el usuario esta introduciendo
+		include 'conexion.php';
+		$this->fk_id_prof_oc = trim($conexion->real_escape_string($_POST['fk_id_prof_oc']));
+		$this->fk_id_clte_oc = trim($conexion->real_escape_string($_POST['fk_id_clte_oc']));
+		$this->fk_id_usua_oc = $id_usua;
+		$this->fecha_oc = trim($conexion->real_escape_string($_POST['fecha_oc']));
+		$this->descuento_oc = trim($conexion->real_escape_string($_POST['descuento_oc']));
+		$this->total_oc = trim($conexion->real_escape_string($_POST['total_oc']));
+		$this->moneda_oc = trim($conexion->real_escape_string($_POST['moneda_oc']));
+		$this->tipo_cambio_prof = trim($conexion->real_escape_string($_POST['tipo_cambio_oc']));
+		$this->orden_oc = trim($conexion->real_escape_string($_POST['orden_oc']));
+		$this->observacion_oc = trim($conexion->real_escape_string($_POST['observacion_oc']));
+	}
 	//--------------------------------------------CRUD PROFORMAS-----------------------------
 	//-------Read proformas
 	public function readProformas() {
@@ -54,7 +68,7 @@ class consultas{
     	$resultado = $conexion->query($consulta);
 		$numero_prof = $resultado->fetch_assoc();
 		$nuevo_numero_prof = ($numero_prof['numero_prof'] == null) ? 1 : $numero_prof['numero_prof'] + 1;
-		$consulta = "INSERT INTO proforma (numero_prof, fecha_prof, fk_id_clte_prof, fk_id_usua_prof, cond_pago_prof, tpo_entrega_prof, tpo_valido_prof, descuento_prof, total_prof, moneda_prof, observacion_prof, tipo_cambio_prof, estado_prof) VALUES ('$nuevo_numero_prof' ,'$this->fecha', '$this->cliente' , '$this->encargado', '$this->condicionesDePago', '$this->tiempoDeEntrega', '$this->tiempoValido', '$this->descuento', '$this->total', '$this->moneda', '$this->observacion', '$this->tipo_cambio_prof', 'pendiente')";
+		$consulta = "INSERT INTO proforma (numero_prof, fecha_prof, fk_id_clte_prof, fk_id_usua_prof, cond_pago_prof, tpo_entrega_prof, tpo_valido_prof, descuento_prof, total_prof, moneda_prof, observacion_prof, tipo_cambio_prof, estado_prof) VALUES ('$nuevo_numero_prof' ,'$this->fecha', '$this->cliente' , '$this->encargado', '$this->condicionesDePago', '$this->tiempoDeEntrega', '$this->tiempoValido', '$this->descuento', '$this->total', '$this->moneda', '$this->observacion', '$this->tipo_cambio_prof', '0')";
 		$resultado = $conexion->query($consulta);
 		$consulta = "SELECT MAX(id_prof) as id_prof_max FROM proforma ";
     	$resultado = $conexion->query($consulta);
@@ -150,12 +164,36 @@ class consultas{
 		$resultado = $conexion->query($consulta);
 		echo 'Proforma eliminada exitosamente!';
 	}
-	//-------Change state proforma
-	public function changeStateProforma($id_prof){
+	//-------Create oc de proforma
+	public function createOC($productos){
 		include 'conexion.php';
-		$consulta = "UPDATE proforma set estado_prof = 'confirmada' WHERE id_prof = '$id_prof'";
+
+		$consulta = "INSERT INTO orden_compra (fk_id_prof_oc, fk_id_clte_oc, fk_id_usua_oc, fecha_oc, descuento_oc, total_oc, moneda_oc, tipo_cambio_oc, orden_oc, observacion_oc, estado_oc) VALUES ('$this->fk_id_prof_oc', '$this->fk_id_clte_oc', '$this->fk_id_usua_oc', '$this->fecha_oc', '$this->descuento_oc', '$this->total_oc', '$this->moneda_oc', '$this->tipo_cambio_prof', '$this->orden_oc', '$this->observacion_oc', '0')";
 		$resultado = $conexion->query($consulta);
-		echo 'Proforma confirmada exitosamente!';
+
+		$consulta = "SELECT MAX(id_oc) as id_oc_max FROM orden_compra";
+		$resultado = $conexion->query($consulta);
+		$ordenCompra = $resultado->fetch_assoc();
+		$id_oc = $ordenCompra['id_oc_max'];
+
+		$productos = json_decode($productos, true);
+		foreach($productos as $celda){
+			$id_prod = $celda['id_prod'];
+			$codigo = $celda['codigo'];
+			$cantidad = $celda['cantidad'];
+			$costoUnitario = $celda['costoUnitario'];
+			$consulta2 = "INSERT INTO oc_prod (fk_id_oc_ocpd, fk_id_prod_ocpd, codigo_ocpd, cantidad_ocpd, cost_uni_ocpd, estado_ocpd) VALUES ('$id_oc', '$id_prod', '$codigo', '$cantidad', '$costoUnitario', '0')";
+			$resultado2 = $conexion->query($consulta2);
+		}
+
+		//cambiar estado de proforma
+		$consulta3 = "UPDATE proforma SET estado_prof = '1' WHERE id_prof = '$this->fk_id_prof_oc'";
+		$resultado3 = $conexion->query($consulta3);
+
+		if ($resultado3) {
+			echo 'OC creada exitosamente!';
+		}
+		
 	}
 	//-------------------------------------------CRUD PROF_PROD---------------------------
 	//-------Read Prof_prods

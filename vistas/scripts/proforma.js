@@ -364,16 +364,16 @@ function cartProduct(id_prod, contenedor, total) {
         const trashImg = document.createElement('img');
         trashImg.src = '../imagenes/trash.svg';
         trashImg.classList.add('icon__CRUD');
-        trashImg.addEventListener('click', (e) => removeCardFromCart(e, contenedor));
+        trashImg.addEventListener('click', (e) => removeCardFromCart(e, contenedor, total));
         card.appendChild(trashImg);
         return card;
     }
 }
 //------Eliminar cart
-function removeCardFromCart(e, container) {
+function removeCardFromCart(e, container, total) {
     const card = e.target.parentNode;
     container.removeChild(card);
-    totalPrice();
+    total();
 }
 //-------Precio total y moneda
 const totalProfR = document.getElementById('totalProfR');
@@ -540,7 +540,7 @@ selectMonthProf.addEventListener('change', searchProforma);
 //------buscar por marca y categoria:
 function selectStateProformas() {
     filterProformas = filterProformas.filter(proforma => {
-        const estado = selectStateProf.value === 'todasLasProformas' ? true : proforma.estado_prof === selectStateProf.value;
+        const estado = selectStateProf.value === 'todasLasProformas' ? true : proforma.estado_prof == selectStateProf.value;
         const fecha = selectYearProf.value === 'todas' ? true : proforma.fecha_prof.split('-')[0] === selectYearProf.value;
         const mes = selectMonthProf.value === 'todas' ? true : proforma.fecha_prof.split('-')[1] === selectMonthProf.value;
         return estado && fecha && mes;
@@ -662,11 +662,11 @@ function tableProformas(page) {
 
         let imgs = [];
 
-        if (proforma.estado_prof == 'vendido') {
+        if (proforma.estado_prof === 1) {
             imgs = [
                 { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_prof}, "prof")`, title: 'Mostrar PDF' }
             ];
-        } else if (proforma.estado_prof == 'pendiente') {
+        } else if (proforma.estado_prof === 0) {
             if (['Administrador', 'Gerente general'].includes(localStorage.getItem('rol_usua'))) {
                 imgs = [
                     { src: '../imagenes/notaEntrega.svg', onclick: `openOrdenBuy(${proforma.id_prof})`, title: 'Proforma confirmada' },
@@ -681,11 +681,7 @@ function tableProformas(page) {
                     { src: '../imagenes/edit.svg', onclick: `readProforma(${proforma.id_prof})`, title: 'Editar Proforma' }
                 ];
             }
-        } else if (proforma.estado_prof == 'confirmada') {
-            imgs = [
-                { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_prof}, "prof")`, title: 'Mostrar PDF' }
-            ]
-        }
+        } 
         const hasMdfProforma = mdfPproforma.filter(mdfProforma => mdfProforma.id_prof_mprof == proforma.id_prof).length > 0;
         if (hasMdfProforma) {
             imgs.push({ src: '../imagenes/folder.svg', onclick: `showMdfProforma(${proforma.id_prof})`, title: 'Proformas anteriores' });
@@ -787,18 +783,17 @@ function readProforma(id_prof) {
     fk_cliente_profM.value = cliente.apellido_clte + ' ' + cliente.nombre_clte;
 
     proformaMMW.classList.add('modal__show');
-    readProf_prod();
+    readProf_prod(id_prof);
 }
 //------read prof_prod
 const modalProf_prod = document.querySelector('#cartsProf_prodMW');
-function readProf_prod() {
+const button__prof_prodMW = document.querySelector('#button__prof_prodMW');
+function readProf_prod(id_prof) {
     modalProf_prod.innerHTML = '';
-    const id_prof = document.getElementById('id_profM').value;
     const prof_prods_filtered = prof_prods.filter(prof_prod => prof_prod['fk_id_prof_pfpd'] == id_prof);
     prof_prods_filtered.forEach(prof_prod => {
         const card = cartProduct_pfpd(prof_prod, modalProf_prod, totalPriceM);
         modalProf_prod.appendChild(card);
-
     })
     //Drang and drop
     const items = modalProf_prod.querySelectorAll(".cart-item");
@@ -913,20 +908,36 @@ function cartProduct_pfpd(prof_prod, contenedor, total) {
         const trashImg = document.createElement('img');
         trashImg.src = '../imagenes/trash.svg';
         trashImg.classList.add('icon__CRUD');
-        trashImg.addEventListener('click', (e) => removeCardFromCart(e, contenedor));
+        trashImg.addEventListener('click', (e) => removeCardFromCartM(e, contenedor));
         card.appendChild(trashImg);
         return card;
     }
 }
+function removeCardFromCartM(e, container) {
+    const card = e.target.parentNode;
+    container.removeChild(card);
+    totalPriceM();
+}
 function totalPriceM() {
     const divs = document.querySelectorAll('#cartsProf_prodMW div.cart-item');
-    const moneda = moneda_profM.value;
     let total = 0;
+    let moneda = '';
+    let descuento = 0;
     divs.forEach(div => {
         costo = Number(div.querySelector('.cart-item__costTotal').value);
         total = total + costo;
     })
-    const descuento = Number(document.getElementById('descuento_profM').value);
+    if (formProformas === 'M') {
+        descuento = Number(document.getElementById('descuento_profM').value);
+        moneda = moneda_profM.value;
+        button__prof_prodMW.innerHTML = 'MODIFICAR';
+
+    } else if (formProformas === 'OC') {
+        const proforma = filterProformas.find(proforma => proforma.id_prof == fk_id_prof_oc.value);
+        moneda = proforma.moneda_prof;
+        descuento = proforma.descuento_prof;
+        button__prof_prodMW.innerHTML = 'CREAR OC';
+    }
     document.getElementById('subTotal_pfpd').innerHTML = `Sub-Total(${moneda}): ${total.toFixed(2)} ${moneda}`;
     document.getElementById('desc_pfpd').innerHTML = `Desc. ${descuento}% (${moneda}):   ${((total * descuento) / 100).toFixed(2)} ${moneda}`;
     document.getElementById('total_pfpd').innerHTML = `Total(${moneda}): ${((total - (total * descuento) / 100)).toFixed(2)} ${moneda}`;
@@ -1054,7 +1065,7 @@ function openPreviwProducts() {
     let cart;
     if (formProformas === 'R') {
         cart = document.querySelectorAll('#cartItem .cart-item')
-    } else if (formProformas === 'M') {
+    } else if (formProformas === 'M' || formProformas === 'OC') {
         cart = document.querySelectorAll('#cartsProf_prodMW .cart-item')
     }
     if (fk_id_emp_clteR.value == '' && formProformas == 'R') {
@@ -1086,9 +1097,15 @@ function getProducts() {
 
         return document.querySelectorAll('#cartItem .cart-item');
     } else if (formProformas === 'M') {
-
         const empresa = enterprises.find(enterprise => enterprise.id_emp == fk_id_emp_clteM.value);
         const cliente = customers.find(customer => customer.id_clte == fk_id_clte_profM.value);
+
+        titleEnterprise.innerText = `EMPRESA: ${empresa.nombre_emp}`;
+        titleCustomer.innerText = `CLIENTE: ${cliente.apellido_clte + ' ' + cliente.nombre_clte}`;
+        return document.querySelectorAll('#cartsProf_prodMW .cart-item');
+    } else if (formProformas === 'OC') {
+        const cliente = customers.find(customer => customer.id_clte == fk_id_clte_oc.value);
+        const empresa = enterprises.find(enterprise => enterprise.id_emp == cliente.fk_id_emp_clte);
 
         titleEnterprise.innerText = `EMPRESA: ${empresa.nombre_emp}`;
         titleCustomer.innerText = `CLIENTE: ${cliente.apellido_clte + ' ' + cliente.nombre_clte}`;
@@ -1100,6 +1117,9 @@ function getMoneda() {
         return document.getElementById('selectMoneyCart').value;
     } else if (formProformas === 'M') {
         return document.getElementsByName('moneda_profM')[0].value;
+    } else if (formProformas === 'OC') {
+        const proforma = filterProformas.find(proforma => proforma.id_prof == fk_id_prof_oc.value);
+        return proforma.moneda_prof;
     }
 }
 function calculateTotal(productos) {
@@ -1110,7 +1130,14 @@ function calculateTotal(productos) {
     return total;
 }
 function getDescuento() {
-    return Number(document.getElementsByName('descuento_prof' + formProformas)[0].value);
+    if (formProformas === 'M') {
+        return Number(document.getElementsByName('descuento_prof' + formProformas)[0].value);
+    } else if (formProformas === 'OC') {
+        const proforma = filterProformas.find(proforma => proforma.id_prof == fk_id_prof_oc.value);
+        return proforma.descuento_prof;
+    } else if (formProformas === 'R') {
+        return Number(document.getElementById('descuento_profR').value);
+    }
 }
 function createTable(tbody, productos, moneda) {
     const fragment = document.createDocumentFragment();
@@ -1183,13 +1210,15 @@ function createButton(tbody, formProformas) {
     const tdValue = document.createElement('td');
     const button = document.createElement('button');
     button.classList.add('button__sell--previw');
-    button.innerText = 'Registrar';
     if (formProformas === 'R') {
+        button.innerText = 'REGISTRAR';
         button.setAttribute('onclick', 'createProforma();');
     } else if (formProformas === 'M') {
+        button.innerText = 'MODIFICAR';
         button.setAttribute('onclick', 'updateProforma();');
     } else if (formProformas === 'OC') {
-        button.setAttribute('onclick', 'createProformaP();');
+        button.innerText = 'CREAR OC';
+        button.setAttribute('onclick', 'createOC();');
     }
 
     tdLabel.setAttribute('colspan', '5');
@@ -1510,21 +1539,66 @@ const closeFormOrderBuy = document.getElementById('closeFormOrderBuy');
 closeFormOrderBuy.addEventListener('click', () => {
     formOrderBuy.classList.remove('modal__show');
 });
+const fk_id_prof_oc = document.getElementById('fk_id_prof_oc');
+const fk_id_clte_oc = document.getElementById('fk_id_clte_oc');
 function openOrdenBuy(id_prof) {
+    formProformas = 'OC';
     formOrderBuy.classList.add('modal__show');
     const proforma = filterProformas.find(proforma => proforma.id_prof === id_prof);
     const cliente = customers.find(customer => customer.id_clte === proforma.fk_id_clte_prof);
     const empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
-    document.getElementById('fk_id_prof_oc').value = proforma.id_prof;
-    document.getElementById('fk_id_clte_oc').value = proforma.fk_id_clte_prof;
+    fk_id_prof_oc.value = proforma.id_prof;
+    fk_id_clte_oc.value = proforma.fk_id_clte_prof;
     document.getElementById('fk_id_usua_oc').value = proforma.fk_id_usua_prof;
     document.getElementById('numero_prof_oc').value = proforma.numero_prof;
     document.getElementById('fecha_oc').value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
     document.getElementById('empresa_oc').value = empresa.nombre_emp;
     document.getElementById('cliente_oc').value = cliente.apellido_clte + ' ' + cliente.nombre_clte;
+    document.getElementById('moneda_oc').value = proforma.moneda_prof;
+    document.getElementById('descuento_oc').value = proforma.descuento_prof;
+    document.getElementById('tipo_cambio_oc').value = proforma.tipo_cambio_prof;
+    readProf_prod(id_prof)
 }
-function openPreviewOC() {
-
+const formOrderBuyR = document.getElementById('formOrderBuyR');
+function createOC() {
+    if (confirm('¿Esta usted seguro de crear la orden de compra?')) {
+        if (requestProf == false) {
+            requestProf = true;
+            formOrderBuy.classList.remove('modal__show');
+            prof_prodMW.classList.remove('modal__show');
+            previewProducts.classList.remove('modal__show');
+            const productos = [];
+            for (let div of modalProf_prod.querySelectorAll('div.cart-item')) {
+                productos.push({
+                    id_prod: div.getAttribute('id_prod'),
+                    codigo: div.querySelector('.cart-item__codigo').innerText,
+                    cantidad: div.querySelector('.cart-item__cantidad').value,
+                    costoUnitario: div.querySelector('.cart-item__costUnit').value
+                })
+            }
+            let formData = new FormData(formOrderBuyR);
+            const total = Number(document.getElementById('total_pfpd').innerHTML.split(' ')[1]).toFixed(2);
+            formData.set("total_oc", total);
+            formData.append('createOC', JSON.stringify(productos));
+            formData.append('id_usua', localStorage.getItem('id_usua'));
+            preloader.classList.add('modal__show');
+            fetch('../controladores/proforma.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                Promise.all([readProformas(), readProf_prods()]).then(() => {
+                    paginacionProforma(proformas.length, 1);
+                    paginacionPfPd(filterProf_prods.length, 1);
+                    requestProf = false;
+                    preloader.classList.remove('modal__show');
+                    mostrarAlerta(data);
+                })
+            }).catch(err => {
+                requestProf = false;
+                mostrarAlerta(err);
+            });
+        }
+    }
 }
 //-----------------------------------------------CRUD PROF_PROD-----------------------------------------------
 let prof_prods = [];
@@ -1588,7 +1662,7 @@ selectMonthPfpd.addEventListener('change', searchPfPd);
 function selectStateProductOC() {
     filterProf_prods = filterProf_prods.filter(profProd => {
         const proforma = proformas.find(proforma => proforma.id_prof === profProd.fk_id_prof_pfpd);
-        const estado = selectStatePfPd.value === 'todasLasProf' ? true : proforma.estado_prof === selectStatePfPd.value;
+        const estado = selectStatePfPd.value === 'todasLasProf' ? true : proforma.estado_prof == selectStatePfPd.value;
         const fecha = selectYearPfPd.value === 'todas' ? true : proforma.fecha_prof.split('-')[0] === selectYearPfPd.value;
         const mes = selectMonthPfpd.value === 'todas' ? true : proforma.fecha_prof.split('-')[1] === selectMonthPfpd.value;
         return estado && fecha && mes;

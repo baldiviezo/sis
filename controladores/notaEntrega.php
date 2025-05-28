@@ -28,5 +28,14 @@ if (isset($_POST['readAllNotaEntrega'])) {
 	$readNte_invs = new consultas;
 	$readNte_invs->readNte_invs();
 }
-
+//--------------------------------------------CRUD ORDEN DE COMPRA
+if (isset($_POST['readOrderBuys'])) {
+	$readOrderBuys = new consultas;
+	$readOrderBuys->readOrderBuys();
+}
+//-------read OC_PROD
+if (isset($_POST['readOcProd'])) {
+	$readOcProd = new consultas;
+	$readOcProd->readOcProd();
+}
 ?>

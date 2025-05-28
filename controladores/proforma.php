@@ -50,9 +50,10 @@ if (isset($_POST['readPrices'])) {
 	$readPrices = new consultas;
 	$readPrices->readPrices();
 }
-//------------------------------------------Estado de proforma
-if (isset($_POST['changeStateProforma'])) {
-	$changeStateProforma = new consultas;
-	$changeStateProforma->changeStateProforma($_POST['changeStateProforma']);
+//-------------------------------------CREATE OC DE PROFORMA
+if (isset($_POST['createOC'])) {
+	$createOC = new consultas;
+	$createOC->asignarValoresOC($_POST['id_usua']);
+	$createOC->createOC($_POST['createOC']);
 }
 ?>

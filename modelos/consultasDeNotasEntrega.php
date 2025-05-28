@@ -84,7 +84,7 @@ class consultas{
 			}
 		}
 	}
-	//-----Delete nota de entrega
+	//------Delete nota de entrega
 	public function deleteNotaEntrega(){
 		include 'conexion.php';
 		$id_ne = trim($conexion->real_escape_string($_POST['fk_id_ne_dvl']));
@@ -134,18 +134,42 @@ class consultas{
 		}
 		echo 'Nota de entrega eliminada correctamente';
 	}
+	//------Read orden de compra
+	public function readOrderBuys(){
+		include 'conexion.php';
+		$consulta = "SELECT * FROM orden_compra";
+		$resultado = $conexion->query($consulta);
+		$ordenCompras =  array();
+		while ($fila = $resultado->fetch_assoc()){
+			$ordenCompras[] = $fila;
+		}
+		echo json_encode($ordenCompras, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+	}
+	//------Read OC_PROD
+	public function readOcProd(){
+		include 'conexion.php';
+		$consulta = "SELECT * FROM oc_prod";
+		$resultado = $conexion->query($consulta);
+		$ocProds =  array();
+		while ($fila = $resultado->fetch_assoc()){
+			$ocProds[] = $fila;
+		}
+		echo json_encode($ocProds, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+	}
+
+
 	//-------------------------------------------CRUD PROF_PROD---------------------------
 	//-------Read Prof_prods
 	public function readNte_invs(){
-    include 'conexion.php';
-    $consulta = "SELECT * FROM nte_inv";
-    $resultado = $conexion->query($consulta);
-    $nteInvs =  array();
-    while ($fila = $resultado->fetch_assoc()){
-        $nteInvs[] = $fila;
-    }
-    echo json_encode($nteInvs, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
-}
+    	include 'conexion.php';
+    	$consulta = "SELECT * FROM nte_inv";
+    	$resultado = $conexion->query($consulta);
+    	$nteInvs =  array();
+    	while ($fila = $resultado->fetch_assoc()){
+        	$nteInvs[] = $fila;
+    	}
+    	echo json_encode($nteInvs, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+	}
 
 	public function addZerosGo($numero) {
 		return str_pad($numero, 4, "0", STR_PAD_LEFT);

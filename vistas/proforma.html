@@ -180,9 +180,8 @@
 							<label>Proformas:</label>
 							<select id="selectStateProf" class="select__number">
 								<option value="todasLasProformas">Todas</option>
-								<option value="pendiente">No confirmadas</option>
-								<option value="confirmada">Confirmadas</option>
-								<option value="vendido">Vendida</option>
+								<option value='0'>No confirmadas</option>
+								<option value='1'>Confirmadas</option>
 							</select>
 						</div>
 					</section>
@@ -297,9 +296,8 @@
 							<label>Proformas:</label>
 							<select id="selectStatePfPd" class="select__number">
 								<option value="todasLasProf">Todas</option>
-								<option value="pendiente">No confirmadas</option>
-								<option value="confirmada">Confirmadas</option>
-								<option value="vendido">Vendida</option>
+								<option value="0">No confirmadas</option>
+								<option value="1">Confirmadas</option>
 							</select>
 						</div>
 					</section>
@@ -572,21 +570,6 @@
 			</div>
 		</div>
 	</section>
-	<!--formulario de orden de compra-->
-	<!--CREATE TABLE `orden_compra` (
-  `id_oc` int(11) NOT NULL,
-  `fk_id_prof_oc` int(11) NOT NULL,
-  `fk_id_clte_oc` int(11) NOT NULL,
-  `fk_id_usua_oc` int(11) NOT NULL,
-  `fecha_oc` date NOT NULL,
-  `descuento_oc` int(11) NOT NULL,
-  `total_oc` double NOT NULL,
-  `moneda_oc` varchar(10) NOT NULL,
-  `tipo_cambio_oc` float NOT NULL,
-  `orden_oc` varchar(100) NOT NULL,
-  `observacion_oc` varchar(500) NOT NULL,
-  `estado_oc` tinyint(1) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;-->
 	<section id="formOrderBuy" class="modalProf">
 		<div class="modalProf__container">
 			<div class="modal__header">
@@ -599,6 +582,9 @@
 						<input type="text" name="fk_id_prof_oc" id="fk_id_prof_oc" class="form__input" hidden>
 						<input type="text" name="fk_id_clte_oc" id="fk_id_clte_oc" class="form__input" hidden>
 						<input type="text" name="fk_id_usua_oc" id="fk_id_usua_oc" class="form__input" hidden>
+						<input type="text" name="descuento_oc" id="descuento_oc" class="form__input" hidden>
+						<input type="text" name="moneda_oc" id="moneda_oc" class="form__input" hidden>
+						<input type="text" name="tipo_cambio_oc" id="tipo_cambio_oc" class="form__input" hidden>
 						<div class="form__group">
 							<input type="text" name="numero_prof_oc" id="numero_prof_oc" placeholder=" " class="form__input" readonly>
 							<label for="numero_prof_oc" class="form__label">Numero de proforma:</label>
@@ -625,7 +611,7 @@
 						</div>
 					</div>
 				</form>
-				<button class="form__submit" onclick="openPreviewOC()">Productos</button>
+				<button class="form__submit" onclick="openProf_prodMW()">Productos</button>
 			</div>
 		</div>
 	</section>
@@ -669,7 +655,7 @@
 						<img src="../imagenes/carrito.svg">
 						<p id="count_pfpd">0</p>
 					</div>
-					<button class="button--sell" onclick="openPreviwProducts()">Modificar</button>
+					<button class="button--sell" id="button__prof_prodMW" onclick="openPreviwProducts()">Modificar</button>
 				</div>
 			</div>
 

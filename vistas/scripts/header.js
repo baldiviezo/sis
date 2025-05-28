@@ -7,7 +7,7 @@ const roles = {
     { href: 'productos.html', text: 'Productos' },
     { href: 'inventario.html', text: 'Inventario' },
     { href: 'proforma.html', text: 'Proforma' },
-    { href: 'notaEntrega.html', text: 'Nota de entrega' },
+    { href: 'notaEntrega.html', text: 'Orden de compra' },
     { href: 'compras.html', text: 'Compras' },
     { href: 'cerrar.html', text: 'Cerrar sesión' }
   ],
@@ -17,7 +17,7 @@ const roles = {
     { href: 'productos.html', text: 'Productos' },
     { href: 'inventario.html', text: 'Inventario' },
     { href: 'proforma.html', text: 'Proforma' },
-    { href: 'notaEntrega.html', text: 'Nota de entrega' },
+    { href: 'notaEntrega.html', text: 'Orden de compra' },
     { href: 'compras.html', text: 'Compras' },
     { href: 'cerrar.html', text: 'Cerrar sesión' }
   ],
