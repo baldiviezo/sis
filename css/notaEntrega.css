@@ -2,7 +2,7 @@
 .modalPdpf__container{
 	margin: auto;
 	background-color: #fff;
-	width: 30rem;
+	width: 33rem;
 	height: 90%;
 	border-radius: .5rem;
 	display: grid;
@@ -177,4 +177,9 @@
 .cart-item .cart-item__costTotal::-webkit-outer-spin-button, .cart-item .cart-item__costTotal::-webkit-inner-spin-button{
 	-webkit-appearance: none;
 	margin: 0;
+}
+
+/************/
+.icon__checkbox {
+  accent-color: green;
 }

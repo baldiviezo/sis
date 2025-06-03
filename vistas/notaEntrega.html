@@ -24,453 +24,261 @@
     </header>
     <main class="table">
         <div class="table__title">
-                    <h1><img src="../imagenes/proforma.svg">Notas de entrega</h1>
-                    <img src="../imagenes/salir.svg" id="closeTableOCMW" class="button__close">
+            <h1><img src="../imagenes/proforma.svg">Ordenes de compra</h1>
+        </div>
+        <section class="table__header">
+            <div>
+                <img src="../imagenes/folder.svg" onclick="openTableProfMW()" class="img__folder" title="Nota de entrega">
+                <img src="../imagenes/inventario.svg" onclick="openInventorySMW()" class="icon__CRUD"
+						title="Inventario">
+            </div>
+            <section class="select__search">
+                <div>
+                    <label>Fecha proforma:</label>
+                    <select id="selectYearOC" class="select__number">
+                    </select>
                 </div>
-                <section class="table__header">
-                    <h1 id="totalOCMW">TOTAL:</h1>
-                    <section class="select__search">
-                        <div>
-                            <label>Fecha proforma:</label>
-                            <select id="selectYearOC" class="select__number">
-                            </select>
-                        </div>
-                        <div>
-                            <label>Mes de venta:</label>
-                            <select id="selectMonthOC" class="select__number">
-                                <option value="todas">Todo</option>
-                                <option value="01">Enero</option>
-                                <option value="02">Febrero</option>
-                                <option value="03">Marzo</option>
-                                <option value="04">Abril</option>
-                                <option value="05">Mayo</option>
-                                <option value="06">Junio</option>
-                                <option value="07">Julio</option>
-                                <option value="08">Agosto</option>
-                                <option value="09">Septiembre</option>
-                                <option value="10">Octubre</option>
-                                <option value="11">Noviembre</option>
-                                <option value="12">Diciembre</option>
-                            </select>
-                        </div>
-                        <div hidden>
-                            <label>Proformas:</label>
-                            <select id="selectStateOC" class="select__number">
-                                <option value="todasLasOC">Todas</option>
-                                <option value="0">Pendientes</option>
-                                <option value="1">Entregadas</option>
-                            </select>
-                        </div>
-                    </section>
-                    <div class="combo__search">
-                        <div class="filter__search">
-                            <h3>Filtrar por:</h3>
-                            <select id="selectSearchOCMW" class="select">
-                                <option value="todas">Todo</option>
-                                <option value="numero_prof">N° Proforma</option>
-                                <option value="fecha_prof">Fecha proforma</option>
-                                <option value="encargado">Encargado</option>
-                                <option value="nombre_emp">Empresa</option>
-                                <option value="cliente">Cliente</option>
-                            </select>
-                        </div>
-                        <div class="table__search">
-                            <input type="search" id="inputSearchOCMW" placeholder="Buscar...">
-                            <img src="../imagenes/search.png">
-                        </div>
-                    </div>
-                </section>
-                <div class="showPage" id="showPageOC">
-                    <h2></h2>
+                <div>
+                    <label>Mes de venta:</label>
+                    <select id="selectMonthOC" class="select__number">
+                        <option value="todas">Todo</option>
+                        <option value="01">Enero</option>
+                        <option value="02">Febrero</option>
+                        <option value="03">Marzo</option>
+                        <option value="04">Abril</option>
+                        <option value="05">Mayo</option>
+                        <option value="06">Junio</option>
+                        <option value="07">Julio</option>
+                        <option value="08">Agosto</option>
+                        <option value="09">Septiembre</option>
+                        <option value="10">Octubre</option>
+                        <option value="11">Noviembre</option>
+                        <option value="12">Diciembre</option>
+                    </select>
                 </div>
-                <div class="container__page">
-                    <div class="paginacion">
-                        <!--Envoltura-->
-                        <div class="wrapper" id="wrapperOC">
-                            <ul></ul>
-                        </div>
-                    </div>
-                    <div>
-                        <select id="selectNumberOC" class="select__number">
-                            <option value="2">2</option>
-                            <option value="4">4</option>
-                            <option value="6">6</option>
-                            <option value="10">10 </option>
-                            <option value="20">20</option>
-                        </select>
-                    </div>
+                <div hidden>
+                    <label>Proformas:</label>
+                    <select id="selectStateOC" class="select__number">
+                        <option value="todasLasOC">Todas</option>
+                        <option value="0">Pendientes</option>
+                        <option value="1">Entregadas</option>
+                    </select>
                 </div>
-                <section class="table__body">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>N°</th>
-                                <th>
-                                    <div class="tbody__head--OC">Proforma<img src="../imagenes/sortA_Z.svg"
-                                            name="numero_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-                                            name="numero_prof" class="icon__CRUD"></div>
-                                </th>
-                                <th>
-                                    <div class="tbody__head--OC">Fecha Proforma<img src="../imagenes/sortA_Z.svg"
-                                            name="fecha_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-                                            name="fecha_prof" class="icon__CRUD"></div>
-                                </th>
-                                <th>Encargado</th>
-                                <th>Empresa</th>
-                                <th>Cliente</th>
-                                <th>Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tbodyOCMW">
-                        </tbody>
-                    </table>
-                </section>
+            </section>
+            <div class="combo__search">
+                <div class="filter__search">
+                    <h3>Filtrar por:</h3>
+                    <select id="selectSearchOC" class="select">
+                        <option value="todas">Todo</option>
+                        <option value="numero_prof">N° Proforma</option>
+                        <option value="fecha_prof">Fecha proforma</option>
+                        <option value="encargado">Encargado</option>
+                        <option value="nombre_emp">Empresa</option>
+                        <option value="cliente">Cliente</option>
+                    </select>
+                </div>
+                <div class="table__search">
+                    <input type="search" id="inputSearchOC" placeholder="Buscar...">
+                    <img src="../imagenes/search.png">
+                </div>
+            </div>
+        </section>
+        <div class="showPage" id="showPageOC">
+            <h2></h2>
+        </div>
+        <div class="container__page">
+            <div class="paginacion">
+                <!--Envoltura-->
+                <div class="wrapper" id="wrapperOC">
+                    <ul></ul>
+                </div>
+            </div>
+            <div>
+                <select id="selectNumberOC" class="select__number">
+                    <option value="2">2</option>
+                    <option value="4">4</option>
+                    <option value="6">6</option>
+                    <option value="10">10 </option>
+                    <option value="20">20</option>
+                </select>
+            </div>
+        </div>
+        <section class="table__body">
+            <table>
+                <thead>
+                    <tr>
+                        <th>N°</th>
+                        <th>
+                            <div class="tbody__head--OC">Proforma<img src="../imagenes/sortA_Z.svg" name="numero_prof"
+                                    class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="numero_prof"
+                                    class="icon__CRUD"></div>
+                        </th>
+                        <th>
+                            <div class="tbody__head--OC">Fecha OC<img src="../imagenes/sortA_Z.svg"
+                                    name="fecha_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+                                    name="fecha_prof" class="icon__CRUD"></div>
+                        </th>
+                        <th>Encargado</th>
+                        <th>Empresa</th>
+                        <th>Cliente</th>
+                        <th>total</th>
+                        <th>Numero OC</th>
+                        <th>Observaciones</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyOC">
+                </tbody>
+            </table>
+        </section>
     </main>
-    <!--Tabla orden de compra-->
-    <section id="tableOCMW" class="modalTable">
-        <div class="modalTable__container">
-            <div class="table">
-                
-            </div>
-        </div>
-    </section>
-    <!--Tabla Nota de entrega-->
-    <section id="tableNEMW" class="modalTable">
-        <div class="modalTable__container">
-            <div class="table">
-                <div class="table__title">
-                    <h1><img src="../imagenes/proforma.svg">Notas de entrega</h1>
-                    <img src="../imagenes/salir.svg" id="closeTableNEMW" class="button__close">
+    <!--Modal of product of a proforma-->
+	<section id="prof_prodMW" class="modal">
+		<div class="modalPdpf__container">
+			<div class="modalPdpf__header">
+                <div>
+                    <select id="selectAlmacen" class="select__almacen">
+                        <option value="0">EL ALTO</option>
+                        <option value="1">AV. ARCE</option>
+                    </select>
                 </div>
-                <section class="table__header">
-                    <h1 id="totalNEMW">TOTAL:</h1>
-                    <section class="select__search">
-                        <div>
-                            <label>Fecha proforma:</label>
-                            <select id="selectYearProf" class="select__number">
-                            </select>
-                        </div>
-                        <div>
-                            <label>Mes de venta:</label>
-                            <select id="selectMonthProf" class="select__number">
-                                <option value="todas">Todo</option>
-                                <option value="01">Enero</option>
-                                <option value="02">Febrero</option>
-                                <option value="03">Marzo</option>
-                                <option value="04">Abril</option>
-                                <option value="05">Mayo</option>
-                                <option value="06">Junio</option>
-                                <option value="07">Julio</option>
-                                <option value="08">Agosto</option>
-                                <option value="09">Septiembre</option>
-                                <option value="10">Octubre</option>
-                                <option value="11">Noviembre</option>
-                                <option value="12">Diciembre</option>
-                            </select>
-                        </div>
-                        <div hidden>
-                            <label>Proformas:</label>
-                            <select id="selectStateProf" class="select__number">
-                                <option value="todasLasProformas">Todas</option>
-                                <option value="confirmada">Confirmadas</option>
-                                <option value="vendido">Vendidas</option>
-                                <option value="devolucion">Devolución</option>
-                            </select>
-                        </div>
-                    </section>
-                    <div class="combo__search">
-                        <div class="filter__search">
-                            <h3>Filtrar por:</h3>
-                            <select id="selectSearchNEMW" class="select">
-                                <option value="todas">Todo</option>
-                                <option value="numero_prof">N° Proforma</option>
-                                <option value="fecha_prof">Fecha proforma</option>
-                                <option value="encargado">Encargado</option>
-                                <option value="nombre_emp">Empresa</option>
-                                <option value="cliente">Cliente</option>
-                            </select>
-                        </div>
-                        <div class="table__search">
-                            <input type="search" id="inputSearchNEMW" placeholder="Buscar...">
-                            <img src="../imagenes/search.png">
-                        </div>
-                    </div>
-                </section>
+				<h2 class="modal__title">Productos</h2>
+				<img src="../imagenes/salir.svg" id="closeProf_prodMW" class="button__close">
+			</div>
+			<div class="modalPdpf__body">
+				<table>
+					<thead>
+						<tr>
+							<td>Stock</td>
+							<td>Img.</td>
+							<td>Codigo</td>
+							<td>Cant.</td>
+							<td>Cost Uni.</td>
+							<td>Cost Total</td>
+							<td>Elim.</td>
+						</tr>
+					</thead>
+				</table>
+			</div>
+			<div class="container--modal__body">
+				<div id="cartsProf_prodMW" class="modal__body--pfpd"></div>
+			</div>
+			<div class="foot">
+				<div class="foot__left table__subTitle">
+					<p id="subTotal_pfpd">Sub-Total (Bs):</p>
+					<p id="desc_pfpd">Desc. (Bs):</p>
+					<p id="total_pfpd">Total (Bs):</p>
+				</div>
+				<div class="foot__right">
+					<div class="cart">
+						<img src="../imagenes/carrito.svg">
+						<p id="count_pfpd">0</p>
+					</div>
+					<button class="button--sell" id="button__prof_prodMW" onclick="openPreviwProducts()">Nota de Entrega</button>
+				</div>
+			</div>
 
-                <section class="table__body">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>N°</th>
-                                <th>
-                                    <div class="tbody__head--proforma">Proforma<img src="../imagenes/sortA_Z.svg"
-                                            name="numero_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-                                            name="numero_prof" class="icon__CRUD"></div>
-                                </th>
-                                <th>
-                                    <div class="tbody__head--proforma">Fecha Proforma<img src="../imagenes/sortA_Z.svg"
-                                            name="fecha_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-                                            name="fecha_prof" class="icon__CRUD"></div>
-                                </th>
-                                <th>Encargado</th>
-                                <th>Empresa</th>
-                                <th>Cliente</th>
-                                <th>Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tbodyNEMW">
-                        </tbody>
-                    </table>
-                </section>
-            </div>
-        </div>
-    </section>
-    <!--Table Nte_inv-->
-    <section id="tableNteInv" class="modalTable">
-        <div class="modalTable__container">
-            <div class="table">
-                <div class="table__title">
-                    <h1>Notas de Entrega</h1>
-                </div>
-                <section class="table__header">
-                    <h1 id="totalNE">Total:</h1>
-                    <img src="../imagenes/inventario.svg" id="openTableNteInv" class="icon__CRUD"
-                        title="Productos de la proforma">
-                    <section class="select__search">
-                        <div>
-                            <label>Fecha Nota Entraga:</label>
-                            <select id="selectYearNE" class="select__number">
-                            </select>
-                        </div>
-                        <div>
-                            <label>Mes:</label>
-                            <select id="selectMonthNE" class="select__number">
-                                <option value="todas">Todo</option>
-                                <option value="01">Enero</option>
-                                <option value="02">Febrero</option>
-                                <option value="03">Marzo</option>
-                                <option value="04">Abril</option>
-                                <option value="05">Mayo</option>
-                                <option value="06">Junio</option>
-                                <option value="07">Julio</option>
-                                <option value="08">Agosto</option>
-                                <option value="09">Septiembre</option>
-                                <option value="10">Octubre</option>
-                                <option value="11">Noviembre</option>
-                                <option value="12">Diciembre</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label>Estado nota entrega:</label>
-                            <select id="selectStateNe" class="select__number">
-                                <option value="notasEntrega">Todo</option>
-                                <option value="pendiente">Pendiente</option>
-                                <option value="vendido">Vendido</option>
-                                <option value="DEVOLUCION">Devolución</option>
-                            </select>
-                        </div>
-                    </section>
-                    <div class="combo__search">
-                        <div>
-                            <select id="selectSearchNe" class="select">
-                                <option value="todas">Buscar por</option>
-                                <option value="numero_prof"> Por nota de entrega</option>
-                                <option value="fecha_prof">Por fecha proforma</option>
-                                <option value="fecha_ne">Por fecha nota entrega</option>
-                                <option value="encargado">Por encargado</option>
-                                <option value="nombre_emp">Por empresa</option>
-                                <option value="cliente">Por cliente</option>
-                            </select>
-                        </div>
-                        <div class="table__search">
-                            <input type="search" id="inputSearchNe" placeholder="Search Data...">
-                            <img src="../imagenes/search.png">
-                        </div>
-                    </div>
-                </section>
-                <div class="showPage" id="showPageNE">
-                    <h2></h2>
-                </div>
-                <div class="container__page">
-                    <div class="paginacion">
-                        <!--Envoltura-->
-                        <div class="wrapper" id="wrapperNE">
-                            <ul></ul>
-                        </div>
-                    </div>
-                    <div>
-                        <select id="selectNumberNe" class="select__number">
-                            <option value="2">2</option>
-                            <option value="4">4</option>
-                            <option value="6">6</option>
-                            <option value="10">10 </option>
-                            <option value="20">20</option>
-                        </select>
-                    </div>
-                </div>
-                <section class="table__body">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>N°</th>
-                                <th>
-                                    <div class="tbody__head--ne">Proforma <img src="../imagenes/sortA_Z.svg"
-                                            name="numero_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-                                            name="numero_prof" class="icon__CRUD"></div>
-                                </th>
-                                <th>
-                                    <div class="tbody__head--ne">Fecha PROF<img src="../imagenes/sortA_Z.svg"
-                                            name="fecha_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-                                            name="fecha_prof" class="icon__CRUD"></div>
-                                </th>
-                                <th>
-                                    <div class="tbody__head--ne">Fecha NE <img src="../imagenes/sortA_Z.svg"
-                                            name="fecha_ne" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-                                            name="fecha_ne" class="icon__CRUD"></div>
-                                </th>
-                                <th>Encargado</th>
-                                <th>
-                                    <div class="tbody__head--ne">Empresa <img src="../imagenes/sortA_Z.svg"
-                                            name="nombre_emp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-                                            name="nombre_emp" class="icon__CRUD"></div>
-                                </th>
-                                <th>Cliente</th>
-                                <th>Según Orden/Invit</th>
-                                <th>Total</th>
-                                <th>Observaciones</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tbodyNE"></tbody>
-                    </table>
-                </section>
-            </div>
-        </div>
-    </section>
-    <!--Ventana modal para registrar venta-->
-    <section id="saleRMW" class="modal">
-        <div class="modal__container">
-            <div class="modal__header">
-                <h2 class="modal__title">Venta</h2>
-                <img src="../imagenes/salir.svg" id="closeSaleRMW" class="button__close">
-            </div>
-            <form id="formsaleR" class="form">
-                <div class="form__container">
-                    <input type="text" name="id_ne" placeholder=" " class="form__input" hidden>
-                    <input type="text" name="id_prof" placeholder=" " class="form__input" hidden>
-                    <input type="text" name="total_vnt" placeholder=" " class="form__input" hidden>
-                    <input type="text" name="descuento_prof" placeholder=" " class="form__input" hidden>
-                    <div class="form__group">
-                        <input type="date" name="fecha_vnt" placeholder=" " class="form__input">
-                        <label for="fecha_vnt" class="form__label">Fecha de venta:</label>
-                    </div>
-                    <label class="form__label--only">Venta realizada por:</label>
-                    <select name="fk_id_usua_vnt" id="fk_id_usua_vnt" class="form__Select">
-                    </select>
-                    <label class="form__label--only">Ciuda de venta:</label>
-                    <select name="ciudad_vnt" class="form__Select">
-                        <option value="La Paz">La Paz</option>
-                        <option value="Oruro">Oruro</option>
-                        <option value="Potosi">Potosi</option>
-                        <option value="Cochabamba">Cochabamba</option>
-                        <option value="Santa Cruz">Santa Cruz</option>
-                        <option value="Beni">Beni</option>
-                        <option value="Pando">Pando</option>
-                        <option value="Tarija">Tarija</option>
-                        <option value="Chuquisaca">Chuquisaca</option>
-                    </select>
-                    <label class="form__label--only">Tipo de Pago:</label>
-                    <select name="tipo_pago_vnt" id="tipo_pago_vnt" class="form__Select">
-                        <option value="QR">QR</option>
-                        <option value="EF">EFECTIVO</option>
-                        <option value="TR">TRANSFERENCIA</option>
-                        <option value="CR">CREDITO</option>
-                        <option value="DE">DEPOSITO</option>
-                    </select>
-                    <div class="form__group" id="tiempo_credito_vnt" hidden>
-                        <input type="number" name="tiempo_credito_vnt" placeholder=" " class="form__input">
-                        <label for="tiempo_credito_vnt" class="form__label">Tiempo del credito en dias:</label>
-                    </div>
-                    <label class="form__label--only">Factura:</label>
-                    <select name="estado_factura_vnt" id="estado_factura_vnt" class="form__Select">
-                        <option value="1">Con factura</option>
-                        <option value="0">Sin factura</option>
-                    </select>
-                    <div class="form__group" id="fecha_factura_vnt">
-                        <input type="date" name="fecha_factura_vnt" placeholder=" " class="form__input">
-                        <label for="fecha_factura_vnt" class="form__label">Fecha de factura:</label>
-                    </div>
-                    <div class="form__group" id="factura_vnt">
-                        <input type="number" name="factura_vnt" placeholder=" " class="form__input">
-                        <label for="factura_vnt" class="form__label">Numero de factura:</label>
-                    </div>
-                    <div class="form__group">
-                        <input type="text" name="observacion_vnt" placeholder=" " class="form__input">
-                        <label for="observacion_vnt" class="form__label">observacion:</label>
-                    </div>
-                </div>
-            </form>
-            <button onclick="openPreviwProductsSold()" class="form__submit">Facturar</button>
-        </div>
-    </section>
-    <!--form of product return-->
-    <section id="returnMW" class="modal">
-        <div class="modal__container">
-            <div class="modal__header">
-                <h2 class="modal__title">Devolución</h2>
-                <img src="../imagenes/salir.svg" id="closeReturnMW" class="button__close">
-            </div>
-            <form id="formReturn" class="form">
-                <div class="form__container">
-                    <input type="text" name="fk_id_ne_dvl" placeholder=" " class="form__input" hidden>
-                    <div class="form__group">
-                        <input type="text" name="motivo_dvl" placeholder=" " class="form__input">
-                        <label for="motivo_dvl" class="form__label">Motivo:</label>
-                    </div>
-                    <input type="submit" class="form__submit" value="Devolución">
-                </div>
-            </form>
-        </div>
-    </section>
-    <!--Modal of product of a BuyR -->
-    <section id="vnt_prodRMW" class="modal">
-        <div class="modalPdpf__container">
-            <div class="modalPdpf__header">
-                <h2 class="modal__title">Productos</h2>
-                <img src="../imagenes/salir.svg" id="closeVnt_prodRMW" class="button__close">
-            </div>
-            <div class="modalPdpf__body">
-                <table>
-                    <thead>
-                        <tr>
-                            <td>cant. inv.</td>
-                            <td>Img.</td>
-                            <td>Codigo</td>
-                            <td>Cant.</td>
-                            <td>Cost Uni.</td>
-                            <td>Cost Total</td>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
-            <div id="cartsProductsSold" class="modal__body">
-            </div>
-            <div class="foot">
-                <div class="foot__left">
-                    <p id="subTotal">Sub-Total (Bs)</p>
-                    <p id="desc">Desc. (Bs)</p>
-                    <p id="total">Total (Bs)</p>
-                </div>
-                <div class="foot__right">
-                    <div class="cart">
-                        <img src="../imagenes/carrito.svg">
-                        <p id="quantity">0</p>
-                    </div>
-                    <button class="button--sell" onclick="createSale()">FACTURAR</button>
-                </div>
-            </div>
-        </div>
-    </section>
+		</div>
+	</section>
+    <!--Tabla modal inventario-->
+	<section id="inventorySMW" class="modalTable">
+		<div class="modalTable__container">
+			<div class="table">
+				<div class="table__title">
+					<h1><img src="../imagenes/inventario.svg">Inventario</h1>
+					<img src="../imagenes/salir.svg" id="closeInventorySMW" class="button__close">
+				</div>
+				<section class="table__header">
+					<section class="select__search">
+						<div>
+							<label>Almacen: </label>
+							<select id="selectAlmacenInventory" class="select__marca">
+								<option value="todo">Todos los alamcenes</option>
+								<option value="0">EL ALTO</option>
+								<option value="1">AV. ARCE</option>
+							</select>
+						</div>
+						<div>
+							<label>Marcas: </label>
+							<select id="selectMarcaInvMW" class="select__marca">
+								<option value="todasLasMarcas">Todas las marcas</option>
+							</select>
+						</div>
+						<div>
+							<label>Categorias: </label>
+							<select id="selectCategoriaInvMW" class="select__categoria">
+								<option value="todasLasCategorias">Todas las categorias</option>
+							</select>
+						</div>
+					</section>
+					<div class="combo__search">
+						<div class="filter__search">
+							<h3>Filtrar por:</h3>
+							<select id="selectSearchInvMW" class="select">
+								<option value="todas">Todo</option>
+								<option value="codigo_prod">Código</option>
+								<option value="nombre_prod">Descripcion corta</option>
+								<option value="descripcion_prod">Descripcion</option>
+								<option value="cost_uni_inv">Precio</option>
+								<option value="descripcion_inv">Ubicación</option>
+							</select>
+						</div>
+						<div class="table__search">
+							<input type="search" id="inputSearchInvMW" placeholder="Buscar...">
+							<img src="../imagenes/search.png">
+						</div>
+					</div>
+				</section>
+				<div class="showPage" id="showPageInvMW">
+					<h2></h2>
+				</div>
+				<div class="container__page">
+					<div class="paginacion">
+						<!--Envoltura-->
+						<div class="wrapper" id="wrapperInvMW">
+							<ul></ul>
+						</div>
+					</div>
+					<div>
+						<select id="selectNumberInvMW" class="select__number">
+							<option value="2">2</option>
+							<option value="4">4</option>
+							<option value="6">6</option>
+							<option value="10">10 </option>
+							<option value="20">20</option>
+						</select>
+					</div>
+				</div>
+				<section class="table__body">
+					<table>
+						<thead>
+							<tr>
+								<th>N°</th>
+								<th>Almacen</th>
+								<th>
+									<div class="tbody__head--invMW">Codigo <img src="../imagenes/sortA_Z.svg"
+											name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="codigo_prod" class="icon__CRUD">
+									</div>
+								</th>
+								<th>Marca</th>
+								<th>Categoria</th>
+								<th>Descripcion corta</th>
+								<th>Descripcion</th>
+								<th>imagen</th>
+								<th>Stock</th>
+								<th>Costo unitario</th>
+								<th>Ubicacion</th>
+							</tr>
+						</thead>
+						<tbody id="tbodyInvMW"></tbody>
+					</table>
+				</section>
+			</div>
+		</div>
+	</section>
+
+
     <!--Modal preloader-->
     <section id="preloader" class="preloader">
         <div class="modal__loader">

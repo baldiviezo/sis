@@ -17,7 +17,7 @@ class consultas{
 		$numeroNotaEntrega = $resultado->num_rows;
 		$notasEntrega =  array();
 		if($numeroNotaEntrega > 0){
-			while ($fila = $resultado->fetch_assoc()){
+			while ($fila = $resultado->fetch_assoc()) {
 				$_prof_mprof_ne = '';
 				if ($fila['nombre_emp'] == 'Ninguna'){
 					$_prof_mprof_ne = strtoupper('NE-SMS'.substr($fila['fecha_prof'],2,2).'-'.$this->addZerosGo($fila['numero_prof']).'-'.explode(" ",$fila['apellido_clte'])[0]);
@@ -136,28 +136,26 @@ class consultas{
 	}
 	//------Read orden de compra
 	public function readOrderBuys(){
-		include 'conexion.php';
-		$consulta = "SELECT * FROM orden_compra";
+		require_once 'conexion.php';
+		$consulta = "SELECT * FROM orden_compra ORDER BY id_oc DESC";
 		$resultado = $conexion->query($consulta);
-		$ordenCompras =  array();
-		while ($fila = $resultado->fetch_assoc()){
-			$ordenCompras[] = $fila;
+		$ordenCompra = array();
+		while ($fila = $resultado->fetch_array(MYSQLI_ASSOC)) {
+			$ordenCompra[] = $fila;
 		}
-		echo json_encode($ordenCompras, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+		echo json_encode($ordenCompra, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 	}
 	//------Read OC_PROD
 	public function readOcProd(){
-		include 'conexion.php';
-		$consulta = "SELECT * FROM oc_prod";
+		require_once 'conexion.php';
+		$consulta = "SELECT * FROM oc_prod ORDER BY id_ocpd DESC";
 		$resultado = $conexion->query($consulta);
-		$ocProds =  array();
-		while ($fila = $resultado->fetch_assoc()){
-			$ocProds[] = $fila;
+		$oc_prods = array();
+		while ($fila = $resultado->fetch_array(MYSQLI_ASSOC)) {
+			$oc_prods[] = $fila;
 		}
-		echo json_encode($ocProds, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+		echo json_encode($oc_prods, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 	}
-
-
 	//-------------------------------------------CRUD PROF_PROD---------------------------
 	//-------Read Prof_prods
 	public function readNte_invs(){
