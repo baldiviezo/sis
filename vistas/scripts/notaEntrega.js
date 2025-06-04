@@ -28,6 +28,8 @@ async function init() {
         preloader.classList.add('modal__show');
         try {
             await Promise.all([
+                readAllMarcas(),
+                readAllCategorias(),
                 readInventories(),
                 readCustomers(),
                 readProducts(),
@@ -38,6 +40,7 @@ async function init() {
                 readEnterprises()
             ]);
             paginacionOrdenCompra(orderBuys.length, 1);
+            paginacionInventoryMW(inventories.length, 1);
             rqstNotaEntrega = false;
             preloader.classList.remove('modal__show');
         } catch (error) {
@@ -313,7 +316,7 @@ function readProf_prod(id_oc) {
     modalProf_prod.innerHTML = '';
     const productos = oc_prods.filter(oc_prod => oc_prod['fk_id_oc_ocpd'] == id_oc);
     productos.forEach(oc_prod => {
-        const card = cartProduct_pfpd(oc_prod, modalProf_prod, totalPriceM);
+        const card = cartProduct_pfpd(oc_prod, totalPriceM);
         modalProf_prod.appendChild(card);
     })
     //Drang and drop
@@ -352,12 +355,10 @@ selectAlmacen.addEventListener('change', () => {
     readProf_prod(golbalIdOc);
 });
 //------Abrir modal de proforma
-function cartProduct_pfpd(oc_prod, contenedor, total) {
+function cartProduct_pfpd(oc_prod, total) {
     const product = products.find(product => product.id_prod === oc_prod.fk_id_prod_ocpd);
-    console.log(product);
     if (product) {
         const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 0);
-        console.log(inventoriesAlto);
         const inventoriesArce = inventories.filter(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 1);
 
         const cantidad_invAlto = inventoriesAlto.length > 0 ? inventoriesAlto[0].cantidad_inv : 0;
@@ -423,6 +424,7 @@ function cartProduct_pfpd(oc_prod, contenedor, total) {
             const costTotalInput = e.target.parentNode.querySelector('.cart-item__costTotal');
             updateCostTotal(cantidadInput, e.target, costTotalInput);
         });
+        costUnitInput.readOnly = true;
         card.appendChild(costUnitInput);
 
         const costTotalInput = document.createElement('input');
@@ -440,11 +442,6 @@ function cartProduct_pfpd(oc_prod, contenedor, total) {
         return card;
     }
 }
-function removeCardFromCartM(e, container) {
-    const card = e.target.parentNode;
-    container.removeChild(card);
-    totalPriceM();
-}
 function totalPriceM() {
     console.log('entro al totalPriceM');
 
@@ -456,18 +453,13 @@ function totalPriceM() {
         costo = Number(div.querySelector('.cart-item__costTotal').value);
         total = total + costo;
     })
-    /*
-    if (formProformas === 'M') {
-        descuento = Number(document.getElementById('descuento_profM').value);
-        moneda = moneda_profM.value;
-        button__prof_prodMW.innerHTML = 'MODIFICAR';
 
-    } else if (formProformas === 'OC') {
-        const proforma = filterProformas.find(proforma => proforma.id_prof == fk_id_prof_oc.value);
-        moneda = proforma.moneda_prof;
-        descuento = proforma.descuento_prof;
-        button__prof_prodMW.innerHTML = 'CREAR OC';
-    }*/
+    const ordenCompra = orderBuys.find(orderBuy => orderBuy.id_oc == golbalIdOc);
+    moneda = ordenCompra.moneda_oc;
+    descuento = ordenCompra.descuento_oc
+
+
+
     document.getElementById('subTotal_pfpd').innerHTML = `Sub-Total(${moneda}): ${total.toFixed(2)} ${moneda}`;
     document.getElementById('desc_pfpd').innerHTML = `Desc. ${descuento}% (${moneda}):   ${((total * descuento) / 100).toFixed(2)} ${moneda}`;
     document.getElementById('total_pfpd').innerHTML = `Total(${moneda}): ${((total - (total * descuento) / 100)).toFixed(2)} ${moneda}`;
@@ -813,7 +805,38 @@ function mostrarAlerta(message) {
 botonAceptar.addEventListener('click', (e) => {
     modalAlerta.classList.remove('modal__show');
 });
-
+/*-----------------------------------------Marca y categoria producto-------------------------------------------------*/
+//-------Read all Marcas
+let marcas = [];
+async function readAllMarcas() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readMarcas', '');
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            marcas = data;
+            selectMarcaInventoryMW();
+            resolve();
+        }).catch(err => console.log(err));
+    })
+}
+//-------Read all categorias
+let categorias = [];
+async function readAllCategorias() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readCategorias', '');
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            categorias = data;
+            resolve();
+        }).catch(err => console.log(err));
+    })
+}
 /*----------------------------------------------Marca y categoria  modal inventory-------------------------------------------------*/
 //-------Select de marcas
 function selectMarcaInventoryMW() {
