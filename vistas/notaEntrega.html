@@ -28,9 +28,9 @@
         </div>
         <section class="table__header">
             <div>
-                <img src="../imagenes/folder.svg" onclick="openTableProfMW()" class="img__folder" title="Nota de entrega">
+                <img src="../imagenes/folder.svg" onclick="openTableNEMW()" class="img__folder" title="Nota de entrega">
                 <img src="../imagenes/inventario.svg" onclick="openInventorySMW()" class="icon__CRUD"
-						title="Inventario">
+                    title="Inventario">
             </div>
             <section class="select__search">
                 <div>
@@ -109,14 +109,14 @@
                     <tr>
                         <th>N°</th>
                         <th>
-                            <div class="tbody__head--OC">Proforma<img src="../imagenes/sortA_Z.svg" name="numero_prof"
-                                    class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="numero_prof"
+                            <div class="tbody__head--OC">Proforma<img src="../imagenes/sortA_Z.svg" name="numero_oc"
+                                    class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="numero_oc"
                                     class="icon__CRUD"></div>
                         </th>
                         <th>
-                            <div class="tbody__head--OC">Fecha OC<img src="../imagenes/sortA_Z.svg"
-                                    name="fecha_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-                                    name="fecha_prof" class="icon__CRUD"></div>
+                            <div class="tbody__head--OC">Fecha OC<img src="../imagenes/sortA_Z.svg" name="fecha_oc"
+                                    class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_oc"
+                                    class="icon__CRUD"></div>
                         </th>
                         <th>Encargado</th>
                         <th>Empresa</th>
@@ -133,152 +133,299 @@
         </section>
     </main>
     <!--Modal of product of a proforma-->
-	<section id="prof_prodMW" class="modal">
-		<div class="modalPdpf__container">
-			<div class="modalPdpf__header">
+    <section id="prof_prodMW" class="modal">
+        <div class="modalPdpf__container">
+            <div class="modalPdpf__header">
                 <div>
                     <select id="selectAlmacen" class="select__almacen">
                         <option value="0">EL ALTO</option>
                         <option value="1">AV. ARCE</option>
                     </select>
                 </div>
-				<h2 class="modal__title">Productos</h2>
-				<img src="../imagenes/salir.svg" id="closeProf_prodMW" class="button__close">
-			</div>
-			<div class="modalPdpf__body">
-				<table>
-					<thead>
-						<tr>
-							<td>Stock</td>
-							<td>Img.</td>
-							<td>Codigo</td>
-							<td>Cant.</td>
-							<td>Cost Uni.</td>
-							<td>Cost Total</td>
-							<td>Elim.</td>
-						</tr>
-					</thead>
-				</table>
-			</div>
-			<div class="container--modal__body">
-				<div id="cartsProf_prodMW" class="modal__body--pfpd"></div>
-			</div>
-			<div class="foot">
-				<div class="foot__left table__subTitle">
-					<p id="subTotal_pfpd">Sub-Total (Bs):</p>
-					<p id="desc_pfpd">Desc. (Bs):</p>
-					<p id="total_pfpd">Total (Bs):</p>
-				</div>
-				<div class="foot__right">
-					<div class="cart">
-						<img src="../imagenes/carrito.svg">
-						<p id="count_pfpd">0</p>
-					</div>
-					<button class="button--sell" id="button__prof_prodMW" onclick="openPreviwProducts()">Nota de Entrega</button>
-				</div>
-			</div>
+                <h2 class="modal__title">Productos</h2>
+                <img src="../imagenes/salir.svg" id="closeProf_prodMW" class="button__close">
+            </div>
+            <div class="modalPdpf__body">
+                <table>
+                    <thead>
+                        <tr>
+                            <td>Stock</td>
+                            <td>Img.</td>
+                            <td>Codigo</td>
+                            <td>Cant.</td>
+                            <td>Cost Uni.</td>
+                            <td>Cost Total</td>
+                            <td>Elim.</td>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="container--modal__body">
+                <div id="cartsProf_prodMW" class="modal__body--pfpd"></div>
+            </div>
+            <div class="foot">
+                <div class="foot__left table__subTitle">
+                    <p id="subTotal_pfpd">Sub-Total (Bs):</p>
+                    <p id="desc_pfpd">Desc. (Bs):</p>
+                    <p id="total_pfpd">Total (Bs):</p>
+                </div>
+                <div class="foot__right">
+                    <div class="cart">
+                        <img src="../imagenes/carrito.svg">
+                        <p id="count_pfpd">0</p>
+                    </div>
+                    <button class="button--sell" id="button__prof_prodMW" onclick="openPreviwProducts()">Nota de
+                        Entrega</button>
+                </div>
+            </div>
 
-		</div>
-	</section>
+        </div>
+    </section>
+    <!--Vista previa de los productos de la proforma-->
+    <section id="previewProducts" class="modalTable">
+        <div class="modal__container--previewProducts">
+            <div class="table">
+                <div class="table__title--Preview">
+                    <div>
+                        <h1 id="titleEnterprise"></h1>
+                        <h1 id="titleCustomer"></h1>
+                    </div>
+                    <img src="../imagenes/salir.svg" id="closePreviewProducts" class="button__close" title="Minimizar">
+                </div>
+                <section class="table__body">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>N°</th>
+                                <th>Descripcion</th>
+                                <th>Imagen</th>
+                                <th>Cantidad</th>
+                                <th>Costo U.</th>
+                                <th>Costo T.</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyPreviewProd"></tbody>
+                    </table>
+                </section>
+            </div>
+        </div>
+    </section>
+    <!--Tabla de Nota de Entrega-->
+    <section id="tableNEMW" class="modalTable">
+        <div class="modalTable__container">
+            <div class="table">
+                <div class="table__title">
+                    <h1><img src="../imagenes/proforma.svg">Notas de entrega</h1>
+                    <img src="../imagenes/salir.svg" id="closeTableNEMW" class="button__close">
+                </div>
+                <section class="table__header">
+                    <h1 id="totalNEMW">Total:</h1>
+                    <img src="../imagenes/inventario.svg" id="openTablePPMW" class="icon__CRUD"
+                        title="Productos de la proforma">
+                    <section class="select__search">
+                        <div>
+                            <label>Año de nota de entrega:</label>
+                            <select id="selectYearProf" class="select__number">
+                            </select>
+                        </div>
+                        <div>
+                            <label>Mes de nota de entrega:</label>
+                            <select id="selectMonthProf" class="select__number">
+                                <option value="todas">Todo</option>
+                                <option value="01">Enero</option>
+                                <option value="02">Febrero</option>
+                                <option value="03">Marzo</option>
+                                <option value="04">Abril</option>
+                                <option value="05">Mayo</option>
+                                <option value="06">Junio</option>
+                                <option value="07">Julio</option>
+                                <option value="08">Agosto</option>
+                                <option value="09">Septiembre</option>
+                                <option value="10">Octubre</option>
+                                <option value="11">Noviembre</option>
+                                <option value="12">Diciembre</option>
+                            </select>
+                        </div>
+                        <div hidden>
+                            <label>Nota de entrega:</label>
+                            <select id="selectStateProf" class="select__number">
+                                <option value="todasLasProformas">Todas</option>
+                                <option value='0'>No confirmadas</option>
+                                <option value='1'>Confirmadas</option>
+                            </select>
+                        </div>
+                    </section>
+                    <div class="combo__search">
+                        <div class="filter__search">
+                            <h3>Filtrar por:</h3>
+                            <select id="selectSearchProf" class="select">
+                                <option value="todas">Todo</option>
+                                <option value="numero_prof">N° Proforma</option>
+                                <option value="fecha_prof">Fecha proforma</option>
+                                <option value="encargado">Encargado</option>
+                                <option value="nombre_emp">Empresa</option>
+                                <option value="cliente">Cliente</option>
+                            </select>
+                        </div>
+                        <div class="table__search">
+                            <input type="search" id="inputSearchProf" placeholder="Buscar...">
+                            <img src="../imagenes/search.png">
+                        </div>
+                    </div>
+                </section>
+                <div class="showPage" id="showPageProf">
+                    <h2></h2>
+                </div>
+                <div class="container__page">
+                    <div class="paginacion">
+                        <!--Envoltura-->
+                        <div class="wrapper" id="wrapperProf">
+                            <ul></ul>
+                        </div>
+                    </div>
+                    <div>
+                        <select id="selectNumberProf" class="select__number">
+                            <option value="2">2</option>
+                            <option value="4">4</option>
+                            <option value="6">6</option>
+                            <option value="10">10 </option>
+                            <option value="20">20</option>
+                        </select>
+                    </div>
+                </div>
+                <section class="table__body">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>N°</th>
+                                <th>
+                                    <div class="tbody__head--proforma">Proforma <img src="../imagenes/sortA_Z.svg"
+                                            name="numero_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+                                            name="numero_prof" class="icon__CRUD">
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="tbody__head--proforma">Fecha Proforma<img src="../imagenes/sortA_Z.svg"
+                                            name="fecha_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+                                            name="fecha_prof" class="icon__CRUD">
+                                    </div>
+                                </th>
+                                <th>Encargado</th>
+                                <th>Empresa</th>
+                                <th>Cliente</th>
+                                <th>
+                                    <div class="tbody__head--proforma">Total<img src="../imagenes/sortA_Z.svg"
+                                            name="total_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+                                            name="total_prof" class="icon__CRUD">
+                                    </div>
+                                </th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyProforma">
+                        </tbody>
+                    </table>
+                </section>
+            </div>
+        </div>
+    </section>
     <!--Tabla modal inventario-->
-	<section id="inventorySMW" class="modalTable">
-		<div class="modalTable__container">
-			<div class="table">
-				<div class="table__title">
-					<h1><img src="../imagenes/inventario.svg">Inventario</h1>
-					<img src="../imagenes/salir.svg" id="closeInventorySMW" class="button__close">
-				</div>
-				<section class="table__header">
-					<section class="select__search">
-						<div>
-							<label>Almacen: </label>
-							<select id="selectAlmacenInventory" class="select__marca">
-								<option value="todo">Todos los alamcenes</option>
-								<option value="0">EL ALTO</option>
-								<option value="1">AV. ARCE</option>
-							</select>
-						</div>
-						<div>
-							<label>Marcas: </label>
-							<select id="selectMarcaInvMW" class="select__marca">
-								<option value="todasLasMarcas">Todas las marcas</option>
-							</select>
-						</div>
-						<div>
-							<label>Categorias: </label>
-							<select id="selectCategoriaInvMW" class="select__categoria">
-								<option value="todasLasCategorias">Todas las categorias</option>
-							</select>
-						</div>
-					</section>
-					<div class="combo__search">
-						<div class="filter__search">
-							<h3>Filtrar por:</h3>
-							<select id="selectSearchInvMW" class="select">
-								<option value="todas">Todo</option>
-								<option value="codigo_prod">Código</option>
-								<option value="nombre_prod">Descripcion corta</option>
-								<option value="descripcion_prod">Descripcion</option>
-								<option value="cost_uni_inv">Precio</option>
-								<option value="descripcion_inv">Ubicación</option>
-							</select>
-						</div>
-						<div class="table__search">
-							<input type="search" id="inputSearchInvMW" placeholder="Buscar...">
-							<img src="../imagenes/search.png">
-						</div>
-					</div>
-				</section>
-				<div class="showPage" id="showPageInvMW">
-					<h2></h2>
-				</div>
-				<div class="container__page">
-					<div class="paginacion">
-						<!--Envoltura-->
-						<div class="wrapper" id="wrapperInvMW">
-							<ul></ul>
-						</div>
-					</div>
-					<div>
-						<select id="selectNumberInvMW" class="select__number">
-							<option value="2">2</option>
-							<option value="4">4</option>
-							<option value="6">6</option>
-							<option value="10">10 </option>
-							<option value="20">20</option>
-						</select>
-					</div>
-				</div>
-				<section class="table__body">
-					<table>
-						<thead>
-							<tr>
-								<th>N°</th>
-								<th>Almacen</th>
-								<th>
-									<div class="tbody__head--invMW">Codigo <img src="../imagenes/sortA_Z.svg"
-											name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-											name="codigo_prod" class="icon__CRUD">
-									</div>
-								</th>
-								<th>Marca</th>
-								<th>Categoria</th>
-								<th>Descripcion corta</th>
-								<th>Descripcion</th>
-								<th>imagen</th>
-								<th>Stock</th>
-								<th>Costo unitario</th>
-								<th>Ubicacion</th>
-							</tr>
-						</thead>
-						<tbody id="tbodyInvMW"></tbody>
-					</table>
-				</section>
-			</div>
-		</div>
-	</section>
-
-
+    <section id="inventorySMW" class="modalTable">
+        <div class="modalTable__container">
+            <div class="table">
+                <div class="table__title">
+                    <h1><img src="../imagenes/inventario.svg">Inventario</h1>
+                    <img src="../imagenes/salir.svg" id="closeInventorySMW" class="button__close">
+                </div>
+                <section class="table__header">
+                    <section class="select__search">
+                        <div>
+                            <label>Almacen: </label>
+                            <select id="selectAlmacenInventory" class="select__marca">
+                                <option value="todo">Todos los alamcenes</option>
+                                <option value="0">EL ALTO</option>
+                                <option value="1">AV. ARCE</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Marcas: </label>
+                            <select id="selectMarcaInvMW" class="select__marca">
+                                <option value="todasLasMarcas">Todas las marcas</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Categorias: </label>
+                            <select id="selectCategoriaInvMW" class="select__categoria">
+                                <option value="todasLasCategorias">Todas las categorias</option>
+                            </select>
+                        </div>
+                    </section>
+                    <div class="combo__search">
+                        <div class="filter__search">
+                            <h3>Filtrar por:</h3>
+                            <select id="selectSearchInvMW" class="select">
+                                <option value="todas">Todo</option>
+                                <option value="codigo_prod">Código</option>
+                                <option value="nombre_prod">Descripcion corta</option>
+                                <option value="descripcion_prod">Descripcion</option>
+                                <option value="cost_uni_inv">Precio</option>
+                                <option value="descripcion_inv">Ubicación</option>
+                            </select>
+                        </div>
+                        <div class="table__search">
+                            <input type="search" id="inputSearchInvMW" placeholder="Buscar...">
+                            <img src="../imagenes/search.png">
+                        </div>
+                    </div>
+                </section>
+                <div class="showPage" id="showPageInvMW">
+                    <h2></h2>
+                </div>
+                <div class="container__page">
+                    <div class="paginacion">
+                        <!--Envoltura-->
+                        <div class="wrapper" id="wrapperInvMW">
+                            <ul></ul>
+                        </div>
+                    </div>
+                    <div>
+                        <select id="selectNumberInvMW" class="select__number">
+                            <option value="2">2</option>
+                            <option value="4">4</option>
+                            <option value="6">6</option>
+                            <option value="10">10 </option>
+                            <option value="20">20</option>
+                        </select>
+                    </div>
+                </div>
+                <section class="table__body">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>N°</th>
+                                <th>Almacen</th>
+                                <th>
+                                    <div class="tbody__head--invMW">Codigo <img src="../imagenes/sortA_Z.svg"
+                                            name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+                                            name="codigo_prod" class="icon__CRUD">
+                                    </div>
+                                </th>
+                                <th>Marca</th>
+                                <th>Categoria</th>
+                                <th>Descripcion corta</th>
+                                <th>Descripcion</th>
+                                <th>imagen</th>
+                                <th>Stock</th>
+                                <th>Costo unitario</th>
+                                <th>Ubicacion</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyInvMW"></tbody>
+                    </table>
+                </section>
+            </div>
+        </div>
+    </section>
     <!--Modal preloader-->
     <section id="preloader" class="preloader">
         <div class="modal__loader">
