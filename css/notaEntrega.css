@@ -229,12 +229,3 @@
 	margin-bottom: 1rem;
 	width: 10rem;
 }
-
-.table__title--Preview {
-	display: flex;
-	justify-content: space-between;
-	padding: 1rem .5rem;
-	margin: .5rem 0;
-	color: #fff;
-	background-color: #225c74;
-}

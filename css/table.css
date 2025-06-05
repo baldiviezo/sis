@@ -66,6 +66,14 @@
 	justify-content: space-between;
 	align-items: center;
 }
+.table__title--Preview {
+	display: flex;
+	justify-content: space-between;
+	padding: 1rem .5rem;
+	margin: .5rem 0;
+	color: #fff;
+	background-color: #225c74;
+}
 .table__title h1{
 	font-size: 1.5rem;
 }
