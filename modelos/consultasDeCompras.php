@@ -28,17 +28,16 @@ class Consultas{
 		$this->observacion_cmp = $conexion->real_escape_string($_POST['observacion_cmpM']);
 	}
 	 //------Read buys
+
 	public function readBuys(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM compra INNER JOIN proveedor ON compra.fk_id_prov_cmp = id_prov INNER JOIN empresa_prov ON proveedor.fk_id_empp_prov = id_empp INNER JOIN usuario ON compra.fk_id_usua_cmp = id_usua ORDER BY id_cmp DESC";
+		$consulta = "SELECT * FROM compra ORDER BY id_cmp DESC";
 		$resultado = $conexion->query($consulta);
 		$array = array();
 		while ($row = $resultado->fetch_assoc()) {
-			$buy = array('id_cmp'=>intval($row['id_cmp']), 'numero_cmp'=>'OC-SMS'.substr($row['fecha_cmp'],2,2).'-'.$this->addZerosGo($row['numero_cmp']), 'fecha_cmp'=>$row['fecha_cmp'], 'fk_id_usua_cmp'=>$row['fk_id_usua_cmp'], 'nombre_usua'=>$row['nombre_usua'], 'apellido_usua'=>$row['apellido_usua'], 'id_empp'=>$row['id_empp'], 'nombre_empp'=>$row['nombre_empp'], 'fk_id_prov_cmp'=>$row['fk_id_prov_cmp'], 'nombre_prov'=>$row['nombre_prov'], 'apellido_prov'=>$row['apellido_prov'], 'total_cmp'=>floatval($row['total_cmp']), 'forma_pago_cmp'=>$row['forma_pago_cmp'], 'tpo_entrega_cmp'=>$row['tpo_entrega_cmp'], 'estado_cmp'=>$row['estado_cmp'],
-			'moneda_cmp'=>$row['moneda_cmp'], 'tipo_cambio_cmp'=>number_format(floatval($row['tipo_cambio_cmp']), 2), 'descuento_cmp'=>$row['descuento_cmp'], 'factura_cmp'=>$row['factura_cmp'], 'observacion_cmp'=>$row['observacion_cmp']);
-			$array[$row['id_cmp'].'_id_cmp'] = $buy;
+			$array[] = $row;
 		}
-		echo json_encode($array, JSON_UNESCAPED_UNICODE);
+		echo json_encode($array, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 	}
 	//------Create compra
 	public function createBuy($productos){

@@ -12,19 +12,25 @@ async function init() {
     if (rqstBuy == false) {
         preloader.classList.add('modal__show');
         rqstBuy = true;
-        Promise.all([
-            readBuys(),
-            readSuppliers().then(() => readEnterprises()),
-            readCmp_prods(),
-            readProducts(),
-            readAllMarcas(),
-            readAllCategorias(),
-            readInventories(),
-            readPrices()
-        ]).then(() => {
+        try {
+            await Promise.all([
+                readBuys(),
+                readSuppliers(),
+                readEnterprises(),
+                readCmp_prods(),
+                readProducts(),
+                readAllMarcas(),
+                readAllCategorias(),
+                readInventories(),
+                readPrices()
+            ]);
+            paginacionEnterpriseMW(enterprises.length, 1);
+            fillSelectEmp(selectEnterpriseR, selectSupplierR);
             rqstBuy = false;
             preloader.classList.remove('modal__show');
-        })
+        } catch (error) {
+            mostrarAlerta('Error al cargar los datos: ' + error.message);
+        }
     }
 }
 //-----------------------------------------------FECHA ACTUAL-------------------------------------
@@ -53,7 +59,7 @@ async function readSuppliers() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            suppliers = Object.values(data);
+            suppliers = data;
             resolve();
         }).catch(err => console.log(err));
     })
@@ -105,7 +111,7 @@ function readSupplier(rm) {
     supplierMMW.classList.add('modal__show');
 }
 //------Update a supplier
-const formClienteM = document.getElementById('formSupplierM');
+const formSupplierM = document.getElementById('formSupplierM');
 formSupplierM.addEventListener('submit', updateSupplier);
 async function updateSupplier() {
     if (!rqstBuy) {
@@ -113,7 +119,7 @@ async function updateSupplier() {
         preloader.classList.add('modal__show');
         event.preventDefault();
         supplierMMW.classList.remove('modal__show');
-        let formData = new FormData(formClienteM);
+        let formData = new FormData(formSupplierM);
         formData.append('updateSupplier', '');
         fetch('../controladores/clientes.php', {
             method: "POST",
@@ -191,10 +197,9 @@ async function readEnterprises() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            enterprises = Object.values(data);
+            enterprises = data;
             filterEnterprises = enterprises;
-            paginacionEnterpriseMW(enterprises.length, 1);
-            fillSelectEmp(selectEnterpriseR, selectSupplierR);
+            
             resolve();
         }).catch(err => console.log(err));
     })
@@ -491,9 +496,10 @@ async function readBuys() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            buys = Object.values(data);
-            createSelectDateBuy();
+            console.log(data);
+            buys = data;
             filterBuys = buys;
+            createSelectDateBuy();
             filterByUserBuys(buys.length, 1);
             resolve();
         }).catch(err => console.log(err));

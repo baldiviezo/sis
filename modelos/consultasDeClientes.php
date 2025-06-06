@@ -237,20 +237,14 @@ class consultas {
 	//-----Read all supplier
 	public function readSuppliers(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM proveedor INNER JOIN empresa_prov ON proveedor.fk_id_empp_prov = id_empp ORDER BY nombre_prov";
+		$consulta = "SELECT * FROM proveedor ORDER BY nombre_prov";
 		$resultado = $conexion->query($consulta);
 		$numeroProveedor = $resultado->num_rows;
 		$proveedores =  array();
-		if($numeroProveedor > 0){
-			while ($fila = $resultado->fetch_assoc()){
-				$datos = array ( 'id_prov'=>$fila['id_prov'], 'nombre_prov'=>$fila['nombre_prov'], 'apellido_prov'=>$fila['apellido_prov'], 'celular_prov'=>$fila['celular_prov'], 'fk_id_empp_prov'=>$fila['fk_id_empp_prov'], 'direccion_empp'=>$fila['direccion_empp'], 'telefono_empp'=>$fila['telefono_empp']);
-				$proveedores[$fila['id_prov'].'_prov'] = $datos;
-			}
-			$json = json_encode($proveedores, JSON_UNESCAPED_UNICODE);
-			echo $json;
-		}else{
-			echo json_encode('');
+		while ($fila = $resultado->fetch_assoc()){
+			$proveedores[] = $fila;
 		}
+		echo json_encode($proveedores, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 	}
 	//------Registrar un supplier
 	public function createSupplier(){
@@ -283,16 +277,10 @@ class consultas {
 		$resultado = $conexion->query($consulta);
 		$numeroClientes = $resultado->num_rows;
 		$empresas =  array();
-		if($numeroClientes > 0){
-			while ($fila = $resultado->fetch_assoc()){
-				$datos = array ( 'id_empp'=>$fila['id_empp'], 'sigla_empp'=>$fila['sigla_empp'], 'nombre_empp'=>$fila['nombre_empp'], 'nit_empp'=>$fila['nit_empp'], 'descuento_empp'=>$fila['descuento_empp'], 'direccion_empp'=>$fila['direccion_empp'], 'telefono_empp'=>$fila['telefono_empp']);
-				$empresas[$fila['id_empp']] = $datos;
-			}
-			$json = json_encode($empresas, JSON_UNESCAPED_UNICODE);
-			echo $json;
-		}else{
-			echo json_encode('');
+		while ($fila = $resultado->fetch_assoc()){
+			$empresas[] = $fila;
 		}
+		echo json_encode($empresas, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 	}
 	//------Crear una empresa
 	public function createEnterpriseP(){
