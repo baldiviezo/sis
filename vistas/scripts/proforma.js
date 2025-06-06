@@ -453,8 +453,8 @@ async function readProformas() {
             const isAdmin = ['Gerente general', 'Administrador'].includes(localStorage.getItem('rol_usua'));
             proformas = isAdmin ? data : data.filter(proforma => proforma.fk_id_usua_prof === localStorage.getItem('id_usua'));
             filterProformas = proformas;
-            resolve();
             createYearProforma();
+            resolve();
         }).catch(err => console.log(err));
     })
 }
@@ -625,12 +625,12 @@ function tableProformas(page) {
         const cliente = customers.find(customer => customer.id_clte === proforma.fk_id_clte_prof);
         const usuario = users.find(user => user.id_usua === proforma.fk_id_usua_prof);
         const empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
+        
         const tr = document.createElement('tr');
-
         tr.setAttribute('id_prof', proforma.id_prof);
 
         const tdNumero = document.createElement('td');
-        tdNumero.innerText = index + 1;
+        tdNumero.innerText = inicio + index + 1;
         tr.appendChild(tdNumero);
 
         const tdNumeroProforma = document.createElement('td');
@@ -659,7 +659,6 @@ function tableProformas(page) {
 
         const tdAcciones = document.createElement('td');
         const fragment = document.createDocumentFragment();
-
         let imgs = [];
 
         if (proforma.estado_prof === 1) {

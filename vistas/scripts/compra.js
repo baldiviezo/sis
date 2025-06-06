@@ -22,10 +22,12 @@ async function init() {
                 readAllMarcas(),
                 readAllCategorias(),
                 readInventories(),
-                readPrices()
+                readPrices(),
+                readUsers()
             ]);
             paginacionEnterpriseMW(enterprises.length, 1);
             fillSelectEmp(selectEnterpriseR, selectSupplierR);
+            paginacionBuy(filterBuys.length, 1);
             rqstBuy = false;
             preloader.classList.remove('modal__show');
         } catch (error) {
@@ -199,7 +201,7 @@ async function readEnterprises() {
         }).then(response => response.json()).then(data => {
             enterprises = data;
             filterEnterprises = enterprises;
-            
+
             resolve();
         }).catch(err => console.log(err));
     })
@@ -487,7 +489,7 @@ closeEnterprisesMMW.addEventListener('click', () => {
 //<<---------------------------------------------------TABLA DE COMPRA------------------------------------------>>
 let buys = [];
 let filterBuys = [];
-let formBuy = '';
+let formBuy;
 async function readBuys() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
@@ -500,7 +502,6 @@ async function readBuys() {
             buys = data;
             filterBuys = buys;
             createSelectDateBuy();
-            filterByUserBuys(buys.length, 1);
             resolve();
         }).catch(err => console.log(err));
     })
@@ -515,7 +516,7 @@ inputSerchBuy.addEventListener("keyup", searchBuys);
 const selectNumberBuy = document.getElementById('selectNumberBuy');
 selectNumberBuy.selectedIndex = 3;
 selectNumberBuy.addEventListener('change', function () {
-    filterByUserBuys(filterBuys.length, 1);
+    paginacionBuy(filterBuys.length, 1);
 });
 //------buscar por:
 function searchBuys() {
@@ -572,10 +573,10 @@ function selectStateBuys() {
         const mes = selectMonthBuy.value === 'todas' ? true : buy.fecha_cmp.split('-')[1] === selectMonthBuy.value;
         return estado && fecha && mes;
     });
-    filterByUserBuys(filterBuys.length, 1);
+    paginacionBuy(filterBuys.length, 1);
 }
 //------Ordenar tabla descendente ascendente
-let orderBuys = document.querySelectorAll('.tbody__head--buy');
+const orderBuys = document.querySelectorAll('.tbody__head--buy');
 orderBuys.forEach(div => {
     div.children[0].addEventListener('click', function () {
         filterBuys.sort((a, b) => {
@@ -587,7 +588,7 @@ orderBuys.forEach(div => {
                 return String(first).localeCompare(String(second));
             }
         });
-        filterByUserBuys(filterBuys.length, 1);
+        paginacionBuy(filterBuys.length, 1);
     });
     div.children[1].addEventListener('click', function () {
         filterBuys.sort((a, b) => {
@@ -599,18 +600,9 @@ orderBuys.forEach(div => {
                 return String(second).localeCompare(String(first));
             }
         });
-        filterByUserBuys(filterBuys.length, 1);
+        paginacionBuy(filterBuys.length, 1);
     });
 });
-//------Filtar por rol
-function filterByUserBuys(length, page) {
-    if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
-        paginacionBuy(length, page);
-    } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
-        filterBuys = filterBuys.filter(buy => buy.fk_id_usua_cmp == localStorage.getItem('id_usua'));
-        paginacionBuy(filterBuys.length, page);
-    }
-}
 //------PaginacionBuy
 function paginacionBuy(allBuys, page) {
     let numberCustomers = Number(selectNumberBuy.value);
@@ -648,70 +640,83 @@ function paginacionBuy(allBuys, page) {
 //------Crear la tabla
 function tableBuys(page) {
     const totalBuy = document.getElementById('totalBuy');
-    let total = 0;
-    for (let buy in filterBuys) {
-        total += Number(filterBuys[buy]['total_cmp']);
-    }
-    totalBuy.innerText = `Total: ${total.toFixed(2)} Bs`;
-    let tbody = document.getElementById('tbodyBuy');
-    inicio = (page - 1) * Number(selectNumberBuy.value);
-    final = inicio + Number(selectNumberBuy.value);
-    i = 1;
-    tbody.innerHTML = '';
-    for (let buy in filterBuys) {
-        if (i > inicio && i <= final) {
-            let tr = document.createElement('tr');
-            for (let valor in filterBuys[buy]) {
-                let td = document.createElement('td');
-                if (valor == 'id_cmp') {
-                    td.innerText = filterBuys[buy][valor];
-                    td.setAttribute('hidden', '');
-                    tr.appendChild(td);
-                    td = document.createElement('td');
-                    td.innerText = i;
-                    tr.appendChild(td);
-                    i++;
-                } else if (valor == 'fecha_cmp') {
-                    td.innerText = filterBuys[buy][valor].slice(0, 10);
-                    tr.appendChild(td);
-                } else if (valor == 'fk_id_usua_cmp' || valor == 'fk_id_prov_cmp' || valor == 'apellido_usua' || valor == 'id_empp' || valor == 'apellido_prov' || valor == 'estado_cmp' || valor == 'moneda_cmp' || valor == 'tipo_cambio_cmp' || valor == 'descuento_cmp' || valor == 'factura_cmp' || valor == 'fecha_entrega_cmp') {
-                } else if (valor == 'nombre_usua') {
-                    td.innerText = `${filterBuys[buy][valor]} ${filterBuys[buy]['apellido_usua']}`;
-                    tr.appendChild(td);
-                } else if (valor == 'nombre_prov') {
-                    td.innerText = `${filterBuys[buy][valor]} ${filterBuys[buy]['apellido_prov']}`;
-                    tr.appendChild(td);
-                } else if (valor == 'total_cmp') {
-                    td.innerText = `${Number(filterBuys[buy][valor]).toFixed(2)} Bs`;
-                    tr.appendChild(td);
-                } else {
-                    td.innerText = filterBuys[buy][valor];
-                    tr.appendChild(td);
-                }
-            }
-            let td = document.createElement('td');
+    const total = filterBuys.reduce((acc, buy) => acc + Number(buy.total_cmp), 0);
+    totalBuy.innerText = `Total (Bs): ${total.toFixed(2)} Bs`;
 
-            if (filterBuys[buy]['estado_cmp'] == '0') {
-                if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
-                    td.innerHTML = `
+    const tbody = document.getElementById('tbodyBuy');
+    const inicio = (page - 1) * Number(selectNumberBuy.value);
+    const final = inicio + Number(selectNumberBuy.value);
+    const compras = filterBuys.slice(inicio, final);
+    tbody.innerHTML = '';
+    compras.forEach((buy, index) => {
+        const proveedor = suppliers.find(supplier => supplier.id_prov === buy.fk_id_prov_cmp);
+        const usuario = users.find(user => user.id_usua === buy.fk_id_usua_cmp);
+        const empresa = enterprises.find(enterprise => enterprise.id_empp === proveedor.fk_id_empp_prov);
+
+        const tr = document.createElement('tr');
+        tr.setAttribute('id_cmp', buy.id_cmp);
+
+        const tdIndex = document.createElement('td');
+        tdIndex.innerText = inicio + index + 1;
+        tr.appendChild(tdIndex);
+
+        const tdNumeroOC = document.createElement('td');
+        tdNumeroOC.innerText = `OC-SMS${buy.fecha_cmp.slice(2, 4)}-${buy.numero_cmp}`;
+        tr.appendChild(tdNumeroOC);
+
+        const tdFecha = document.createElement('td');
+        tdFecha.innerText = buy.fecha_cmp.slice(0, 10);
+        tr.appendChild(tdFecha);
+
+        const tdUsuario = document.createElement('td');
+        tdUsuario.innerText = usuario.apellido_usua;
+        tr.appendChild(tdUsuario);
+
+        const tdEmpresa = document.createElement('td');
+        tdEmpresa.innerText = empresa.nombre_empp;
+        tr.appendChild(tdEmpresa);
+
+        const tdProveedor = document.createElement('td');
+        tdProveedor.innerText = proveedor.apellido_prov;
+        tr.appendChild(tdProveedor);
+
+        const tdTotal = document.createElement('td');
+        tdTotal.innerText = buy.total_cmp;
+        tr.appendChild(tdTotal);
+
+        const tdFormaPago = document.createElement('td');
+        tdFormaPago.innerText = buy.forma_pago_cmp;
+        tr.appendChild(tdFormaPago);
+
+        const tdTiempoEntrega = document.createElement('td');
+        tdTiempoEntrega.innerText = buy.tpo_entrega_cmp;
+        tr.appendChild(tdTiempoEntrega);
+
+        const tdObservacion = document.createElement('td');
+        tdObservacion.innerText = buy.observacion_cmp;
+        tr.appendChild(tdObservacion);
+
+        let tdAcciones = document.createElement('td');
+        if (buy.estado_cmp === 0) {
+            if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
+                tdAcciones.innerHTML = `
                 <img src='../imagenes/receipt.svg' onclick='showproductsAddBuyMW(this.parentNode.parentNode.children[0].innerText)' title='Añadir compra a inventario'>
                 <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir orden de compra'>
                 <img src='../imagenes/trash.svg' onclick='deleteBuy(this.parentNode.parentNode.children[0].innerText)' title='Eliminar compra'>`;
-                } else {
-                    td.innerHTML = `
+            } else {
+                tdAcciones.innerHTML = `
                 <img src='../imagenes/receipt.svg' onclick='showproductsAddBuyMW(this.parentNode.parentNode.children[0].innerText)' title='Añadir compra a inventario'>
                 <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir orden de compra'>`;
-                }
-            } else {
-                td.innerHTML = `
-                    <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir orden de compra'>`;
             }
-            tr.appendChild(td);
-            tbody.appendChild(tr);
         } else {
-            i++;
+            tdAcciones.innerHTML = `
+                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir orden de compra'>`;
         }
-    }
+
+        tr.appendChild(tdAcciones);
+
+        tbody.appendChild(tr);
+    });
 }
 //<<-------------------------------------------CRUD DE COMPRAS-------------------------------------------->>
 //-------Create buy
@@ -2250,5 +2255,25 @@ function tablePrices(page) {
         tr.appendChild(precioVenta);
 
         tbody.appendChild(tr);
+    });
+}
+
+//********* USUARIO ***********/
+//------Leer tabla de usuarios
+let users = [];
+async function readUsers() {
+    return new Promise((resolve) => {
+        let formData = new FormData();
+        formData.append('readUsers', '');
+        fetch('../controladores/usuarios.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            users = Object.values(data);
+            console.log(users);
+            resolve();
+        }).catch(err => {
+            mostrarAlerta('Ocurrio un error al cargar la tabla de usuarios, cargue nuevamente la pagina');
+        });
     });
 }
