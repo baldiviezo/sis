@@ -2655,7 +2655,7 @@ selectCategoriaProdMW.addEventListener('change', searchProductsMW);
 function searchProductsMW() {
     const valor = selectSearchProdMW.value;
     const busqueda = inputSearchProdMW.value.toLowerCase().trim();
-    filterProducts = products.filter(product => {
+    filterProductsMW = products.filter(product => {
         if (valor === 'todas') {
             return (
                 product.codigo_prod.toString().toLowerCase().includes(busqueda) ||
@@ -2670,33 +2670,33 @@ function searchProductsMW() {
 }
 //------buscar por marca y categoria:
 function selectProductsMW() {
-    filterProducts = filterProducts.filter(product => {
+    filterProductsMW = filterProductsMW.filter(product => {
         const marca = selectMarcaProdMW.value === 'todasLasMarcas' ? true : product.fk_id_mrc_prod == selectMarcaProdMW.value;
         const categoria = selectCategoriaProdMW.value === 'todasLasCategorias' ? true : product.fk_id_ctgr_prod == selectCategoriaProdMW.value;
         return marca && categoria;
     });
-    paginacionProductMW(filterProducts.length, 1);
+    paginacionProductMW(filterProductsMW.length, 1);
 }
 //------Ordenar tabla descendente ascendente
 const orderProducts = document.querySelectorAll('.tbody__head--ProdMW');
 orderProducts.forEach(div => {
     div.children[0].addEventListener('click', function () {
         const valor = div.children[0].name;
-        filterProducts.sort((a, b) => {
+        filterProductsMW.sort((a, b) => {
             const valorA = String(a[valor]);
             const valorB = String(b[valor]);
             return valorA.localeCompare(valorB);
         });
-        paginacionProductMW(filterProducts.length, 1);
+        paginacionProductMW(filterProductsMW.length, 1);
     });
     div.children[1].addEventListener('click', function () {
         const valor = div.children[0].name;
-        filterProducts.sort((a, b) => {
+        filterProductsMW.sort((a, b) => {
             const valorA = String(a[valor]);
             const valorB = String(b[valor]);
             return valorB.localeCompare(valorA);
         });
-        paginacionProductMW(filterProducts.length, 1);
+        paginacionProductMW(filterProductsMW.length, 1);
     });
 })
 //------PaginacionProductMW
@@ -2740,12 +2740,12 @@ function tableProductsMW(page) {
     let final = inicio + Number(selectNumberProdMW.value);
     let fragment = document.createDocumentFragment();
 
-    for (let product of filterProducts.slice(inicio, final)) {
+    for (let product of filterProductsMW.slice(inicio, final)) {
         let tr = document.createElement('tr');
         tr.setAttribute('id_prod', product.id_prod);
 
         let tdIndex = document.createElement('td');
-        tdIndex.innerText = inicio + filterProducts.indexOf(product) + 1;
+        tdIndex.innerText = inicio + filterProductsMW.indexOf(product) + 1;
         tr.appendChild(tdIndex);
 
         for (let valor in product) {

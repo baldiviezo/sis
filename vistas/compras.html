@@ -581,7 +581,7 @@
 			</div>
 		</div>
 	</section>
-	<!--Tabla de productos-->
+	<!--Tabla modal productos-->
 	<section id="productSMW" class="modalTable">
 		<div class="modalTable__container">
 			<div class="table">
@@ -610,7 +610,7 @@
 							<select id="selectSearchProdMW" class="select">
 								<option value="todas">Buscar por</option>
 								<option value="codigo_prod">Código</option>
-								<option value="nombre_prod">Nombre</option>
+								<option value="nombre_prod">Descripcion corta</option>
 								<option value="descripcion_prod">Descripcion</option>
 							</select>
 						</div>
@@ -646,28 +646,14 @@
 							<tr>
 								<th>N°</th>
 								<th>
-									<div class="tbody__head--ProdMW">Marca <img src="../imagenes/sortA_Z.svg"
-											name="marca_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-											name="marca_prod" class="icon__CRUD">
-									</div>
-								</th>
-								<th>
-									<div class="tbody__head--ProdMW">Categoria <img src="../imagenes/sortA_Z.svg"
-											name="categoria_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-											name="categoria_prod" class="icon__CRUD"></div>
-								</th>
-								<th>
 									<div class="tbody__head--ProdMW">Codigo <img src="../imagenes/sortA_Z.svg"
 											name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
 											name="codigo_prod" class="icon__CRUD">
 									</div>
 								</th>
-								<th>
-									<div class="tbody__head--ProdMW">Nombre <img src="../imagenes/sortA_Z.svg"
-											name="nombre_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-											name="nombre_prod" class="icon__CRUD">
-									</div>
-								</th>
+								<th>Marca</th>
+								<th>Categoria</th>
+								<th>Descripcion corta</th>
 								<th>Descripcion</th>
 								<th>imagen</th>
 								<th>Acciones</th>
@@ -773,11 +759,11 @@
 					</div>
 					<div class="modalP__group--select">
 						<label class="modalP__label">Marca:</label>
-						<select name="marca_prodR" id="marca_prodR" class="select__marca"></select>
+						<select name="fk_id_mrc_prodR" id="fk_id_mrc_prodR" class="select__marca"></select>
 					</div>
 					<div class="modalP__group--select">
 						<label class="modalP__label">Categoria:</label>
-						<select name="categoria_prodR" id="categoria_prodR" class="select__categoria">
+						<select name="fk_id_ctgr_prodR" id="fk_id_ctgr_prodR" class="select__categoria">
 							<option value="todasLasCategorias">Todas las categorias</option>
 						</select>
 					</div>
@@ -826,11 +812,11 @@
 					</div>
 					<div class="modalP__group--select">
 						<label class="modalP__label">Marca:</label>
-						<select name="marca_prodM" id="marca_prodM" class="select__marca"></select>
+						<select name="fk_id_mrc_prodM" id="fk_id_mrc_prodM" class="select__marca"></select>
 					</div>
 					<div class="modalP__group--select">
 						<label class="modalP__label">Categoria:</label>
-						<select name="categoria_prodM" id="categoria_prodM" class="select__categoria">
+						<select name="fk_id_ctgr_prodM" id="fk_id_ctgr_prodM" class="select__categoria">
 							<option value="todasLasCategorias">Todas las categorias</option>
 						</select>
 					</div>

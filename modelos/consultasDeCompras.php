@@ -28,13 +28,13 @@ class Consultas{
 		$this->observacion_cmp = $conexion->real_escape_string($_POST['observacion_cmpM']);
 	}
 	 //------Read buys
-
 	public function readBuys(){
 		include 'conexion.php';
 		$consulta = "SELECT * FROM compra ORDER BY id_cmp DESC";
 		$resultado = $conexion->query($consulta);
 		$array = array();
 		while ($row = $resultado->fetch_assoc()) {
+			$row['numero_cmp'] = 'OC-SMS'.substr($row['fecha_cmp'],2,2).'-'.$this->addZerosGo($row['numero_cmp']);
 			$array[] = $row;
 		}
 		echo json_encode($array, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);

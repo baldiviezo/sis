@@ -25,13 +25,15 @@ async function init() {
                 readPrices(),
                 readUsers()
             ]);
+            paginacionProductMW(products.length, 1);
             paginacionEnterpriseMW(enterprises.length, 1);
             fillSelectEmp(selectEnterpriseR, selectSupplierR);
             paginacionBuy(filterBuys.length, 1);
             rqstBuy = false;
             preloader.classList.remove('modal__show');
         } catch (error) {
-            mostrarAlerta('Error al cargar los datos: ' + error.message);
+            console.log(error);
+            //mostrarAlerta('Error al cargar los datos: ' + error.message);
         }
     }
 }
@@ -50,6 +52,378 @@ const dateFormat = new Intl.DateTimeFormat('es-ES', {
 const formattedDate = dateFormat.format(date);
 const datePart = formattedDate.split(', ');
 const dateActual = datePart[0].split('/');
+//<<---------------------------------------------------TABLA DE COMPRA------------------------------------------>>
+let buys = [];
+let filterBuys = [];
+let formBuy;
+async function readBuys() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readBuys', '');
+        fetch('../controladores/compras.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            console.log(data);
+            buys = data;
+            filterBuys = buys;
+            createSelectDateBuy();
+            resolve();
+        }).catch(err => console.log(err));
+    })
+}
+//------Select utilizado para buscar por columnas
+const selectSearchBuy = document.getElementById('selectSearchBuy');
+selectSearchBuy.addEventListener('change', searchBuys);
+//------buscar por input
+const inputSerchBuy = document.getElementById("inputSerchBuy");
+inputSerchBuy.addEventListener("keyup", searchBuys);
+//------Compras por pagina
+const selectNumberBuy = document.getElementById('selectNumberBuy');
+selectNumberBuy.selectedIndex = 3;
+selectNumberBuy.addEventListener('change', function () {
+    paginacionBuy(filterBuys.length, 1);
+});
+//-------Estado de compra
+const selectStateBuy = document.getElementById('selectStateBuy');
+selectStateBuy.addEventListener('change', searchBuys);
+//------buscar por:
+function searchBuys() {
+    const busqueda = inputSerchBuy.value.toLowerCase().trim();
+    const valor = selectSearchBuy.value.toLowerCase().trim();
+    filterBuys = buys.filter(buy => {
+        const usuario = users.find(user => user.id_usua === buy.fk_id_usua_cmp);
+        const proveedor = suppliers.find(supplier => supplier.id_prov === buy.fk_id_prov_cmp);
+        const empresa = enterprises.find(enterprise => enterprise.id_empp === proveedor.fk_id_empp_prov);
+        if (valor == 'todas') {
+            return (
+                buy.numero_cmp.toLowerCase().includes(busqueda) ||
+                (usuario.nombre_usua + ' ' + usuario.apellido_usua).toLowerCase().includes(busqueda) ||
+                (proveedor.nombre_prov + ' ' + proveedor.apellido_prov).toLowerCase().includes(busqueda) ||
+                buy.fecha_cmp.toLowerCase().includes(busqueda) ||
+                empresa.nombre_empp.toLowerCase().includes(busqueda) ||
+                buy.total_cmp.toString().includes(busqueda)
+            )
+        } if (valor === 'total_cmp') {
+            return buy[valor].toString().includes(busqueda);
+        } else if (valor === 'nombre_usua') {
+            return (buy[valor] + ' ' + buy.apellido_usua).toLowerCase().includes(busqueda);
+        } else {
+            return buy[valor].toLowerCase().includes(busqueda);
+        }
+    });
+    selectStateBuys();
+}
+function createSelectDateBuy() {
+    const anios = Array.from(new Set(buys.map(buy => buy.fecha_cmp.split('-')[0])));
+    selectDateBuy.innerHTML = '';
+    let optionFirst = document.createElement('option');
+    optionFirst.value = 'todas';
+    optionFirst.innerText = 'Todos los años';
+    selectDateBuy.appendChild(optionFirst);
+    for (let anio of anios) {
+        const option = document.createElement('option');
+        option.value = anio;
+        option.textContent = anio;
+        selectDateBuy.appendChild(option);
+    }
+}
+//------Seleccionar el año
+const selectDateBuy = document.getElementById('selectDateBuy');
+selectDateBuy.addEventListener('change', searchBuys);
+//------mes
+const selectMonthBuy = document.getElementById('selectMonthBuy');
+selectMonthBuy.addEventListener('change', searchBuys);
+//estado de la compra
+function selectStateBuys() {
+    filterBuys = filterBuys.filter(buy => {
+        const estado = selectStateBuy.value === 'todasLasCompras' ? true : buy.estado_cmp == selectStateBuy.value;
+        const fecha = selectDateBuy.value === 'todas' ? true : buy.fecha_cmp.split('-')[0] === selectDateBuy.value;
+        const mes = selectMonthBuy.value === 'todas' ? true : buy.fecha_cmp.split('-')[1] === selectMonthBuy.value;
+        return estado && fecha && mes;
+    });
+    paginacionBuy(filterBuys.length, 1);
+}
+//------Ordenar tabla descendente ascendente
+const orderBuys = document.querySelectorAll('.tbody__head--buy');
+orderBuys.forEach(div => {
+    div.children[0].addEventListener('click', function () {
+        filterBuys.sort((a, b) => {
+            let first = a[div.children[0].name];
+            let second = b[div.children[0].name];
+            if (typeof first === 'number' && typeof second === 'number') {
+                return first - second;
+            } else {
+                return String(first).localeCompare(String(second));
+            }
+        });
+        paginacionBuy(filterBuys.length, 1);
+    });
+    div.children[1].addEventListener('click', function () {
+        filterBuys.sort((a, b) => {
+            let first = a[div.children[0].name];
+            let second = b[div.children[0].name];
+            if (typeof first === 'number' && typeof second === 'number') {
+                return second - first;
+            } else {
+                return String(second).localeCompare(String(first));
+            }
+        });
+        paginacionBuy(filterBuys.length, 1);
+    });
+});
+//------PaginacionBuy
+function paginacionBuy(allBuys, page) {
+    let numberCustomers = Number(selectNumberBuy.value);
+    let allPages = Math.ceil(allBuys / numberCustomers);
+    let ul = document.querySelector('#wrapperBuy ul');
+    let li = '';
+    let beforePages = page - 1;
+    let afterPages = page + 1;
+    let liActive;
+    if (page > 1) {
+        li += `<li class="btn" onclick="paginacionBuy(${allBuys}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
+    }
+    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
+        if (pageLength > allPages) {
+            continue;
+        }
+        if (pageLength == 0) {
+            pageLength = pageLength + 1;
+        }
+        if (page == pageLength) {
+            liActive = 'active';
+        } else {
+            liActive = '';
+        }
+        li += `<li class="numb ${liActive}" onclick="paginacionBuy(${allBuys}, ${pageLength})"><span>${pageLength}</span></li>`;
+    }
+    if (page < allPages) {
+        li += `<li class="btn" onclick="paginacionBuy(${allBuys}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
+    }
+    ul.innerHTML = li;
+    let h2 = document.querySelector('#showPageBuy h2');
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${allBuys} ordenes de  compras`;
+    tableBuys(page);
+}
+//------Crear la tabla
+function tableBuys(page) {
+    const totalBuy = document.getElementById('totalBuy');
+    const total = filterBuys.reduce((acc, buy) => acc + Number(buy.total_cmp), 0);
+    totalBuy.innerText = `Total (Bs): ${total.toFixed(2)} Bs`;
+
+    const tbody = document.getElementById('tbodyBuy');
+    const inicio = (page - 1) * Number(selectNumberBuy.value);
+    const final = inicio + Number(selectNumberBuy.value);
+    const compras = filterBuys.slice(inicio, final);
+    tbody.innerHTML = '';
+    compras.forEach((buy, index) => {
+        const proveedor = suppliers.find(supplier => supplier.id_prov === buy.fk_id_prov_cmp);
+        const usuario = users.find(user => user.id_usua === buy.fk_id_usua_cmp);
+        const empresa = enterprises.find(enterprise => enterprise.id_empp === proveedor.fk_id_empp_prov);
+
+        const tr = document.createElement('tr');
+        tr.setAttribute('id_cmp', buy.id_cmp);
+
+        const tdIndex = document.createElement('td');
+        tdIndex.innerText = inicio + index + 1;
+        tr.appendChild(tdIndex);
+
+        const tdNumeroOC = document.createElement('td');
+        tdNumeroOC.innerText = `OC-SMS${buy.fecha_cmp.slice(2, 4)}-${buy.numero_cmp}`;
+        tr.appendChild(tdNumeroOC);
+
+        const tdFecha = document.createElement('td');
+        tdFecha.innerText = buy.fecha_cmp.slice(0, 10);
+        tr.appendChild(tdFecha);
+
+        const tdUsuario = document.createElement('td');
+        tdUsuario.innerText = `${usuario.nombre_usua} ${usuario.apellido_usua}`;
+        tr.appendChild(tdUsuario);
+
+        const tdEmpresa = document.createElement('td');
+        tdEmpresa.innerText = empresa.nombre_empp;
+        tr.appendChild(tdEmpresa);
+
+        const tdProveedor = document.createElement('td');
+        tdProveedor.innerText = proveedor.apellido_prov;
+        tr.appendChild(tdProveedor);
+
+        const tdTotal = document.createElement('td');
+        tdTotal.innerText = buy.total_cmp;
+        tr.appendChild(tdTotal);
+
+        const tdFormaPago = document.createElement('td');
+        tdFormaPago.innerText = buy.forma_pago_cmp;
+        tr.appendChild(tdFormaPago);
+
+        const tdTiempoEntrega = document.createElement('td');
+        tdTiempoEntrega.innerText = buy.tpo_entrega_cmp;
+        tr.appendChild(tdTiempoEntrega);
+
+        const tdObservacion = document.createElement('td');
+        tdObservacion.innerText = buy.observacion_cmp;
+        tr.appendChild(tdObservacion);
+
+        let tdAcciones = document.createElement('td');
+        if (buy.estado_cmp === 0) {
+            if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
+                tdAcciones.innerHTML = `
+                <img src='../imagenes/receipt.svg' onclick='showproductsAddBuyMW(this.parentNode.parentNode.children[0].innerText)' title='Añadir compra a inventario'>
+                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir orden de compra'>
+                <img src='../imagenes/trash.svg' onclick='deleteBuy(this.parentNode.parentNode.children[0].innerText)' title='Eliminar compra'>`;
+            } else {
+                tdAcciones.innerHTML = `
+                <img src='../imagenes/receipt.svg' onclick='showproductsAddBuyMW(this.parentNode.parentNode.children[0].innerText)' title='Añadir compra a inventario'>
+                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir orden de compra'>`;
+            }
+        } else {
+            tdAcciones.innerHTML = `
+                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir orden de compra'>`;
+        }
+
+        tr.appendChild(tdAcciones);
+
+        tbody.appendChild(tr);
+    });
+}
+//<<-------------------------------------------CRUD DE COMPRAS-------------------------------------------->>
+//-------Create buy
+let formBuyR = document.getElementById('formBuyR');
+const buyRMW = document.getElementById('buyRMW');
+async function createBuy() {
+    if (rqstBuy === false) {
+        rqstBuy = true;
+        preloader.classList.add('modal__show');
+        buyRMW.classList.remove('modal__show');
+        cmp_prodRMW.classList.remove('modal__show');
+
+        const productos = [];
+        for (let producto of cmp_prodRMW.querySelectorAll('div.cart__item')) {
+            
+            productos.push({
+                fk_id_prod_cppd: producto.children[0].value,
+                descripcion_cppd: producto.children[2].value,
+                cantidad_cppd: producto.children[3].value,
+                cost_uni_cppd: producto.children[4].value,
+                observacion_cppd: producto.children[6].value
+            });
+        }
+        console.log(productos);
+        /*
+        let formData = new FormData(formBuyR);
+        formData.append('createBuy', JSON.stringify(productos));
+        formData.append('id_usua', localStorage.getItem('id_usua'));
+        formData.set('fecha_cmpR', `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`);
+        fetch('../controladores/compras.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            Promise.all([readBuys(), readCmp_prods()]).then(() => {
+                cleanFormBuyR();
+                buyRMW.classList.remove('modal__show');
+                cmp_prodRMW.classList.remove('modal__show');
+                totalPriceCPPDR();
+                preloader.classList.remove('modal__show');
+                rqstBuy = false;
+                mostrarAlerta(data);
+            });
+        }).catch(err => {
+            rqstBuy = false;
+            mostrarAlerta(err);
+        });*/
+    } else {
+        mostrarAlerta('No se puede realizar la compra en este momento');
+    }
+}
+//------Delete buy
+function deleteBuy(id_cmp) {
+    if (confirm('¿Esta usted seguro?')) {
+        if (rqstBuy == false) {
+            rqstBuy = true;
+            preloader.classList.add('modal__show');
+            let formData = new FormData();
+            formData.append('deleteBuy', id_cmp);
+            fetch('../controladores/compras.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                Promise.all([readBuys(), readCmp_prods()]).then(() => {
+                    rqstBuy = false;
+                    preloader.classList.remove('modal__show');
+                    mostrarAlerta(data);
+                })
+            }).catch(err => {
+                rqstBuy = false;
+                mostrarAlerta(err);
+            });
+        }
+    }
+}
+//------Estado de compra
+async function changeStateBuy(divs) {
+    const divshihijos = divs.children;
+    const cantidadDivsHijos = Array.prototype.filter.call(divshihijos, hijo => hijo.tagName === 'DIV').length;
+    if (cantidadDivsHijos > 0) {
+        id_cmp = divs.children[0].children[2].value;
+        const product = cmp_prods.filter(cmp_prod => cmp_prod.fk_id_cmp_cppd == id_cmp);
+        const productRecibidos = product.filter(obj => obj.estado_cppd === "RECIBIDO");
+        if (product.length == productRecibidos.length) {
+            if (rqstBuy == false) {
+                rqstBuy = true;
+                preloader.classList.add('modal__show');
+                let formData = new FormData();
+                formData.append('changeStateBuy', id_cmp);
+                fetch('../controladores/compras.php', {
+                    method: "POST",
+                    body: formData
+                }).then(response => response.text()).then(data => {
+                    readBuys().then(() => {
+                        preloader.classList.remove('modal__show');
+                        rqstBuy = false;
+                        document.getElementById('productBuyMW').classList.remove('modal__show');
+                        mostrarAlerta(data);
+                    })
+                }).catch(err => {
+                    rqstBuy = false;
+                    mostrarAlerta(err);
+                });
+            }
+        } else {
+            mostrarAlerta('Falta registrar productos');
+        }
+    } else {
+        mostrarAlerta('La nota de entrega no tiene ningun producto');
+    }
+}
+function cleanFormBuyR() {
+    document.querySelector('#cmp_prodRMW .modal__body').innerHTML = '';
+    document.getElementsByName('forma_pago_cmpR')[0].value = '';
+    document.getElementsByName('tpo_entrega_cmpR')[0].value = '';
+    document.getElementsByName('total_cmpR')[0].value = '0';
+    document.getElementsByName('tipo_cambio_cmpR')[0].value = '';
+    document.getElementsByName('observacion_cmpR')[0].value = '';
+    quantityCPRMW.innerHTML = '0';
+    subTotalCPRMW.innerHTML = 'Sub-Total (Bs):';
+    descCPRMW.innerHTML = 'Desc. (Bs):';
+    totalCPRMW.innerHTML = 'Total (Bs):';
+
+}
+//------Open and close buyR
+const closeBuyRMW = document.getElementById('closeBuyRMW');
+const openBuyRMW = document.getElementById('openBuyRMW');
+openBuyRMW.addEventListener('click', () => {
+    buyRMW.classList.add('modal__show');
+    document.getElementsByName('fecha_cmpR')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
+    formBuy = 'R';
+});
+closeBuyRMW.addEventListener('click', () => {
+    buyRMW.classList.remove('modal__show');
+});
+
+
+
+
 //-------------------------------------------------SUPPLIER--------------------------------------------------
 //<<-----------------------------------------CRUD SUPPLIER----------------------------------------->>
 let suppliers = [];
@@ -486,370 +860,6 @@ closeEnterprisesRMW.addEventListener('click', () => {
 closeEnterprisesMMW.addEventListener('click', () => {
     enterprisesMMW.classList.remove('modal__show');
 });
-//<<---------------------------------------------------TABLA DE COMPRA------------------------------------------>>
-let buys = [];
-let filterBuys = [];
-let formBuy;
-async function readBuys() {
-    return new Promise((resolve, reject) => {
-        let formData = new FormData();
-        formData.append('readBuys', '');
-        fetch('../controladores/compras.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.json()).then(data => {
-            console.log(data);
-            buys = data;
-            filterBuys = buys;
-            createSelectDateBuy();
-            resolve();
-        }).catch(err => console.log(err));
-    })
-}
-//------Select utilizado para buscar por columnas
-const selectSearchBuy = document.getElementById('selectSearchBuy');
-selectSearchBuy.addEventListener('change', searchBuys);
-//------buscar por input
-const inputSerchBuy = document.getElementById("inputSerchBuy");
-inputSerchBuy.addEventListener("keyup", searchBuys);
-//------Compras por pagina
-const selectNumberBuy = document.getElementById('selectNumberBuy');
-selectNumberBuy.selectedIndex = 3;
-selectNumberBuy.addEventListener('change', function () {
-    paginacionBuy(filterBuys.length, 1);
-});
-//------buscar por:
-function searchBuys() {
-    const busqueda = inputSerchBuy.value.toLowerCase().trim();
-    const valor = selectSearchBuy.value.toLowerCase().trim();
-    filterBuys = buys.filter(buy => {
-        if (valor == 'todas') {
-            return (
-                buy.numero_cmp.toLowerCase().includes(busqueda) ||
-                (buy.nombre_usua + ' ' + buy.apellido_usua).toLowerCase().includes(busqueda) ||
-                (buy.nombre_prov + ' ' + buy.apellido_prov).toLowerCase().includes(busqueda) ||
-                buy.fecha_cmp.toLowerCase().includes(busqueda) ||
-                buy.nombre_empp.toLowerCase().includes(busqueda) ||
-                buy.total_cmp.toString().includes(busqueda)
-            )
-        } if (valor === 'total_cmp') {
-            return buy[valor].toString().includes(busqueda);
-        } else if (valor === 'nombre_usua') {
-            return (buy[valor] + ' ' + buy.apellido_usua).toLowerCase().includes(busqueda);
-        } else {
-            return buy[valor].toLowerCase().includes(busqueda);
-        }
-    });
-    selectStateBuys();
-}
-function createSelectDateBuy() {
-    const anios = Array.from(new Set(buys.map(buy => buy.fecha_cmp.split('-')[0])));
-    selectDateBuy.innerHTML = '';
-    let optionFirst = document.createElement('option');
-    optionFirst.value = 'todas';
-    optionFirst.innerText = 'Todos los años';
-    selectDateBuy.appendChild(optionFirst);
-    for (let anio of anios) {
-        const option = document.createElement('option');
-        option.value = anio;
-        option.textContent = anio;
-        selectDateBuy.appendChild(option);
-    }
-}
-//------Seleccionar el año
-const selectDateBuy = document.getElementById('selectDateBuy');
-selectDateBuy.addEventListener('change', searchBuys);
-//-------Estado de compra
-const selectStateBuy = document.getElementById('selectStateBuy');
-selectStateBuy.addEventListener('change', searchBuys);
-//------mes
-const selectMonthBuy = document.getElementById('selectMonthBuy');
-selectMonthBuy.addEventListener('change', searchBuys);
-//estado de la compra
-function selectStateBuys() {
-    filterBuys = filterBuys.filter(buy => {
-        const estado = selectStateBuy.value === 'todasLasCompras' ? true : buy.estado_cmp === selectStateBuy.value;
-        const fecha = selectDateBuy.value === 'todas' ? true : buy.fecha_cmp.split('-')[0] === selectDateBuy.value;
-        const mes = selectMonthBuy.value === 'todas' ? true : buy.fecha_cmp.split('-')[1] === selectMonthBuy.value;
-        return estado && fecha && mes;
-    });
-    paginacionBuy(filterBuys.length, 1);
-}
-//------Ordenar tabla descendente ascendente
-const orderBuys = document.querySelectorAll('.tbody__head--buy');
-orderBuys.forEach(div => {
-    div.children[0].addEventListener('click', function () {
-        filterBuys.sort((a, b) => {
-            let first = a[div.children[0].name];
-            let second = b[div.children[0].name];
-            if (typeof first === 'number' && typeof second === 'number') {
-                return first - second;
-            } else {
-                return String(first).localeCompare(String(second));
-            }
-        });
-        paginacionBuy(filterBuys.length, 1);
-    });
-    div.children[1].addEventListener('click', function () {
-        filterBuys.sort((a, b) => {
-            let first = a[div.children[0].name];
-            let second = b[div.children[0].name];
-            if (typeof first === 'number' && typeof second === 'number') {
-                return second - first;
-            } else {
-                return String(second).localeCompare(String(first));
-            }
-        });
-        paginacionBuy(filterBuys.length, 1);
-    });
-});
-//------PaginacionBuy
-function paginacionBuy(allBuys, page) {
-    let numberCustomers = Number(selectNumberBuy.value);
-    let allPages = Math.ceil(allBuys / numberCustomers);
-    let ul = document.querySelector('#wrapperBuy ul');
-    let li = '';
-    let beforePages = page - 1;
-    let afterPages = page + 1;
-    let liActive;
-    if (page > 1) {
-        li += `<li class="btn" onclick="paginacionBuy(${allBuys}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
-    }
-    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
-        if (pageLength > allPages) {
-            continue;
-        }
-        if (pageLength == 0) {
-            pageLength = pageLength + 1;
-        }
-        if (page == pageLength) {
-            liActive = 'active';
-        } else {
-            liActive = '';
-        }
-        li += `<li class="numb ${liActive}" onclick="paginacionBuy(${allBuys}, ${pageLength})"><span>${pageLength}</span></li>`;
-    }
-    if (page < allPages) {
-        li += `<li class="btn" onclick="paginacionBuy(${allBuys}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
-    }
-    ul.innerHTML = li;
-    let h2 = document.querySelector('#showPageBuy h2');
-    h2.innerHTML = `Pagina ${page}/${allPages}, ${allBuys} ordenes de  compras`;
-    tableBuys(page);
-}
-//------Crear la tabla
-function tableBuys(page) {
-    const totalBuy = document.getElementById('totalBuy');
-    const total = filterBuys.reduce((acc, buy) => acc + Number(buy.total_cmp), 0);
-    totalBuy.innerText = `Total (Bs): ${total.toFixed(2)} Bs`;
-
-    const tbody = document.getElementById('tbodyBuy');
-    const inicio = (page - 1) * Number(selectNumberBuy.value);
-    const final = inicio + Number(selectNumberBuy.value);
-    const compras = filterBuys.slice(inicio, final);
-    tbody.innerHTML = '';
-    compras.forEach((buy, index) => {
-        const proveedor = suppliers.find(supplier => supplier.id_prov === buy.fk_id_prov_cmp);
-        const usuario = users.find(user => user.id_usua === buy.fk_id_usua_cmp);
-        const empresa = enterprises.find(enterprise => enterprise.id_empp === proveedor.fk_id_empp_prov);
-
-        const tr = document.createElement('tr');
-        tr.setAttribute('id_cmp', buy.id_cmp);
-
-        const tdIndex = document.createElement('td');
-        tdIndex.innerText = inicio + index + 1;
-        tr.appendChild(tdIndex);
-
-        const tdNumeroOC = document.createElement('td');
-        tdNumeroOC.innerText = `OC-SMS${buy.fecha_cmp.slice(2, 4)}-${buy.numero_cmp}`;
-        tr.appendChild(tdNumeroOC);
-
-        const tdFecha = document.createElement('td');
-        tdFecha.innerText = buy.fecha_cmp.slice(0, 10);
-        tr.appendChild(tdFecha);
-
-        const tdUsuario = document.createElement('td');
-        tdUsuario.innerText = usuario.apellido_usua;
-        tr.appendChild(tdUsuario);
-
-        const tdEmpresa = document.createElement('td');
-        tdEmpresa.innerText = empresa.nombre_empp;
-        tr.appendChild(tdEmpresa);
-
-        const tdProveedor = document.createElement('td');
-        tdProveedor.innerText = proveedor.apellido_prov;
-        tr.appendChild(tdProveedor);
-
-        const tdTotal = document.createElement('td');
-        tdTotal.innerText = buy.total_cmp;
-        tr.appendChild(tdTotal);
-
-        const tdFormaPago = document.createElement('td');
-        tdFormaPago.innerText = buy.forma_pago_cmp;
-        tr.appendChild(tdFormaPago);
-
-        const tdTiempoEntrega = document.createElement('td');
-        tdTiempoEntrega.innerText = buy.tpo_entrega_cmp;
-        tr.appendChild(tdTiempoEntrega);
-
-        const tdObservacion = document.createElement('td');
-        tdObservacion.innerText = buy.observacion_cmp;
-        tr.appendChild(tdObservacion);
-
-        let tdAcciones = document.createElement('td');
-        if (buy.estado_cmp === 0) {
-            if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
-                tdAcciones.innerHTML = `
-                <img src='../imagenes/receipt.svg' onclick='showproductsAddBuyMW(this.parentNode.parentNode.children[0].innerText)' title='Añadir compra a inventario'>
-                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir orden de compra'>
-                <img src='../imagenes/trash.svg' onclick='deleteBuy(this.parentNode.parentNode.children[0].innerText)' title='Eliminar compra'>`;
-            } else {
-                tdAcciones.innerHTML = `
-                <img src='../imagenes/receipt.svg' onclick='showproductsAddBuyMW(this.parentNode.parentNode.children[0].innerText)' title='Añadir compra a inventario'>
-                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir orden de compra'>`;
-            }
-        } else {
-            tdAcciones.innerHTML = `
-                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir orden de compra'>`;
-        }
-
-        tr.appendChild(tdAcciones);
-
-        tbody.appendChild(tr);
-    });
-}
-//<<-------------------------------------------CRUD DE COMPRAS-------------------------------------------->>
-//-------Create buy
-let formBuyR = document.getElementById('formBuyR');
-async function createBuy() {
-    let products = document.querySelectorAll('#cmp_prodRMW div.modal__body div.cart__item');
-    if (products.length > 0) {
-        let array = [];
-        products.forEach(producto => {
-            let object = {
-                'fk_id_prod_cppd': producto.children[0].value,
-                'descripcion_cppd': producto.children[2].value,
-                'cantidad_cppd': producto.children[3].value,
-                'cost_uni_cppd': producto.children[4].value,
-                'observacion_cppd': producto.children[6].value
-            };
-            array.push(object);
-        });
-        if (confirm('¿Esta usted seguro?')) {
-            if (rqstBuy == false) {
-                rqstBuy = true;
-                let formData = new FormData(formBuyR);
-                formData.append('createBuy', JSON.stringify(array));
-                formData.append('id_usua', localStorage.getItem('id_usua'));
-                formData.set('fecha_cmpR', `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`);
-                preloader.classList.add('modal__show');
-                fetch('../controladores/compras.php', {
-                    method: "POST",
-                    body: formData
-                }).then(response => response.text()).then(data => {
-                    Promise.all([readBuys(), readCmp_prods()]).then(() => {
-                        cleanFormBuyR();
-                        buyRMW.classList.remove('modal__show');
-                        cmp_prodRMW.classList.remove('modal__show');
-                        totalPriceCPPDR();
-                        preloader.classList.remove('modal__show');
-                        rqstBuy = false;
-                        mostrarAlerta(data);
-                    });
-                }).catch(err => {
-                    rqstBuy = false;
-                    mostrarAlerta(err);
-                });
-            }
-        }
-    } else {
-        mostrarAlerta('No a seleccionado ningun producto');
-    }
-}
-//------Delete buy
-function deleteBuy(id_cmp) {
-    if (confirm('¿Esta usted seguro?')) {
-        if (rqstBuy == false) {
-            rqstBuy = true;
-            preloader.classList.add('modal__show');
-            let formData = new FormData();
-            formData.append('deleteBuy', id_cmp);
-            fetch('../controladores/compras.php', {
-                method: "POST",
-                body: formData
-            }).then(response => response.text()).then(data => {
-                Promise.all([readBuys(), readCmp_prods()]).then(() => {
-                    rqstBuy = false;
-                    preloader.classList.remove('modal__show');
-                    mostrarAlerta(data);
-                })
-            }).catch(err => {
-                rqstBuy = false;
-                mostrarAlerta(err);
-            });
-        }
-    }
-}
-//------Estado de compra
-async function changeStateBuy(divs) {
-    const divshihijos = divs.children;
-    const cantidadDivsHijos = Array.prototype.filter.call(divshihijos, hijo => hijo.tagName === 'DIV').length;
-    if (cantidadDivsHijos > 0) {
-        id_cmp = divs.children[0].children[2].value;
-        const product = cmp_prods.filter(cmp_prod => cmp_prod.fk_id_cmp_cppd == id_cmp);
-        const productRecibidos = product.filter(obj => obj.estado_cppd === "RECIBIDO");
-        if (product.length == productRecibidos.length) {
-            if (rqstBuy == false) {
-                rqstBuy = true;
-                preloader.classList.add('modal__show');
-                let formData = new FormData();
-                formData.append('changeStateBuy', id_cmp);
-                fetch('../controladores/compras.php', {
-                    method: "POST",
-                    body: formData
-                }).then(response => response.text()).then(data => {
-                    readBuys().then(() => {
-                        preloader.classList.remove('modal__show');
-                        rqstBuy = false;
-                        document.getElementById('productBuyMW').classList.remove('modal__show');
-                        mostrarAlerta(data);
-                    })
-                }).catch(err => {
-                    rqstBuy = false;
-                    mostrarAlerta(err);
-                });
-            }
-        } else {
-            mostrarAlerta('Falta registrar productos');
-        }
-    } else {
-        mostrarAlerta('La nota de entrega no tiene ningun producto');
-    }
-}
-function cleanFormBuyR() {
-    document.querySelector('#cmp_prodRMW .modal__body').innerHTML = '';
-    document.getElementsByName('forma_pago_cmpR')[0].value = '';
-    document.getElementsByName('tpo_entrega_cmpR')[0].value = '';
-    document.getElementsByName('total_cmpR')[0].value = '0';
-    document.getElementsByName('tipo_cambio_cmpR')[0].value = '';
-    document.getElementsByName('observacion_cmpR')[0].value = '';
-    quantityCPRMW.innerHTML = '0';
-    subTotalCPRMW.innerHTML = 'Sub-Total (Bs):';
-    descCPRMW.innerHTML = 'Desc. (Bs):';
-    totalCPRMW.innerHTML = 'Total (Bs):';
-
-}
-//------Open and close buyR
-const closeBuyRMW = document.getElementById('closeBuyRMW');
-const openBuyRMW = document.getElementById('openBuyRMW');
-openBuyRMW.addEventListener('click', () => {
-    buyRMW.classList.add('modal__show');
-    document.getElementsByName('fecha_cmpR')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
-    formBuy = 'R';
-});
-closeBuyRMW.addEventListener('click', () => {
-    buyRMW.classList.remove('modal__show');
-});
 /*---------------------------------------------------------------------------------------------*/
 //------------PDF of buys
 function selectPDFInformation(id_cmp) {
@@ -1199,9 +1209,9 @@ function openCmp_prodRMW() {
 closeCmp_prodRMW.addEventListener('click', (e) => {
     cmp_prodRMW.classList.remove('modal__show');
 });
-//------------------------------------------------TABLA MODAL PRODUCTS--------------------------------------------------
+//--------------------------------------------TABLA MODAL PRODUCTS-----------------------------------------------
 let products = [];
-filterProductsMW = [];
+let filterProductsMW = [];
 async function readProducts() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
@@ -1210,11 +1220,10 @@ async function readProducts() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            products = Object.values(data);
+            products = data;
             filterProductsMW = products;
-            paginacionProductMW(products.length, 1);
             resolve();
-        }).catch(err => console.log(err));
+        }).catch(err => mostrarAlerta('Ocurrio un error al cargar los productos, cargue nuevamente la pagina.'));
     })
 }
 //------Select utilizado para buscar por columnas
@@ -1241,44 +1250,44 @@ function searchProductsMW() {
     filterProductsMW = products.filter(product => {
         if (valor === 'todas') {
             return (
-                product.codigo_prod.toLowerCase().includes(busqueda) ||
+                product.codigo_prod.toString().toLowerCase().includes(busqueda) ||
                 product.nombre_prod.toLowerCase().includes(busqueda) ||
                 product.descripcion_prod.toLowerCase().includes(busqueda)
             );
         } else {
-            return product[valor].toLowerCase().includes(busqueda);
+            return product[valor].toString().toLowerCase().includes(busqueda);
         }
     });
     selectProductsMW();
 }
 //------buscar por marca y categoria:
 function selectProductsMW() {
-    if (selectMarcaProdMW.value == 'todasLasMarcas' && selectCategoriaProdMW.value == 'todasLasCategorias') {
-        paginacionProductMW(filterProductsMW.length, 1);
-    } else {
-        filterProductsMW = filterProductsMW.filter(product => {
-            if (selectMarcaProdMW.value == 'todasLasMarcas') {
-                return product['id_ctgr'] == selectCategoriaProdMW.value;
-            } else if (selectCategoriaProdMW.value == 'todasLasCategorias') {
-                return product['id_mrc'] == selectMarcaProdMW.value;
-            } else {
-                return product['id_ctgr'] == selectCategoriaProdMW.value && product['id_mrc'] == selectMarcaProdMW.value;
-            }
-        });
-        paginacionProductMW(filterProductsMW.length, 1);
-    }
+    filterProductsMW = filterProductsMW.filter(product => {
+        const marca = selectMarcaProdMW.value === 'todasLasMarcas' ? true : product.fk_id_mrc_prod == selectMarcaProdMW.value;
+        const categoria = selectCategoriaProdMW.value === 'todasLasCategorias' ? true : product.fk_id_ctgr_prod == selectCategoriaProdMW.value;
+        return marca && categoria;
+    });
+    paginacionProductMW(filterProductsMW.length, 1);
 }
 //------Ordenar tabla descendente ascendente
-let orderProducts = document.querySelectorAll('.tbody__head--ProdMW');
+const orderProducts = document.querySelectorAll('.tbody__head--ProdMW');
 orderProducts.forEach(div => {
     div.children[0].addEventListener('click', function () {
         const valor = div.children[0].name;
-        filterProductsMW.sort((a, b) => a[valor].localeCompare(b[valor]));
+        filterProductsMW.sort((a, b) => {
+            const valorA = String(a[valor]);
+            const valorB = String(b[valor]);
+            return valorA.localeCompare(valorB);
+        });
         paginacionProductMW(filterProductsMW.length, 1);
     });
     div.children[1].addEventListener('click', function () {
         const valor = div.children[0].name;
-        filterProductsMW.sort((a, b) => b[valor].localeCompare(a[valor]));
+        filterProductsMW.sort((a, b) => {
+            const valorA = String(a[valor]);
+            const valorB = String(b[valor]);
+            return valorB.localeCompare(valorA);
+        });
         paginacionProductMW(filterProductsMW.length, 1);
     });
 })
@@ -1319,91 +1328,70 @@ function paginacionProductMW(allProducts, page) {
 //------Crear la tabla
 function tableProductsMW(page) {
     let tbody = document.getElementById('tbodyProductMW');
-    inicio = (page - 1) * Number(selectNumberProdMW.value);
-    final = inicio + Number(selectNumberProdMW.value);
-    i = 1;
-    tbody.innerHTML = '';
-    for (let product in filterProductsMW) {
-        if (i > inicio && i <= final) {
-            let tr = document.createElement('tr');
-            for (let valor in filterProductsMW[product]) {
-                let td = document.createElement('td');
-                if (valor == 'id_prod') {
-                    td.innerText = filterProductsMW[product][valor];
-                    td.setAttribute('hidden', '');
-                    tr.appendChild(td);
-                    td = document.createElement('td');
-                    td.innerText = i;
-                    tr.appendChild(td);
-                    i++;
-                } else if (valor == 'codigo_smc_prod' || valor == 'id_mrc' || valor == 'id_ctgr' || valor == 'catalogo_prod') {
-                } else if (valor == 'imagen_prod') {
-                    let img = document.createElement('img');
-                    img.classList.add('tbody__img');
-                    img.setAttribute('src', '../modelos/imagenes/' + filterProductsMW[product][valor]);
-                    td.appendChild(img);
-                    tr.appendChild(td);
-                } else {
-                    td.innerText = filterProductsMW[product][valor];
-                    tr.appendChild(td);
-                }
-            }
-            let td = document.createElement('td');
-            td.innerHTML = `
-            <img src='../imagenes/edit.svg' onclick='readProduct(this.parentNode.parentNode)' title='Editar producto'>
-            <img src='../imagenes/send.svg' onclick='sendProduct(this.parentNode.parentNode)' title='Seleccionar producto'>`;
-            tr.appendChild(td);
-            tbody.appendChild(tr);
-        } else {
-            i++;
-        }
-    }
-}
-function sendProduct(tr) {
-    let id_prod = tr.children[0].innerText;
-    for (let product in filterProductsMW) {
-        if (filterProductsMW[product]['id_prod'] == id_prod) {
-            let cart__items = '';
-            let i = 0;
-            if (formBuy == 'R') {
+    let inicio = (page - 1) * Number(selectNumberProdMW.value);
+    let final = inicio + Number(selectNumberProdMW.value);
+    let fragment = document.createDocumentFragment();
 
-                cart__items = document.querySelectorAll(`#cmp_prod${formBuy}MW div.modal__body div.cart__item`);
-                if (cart__items.length > 0) {
-                    cart__items.forEach(prod => {
-                        let id_prod = prod.children[0].value;
-                        if (id_prod == filterProductsMW[product]['id_prod']) {
-                            i++;
-                        }
-                    })
-                }
-            } else if (formBuy != 'R') {
-                /*
-                cart__items = document.querySelectorAll(`#productBuyMW div.modal__body div.cart__item`);
-                if (cart__items.length > 0) {
-                    cart__items.forEach(prod => {
-                        let id_prod = prod.children[1].value;
-                        if (id_prod == filterProductsMW[product]['id_prod']) {
-                            i++;
-                        }
-                    })
-                }*/
-            }
-            if (i == 0) {
-                let inventario = inventories.find(inventory => inventory.fk_id_prod_inv == filterProductsMW[product]['id_prod']);
-                if (inventario != undefined) {
-                    //Añadir ivnetario.cost_uni_inv a el objeto filterProductsMW[product]
-                    filterProductsMW[product]['cost_uni_inv'] = inventario['cost_uni_inv'];
-                } else {
-                    filterProductsMW[product]['cost_uni_inv'] = 0;
-                }
-                if (formBuy == 'R') {
-                    cartProduct_cppdR(filterProductsMW[product]);
-                } else if (formBuy != 'R') {
-                    cartProduct_cppdM(filterProductsMW[product], formBuy);
-                }
+    for (let product of filterProductsMW.slice(inicio, final)) {
+        let tr = document.createElement('tr');
+        tr.setAttribute('id_prod', product.id_prod);
+
+        let tdIndex = document.createElement('td');
+        tdIndex.innerText = inicio + filterProductsMW.indexOf(product) + 1;
+        tr.appendChild(tdIndex);
+
+        for (let valor in product) {
+            let td = document.createElement('td');
+            if (valor == 'id_prod' || valor == 'codigo_smc_prod' || valor == 'catalogo_prod') {
+                // No hacer nada
+            } else if (valor == 'fk_id_mrc_prod') {
+                const marca = marcas.find((marca) => marca.id_mrc === product[valor]);
+                td.innerText = marca ? marca.nombre_mrc : '';
+                tr.appendChild(td);
+            } else if (valor == 'fk_id_ctgr_prod') {
+                const categoria = categorias.find((categoria) => categoria.id_ctgr === product[valor]);
+                td.innerText = categoria ? categoria.nombre_ctgr : '';
+                tr.appendChild(td);
+            } else if (valor == 'imagen_prod') {
+                let img = document.createElement('img');
+                img.classList.add('tbody__img');
+                img.setAttribute('src', '../modelos/imagenes/' + product[valor]);
+                td.appendChild(img);
+                tr.appendChild(td);
             } else {
-                mostrarAlerta("El producto ya se encuentra en la lista");
+                td.innerText = product[valor];
+                tr.appendChild(td);
             }
+        }
+
+        let td = document.createElement('td');
+        td.innerHTML = `
+            <img src='../imagenes/send.svg' onclick='sendProduct(${product.id_prod})' title='Seleccionar'>`;
+        tr.appendChild(td);
+        fragment.appendChild(tr);
+    }
+    tbody.innerHTML = '';
+    tbody.appendChild(fragment);
+}
+function sendProduct(id_prod) {
+    const product = filterProductsMW.find(prod => prod['id_prod'] === id_prod);
+    if (product) {
+        let cart__items = document.querySelectorAll(`#cmp_prod${formBuy}MW div.modal__body div.cart__item`);
+        const existe = Array.from(cart__items).some(prod => prod.children[0].value === id_prod);
+        if (!existe) {
+            let inventario = inventories.find(inventory => inventory.fk_id_prod_inv == product['id_prod']);
+            if (inventario != undefined) {
+                product['cost_uni_inv'] = inventario['cost_uni_inv'];
+            } else {
+                product['cost_uni_inv'] = 0;
+            }
+            if (formBuy == 'R') {
+                cartProduct_cppdR(product);
+            } else if (formBuy != 'R') {
+                cartProduct_cppdM(product, formBuy);
+            }
+        } else {
+            mostrarAlerta("El producto ya se encuentra en la lista");
         }
     }
 }
@@ -1526,9 +1514,9 @@ async function readAllCategorias() {
     })
 }
 /***************************MARCA Y CATEGORIA PARA FORMULARIO DE REGSITRO DE PRODUCTOS***************************/
-const marca_prodR = document.getElementById('marca_prodR');
+const marca_prodR = document.getElementById('fk_id_mrc_prodR');
 marca_prodR.addEventListener('change', selectCategoriaProdR);
-const categoria_prodR = document.getElementById('categoria_prodR');
+const categoria_prodR = document.getElementById('fk_id_ctgr_prodR');
 //-------Select de marcas registrar
 function selectMarcaProdR() {
     marca_prodR.innerHTML = '';
@@ -1536,12 +1524,12 @@ function selectMarcaProdR() {
     option.value = 'todasLasMarcas';
     option.innerText = 'Todas las marcas';
     marca_prodR.appendChild(option);
-    for (let clave in marcas) {
+    marcas.forEach(marca => {
         let option = document.createElement('option');
-        option.value = marcas[clave]['id_mrc'];
-        option.innerText = marcas[clave]['nombre_mrc'];
+        option.value = marca.id_mrc;
+        option.innerText = marca.nombre_mrc;
         marca_prodR.appendChild(option);
-    }
+    });
     selectCategoriaProdR();
 }
 function selectCategoriaProdR() {
@@ -1552,52 +1540,53 @@ function selectCategoriaProdR() {
     categoria_prodR.appendChild(option);
     if (marca_prodR.value != 'todasLasMarcas') {
         let id_mrc = marca_prodR.value;
-        for (let clave in categorias) {
-            if (categorias[clave]['id_mrc'] == id_mrc) {
+        categorias.forEach(categoria => {
+            if (categoria.fk_id_mrc_mccr == id_mrc) {
                 let option = document.createElement('option');
-                option.value = categorias[clave]['id_ctgr'];
-                option.innerText = categorias[clave]['nombre_ctgr'];
+                option.value = categoria.id_ctgr;
+                option.innerText = categoria.nombre_ctgr;
                 categoria_prodR.appendChild(option);
             }
-        }
+        });
     }
 }
-const marca_prodM = document.getElementById('marca_prodM');
-marca_prodM.addEventListener('change', selectCategoriaProdM);
-const categoria_prodM = document.getElementById('categoria_prodM');
+const fk_id_mrc_prodM = document.getElementById('fk_id_mrc_prodM');
+fk_id_mrc_prodM.addEventListener('change', selectCategoriaProdM);
+const fk_id_ctgr_prodM = document.getElementById('fk_id_ctgr_prodM');
 //-------Select de marcas registrar
 function selectMarcaProdM() {
-    marca_prodM.innerHTML = '';
+    fk_id_mrc_prodM.innerHTML = '';
     let option = document.createElement('option');
     option.value = 'todasLasMarcas';
     option.innerText = 'Todas las marcas';
-    marca_prodM.appendChild(option);
+    fk_id_mrc_prodM.appendChild(option);
     for (let clave in marcas) {
         let option = document.createElement('option');
         option.value = marcas[clave]['id_mrc'];
         option.innerText = marcas[clave]['nombre_mrc'];
-        marca_prodM.appendChild(option);
+        fk_id_mrc_prodM.appendChild(option);
     }
-    selectCategoriaProdM();
 }
 function selectCategoriaProdM() {
-    categoria_prodM.innerHTML = '';
+    fk_id_ctgr_prodM.innerHTML = '';
     let option = document.createElement('option');
     option.value = 'todasLasCategorias';
     option.innerText = 'Todas las categorias';
-    categoria_prodM.appendChild(option);
-    if (marca_prodM.value != 'todasLasMarcas') {
-        let id_mrc = marca_prodM.value;
-        for (let clave in categorias) {
-            if (categorias[clave]['id_mrc'] == id_mrc) {
+    fk_id_ctgr_prodM.appendChild(option);
+    if (fk_id_mrc_prodM.value != 'todasLasMarcas') {
+        let id_mrc = fk_id_mrc_prodM.value;
+        categorias.forEach(categoria => {
+            if (categoria.fk_id_mrc_mccr == id_mrc) {
                 let option = document.createElement('option');
-                option.value = categorias[clave]['id_ctgr'];
-                option.innerText = categorias[clave]['nombre_ctgr'];
-                categoria_prodM.appendChild(option);
+                option.value = categoria.id_ctgr;
+                option.innerText = categoria.nombre_ctgr;
+                fk_id_ctgr_prodM.appendChild(option);
             }
-        }
+        });
     }
+    searchProducts();
 }
+/*----------------------------------------------Marca y categoria  modal product-------------------------------------------------*/
 //-------Select de marcas
 function selectMarcaProductMW() {
     selectMarcaProdMW.innerHTML = '';
@@ -1621,14 +1610,14 @@ function selectCategoriaProductMW() {
     selectCategoriaProdMW.appendChild(option);
     if (selectMarcaProdMW.value != 'todasLasMarcas') {
         let id_mrc = selectMarcaProdMW.value;
-        for (let clave in categorias) {
-            if (categorias[clave]['id_mrc'] == id_mrc) {
+        categorias.forEach(categoria => {
+            if (categoria.fk_id_mrc_mccr == id_mrc) {
                 let option = document.createElement('option');
-                option.value = categorias[clave]['id_ctgr'];
-                option.innerText = categorias[clave]['nombre_ctgr'];
+                option.value = categoria.id_ctgr;
+                option.innerText = categoria.nombre_ctgr;
                 selectCategoriaProdMW.appendChild(option);
             }
-        }
+        });
     }
     searchProductsMW();
 }
@@ -2138,8 +2127,8 @@ marca_prodR.addEventListener('change', () => {
         divCodigoSMCR.setAttribute('hidden', '');
     }
 });
-marca_prodM.addEventListener('change', () => {
-    if (marca_prodM.value == '15') {
+fk_id_mrc_prodM.addEventListener('change', () => {
+    if (fk_id_mrc_prodM.value == '15') {
         divCodigoSMCM.removeAttribute('hidden');
     } else {
         divCodigoSMCM.setAttribute('hidden', '');
