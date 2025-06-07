@@ -2734,52 +2734,77 @@ function paginacionProductMW(allProducts, page) {
     tableProductsMW(page);
 }
 //------Crear la tabla
-function tableProductsMW(page) {
-    let tbody = document.getElementById('tbodyProductMW');
-    let inicio = (page - 1) * Number(selectNumberProdMW.value);
-    let final = inicio + Number(selectNumberProdMW.value);
-    let fragment = document.createDocumentFragment();
+function tableProductsMW(page) {   
+    const tbody = document.getElementById('tbodyProductMW');
+    const inicio = (page - 1) * Number(selectNumberProdMW.value);
+    const final = inicio + Number(selectNumberProdMW.value);
+    const products = filterProductsMW.slice(inicio, final);
+    tbody.innerHTML = '';
+    products.forEach((product, index) => {
 
-    for (let product of filterProductsMW.slice(inicio, final)) {
-        let tr = document.createElement('tr');
+        const marca = marcas.find(marca => marca.id_mrc === product.fk_id_mrc_prod);
+        const categoria = categorias.find(categoria => categoria.id_ctgr === product.fk_id_ctgr_prod);
+        const inventarioArce = inventories.find(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 1);
+        const inventarioAlto = inventories.find(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 0);
+        const stock = (inventarioArce ? inventarioArce.cantidad_inv : 0) + (inventarioAlto ? inventarioAlto.cantidad_inv : 0);
+
+        const tr = document.createElement('tr');
         tr.setAttribute('id_prod', product.id_prod);
 
-        let tdIndex = document.createElement('td');
-        tdIndex.innerText = inicio + filterProductsMW.indexOf(product) + 1;
+        const tdIndex = document.createElement('td');
+        tdIndex.innerText = inicio + index + 1;
         tr.appendChild(tdIndex);
 
-        for (let valor in product) {
-            let td = document.createElement('td');
-            if (valor == 'id_prod' || valor == 'codigo_smc_prod' || valor == 'catalogo_prod') {
-                // No hacer nada
-            } else if (valor == 'fk_id_mrc_prod') {
-                const marca = marcas.find((marca) => marca.id_mrc === product[valor]);
-                td.innerText = marca ? marca.nombre_mrc : '';
-                tr.appendChild(td);
-            } else if (valor == 'fk_id_ctgr_prod') {
-                const categoria = categorias.find((categoria) => categoria.id_ctgr === product[valor]);
-                td.innerText = categoria ? categoria.nombre_ctgr : '';
-                tr.appendChild(td);
-            } else if (valor == 'imagen_prod') {
-                let img = document.createElement('img');
-                img.classList.add('tbody__img');
-                img.setAttribute('src', '../modelos/imagenes/' + product[valor]);
-                td.appendChild(img);
-                tr.appendChild(td);
-            } else {
-                td.innerText = product[valor];
-                tr.appendChild(td);
-            }
-        }
+        const tdCodigo = document.createElement('td');
+        tdCodigo.innerText = product.codigo_prod;
+        tr.appendChild(tdCodigo);
 
-        let td = document.createElement('td');
-        td.innerHTML = `
-            <img src='../imagenes/send.svg' onclick='sendProduct(${product.id_prod})' title='Seleccionar'>`;
-        tr.appendChild(td);
-        fragment.appendChild(tr);
-    }
-    tbody.innerHTML = '';
-    tbody.appendChild(fragment);
+        const tdMarca = document.createElement('td');
+        tdMarca.innerText = marca ? marca.nombre_mrc : '';
+        tr.appendChild(tdMarca);
+
+        const tdCategoria = document.createElement('td');
+        tdCategoria.innerText = categoria ? categoria.nombre_ctgr : '';
+        tr.appendChild(tdCategoria);
+
+        const tdNombre = document.createElement('td');
+        tdNombre.innerText = product.nombre_prod;
+        tr.appendChild(tdNombre);
+
+        const tdDescripcion = document.createElement('td');
+        tdDescripcion.innerText = product.descripcion_prod;
+        tr.appendChild(tdDescripcion);
+
+        const tdImagen = document.createElement('td');
+        const img = document.createElement('img');
+        img.classList.add('tbody__img');
+        img.setAttribute('src', '../modelos/imagenes/' + product.imagen_prod);
+        tdImagen.appendChild(img);
+        tr.appendChild(tdImagen);
+
+        const tdStock = document.createElement('td');
+        tdStock.innerText = stock > 0 ? stock : 'Sin Stock';
+        tr.appendChild(tdStock);
+
+        const tdAcciones = document.createElement('td');
+        const fragment = document.createDocumentFragment();
+        let imgs = [];
+
+        imgs.push({ src: '../imagenes/send.svg', onclick: `sendProduct(${product.id_prod})`, title: 'Seleccionar' });
+
+        imgs.forEach((img) => {
+            const imgElement = document.createElement('img');
+            imgElement.src = img.src;
+            imgElement.onclick = new Function(img.onclick);
+            imgElement.title = img.title;
+            fragment.appendChild(imgElement);
+        });
+
+        tdAcciones.appendChild(fragment);
+        tr.appendChild(tdAcciones);
+
+        tbody.appendChild(tr);
+    });
 }
 function sendProduct(id_prod) {
     const product = filterProductsMW.find(prod => prod['id_prod'] === id_prod);

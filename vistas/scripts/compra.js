@@ -33,7 +33,7 @@ async function init() {
             preloader.classList.remove('modal__show');
         } catch (error) {
             console.log(error);
-            //mostrarAlerta('Error al cargar los datos: ' + error.message);
+            mostrarAlerta('Error al cargar los datos: ' + error.message);
         }
     }
 }
@@ -1326,52 +1326,77 @@ function paginacionProductMW(allProducts, page) {
     tableProductsMW(page);
 }
 //------Crear la tabla
-function tableProductsMW(page) {
-    let tbody = document.getElementById('tbodyProductMW');
-    let inicio = (page - 1) * Number(selectNumberProdMW.value);
-    let final = inicio + Number(selectNumberProdMW.value);
-    let fragment = document.createDocumentFragment();
+function tableProductsMW(page) {   
+    const tbody = document.getElementById('tbodyProductMW');
+    const inicio = (page - 1) * Number(selectNumberProdMW.value);
+    const final = inicio + Number(selectNumberProdMW.value);
+    const products = filterProductsMW.slice(inicio, final);
+    tbody.innerHTML = '';
+    products.forEach((product, index) => {
 
-    for (let product of filterProductsMW.slice(inicio, final)) {
-        let tr = document.createElement('tr');
+        const marca = marcas.find(marca => marca.id_mrc === product.fk_id_mrc_prod);
+        const categoria = categorias.find(categoria => categoria.id_ctgr === product.fk_id_ctgr_prod);
+        const inventarioArce = inventories.find(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 1);
+        const inventarioAlto = inventories.find(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 0);
+        const stock = (inventarioArce ? inventarioArce.cantidad_inv : 0) + (inventarioAlto ? inventarioAlto.cantidad_inv : 0);
+
+        const tr = document.createElement('tr');
         tr.setAttribute('id_prod', product.id_prod);
 
-        let tdIndex = document.createElement('td');
-        tdIndex.innerText = inicio + filterProductsMW.indexOf(product) + 1;
+        const tdIndex = document.createElement('td');
+        tdIndex.innerText = inicio + index + 1;
         tr.appendChild(tdIndex);
 
-        for (let valor in product) {
-            let td = document.createElement('td');
-            if (valor == 'id_prod' || valor == 'codigo_smc_prod' || valor == 'catalogo_prod') {
-                // No hacer nada
-            } else if (valor == 'fk_id_mrc_prod') {
-                const marca = marcas.find((marca) => marca.id_mrc === product[valor]);
-                td.innerText = marca ? marca.nombre_mrc : '';
-                tr.appendChild(td);
-            } else if (valor == 'fk_id_ctgr_prod') {
-                const categoria = categorias.find((categoria) => categoria.id_ctgr === product[valor]);
-                td.innerText = categoria ? categoria.nombre_ctgr : '';
-                tr.appendChild(td);
-            } else if (valor == 'imagen_prod') {
-                let img = document.createElement('img');
-                img.classList.add('tbody__img');
-                img.setAttribute('src', '../modelos/imagenes/' + product[valor]);
-                td.appendChild(img);
-                tr.appendChild(td);
-            } else {
-                td.innerText = product[valor];
-                tr.appendChild(td);
-            }
-        }
+        const tdCodigo = document.createElement('td');
+        tdCodigo.innerText = product.codigo_prod;
+        tr.appendChild(tdCodigo);
 
-        let td = document.createElement('td');
-        td.innerHTML = `
-            <img src='../imagenes/send.svg' onclick='sendProduct(${product.id_prod})' title='Seleccionar'>`;
-        tr.appendChild(td);
-        fragment.appendChild(tr);
-    }
-    tbody.innerHTML = '';
-    tbody.appendChild(fragment);
+        const tdMarca = document.createElement('td');
+        tdMarca.innerText = marca ? marca.nombre_mrc : '';
+        tr.appendChild(tdMarca);
+
+        const tdCategoria = document.createElement('td');
+        tdCategoria.innerText = categoria ? categoria.nombre_ctgr : '';
+        tr.appendChild(tdCategoria);
+
+        const tdNombre = document.createElement('td');
+        tdNombre.innerText = product.nombre_prod;
+        tr.appendChild(tdNombre);
+
+        const tdDescripcion = document.createElement('td');
+        tdDescripcion.innerText = product.descripcion_prod;
+        tr.appendChild(tdDescripcion);
+
+        const tdImagen = document.createElement('td');
+        const img = document.createElement('img');
+        img.classList.add('tbody__img');
+        img.setAttribute('src', '../modelos/imagenes/' + product.imagen_prod);
+        tdImagen.appendChild(img);
+        tr.appendChild(tdImagen);
+
+        const tdStock = document.createElement('td');
+        tdStock.innerText = stock > 0 ? stock : 'Sin Stock';
+        tr.appendChild(tdStock);
+
+        const tdAcciones = document.createElement('td');
+        const fragment = document.createDocumentFragment();
+        let imgs = [];
+
+        imgs.push({ src: '../imagenes/send.svg', onclick: `sendProduct(${product.id_prod})`, title: 'Seleccionar' });
+
+        imgs.forEach((img) => {
+            const imgElement = document.createElement('img');
+            imgElement.src = img.src;
+            imgElement.onclick = new Function(img.onclick);
+            imgElement.title = img.title;
+            fragment.appendChild(imgElement);
+        });
+
+        tdAcciones.appendChild(fragment);
+        tr.appendChild(tdAcciones);
+
+        tbody.appendChild(tr);
+    });
 }
 function sendProduct(id_prod) {
     const product = filterProductsMW.find(prod => prod['id_prod'] === id_prod);
@@ -1379,13 +1404,7 @@ function sendProduct(id_prod) {
         let cart__items = document.querySelectorAll(`#cmp_prod${formBuy}MW div.modal__body div.cart__item`);
         const existe = Array.from(cart__items).some(prod => prod.children[0].value === id_prod);
         if (!existe) {
-            let inventario = inventories.find(inventory => inventory.fk_id_prod_inv == product['id_prod']);
-            if (inventario != undefined) {
-                product['cost_uni_inv'] = inventario['cost_uni_inv'];
-            } else {
-                product['cost_uni_inv'] = 0;
-            }
-            if (formBuy == 'R') {
+            if (formBuy === 'R') {
                 cartProduct_cppdR(product);
             } else if (formBuy != 'R') {
                 cartProduct_cppdM(product, formBuy);
@@ -1397,24 +1416,85 @@ function sendProduct(id_prod) {
 }
 const cmpProdRMW = document.querySelector('#cmp_prodRMW div.modal__body');
 function cartProduct_cppdR(product) {
-    let row = prices.find(price => price.modelo == product['codigo_prod']);
-    if (row != undefined) {
-        product['cost_uni_inv'] = Math.round(Number(row.precio));;
-    }
-    let item = document.createElement('div');
+    const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === product['id_prod'] && inventory.ubi_almacen === 0);
+    const inventoriesArce = inventories.filter(inventory => inventory.fk_id_prod_inv === product['id_prod'] && inventory.ubi_almacen === 1);
+
+    const cantidad_invAlto = inventoriesAlto.length > 0 ? inventoriesAlto[0].cantidad_inv : 0;
+    const cantidad_invArce = inventoriesArce.length > 0 ? inventoriesArce[0].cantidad_inv : 0;
+    const cantidad_invTotal = cantidad_invAlto + cantidad_invArce;
+
+    const cost_uni2 = prices.find(price => price.modelo.trim() === product.codigo_prod);
+    const cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio) * 1.1) : (inventoriesAlto.length > 0 ? Math.round(inventoriesAlto[0].cost_uni_inv * 1.1) : (inventoriesArce.length > 0 ? Math.round(inventoriesArce[0].cost_uni_inv * 1.1) : 0));
+
+    const item = document.createElement('div');
     item.classList.add('cart__item');
-    let html =
-        `<input type="hidden"  value = "${product['id_prod']}" class="cart__item--id">
-        <input type="text" value = "${product['codigo_prod']}" class="cart__item--code">
-        <textarea class="cart__item--name">${product['nombre_prod']}</textarea>
-        <input type="number" value = "1" min="1" onChange="changeQuantityCPPDR(this.parentNode)" class="cart__item--quantity">
-        <input type="number" value = "${product['cost_uni_inv']}" onChange="changeQuantityCPPDR(this.parentNode)" class="cart__item--costUnit">
-        <input type="number" value = "${product['cost_uni_inv']}" class="cart__item--costTotal" readonly>
-        <input type="text" class="cart__item--observacion">
-        <img src="../imagenes/trash.svg" onClick="removeCartR(this.parentNode)" class='icon__CRUD'>`;
-    item.innerHTML = html;
+    item.setAttribute('id_prod', product['id_prod']);
+    item.setAttribute('draggable', 'true');
+
+    const cantidadInvParagraph = document.createElement('p');
+    cantidadInvParagraph.classList.add('cart__item--cantInv');
+
+    if (cantidad_invAlto > 0 && cantidad_invArce > 0) {
+        cantidadInvParagraph.classList.add('almacen-ambos');
+    } else if (cantidad_invAlto > 0) {
+        cantidadInvParagraph.classList.add('almacen-alto');
+    } else if (cantidad_invArce > 0) {
+        cantidadInvParagraph.classList.add('almacen-arce');
+    }
+
+    cantidadInvParagraph.textContent = cantidad_invTotal;
+    item.appendChild(cantidadInvParagraph);
+
+    const codigoParagraph = document.createElement('p');
+    codigoParagraph.classList.add('cart__item--code');
+    codigoParagraph.textContent = product['codigo_prod'];
+    item.appendChild(codigoParagraph);
+
+    function updateCostTotal(cantidadInput, costUnitInput, costTotalInput) {
+        const cantidad = parseInt(cantidadInput.value);
+        const costUnit = parseFloat(costUnitInput.value);
+        const costTotal = cantidad * costUnit;
+        costTotalInput.value = costTotal;
+        totalPriceCPPDR();
+    }
+
+    const cantidadInput = document.createElement('input');
+    cantidadInput.type = 'number';
+    cantidadInput.value = '1';
+    cantidadInput.min = '1';
+    cantidadInput.classList.add('cart__item--quantity');
+    cantidadInput.addEventListener('change', (e) => {
+        const costUnitInput = e.target.parentNode.querySelector('.cart__item--costUnit');
+        const costTotalInput = e.target.parentNode.querySelector('.cart__item--costTotal');
+        updateCostTotal(e.target, costUnitInput, costTotalInput);
+    });
+
+    item.appendChild(cantidadInput);
+
+    const costUnitInput = document.createElement('input');
+    costUnitInput.type = 'number';
+    costUnitInput.value = cost_uni;
+    costUnitInput.classList.add('cart__item--costUnit');
+    costUnitInput.addEventListener('change', (e) => {
+        const cantidadInput = e.target.parentNode.querySelector('.cart__item--quantity');
+        const costTotalInput = e.target.parentNode.querySelector('.cart__item--costTotal');
+        updateCostTotal(cantidadInput, e.target, costTotalInput);
+    });
+    item.appendChild(costUnitInput);
+
+    const costTotalInput = document.createElement('input');
+    costTotalInput.type = 'number';
+    costTotalInput.value = cost_uni;
+    costTotalInput.classList.add('cart__item--costTotal');
+    costTotalInput.readOnly = true;
+    item.appendChild(costTotalInput);
+
+    const trashImg = document.createElement('img');
+    trashImg.src = '../imagenes/trash.svg';
+    trashImg.classList.add('icon__CRUD');
+    trashImg.addEventListener('click', (e) => removeCartR(e.target.parentNode));
+    item.appendChild(trashImg);
     cmpProdRMW.appendChild(item);
-    totalPriceCPPDR();
 }
 function cartProduct_cppdM(product, id_cmp) {
     let body = document.getElementById('productBuyMW').querySelector('.modal__body');
