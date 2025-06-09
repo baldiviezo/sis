@@ -149,6 +149,13 @@
 			</div>
 			<form id="formBuyR" class="form">
 				<div class="form__container">
+					<label class="form__label--only">Almacen:</label>
+					<div class="form__group--select">
+						<select id="selectAlmacenInventory" class="select__marca">
+							<option value="0">EL ALTO</option>
+							<option value="1">AV. ARCE</option>
+						</select>
+					</div>
 					<div class="form__group">
 						<input type="text" name="fecha_cmpR" placeholder=" " class="form__input" readonly>
 						<label for="fecha_cmpR" class="form__label">Fecha:</label>
@@ -215,6 +222,9 @@
 				<table>
 					<thead>
 						<tr>
+							<td>N°</td>
+							<td>Stock</td>
+							<td>Imagen</td>
 							<td>Codigo</td>
 							<td>Descripcion</td>
 							<td>Cant.</td>
@@ -226,7 +236,11 @@
 					</thead>
 				</table>
 			</div>
-			<div class="modal__body">
+			<div class="container--modal__body">
+				<div class="modal__body--number">
+				</div>
+				<div class="modal__body">
+				</div>
 			</div>
 			<div class="foot">
 				<div class="foot__left">
@@ -342,13 +356,13 @@
 						<input type="text" name="cantidad_cppd" placeholder=" " class="form__input" readonly>
 						<label for="cantidad_cppd" class="form__label">Cantidad:</label>
 					</div>
-						<label class="form__label--only">Almacen:</label>
-						<div class="form__group--select">
-							<select id="ubicacionAlamacen" name="ubi_alamcen">
-								<option value="0">El Alto</option>
-								<option value="1">Avenida Arce</option>
-							</select>
-						</div>
+					<label class="form__label--only">Almacen:</label>
+					<div class="form__group--select">
+						<select id="ubicacionAlamacen" name="ubi_alamcen">
+							<option value="0">El Alto</option>
+							<option value="1">Avenida Arce</option>
+						</select>
+					</div>
 					<div class="form__group">
 						<input type="date" name="fecha_entrega_cppd" id="fecha_entrega_cppd" placeholder=" "
 							class="form__input">
@@ -657,7 +671,6 @@
 								<th>Descripcion</th>
 								<th>Imagen</th>
 								<th>Stock</th>
-								<th>Costo unitario</th>
 								<th>Acciones</th>
 							</tr>
 						</thead>

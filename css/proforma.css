@@ -873,7 +873,7 @@ button:hover {
 }
 
 /*****************/
-.almacen-ambos {
+.almacen-alto {
   font-size: 1rem;
   color: #ff0000; 
   background-color: #ff7f7f; 
@@ -881,17 +881,18 @@ button:hover {
   border-radius: 2px;
 }
 
-.almacen-alto {
+.almacen-ambos {
   font-size: 1rem;
-  color: #006600; 
-  background-color: #7fff7f; 
+  color: #000;
+  background-color: #f6ff7f;
   padding: 2px 4px;
   border-radius: 2px;
 }
 
+
 .almacen-arce {
   font-size: 1rem;
-  color: #0000ff;
-  background-color: #7f7fff; 
+  color: #006600; 
+  background-color: #7fff7f;
   border-radius: 2px;
 }

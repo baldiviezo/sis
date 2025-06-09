@@ -300,7 +300,7 @@ async function createBuy() {
 
         const productos = [];
         for (let producto of cmp_prodRMW.querySelectorAll('div.cart__item')) {
-            
+
             productos.push({
                 fk_id_prod_cppd: producto.children[0].value,
                 descripcion_cppd: producto.children[2].value,
@@ -1326,7 +1326,7 @@ function paginacionProductMW(allProducts, page) {
     tableProductsMW(page);
 }
 //------Crear la tabla
-function tableProductsMW(page) {   
+function tableProductsMW(page) {
     const tbody = document.getElementById('tbodyProductMW');
     const inicio = (page - 1) * Number(selectNumberProdMW.value);
     const final = inicio + Number(selectNumberProdMW.value);
@@ -1339,6 +1339,7 @@ function tableProductsMW(page) {
         const inventarioArce = inventories.find(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 1);
         const inventarioAlto = inventories.find(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 0);
         const stock = (inventarioArce ? inventarioArce.cantidad_inv : 0) + (inventarioAlto ? inventarioAlto.cantidad_inv : 0);
+        const costUnit = (inventarioArce ? inventarioArce.cost_uni_inv : 0) + (inventarioAlto ? inventarioAlto.cost_uni_inv : 0);
 
         const tr = document.createElement('tr');
         tr.setAttribute('id_prod', product.id_prod);
@@ -1378,6 +1379,8 @@ function tableProductsMW(page) {
         tdStock.innerText = stock > 0 ? stock : 'Sin Stock';
         tr.appendChild(tdStock);
 
+
+
         const tdAcciones = document.createElement('td');
         const fragment = document.createDocumentFragment();
         let imgs = [];
@@ -1399,25 +1402,44 @@ function tableProductsMW(page) {
     });
 }
 function sendProduct(id_prod) {
-    const product = filterProductsMW.find(prod => prod['id_prod'] === id_prod);
-    if (product) {
-        let cart__items = document.querySelectorAll(`#cmp_prod${formBuy}MW div.modal__body div.cart__item`);
-        const existe = Array.from(cart__items).some(prod => prod.children[0].value === id_prod);
-        if (!existe) {
-            if (formBuy === 'R') {
-                cartProduct_cppdR(product);
-            } else if (formBuy != 'R') {
-                cartProduct_cppdM(product, formBuy);
-            }
-        } else {
-            mostrarAlerta("El producto ya se encuentra en la lista");
-        }
+    if (formBuy === 'R') {
+        const row = cartProduct_cppdR(id_prod, cmpProdRMW, totalPriceCPPDR);
+        cmpProdRMW.appendChild(row);
+        //Drang and drop
+        console.log(cmpProdRMW)
+        const items = cmpProdRMW.querySelectorAll(".cart__item");
+        console.log(items)
+        items.forEach(item => {
+            item.addEventListener("dragstart", () => {
+                setTimeout(() => item.classList.add("dragging"), 0);
+            });
+            item.addEventListener("dragend", () => item.classList.remove("dragging"));
+        });
+        cmpProdRMW.addEventListener("dragover", initSortableList);
+        cmpProdRMW.addEventListener("dragenter", e => e.preventDefault());
+        totalPriceCPPDR();
+    } else if (formBuy != 'R') {
+        cartProduct_cppdM(id_prod, formBuy);
     }
 }
+const initSortableList = (e) => {
+    e.preventDefault();
+    const draggingItem = document.querySelector(".dragging");
+
+    let siblings = [...cmpProdRMW.querySelectorAll(".cart__item:not(.dragging)")];
+
+    let nextSibling = siblings.find(sibling => {
+        const rect = sibling.getBoundingClientRect();
+        return e.clientY <= rect.top + rect.height / 2;
+    });
+
+    cmpProdRMW.insertBefore(draggingItem, nextSibling);
+}
 const cmpProdRMW = document.querySelector('#cmp_prodRMW div.modal__body');
-function cartProduct_cppdR(product) {
-    const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === product['id_prod'] && inventory.ubi_almacen === 0);
-    const inventoriesArce = inventories.filter(inventory => inventory.fk_id_prod_inv === product['id_prod'] && inventory.ubi_almacen === 1);
+function cartProduct_cppdR(id_prod, contenedor, totalPrice) {
+    const product = filterProductsMW.find(product => product['id_prod'] == id_prod);
+    const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === id_prod && inventory.ubi_almacen === 0);
+    const inventoriesArce = inventories.filter(inventory => inventory.fk_id_prod_inv === id_prod && inventory.ubi_almacen === 1);
 
     const cantidad_invAlto = inventoriesAlto.length > 0 ? inventoriesAlto[0].cantidad_inv : 0;
     const cantidad_invArce = inventoriesArce.length > 0 ? inventoriesArce[0].cantidad_inv : 0;
@@ -1432,7 +1454,7 @@ function cartProduct_cppdR(product) {
     item.setAttribute('draggable', 'true');
 
     const cantidadInvParagraph = document.createElement('p');
-    cantidadInvParagraph.classList.add('cart__item--cantInv');
+    cantidadInvParagraph.classList.add('cart__item--stock');
 
     if (cantidad_invAlto > 0 && cantidad_invArce > 0) {
         cantidadInvParagraph.classList.add('almacen-ambos');
@@ -1445,10 +1467,20 @@ function cartProduct_cppdR(product) {
     cantidadInvParagraph.textContent = cantidad_invTotal;
     item.appendChild(cantidadInvParagraph);
 
+    const img = document.createElement('img');
+    img.src = `../modelos/imagenes/${product['imagen_prod']}`;
+    img.classList.add('cart__item--img');
+    item.appendChild(img);
+
     const codigoParagraph = document.createElement('p');
     codigoParagraph.classList.add('cart__item--code');
     codigoParagraph.textContent = product['codigo_prod'];
     item.appendChild(codigoParagraph);
+
+    const descripcionTextarea = document.createElement('textarea');
+    descripcionTextarea.classList.add('cart__item--name');
+    descripcionTextarea.textContent = product['nombre_prod'];
+    item.appendChild(descripcionTextarea);
 
     function updateCostTotal(cantidadInput, costUnitInput, costTotalInput) {
         const cantidad = parseInt(cantidadInput.value);
@@ -1489,12 +1521,18 @@ function cartProduct_cppdR(product) {
     costTotalInput.readOnly = true;
     item.appendChild(costTotalInput);
 
+    const observacionInput = document.createElement('input');
+    observacionInput.type = 'text';
+    observacionInput.placeholder = 'Observaciones';
+    observacionInput.classList.add('cart__item--observacion');
+    item.appendChild(observacionInput);
+
     const trashImg = document.createElement('img');
     trashImg.src = '../imagenes/trash.svg';
     trashImg.classList.add('icon__CRUD');
-    trashImg.addEventListener('click', (e) => removeCartR(e.target.parentNode));
+    trashImg.addEventListener('click', (e) => removeCartR(e, contenedor, totalPrice));
     item.appendChild(trashImg);
-    cmpProdRMW.appendChild(item);
+    return item;
 }
 function cartProduct_cppdM(product, id_cmp) {
     let body = document.getElementById('productBuyMW').querySelector('.modal__body');
@@ -1516,10 +1554,11 @@ function cartProduct_cppdM(product, id_cmp) {
     body.appendChild(div);
 }
 //-------Eliminar producto 
-function removeCartR(product) {
-    let listProducts = document.querySelector('#cmp_prodRMW div.modal__body');
-    listProducts.removeChild(product);
-    totalPriceCPPDR();
+function removeCartR(e, container, total) {
+    console.log(container)
+    const item = e.target.parentNode;
+    container.removeChild(item);
+    total();
 }
 //-------Cuando cambia la cantidad
 function changeQuantityCPPDR(product) {
@@ -1534,6 +1573,7 @@ const subTotalCPRMW = document.getElementById('subTotalCPRMW');
 const descCPRMW = document.getElementById('descCPRMW');
 const totalCPRMW = document.getElementById('totalCPRMW');
 function totalPriceCPPDR() {
+    console.log('totalPriceCPPDR');
     let divs = document.querySelectorAll('#cmp_prodRMW div.modal__body div.cart__item');
     let total = 0;
     let desc = 0;
