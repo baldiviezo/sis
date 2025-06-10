@@ -1406,9 +1406,7 @@ function sendProduct(id_prod) {
         const row = cartProduct_cppdR(id_prod, cmpProdRMW, totalPriceCPPDR);
         cmpProdRMW.appendChild(row);
         //Drang and drop
-        console.log(cmpProdRMW)
         const items = cmpProdRMW.querySelectorAll(".cart__item");
-        console.log(items)
         items.forEach(item => {
             item.addEventListener("dragstart", () => {
                 setTimeout(() => item.classList.add("dragging"), 0);
@@ -1560,34 +1558,38 @@ function removeCartR(e, container, total) {
     container.removeChild(item);
     total();
 }
-//-------Cuando cambia la cantidad
-function changeQuantityCPPDR(product) {
-    let cantidad_prod = product.children[3].value;
-    let costo_uni = product.children[4].value;
-    let cost_uni_total = cantidad_prod * costo_uni;
-    product.children[5].value = cost_uni_total.toFixed(2);
-    totalPriceCPPDR();
-}
+
 const quantityCPRMW = document.getElementById('quantityCPRMW');
 const subTotalCPRMW = document.getElementById('subTotalCPRMW');
 const descCPRMW = document.getElementById('descCPRMW');
 const totalCPRMW = document.getElementById('totalCPRMW');
+const descuento_cmpR = document.getElementById('descuento_cmpR');
+const numberCPRMW = cmp_prodRMW.querySelector('div.modal__body--number');
 function totalPriceCPPDR() {
-    console.log('totalPriceCPPDR');
-    let divs = document.querySelectorAll('#cmp_prodRMW div.modal__body div.cart__item');
+    const divs = cmpProdRMW.querySelectorAll('.cart__item');
     let total = 0;
-    let desc = 0;
-    divs.forEach(div => {
-        costo_uni = Number(div.children[5].value);
-        total = total + costo_uni;
-    })
+    if (divs.length > 0) {
+        divs.forEach(div => {
+            const costoTotal = div.querySelector('.cart__item--costTotal').value;
+            const costo = parseFloat(costoTotal);
+            if (!isNaN(costo)) {
+                total += costo;
+            }
+        });
+    }
+    const descuento = total * (descuento_cmpR.value / 100);
     subTotalCPRMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2) + ' Bs';
-    desc = document.getElementsByName('descuento_cmpR')[0].value * total / 100;
-    desc = desc.toFixed(2);
-    descCPRMW.innerHTML = `Desc. ${document.getElementsByName('descuento_cmpR')[0].value}% (Bs): ${desc} Bs`;
-    totalCPRMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2) - desc).toFixed(2)} Bs`;
-    document.getElementsByName('total_cmpR')[0].value = Number(total.toFixed(2) - desc).toFixed(2);
+    descCPRMW.innerHTML = `Desc. ${descuento_cmpR.value}% (Bs): ${descuento.toFixed(2)} Bs`;
+    totalCPRMW.innerHTML = `Total (Bs): ${(total - descuento).toFixed(2)} Bs`;
     quantityCPRMW.innerHTML = divs.length;
+    numberCPRMW.innerHTML = '';
+    for (let i = 1; i <= divs.length; i++) {
+        const div = document.createElement('div');
+        div.classList.add('modal__body--index');
+        div.innerText = i;
+        numberCPRMW.appendChild(div);
+    }
+
 }
 //---------------------------VENTANA MODAL PARA BUSCAR PRODUCTOS
 const productSMW = document.getElementById('productSMW');

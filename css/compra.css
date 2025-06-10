@@ -1,5 +1,5 @@
 /*************************************Modal Producto-Proforma ***********************************/
-.modal__container--cppd{
+.modal__container--cppd {
 	margin: auto;
 	background-color: #fff;
 	width: 76rem;
@@ -9,21 +9,41 @@
 	grid-template-rows: 3rem 3rem 1fr 8rem;
 	overflow: hidden;
 }
-.modal__header--cppd{
+
+.modal__header--cppd {
 	display: flex;
 	justify-content: space-between;
 	padding: .5rem;
 }
-.modal__header--cppd .button__close{
+
+.modal__header--cppd .button__close {
 	height: 2.2rem;
 	width: 2.2rem;
 }
-.container--modal__body{
+.box__container{
+	overflow: auto;
+}
+
+.box__container::-webkit-scrollbar {
+	width: 0.5rem;
+	height: 0.5rem;
+}
+
+.box__container::-webkit-scrollbar-thumb {
+	border-radius: .5rem;
+	background-color: #0004;
+	visibility: hidden;
+}
+
+.box__container:hover::-webkit-scrollbar-thumb {
+	visibility: visible;
+}
+.container--modal__body {
 	display: grid;
 	grid-template-columns: 2rem 1fr;
-	overflow: hidden;
 }
-.modal__body--cppd{
+
+.modal__body--cppd {
 	display: flex;
 	align-items: center;
 	background-color: #225c74;
@@ -33,64 +53,59 @@
 	font-size: .9rem;
 	padding: .5rem;
 }
+
 /* Columnas del modal compra y producto*/
-.modal__body--cppd table thead tr td:nth-of-type(1){
+.modal__body--cppd table thead tr td:nth-of-type(1) {
 	padding: 0;
 	width: 2rem;
 }
-.modal__body--cppd table thead tr td:nth-of-type(2){
+
+.modal__body--cppd table thead tr td:nth-of-type(2) {
 	padding: 0;
 	width: 3rem;
 }
-.modal__body--cppd table thead tr td:nth-of-type(3){
+
+.modal__body--cppd table thead tr td:nth-of-type(3) {
 	padding: 0;
 	width: 5rem;
 }
-.modal__body--cppd table thead tr td:nth-of-type(4){
+
+.modal__body--cppd table thead tr td:nth-of-type(4) {
 	padding: 0;
 	width: 10rem;
 }
-.modal__body--cppd table thead tr td:nth-of-type(5){
+
+.modal__body--cppd table thead tr td:nth-of-type(5) {
 	padding: 0;
 	width: 24rem;
 }
-.modal__body--cppd table thead tr td:nth-of-type(6){
+
+.modal__body--cppd table thead tr td:nth-of-type(6) {
 	padding: 0;
 	width: 6rem;
 	text-align: center;
 }
-.modal__body--cppd table thead tr td:nth-of-type(7){
+
+.modal__body--cppd table thead tr td:nth-of-type(7) {
 	padding: 0;
 	width: 6rem;
 	text-align: center;
 }
-.modal__body--cppd table thead tr td:nth-of-type(8){
+
+.modal__body--cppd table thead tr td:nth-of-type(8) {
 	padding: 0;
 	width: 7rem;
 	text-align: center;
 }
-.modal__body--cppd table thead tr td:nth-of-type(9){
+
+.modal__body--cppd table thead tr td:nth-of-type(9) {
 	padding: 0;
 	width: 10rem;
 	text-align: center;
 }
-/************************************************/
-.modal__container--cppd .modal__body{
-	overflow: auto;
-}
-.modal__container--cppd .modal__body::-webkit-scrollbar{
-	width: 0.5rem;
-	height: 0.5rem;
-}
-.modal__container--cppd .modal__body::-webkit-scrollbar-thumb{
-	border-radius: .5rem;
-	background-color: #0004;
-	visibility: hidden;
-}
-.modal__container--cppd .modal__body:hover::-webkit-scrollbar-thumb{
-	visibility: visible;
-}
-.cart{
+
+/***************************************************************/
+.cart {
 	display: flex;
 	background-color: #fff;
 	justify-content: space-between;
@@ -98,6 +113,7 @@
 	padding: 4px 10px;
 	width: 80px;
 }
+
 .cart p {
 	height: 22px;
 	width: 22px;
@@ -108,29 +124,34 @@
 	background-color: #225c74;
 	color: white;
 }
-.foot{
+
+.foot {
 	display: flex;
 	justify-content: space-between;
 	padding: .5rem;
 	border-top: 1px solid #333;
 }
-.foot__right{
+
+.foot__right {
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
 }
-.foot__left{
+
+.foot__left {
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
 }
-.foot__left p{
+
+.foot__left p {
 	font-weight: bold;
 	font-size: 1.3rem;
 }
+
 /**********************************************************************/
 
-.modal__container--addProd{
+.modal__container--addProd {
 	margin: auto;
 	background-color: #fff;
 	width: 79rem;
@@ -140,16 +161,19 @@
 	grid-template-rows: 3rem 3rem 1fr 8rem;
 	overflow: hidden;
 }
-.modal__header--addProd{
+
+.modal__header--addProd {
 	display: flex;
 	justify-content: space-between;
 	padding: .5rem;
 }
-.modal__header--addProd .button__close{
+
+.modal__header--addProd .button__close {
 	height: 2.2rem;
 	width: 2.2rem;
 }
-.modal__body--addProd{
+
+.modal__body--addProd {
 	display: flex;
 	align-items: center;
 	background-color: #225c74;
@@ -159,63 +183,85 @@
 	font-size: .9rem;
 	padding: .5rem;
 }
-.modal__container--addProd .modal__body{
-	padding: 0 .5rem; 
+
+.modal__container--addProd .modal__body {
+	padding: 0 .5rem;
 	overflow: auto;
 }
-.modal__container--addProd .modal__body::-webkit-scrollbar{
+
+.modal__container--addProd .modal__body::-webkit-scrollbar {
 	width: 0.5rem;
 	height: 0.5rem;
 }
-.modal__container--addProd .modal__body::-webkit-scrollbar-thumb{
+
+.modal__container--addProd .modal__body::-webkit-scrollbar-thumb {
 	border-radius: .5rem;
 	background-color: #0004;
 	visibility: hidden;
 }
-.modal__container--addProd .modal__body:hover::-webkit-scrollbar-thumb{
+
+.modal__container--addProd .modal__body:hover::-webkit-scrollbar-thumb {
 	visibility: visible;
 }
 
 
 /* Columnas del modal compra y producto*/
-.modal__body--addProd table thead tr td:nth-of-type(1){
+.modal__body--addProd table thead tr td:nth-of-type(1) {
 	padding: 0;
 	width: 3rem;
 }
-.modal__body--addProd table thead tr td:nth-of-type(2){
+
+.modal__body--addProd table thead tr td:nth-of-type(2) {
 	padding: 0;
 	width: 4rem;
 }
-.modal__body--addProd table thead tr td:nth-of-type(3){
+
+.modal__body--addProd table thead tr td:nth-of-type(3) {
 	padding: 0;
 	width: 10rem;
 }
-.modal__body--addProd table thead tr td:nth-of-type(4){
+
+.modal__body--addProd table thead tr td:nth-of-type(4) {
 	padding: 0;
 	width: 16rem;
 }
-.modal__body--addProd table thead tr td:nth-of-type(5){
+
+.modal__body--addProd table thead tr td:nth-of-type(5) {
 	padding: 0;
 	width: 6rem;
 }
-.modal__body--addProd table thead tr td:nth-of-type(6){
+
+.modal__body--addProd table thead tr td:nth-of-type(6) {
 	padding: 0;
 	width: 6rem;
 }
-.modal__body--addProd table thead tr td:nth-of-type(7){
+
+.modal__body--addProd table thead tr td:nth-of-type(7) {
 	padding: 0;
 	width: 6rem;
 }
-.modal__body--addProd table thead tr td:nth-of-type(8){
+
+.modal__body--addProd table thead tr td:nth-of-type(8) {
 	padding: 0;
 	width: 8rem;
 }
-.modal__body--addProd table thead tr td:nth-of-type(9){
+
+.modal__body--addProd table thead tr td:nth-of-type(9) {
 	padding: 0;
 	width: 16rem;
 }
+
 /***************************************************************/
-.cart__item{
+.modal__body--index {
+	display: flex;
+	align-items: center;
+	height: 6rem;
+	width: 100%;
+	border-bottom: #225c74 1px solid;
+	border-right: #225c74 1px solid;
+	padding-left: .5rem;
+}
+.cart__item {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -225,10 +271,13 @@
 	height: 6rem;
 	cursor: move;
 }
-.cart__item--stock{
+
+.cart__item--stock {
+	padding-left: .5rem;
 	width: 3rem;
 }
-.cart__item--img{
+
+.cart__item--img {
 	width: 4rem;
 	height: 4rem;
 	border-radius: 50%;
@@ -238,10 +287,12 @@
 	justify-content: center;
 	margin: 0 .5rem;
 }
-.cart__item--code{
+
+.cart__item--code {
 	width: 10rem;
 }
-.cart__item--name{
+
+.cart__item--name {
 	width: 24rem;
 	height: 100%;
 	resize: none;
@@ -249,44 +300,55 @@
 	padding: 0;
 	font-family: Arial, Helvetica, sans-serif;
 }
-.cart__item--name::-webkit-scrollbar{
+
+.cart__item--name::-webkit-scrollbar {
 	width: 0.5rem;
 	height: 0.5rem;
 }
-.cart__item--name::-webkit-scrollbar-thumb{
+
+.cart__item--name::-webkit-scrollbar-thumb {
 	border-radius: .5rem;
 	background-color: #0004;
 	visibility: hidden;
 }
-.cart__item--name:hover::-webkit-scrollbar-thumb{
+
+.cart__item--name:hover::-webkit-scrollbar-thumb {
 	visibility: visible;
 }
-.cart__item--name:focus{
+
+.cart__item--name:focus {
 	outline: none;
 }
-.cart__item--quantity{
+
+.cart__item--quantity {
 	width: 6rem;
 	border: none;
 }
-.cart__item--quantity:focus{
+
+.cart__item--quantity:focus {
 	outline: none;
 }
-.cart__item--costUnit{
+
+.cart__item--costUnit {
 	width: 6rem;
 	border: none;
 }
-.cart__item--costUnit:focus{
+
+.cart__item--costUnit:focus {
 	outline: none;
 }
-.cart__item--costTotal{
+
+.cart__item--costTotal {
 	width: 7rem;
 	cursor: default;
 	border: none;
 }
-.cart__item--costTotal:focus{
+
+.cart__item--costTotal:focus {
 	outline: none;
 }
-.cart__item--observacion{
+
+.cart__item--observacion {
 	width: 10rem;
 	height: 100%;
 	resize: none;
@@ -295,47 +357,52 @@
 	font-family: Arial, Helvetica, sans-serif;
 	border: none;
 }
-.cart__item--observacion::-webkit-scrollbar{
+
+.cart__item--observacion::-webkit-scrollbar {
 	width: 0.5rem;
 	height: 0.5rem;
 }
-.cart__item--observacion::-webkit-scrollbar-thumb{
+
+.cart__item--observacion::-webkit-scrollbar-thumb {
 	border-radius: .5rem;
 	background-color: #0004;
 	visibility: hidden;
 }
-.cart__item--observacion:hover::-webkit-scrollbar-thumb{
+
+.cart__item--observacion:hover::-webkit-scrollbar-thumb {
 	visibility: visible;
 }
-.cart__item--observacion:focus{
+
+.cart__item--observacion:focus {
 	outline: none;
 }
+
 /*****************/
 .almacen-alto {
-  font-size: 1rem;
-  color: #ff0000; 
-  background-color: #ff7f7f; 
-  padding: 2px 4px;
-  border-radius: 2px;
-  width: 3rem;
+	font-size: 1rem;
+	color: #ff0000;
+	background-color: #ff7f7f;
+	padding: 2px 4px;
+	border-radius: 2px;
+	width: 3rem;
 }
 
 .almacen-ambos {
-  font-size: 1rem;
-  color: #000;
-  background-color: #f6ff7f;
-  padding: 2px 4px;
-  border-radius: 2px;
-  width: 3rem;
+	font-size: 1rem;
+	color: #000;
+	background-color: #f6ff7f;
+	padding: 2px 4px;
+	border-radius: 2px;
+	width: 3rem;
 }
 
 
 .almacen-arce {
-  font-size: 1rem;
-  color: #006600; 
-  background-color: #7fff7f;
-  border-radius: 2px;
-  width: 3rem;
+	font-size: 1rem;
+	color: #006600;
+	background-color: #7fff7f;
+	border-radius: 2px;
+	width: 3rem;
 }
 
 /*
