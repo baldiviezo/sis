@@ -269,17 +269,17 @@ function tableBuys(page) {
         if (buy.estado_cmp === 0) {
             if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
                 tdAcciones.innerHTML = `
-                <img src='../imagenes/receipt.svg' onclick='showproductsAddBuyMW(this.parentNode.parentNode.children[0].innerText)' title='Añadir compra a inventario'>
-                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir orden de compra'>
-                <img src='../imagenes/trash.svg' onclick='deleteBuy(this.parentNode.parentNode.children[0].innerText)' title='Eliminar compra'>`;
+                <img src='../imagenes/receipt.svg' onclick='showproductsAddBuyMW(${buy.id_cmp})' title='Añadir compra a inventario'>
+                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(${buy.id_cmp})' title='Imprimir orden de compra'>
+                <img src='../imagenes/trash.svg' onclick='deleteBuy(${buy.id_cmp})' title='Eliminar compra'>`;
             } else {
                 tdAcciones.innerHTML = `
-                <img src='../imagenes/receipt.svg' onclick='showproductsAddBuyMW(this.parentNode.parentNode.children[0].innerText)' title='Añadir compra a inventario'>
-                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir orden de compra'>`;
+                <img src='../imagenes/receipt.svg' onclick='showproductsAddBuyMW(${buy.id_cmp})' title='Añadir compra a inventario'>
+                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(${buy.id_cmp})' title='Imprimir orden de compra'>`;
             }
         } else {
             tdAcciones.innerHTML = `
-                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(this.parentNode.parentNode.children[0].innerText)' title='Imprimir orden de compra'>`;
+                <img src='../imagenes/pdf.svg' onclick='selectPDFInformation(${buy.id_cmp})' title='Imprimir orden de compra'>`;
         }
 
         tr.appendChild(tdAcciones);
@@ -289,7 +289,7 @@ function tableBuys(page) {
 }
 //<<-------------------------------------------CRUD DE COMPRAS-------------------------------------------->>
 //-------Create buy
-let formBuyR = document.getElementById('formBuyR');
+const formBuyR = document.getElementById('formBuyR');
 const buyRMW = document.getElementById('buyRMW');
 async function createBuy() {
     if (rqstBuy === false) {
@@ -300,18 +300,17 @@ async function createBuy() {
 
         const productos = [];
         for (let producto of cmp_prodRMW.querySelectorAll('div.cart__item')) {
-
             productos.push({
-                fk_id_prod_cppd: producto.children[0].value,
-                descripcion_cppd: producto.children[2].value,
-                cantidad_cppd: producto.children[3].value,
-                cost_uni_cppd: producto.children[4].value,
-                observacion_cppd: producto.children[6].value
+                fk_id_prod_cppd: producto.getAttribute('id_prod'),
+                descripcion_cppd: producto.querySelector('.cart__item--name').innerText,
+                cantidad_cppd: producto.querySelector('.cart__item--quantity').value,
+                cost_uni_cppd: producto.querySelector('.cart__item--costUnit').value,
+                observacion_cppd: producto.querySelector('.cart__item--observacion').value,
             });
         }
-        console.log(productos);
-        /*
         let formData = new FormData(formBuyR);
+        const total = Number(totalCPRMW.innerHTML.split(' ')[2]);
+        formData.set('total_cmpR', total);
         formData.append('createBuy', JSON.stringify(productos));
         formData.append('id_usua', localStorage.getItem('id_usua'));
         formData.set('fecha_cmpR', `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`);
@@ -320,18 +319,18 @@ async function createBuy() {
             body: formData
         }).then(response => response.text()).then(data => {
             Promise.all([readBuys(), readCmp_prods()]).then(() => {
-                cleanFormBuyR();
-                buyRMW.classList.remove('modal__show');
-                cmp_prodRMW.classList.remove('modal__show');
-                totalPriceCPPDR();
-                preloader.classList.remove('modal__show');
+                paginacionBuy(filterBuys.length, 1);
+                paginacionProdOC(filterCmp_prods.length, 1);
                 rqstBuy = false;
+                preloader.classList.remove('modal__show');
+                formBuyR.reset();
+                totalPriceCPPDR();
                 mostrarAlerta(data);
             });
         }).catch(err => {
             rqstBuy = false;
             mostrarAlerta(err);
-        });*/
+        });
     } else {
         mostrarAlerta('No se puede realizar la compra en este momento');
     }
@@ -349,8 +348,10 @@ function deleteBuy(id_cmp) {
                 body: formData
             }).then(response => response.text()).then(data => {
                 Promise.all([readBuys(), readCmp_prods()]).then(() => {
-                    rqstBuy = false;
+                    paginacionBuy(filterBuys.length, 1);
+                    paginacionProdOC(filterCmp_prods.length, 1);
                     preloader.classList.remove('modal__show');
+                    rqstBuy = false;
                     mostrarAlerta(data);
                 })
             }).catch(err => {
@@ -396,19 +397,6 @@ async function changeStateBuy(divs) {
         mostrarAlerta('La nota de entrega no tiene ningun producto');
     }
 }
-function cleanFormBuyR() {
-    document.querySelector('#cmp_prodRMW .modal__body').innerHTML = '';
-    document.getElementsByName('forma_pago_cmpR')[0].value = '';
-    document.getElementsByName('tpo_entrega_cmpR')[0].value = '';
-    document.getElementsByName('total_cmpR')[0].value = '0';
-    document.getElementsByName('tipo_cambio_cmpR')[0].value = '';
-    document.getElementsByName('observacion_cmpR')[0].value = '';
-    quantityCPRMW.innerHTML = '0';
-    subTotalCPRMW.innerHTML = 'Sub-Total (Bs):';
-    descCPRMW.innerHTML = 'Desc. (Bs):';
-    totalCPRMW.innerHTML = 'Total (Bs):';
-
-}
 //------Open and close buyR
 const closeBuyRMW = document.getElementById('closeBuyRMW');
 const openBuyRMW = document.getElementById('openBuyRMW');
@@ -420,10 +408,6 @@ openBuyRMW.addEventListener('click', () => {
 closeBuyRMW.addEventListener('click', () => {
     buyRMW.classList.remove('modal__show');
 });
-
-
-
-
 //-------------------------------------------------SUPPLIER--------------------------------------------------
 //<<-----------------------------------------CRUD SUPPLIER----------------------------------------->>
 let suppliers = [];
@@ -1209,6 +1193,8 @@ function openCmp_prodRMW() {
 closeCmp_prodRMW.addEventListener('click', (e) => {
     cmp_prodRMW.classList.remove('modal__show');
 });
+
+
 //--------------------------------------------TABLA MODAL PRODUCTS-----------------------------------------------
 let products = [];
 let filterProductsMW = [];
@@ -1532,25 +1518,6 @@ function cartProduct_cppdR(id_prod, contenedor, totalPrice) {
     item.appendChild(trashImg);
     return item;
 }
-function cartProduct_cppdM(product, id_cmp) {
-    let body = document.getElementById('productBuyMW').querySelector('.modal__body');
-    let div = document.createElement('div');
-    div.classList.add('cart__item');
-    div.innerHTML = `
-            <input type="hidden" value="">
-            <input type="hidden" value="${product['id_prod']}">
-            <input type="hidden" value="${id_cmp}">
-            <p class="numero--addProd"> - </p>
-            <img src="../modelos/imagenes/${product['imagen_prod']}" alt="" class="imagen--addProd"/>
-            <p class="codigo--addProd">${product['codigo_prod']}</p>
-            <textarea class="cart__item--name">${product['nombre_prod']}</textarea>
-            <input type="number" value = "1" min="1" onChange="changeQuantityCPPD(this.parentNode, ${id_cmp})" class="cart__item--quantity">
-            <input type="number" value = "${product['cost_uni_inv']}" onChange="changeQuantityCPPD(this.parentNode, ${id_cmp})" class="cart__item--costUnit">
-            <input type="number" value = "${product['cost_uni_inv']}" class="cart__item--costTotal" readonly>
-            <input type="text" class="cart__item--observacion">
-            <img src="../imagenes/plus.svg" onClick="createCmp_prod(this.parentNode)" class='icon__CRUD'>`;
-    body.appendChild(div);
-}
 //-------Eliminar producto 
 function removeCartR(e, container, total) {
     console.log(container)
@@ -1558,7 +1525,6 @@ function removeCartR(e, container, total) {
     container.removeChild(item);
     total();
 }
-
 const quantityCPRMW = document.getElementById('quantityCPRMW');
 const subTotalCPRMW = document.getElementById('subTotalCPRMW');
 const descCPRMW = document.getElementById('descCPRMW');
@@ -1589,7 +1555,6 @@ function totalPriceCPPDR() {
         div.innerText = i;
         numberCPRMW.appendChild(div);
     }
-
 }
 //---------------------------VENTANA MODAL PARA BUSCAR PRODUCTOS
 const productSMW = document.getElementById('productSMW');
@@ -1600,6 +1565,9 @@ function openProductSMW() {
 closeProductSMW.addEventListener('click', () => {
     productSMW.classList.remove('modal__show');
 });
+
+
+
 /*----------------------------------------------Marca y categoria  modal product-------------------------------------------------*/
 /*-----------------------------------------Marca y categoria producto-------------------------------------------------*/
 //-------Read all Marcas
@@ -2387,4 +2355,27 @@ async function readUsers() {
             mostrarAlerta('Ocurrio un error al cargar la tabla de usuarios, cargue nuevamente la pagina');
         });
     });
+}
+
+
+
+
+function cartProduct_cppdM(product, id_cmp) {
+    let body = document.getElementById('productBuyMW').querySelector('.modal__body');
+    let div = document.createElement('div');
+    div.classList.add('cart__item');
+    div.innerHTML = `
+            <input type="hidden" value="">
+            <input type="hidden" value="${product['id_prod']}">
+            <input type="hidden" value="${id_cmp}">
+            <p class="numero--addProd"> - </p>
+            <img src="../modelos/imagenes/${product['imagen_prod']}" alt="" class="imagen--addProd"/>
+            <p class="codigo--addProd">${product['codigo_prod']}</p>
+            <textarea class="cart__item--name">${product['nombre_prod']}</textarea>
+            <input type="number" value = "1" min="1" onChange="changeQuantityCPPD(this.parentNode, ${id_cmp})" class="cart__item--quantity">
+            <input type="number" value = "${product['cost_uni_inv']}" onChange="changeQuantityCPPD(this.parentNode, ${id_cmp})" class="cart__item--costUnit">
+            <input type="number" value = "${product['cost_uni_inv']}" class="cart__item--costTotal" readonly>
+            <input type="text" class="cart__item--observacion">
+            <img src="../imagenes/plus.svg" onClick="createCmp_prod(this.parentNode)" class='icon__CRUD'>`;
+    body.appendChild(div);
 }

@@ -8,10 +8,11 @@ class Consultas{
 		$this->tpo_entrega_cmp = $conexion->real_escape_string($_POST['tpo_entrega_cmpR']);
 		$this->fk_id_prov_cmp = $conexion->real_escape_string($_POST['fk_id_prov_cmpR']);
 		$this->encargado = $id_usua;
-		$this->total_cmp = $_POST['total_cmpR'];
+		$this->total_cmp = $conexion->real_escape_string($_POST['total_cmpR']);
 		$this->tipo_cambio_cmp = $conexion->real_escape_string($_POST['tipo_cambio_cmpR']);
 		$this->descuento_cmp = $conexion->real_escape_string($_POST['descuento_cmpR']);
 		$this->observacion_cmp = $conexion->real_escape_string($_POST['observacion_cmpR']);
+		$this->almacen_cmp = $conexion->real_escape_string($_POST['almacen_cmp']);
 	}
 	public function asignarValoresM ($id_usua){
 		//protegemos al servidor de los valores que el usuario esta introduciendo
@@ -46,7 +47,8 @@ class Consultas{
     	$resultado = $conexion->query($consulta);
 		$numero_cmp = $resultado->fetch_assoc();
 		$nuevo_numero_cmp = ($numero_cmp['numero_cmp'] == null) ? 1 : $numero_cmp['numero_cmp'] + 1;
-		$consulta = "INSERT INTO compra (numero_cmp, fecha_cmp, fk_id_prov_cmp, fk_id_usua_cmp, total_cmp, forma_pago_cmp, tpo_entrega_cmp, estado_cmp, moneda_cmp, tipo_cambio_cmp, descuento_cmp, observacion_cmp) VALUES ('$nuevo_numero_cmp', '$this->fecha_cmp', '$this->fk_id_prov_cmp', '$this->encargado', '$this->total_cmp', '$this->forma_pago_cmp', '$this->tpo_entrega_cmp', '0', 'Bs', '$this->tipo_cambio_cmp', '$this->descuento_cmp', '$this->observacion_cmp')";
+
+		$consulta = "INSERT INTO compra (numero_cmp, fecha_cmp, fk_id_prov_cmp, fk_id_usua_cmp, total_cmp, forma_pago_cmp, tpo_entrega_cmp, estado_cmp, moneda_cmp, tipo_cambio_cmp, descuento_cmp, observacion_cmp, almacen_cmp) VALUES ('$nuevo_numero_cmp', '$this->fecha_cmp', '$this->fk_id_prov_cmp', '$this->encargado', '$this->total_cmp', '$this->forma_pago_cmp', '$this->tpo_entrega_cmp', '0', 'Bs', '$this->tipo_cambio_cmp', '$this->descuento_cmp', '$this->observacion_cmp', '$this->almacen_cmp')";
 		$resultado = $conexion->query($consulta);
 		if ($resultado) {
 			//Obteniendo el id de la compra
@@ -57,24 +59,26 @@ class Consultas{
 			//Insertando los productos de la compra
 			$productos = json_decode($productos,true);
 			foreach($productos as $celda){
-				//Coprobar que el producto este creado en el alamcen de El Alto
-				$consulta = "SELECT * FROM inventario WHERE fk_id_prod_inv = '$celda[fk_id_prod_cppd]'";
-				$resultado = $conexion->query($consulta);
-				$numero_productos = $resultado->num_rows;
-				if ($numero_productos == 0) {
-					$consulta = "INSERT INTO inventario (fk_id_prod_inv, cantidad_inv, cost_uni_inv, descripcion_inv) VALUES ('$celda[fk_id_prod_cppd]', 0, '$celda[cost_uni_cppd]', '')";
+				if ( $this->almacen_cmp == '1'){
+					//Coprobar que el producto este creado en el alamcen de La Arce
+					$consulta = "SELECT * FROM inventario_arce WHERE fk_id_prod_inv = '$celda[fk_id_prod_cppd]'";
 					$resultado = $conexion->query($consulta);
-				}
-				//Coprobar que el producto este creado en el alamcen de La Arce
-				$consulta = "SELECT * FROM inventario_arce WHERE fk_id_prod_inva = '$celda[fk_id_prod_cppd]'";
-				$resultado = $conexion->query($consulta);
-				$numero_productos = $resultado->num_rows;
-				if ($numero_productos == 0) {
-					$consulta = "INSERT INTO inventario_arce (fk_id_prod_inva, cantidad_inva, cost_uni_inva, descripcion_inva) VALUES ('$celda[fk_id_prod_cppd]', 0, '$celda[cost_uni_cppd]', '')";
+					$numero_productos = $resultado->num_rows;
+					if ($numero_productos == 0) {
+						$consulta = "INSERT INTO inventario_arce (fk_id_prod_inva, cantidad_inva, cost_uni_inva, descripcion_inva) VALUES ('$celda[fk_id_prod_cppd]', 0, '$celda[cost_uni_cppd]', '')";
+						$resultado = $conexion->query($consulta);
+					}
+				} else if ($this->almacen_cmp == '0') {
+					//Coprobar que el producto este creado en el alamcen de El Alto
+					$consulta = "SELECT * FROM inventario WHERE fk_id_prod_inv = '$celda[fk_id_prod_cppd]'";
 					$resultado = $conexion->query($consulta);
+					$numero_productos = $resultado->num_rows;
+					if ($numero_productos == 0) {
+						$consulta = "INSERT INTO inventario (fk_id_prod_inv, cantidad_inv, cost_uni_inv, descripcion_inv) VALUES ('$celda[fk_id_prod_cppd]', 0, '$celda[cost_uni_cppd]', '')";
+						$resultado = $conexion->query($consulta);
+					}
 				}
-
-
+				
 				//Insertando los productos de la compra
 				$fk_id_prod_cppd = $celda['fk_id_prod_cppd'];
 				$descripcion_cppd = $celda['descripcion_cppd'];
