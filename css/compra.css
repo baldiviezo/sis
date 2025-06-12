@@ -2,7 +2,7 @@
 .modal__container--cppd {
 	margin: auto;
 	background-color: #fff;
-	width: 76rem;
+	width: 80rem;
 	height: 90%;
 	border-radius: .5rem;
 	display: grid;
@@ -62,7 +62,7 @@
 
 .modal__body--cppd table thead tr td:nth-of-type(2) {
 	padding: 0;
-	width: 3rem;
+	width: 4rem;
 }
 
 .modal__body--cppd table thead tr td:nth-of-type(3) {
@@ -102,6 +102,10 @@
 	padding: 0;
 	width: 10rem;
 	text-align: center;
+}
+.modal__body--cppd table thead tr td:nth-of-type(10) {
+	padding: 0;
+	width: 6rem;
 }
 
 /***************************************************************/
@@ -375,6 +379,9 @@
 
 .cart__item--observacion:focus {
 	outline: none;
+}
+.cart__item--imgCRUD{
+	width: 6rem;
 }
 
 /*****************/

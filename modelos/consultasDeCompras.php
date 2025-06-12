@@ -85,7 +85,7 @@ class Consultas{
 				$cantidad_cppd = $celda['cantidad_cppd'];
 				$cost_uni_cppd = $celda['cost_uni_cppd'];
 				$observacion_cppd = $celda['observacion_cppd'];
-				$consulta = "INSERT INTO cmp_prod (fk_id_cmp_cppd, fk_id_prod_cppd, descripcion_cppd, cantidad_cppd, cost_uni_cppd, observacion_cppd, estado_cppd) VALUES ('$fk_id_cmp_cppd' , '$fk_id_prod_cppd', '$descripcion_cppd', '$cantidad_cppd', '$cost_uni_cppd', '$observacion_cppd', 'PENDIENTE')";
+				$consulta = "INSERT INTO cmp_prod (fk_id_cmp_cppd, fk_id_prod_cppd, descripcion_cppd, cantidad_cppd, cost_uni_cppd, observacion_cppd, estado_cppd) VALUES ('$fk_id_cmp_cppd' , '$fk_id_prod_cppd', '$descripcion_cppd', '$cantidad_cppd', '$cost_uni_cppd', '$observacion_cppd', 0)";
 				$resultado = $conexion->query($consulta);
 			}
 			echo 'Compra registrada exitosamente';
@@ -155,14 +155,13 @@ class Consultas{
 	//------read cpm_prod
 	public function readCmp_prods(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM cmp_prod INNER JOIN producto ON cmp_prod.fk_id_prod_cppd = producto.id_prod INNER JOIN compra ON cmp_prod.fk_id_cmp_cppd = compra.id_cmp INNER JOIN marca ON producto.fk_id_mrc_prod = marca.id_mrc INNER JOIN categoria ON producto.fk_id_ctgr_prod = categoria.id_ctgr INNER JOIN usuario ON compra.fk_id_usua_cmp = usuario.id_usua INNER JOIN proveedor ON compra.fk_id_prov_cmp = proveedor.id_prov INNER JOIN empresa_prov ON proveedor.fk_id_empp_prov = empresa_prov.id_empp ORDER BY id_cppd ASC";
+		$consulta = "SELECT * FROM cmp_prod ORDER BY id_cppd ASC";
 		$resultado = $conexion->query($consulta);
 		$filas = array();
 		while ($fila = $resultado->fetch_assoc()){
-			$row = array('id_cppd'=>$fila['id_cppd'], 'fk_id_cmp_cppd'=>$fila['fk_id_cmp_cppd'], 'numero_cmp'=>'OC-SMS'.substr($fila['fecha_cmp'],2,2).'-'.$this->addZerosGo($fila['numero_cmp']), 'fecha_cmp'=>$fila['fecha_cmp'], 'fecha_factura_cppd'=>$fila['fecha_factura_cppd'], 'fecha_entrega_cppd'=>$fila['fecha_entrega_cppd'],  'nombre_usua'=>$fila['nombre_usua'], 'apellido_usua'=>$fila['apellido_usua'], 'nombre_empp'=>$fila['nombre_empp'], 'nombre_mrc'=>$fila['nombre_mrc'], 'nombre_ctgr'=>$fila['nombre_ctgr'], 'fk_id_prod_cppd'=>$fila['fk_id_prod_cppd'], 'codigo_prod'=>$fila['codigo_prod'], 'imagen_prod'=>$fila['imagen_prod'], 'descripcion_cppd'=>$fila['descripcion_cppd'], 'factura_cppd'=>$fila['factura_cppd'], 'cantidad_cppd'=>intval($fila['cantidad_cppd']), 'cost_uni_cppd'=>doubleval($fila['cost_uni_cppd']), 'estado_cppd'=>$fila['estado_cppd'], 'descuento_cmp'=>floatval($fila['descuento_cmp']), 'observacion_cppd'=>$fila['observacion_cppd'], 'estado_cmp'=>$fila['estado_cmp']);
-			$filas[$fila['id_cppd'].'_cppd'] = $row;
+			$filas[] = $fila;
 		}
-		echo json_encode($filas, JSON_UNESCAPED_UNICODE);
+		echo json_encode($filas, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 	}
 	//-----Create cmp_prod
 	public function createCmp_prod($object){

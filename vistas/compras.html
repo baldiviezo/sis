@@ -35,11 +35,11 @@
 			</div>
 			<section class="select__search">
 				<div>
-					<label>Fecha compra:</label>
+					<label>Año de compra:</label>
 					<select id="selectDateBuy" class="select"></select>
 				</div>
 				<div>
-					<label>Mes:</label>
+					<label>Mes de compra:</label>
 					<select id="selectMonthBuy" class="select__number">
 						<option value="todas">Todo</option>
 						<option value="01">Enero</option>
@@ -57,7 +57,7 @@
 					</select>
 				</div>
 				<div>
-					<label>Recibido/ Pendiente:</label>
+					<label>Compra:</label>
 					<select id="selectStateBuy" class="select">
 						<option value="todasLasCompras">Todo</option>
 						<option value="0">Compras pendientes</option>
@@ -261,6 +261,58 @@
 			</div>
 		</div>
 	</section>
+	<!--Modal of product of a BuyM -->
+	<section id="cmp_prodMMW" class="modal">
+		<div class="modal__container--cppd">
+			<div class="modal__header--cppd">
+				<div>
+					<img src="../imagenes/producto.svg" onclick="openProductSMW()" class="icon__CRUD" title="Productos">
+				</div>
+				<h2 class="modal__title">Productos</h2>
+				<img src="../imagenes/salir.svg" id="closeCmp_prodRMW" class="button__close">
+			</div>
+			<div class="modal__body--cppd">
+				<table>
+					<thead>
+						<tr>
+							<td>N°</td>
+							<td>Stock</td>
+							<td>Imagen</td>
+							<td>Codigo</td>
+							<td>Descripcion</td>
+							<td>Cant.</td>
+							<td>Cost Uni.</td>
+							<td>Cost Total</td>
+							<td>Observacion</td>
+							<td>Acciones</td>
+						</tr>
+					</thead>
+				</table>
+			</div>
+			<div class="box__container">
+			<div class="container--modal__body">
+				<div class="modal__body--number">
+				</div>
+				<div class="modal__body">
+					</div>
+				</div>
+			</div>
+			<div class="foot">
+				<div class="foot__left">
+					<p id="subTotalCPRMW">Sub-Total (Bs):</p>
+					<p id="descCPRMW">Desc. (Bs):</p>
+					<p id="totalCPRMW">Total (Bs):</p>
+				</div>
+				<div class="foot__right">
+					<div class="cart">
+						<img src="../imagenes/carrito.svg">
+						<p id="quantityCPRMW">0</p>
+					</div>
+					<button onclick="createBuy()" class="form__submit">Registrar</button>
+				</div>
+			</div>
+		</div>
+	</section>
 	<!--Modal of product of a Buy-->
 	<section id="productBuyMW" class="modal">
 		<div class="modal__container--addProd">
@@ -268,7 +320,7 @@
 				<div>
 					<img src="../imagenes/p.svg" onclick="openProductSMW()" class="icon__CRUD">
 				</div>
-				<h2 class="modal__title">Productos</h2>
+				<h2 class="modal__title" id="titleProductBuyMW">Productos</h2>
 				<img src="../imagenes/salir.svg" id="closeProductBuyMW" class="button__close">
 			</div>
 			<div class="modal__body--addProd">
@@ -874,11 +926,11 @@
 					<h1 id="totalProdOC">TOTAL:</h1>
 					<section class="select__search">
 						<div>
-							<label>Fecha factura:</label>
+							<label>Año de compra:</label>
 							<select id="selectDateProdOC" class="select"></select>
 						</div>
 						<div>
-							<label>Mes:</label>
+							<label>Mes de compra:</label>
 							<select id="selectMonthProdOC" class="select__number">
 								<option value="todas">Todo</option>
 								<option value="01">Enero</option>
@@ -896,11 +948,11 @@
 							</select>
 						</div>
 						<div>
-							<label>Recibido/ Pendiente:</label>
+							<label>productos:</label>
 							<select id="selectStateProdOC" class="select__number">
 								<option value="todasLasOC">Todo</option>
-								<option value="PENDIENTE">OC pendientes</option>
-								<option value="RECIBIDO">OC recibidas</option>
+								<option value="0">Pendientes</option>
+								<option value="1">Recibidas</option>
 							</select>
 						</div>
 					</section>

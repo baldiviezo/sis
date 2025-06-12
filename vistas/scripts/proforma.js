@@ -39,6 +39,7 @@ async function init() {
             paginacionProductMW(products.length, 1);
             paginacionPfPd(filterProf_prods.length, 1);
             paginacionInventoryMW(inventories.length, 1);
+            createYearProforma();
             requestProf = false;
             preloader.classList.remove('modal__show');
         } catch (error) {
@@ -453,7 +454,6 @@ async function readProformas() {
             const isAdmin = ['Gerente general', 'Administrador'].includes(localStorage.getItem('rol_usua'));
             proformas = isAdmin ? data : data.filter(proforma => proforma.fk_id_usua_prof === localStorage.getItem('id_usua'));
             filterProformas = proformas;
-            createYearProforma();
             resolve();
         }).catch(err => console.log(err));
     })
@@ -654,7 +654,7 @@ function tableProformas(page) {
         tr.appendChild(tdCliente);
 
         const tdTotal = document.createElement('td');
-        tdTotal.innerText = proforma.total_prof + ' ' + proforma.moneda_prof;
+        tdTotal.innerText = `${proforma.total_prof.toFixed(2)} ${proforma.moneda_prof}`;
         tr.appendChild(tdTotal);
 
         const tdAcciones = document.createElement('td');
@@ -1610,7 +1610,11 @@ async function readProf_prods() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            prof_prods = data;
+            const isAdmin = ['Gerente general', 'Administrador'].includes(localStorage.getItem('rol_usua'));
+            prof_prods = isAdmin ? data : data.filter(prof_prod => {
+                const proforma = proformas.find(proforma => proforma.id_prof === prof_prod.fk_id_prof_pfpd);
+                return proforma.fk_id_usua_prof === localStorage.getItem('id_usua');
+            });
             filterProf_prods = prof_prods;
             resolve();
         }).catch(err => console.log(err));
@@ -1694,15 +1698,15 @@ orderPfPd.forEach(div => {
         paginacionPfPd(filterProf_prods.length, 1);
     });
 });
-//------paginacionPfPd
+//------
+const totalPfPd = document.getElementById('totalPfPd');
 function paginacionPfPd(allProducts, page) {
-    let totalPfPd = document.getElementById('totalPfPd');
     let total = 0;
-    for (let prof_prods in filterProf_prods) {
-        const proforma = proformas.find(proforma => proforma.id_prof == filterProf_prods[prof_prods].fk_id_prof_pfpd);
-        total += filterProf_prods[prof_prods]['cantidad_pfpd'] * filterProf_prods[prof_prods]['cost_uni_pfpd'] * (100 - proforma.descuento_prof) / 100;
-    }
-    totalPfPd.innerHTML = 'Total (Bs):' + total.toFixed(2) + ' Bs';
+    filterProf_prods.forEach(prof_prod => {
+        const proforma = proformas.find(proforma => proforma.id_prof == prof_prod.fk_id_prof_pfpd);
+        total += prof_prod.cantidad_pfpd * prof_prod.cost_uni_pfpd * (100 - proforma.descuento_prof) / 100;
+    })
+    totalPfPd.innerHTML = `Total: ${total.toFixed(2)} Bs`;
     let numberProducts = Number(selectNumberPfPd.value);
     let allPages = Math.ceil(allProducts / numberProducts);
     let ul = document.querySelector('#wrapperPfPd ul');
