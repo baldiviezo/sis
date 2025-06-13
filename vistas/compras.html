@@ -926,11 +926,11 @@
 					<h1 id="totalProdOC">TOTAL:</h1>
 					<section class="select__search">
 						<div>
-							<label>Año de compra:</label>
+							<label>Año de factura:</label>
 							<select id="selectDateProdOC" class="select"></select>
 						</div>
 						<div>
-							<label>Mes de compra:</label>
+							<label>Mes de factura:</label>
 							<select id="selectMonthProdOC" class="select__number">
 								<option value="todas">Todo</option>
 								<option value="01">Enero</option>
@@ -962,13 +962,12 @@
 							<select id="selectSearchProdOC" class="select">
 								<option value="todas">Todo</option>
 								<option value="numero_cmp">Orden de compra</option>
+								<option value="fecha_cmp">Fecha de OC</option>
 								<option value="fecha_factura_cppd">Fecha de factura</option>
 								<option value="fecha_entrega_cppd">Fecha de entrega</option>
-								<option value="encargado">Encargado</option>
-								<option value="nombre_empp">Empresa</option>
 								<option value="codigo_prod">Codigo producto</option>
-								<option value="descripcion_cppd">Descripción</option>
 								<option value="factura_cppd">N° Factura</option>
+								<option value="observacion_cppd">Observacion</option>
 							</select>
 						</div>
 						<div class="table__search">
@@ -1002,49 +1001,38 @@
 							<tr>
 								<th>N°</th>
 								<th>
-									<div class="tbody__head--fbuy">OC SMS<img src="../imagenes/sortA_Z.svg"
+									<div class="tbody__head--cmpProd">OC SMS<img src="../imagenes/sortA_Z.svg"
 											name="numero_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
 											name="numero_cmp" class="icon__CRUD"></div>
 								</th>
 								<th>
-									<div class="tbody__head--fbuy">Fecha OC<img src="../imagenes/sortA_Z.svg"
+									<div class="tbody__head--cmpProd">Fecha OC<img src="../imagenes/sortA_Z.svg"
 											name="fecha_cmp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
 											name="fecha_cmp" class="icon__CRUD"></div>
 								</th>
 								<th>
-									<div class="tbody__head--fbuy">Fecha factura<img src="../imagenes/sortA_Z.svg"
+									<div class="tbody__head--cmpProd">Fecha factura<img src="../imagenes/sortA_Z.svg"
 											name="fecha_factura_cppd" class="icon__CRUD"><img
 											src="../imagenes/sortZ_A.svg" name="fecha_factura_cppd" class="icon__CRUD">
 									</div>
 								</th>
 								<th>
-									<div class="tbody__head--fbuy">Fecha entrega<img src="../imagenes/sortA_Z.svg"
+									<div class="tbody__head--cmpProd">Fecha entrega<img src="../imagenes/sortA_Z.svg"
 											name="fecha_entrega_cppd" class="icon__CRUD"><img
 											src="../imagenes/sortZ_A.svg" name="fecha_entrega_cppd" class="icon__CRUD">
 									</div>
 								</th>
-								<th>Marca</th>
-								<th>Categoria</th>
-								<th>
-									<div class="tbody__head--fbuy">Codigo<img src="../imagenes/sortA_Z.svg"
-											name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-											name="codigo_prod" class="icon__CRUD"></div>
-								</th>
-								<th>Descripcion</th>
-								<th>
-									<div class="tbody__head--fbuy">N° Factura<img src="../imagenes/sortA_Z.svg"
-											name="factura_cppd" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-											name="factura_cppd" class="icon__CRUD"></div>
-								</th>
-								<th>
-									<div class="tbody__head--fbuy">Cantidad<img src="../imagenes/sortA_Z.svg"
-											name="cantidad_cppd" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-											name="cantidad_cppd" class="icon__CRUD"></div>
-								</th>
+								<th>Codigo</th>
+								<th>Cantidad</th>
 								<th>Cost uni.</th>
 								<th>Subtotal</th>
 								<th>Descuento</th>
 								<th>Total</th>
+								<th>
+									<div class="tbody__head--cmpProd">N° Factura<img src="../imagenes/sortA_Z.svg"
+											name="factura_cppd" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="factura_cppd" class="icon__CRUD"></div>
+								</th>
 								<th>Observacion</th>
 							</tr>
 						</thead>

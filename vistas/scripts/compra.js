@@ -434,7 +434,6 @@ async function readCmp_prods() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            console.log(data)
             cmp_prods = data;
             filterCmp_prods = cmp_prods;
             resolve();
@@ -459,20 +458,30 @@ function searchProdOC() {
     const busqueda = inputSearchProdOC.value.toLowerCase().trim();
     const valor = selectSearchProdOC.value.toLowerCase().trim();
     filterCmp_prods = cmp_prods.filter(cmp_prod => {
+        const compra = buys.find(buy => buy.id_cmp === cmp_prod.fk_id_cmp_cppd);
+        const producto = products.find(product => product.id_prod === cmp_prod.fk_id_prod_cppd);
         if (valor == 'todas') {
             return (
-                cmp_prod.numero_cmp.toLowerCase().includes(busqueda) ||
-                cmp_prod.fecha_cmp.toLowerCase().includes(busqueda) ||
+                compra.numero_cmp.toLowerCase().includes(busqueda) ||
+                compra.fecha_cmp.toLowerCase().includes(busqueda) ||
                 cmp_prod.fecha_factura_cppd.toLowerCase().includes(busqueda) ||
                 cmp_prod.fecha_entrega_cppd.toLowerCase().includes(busqueda) ||
-                (cmp_prod.nombre_usua + ' ' + cmp_prod.apellido_usua).toLowerCase().includes(busqueda) ||
-                cmp_prod.nombre_empp.toLowerCase().includes(busqueda) ||
-                cmp_prod.codigo_prod.toLowerCase().includes(busqueda) ||
-                cmp_prod.descripcion_cppd.toLowerCase().includes(busqueda) ||
-                cmp_prod.factura_cppd.toLowerCase().includes(busqueda)
+                producto.codigo_prod.toLowerCase().includes(busqueda) ||
+                cmp_prod.factura_cppd.toString().toLowerCase().includes(busqueda) ||
+                cmp_prod.observacion_cppd.toString().toLowerCase().includes(busqueda)
             )
         } else {
-            return cmp_prod[valor].toLowerCase().includes(busqueda);
+            if (valor === 'numero_cmp' || valor === 'fecha_cmp') {
+                return compra[valor].toLowerCase().includes(busqueda);
+            } else if (valor === 'codigo_prod') { 
+                return producto[valor].toLowerCase().includes(busqueda);
+            } else {
+                if (valor === 'factura_cppd' || valor === 'observacion_cppd') {
+                    return cmp_prod[valor].toString().toLowerCase().includes(busqueda);
+                }else{
+                    return cmp_prod[valor].toLowerCase().includes(busqueda);
+                }
+            }
         }
     });
     selectStateProductOC();
@@ -487,50 +496,63 @@ selectStateProdOC.addEventListener('change', searchProdOC);
 const selectMonthProdOC = document.getElementById('selectMonthProdOC');
 selectMonthProdOC.addEventListener('change', searchProdOC);
 function selectStateProductOC() {
-    filterCmp_prods = filterCmp_prods.filter(buy => {
-        const estado = selectStateProdOC.value === 'todasLasOC' ? true : buy.estado_cppd === selectStateProdOC.value;
-        const fecha = selectDateProdOC.value === 'todas' ? true : buy.fecha_factura_cppd.split('-')[0] === selectDateProdOC.value;
-        const mes = selectMonthProdOC.value === 'todas' ? true : buy.fecha_factura_cppd.split('-')[1] === selectMonthProdOC.value;
+    filterCmp_prods = filterCmp_prods.filter(cmp_prod => {
+        const ordenCompra = buys.find(buy => buy.id_cmp === cmp_prod.fk_id_cmp_cppd);
+        const fecha = selectDateProdOC.value === 'todas' ? true : ordenCompra.fecha_cmp.split('-')[0] === selectDateProdOC.value;
+        const mes = selectMonthProdOC.value === 'todas' ? true : ordenCompra.fecha_cmp.split('-')[1] === selectMonthProdOC.value;
+        const estado = selectStateProdOC.value === 'todasLasOC' ? true : cmp_prod.estado_cppd == selectStateProdOC.value;
         return estado && fecha && mes;
     });
     paginacionProdOC(filterCmp_prods.length, 1);
 }
 //------Ordenar tabla descendente ascendente
-let orderProforma = document.querySelectorAll('.tbody__head--fbuy');
-orderProforma.forEach(div => {
+const orderCmpProd = document.querySelectorAll('.tbody__head--cmpProd');
+orderCmpProd.forEach(div => {
     div.children[0].addEventListener('click', function () {
+        const valor = div.children[0].name;
         filterCmp_prods.sort((a, b) => {
-            let first = a[div.children[0].name];
-            let second = b[div.children[0].name];
-            if (typeof first === 'number' && typeof second === 'number') {
-                return first - second;
+            if (valor === 'numero_cmp' || valor === 'fecha_cmp') {
+                const compraA = buys.find(buy => buy.id_cmp === a.fk_id_cmp_cppd);
+                const compraB = buys.find(buy => buy.id_cmp === b.fk_id_cmp_cppd);
+                const valorA = String(compraA[valor]);
+                const valorB = String(compraB[valor]);
+                return valorA.localeCompare(valorB);
             } else {
-                return String(first).localeCompare(String(second));
+                const valorA = String(a[valor]);
+                const valorB = String(b[valor]);
+                return valorA.localeCompare(valorB);
             }
+
         });
         paginacionProdOC(filterCmp_prods.length, 1);
     });
     div.children[1].addEventListener('click', function () {
+        const valor = div.children[0].name;
         filterCmp_prods.sort((a, b) => {
-            let first = a[div.children[0].name];
-            let second = b[div.children[0].name];
-            if (typeof first === 'number' && typeof second === 'number') {
-                return second - first;
+            if (valor === 'numero_cmp' || valor === 'fecha_cmp') {
+                const compraA = buys.find(buy => buy.id_cmp === a.fk_id_cmp_cppd);
+                const compraB = buys.find(buy => buy.id_cmp === b.fk_id_cmp_cppd);
+                const valorA = String(compraA[valor]);
+                const valorB = String(compraB[valor]);
+                return valorB.localeCompare(valorA);
             } else {
-                return String(second).localeCompare(String(first));
+                const valorA = String(a[valor]);
+                const valorB = String(b[valor]);
+                return valorB.localeCompare(valorA);
             }
         });
         paginacionProdOC(filterCmp_prods.length, 1);
     });
 });
 //------PaginacionProdOC
+const totalProdOC = document.getElementById('totalProdOC');
 function paginacionProdOC(allProducts, page) {
-    let totalProdOC = document.getElementById('totalProdOC');
     let total = 0;
-    for (let cmp_prods in filterCmp_prods) {
-        total += filterCmp_prods[cmp_prods]['cantidad_cppd'] * filterCmp_prods[cmp_prods]['cost_uni_cppd'] * (100 - filterCmp_prods[cmp_prods]['descuento_cmp']) / 100;
-    }
-    totalProdOC.innerHTML = total.toFixed(2) + ' Bs';
+    filterCmp_prods.forEach(cmp_prod => {
+        const compra = buys.find(buy => buy.id_cmp === cmp_prod.fk_id_cmp_cppd);
+        total += cmp_prod.cantidad_cppd * cmp_prod.cost_uni_cppd * (100 - compra.descuento_cmp) / 100;
+    })
+    totalProdOC.innerHTML = `Total (Bs): ${total.toFixed(2)} Bs`;
     let numberProducts = Number(selectNumberProdOC.value);
     let allPages = Math.ceil(allProducts / numberProducts);
     let ul = document.querySelector('#wrapperProf ul');
@@ -565,47 +587,77 @@ function paginacionProdOC(allProducts, page) {
 }
 //--------Tabla de cmp_prods
 function tableCmpProds(page) {
-    let tbody = document.getElementById('tbodyProdOC');
-    inicio = (page - 1) * Number(selectNumberProdOC.value);
-    final = inicio + Number(selectNumberProdOC.value);
-    i = 1;
+    const tbody = document.getElementById('tbodyProdOC');
+    const inicio = (page - 1) * Number(selectNumberProdOC.value);
+    const final = inicio + Number(selectNumberProdOC.value);
+    const cmpProds = filterCmp_prods.slice(inicio, final);
     tbody.innerHTML = '';
-    for (let cmp_prod in filterCmp_prods) {
-        if (i > inicio && i <= final) {
-            let tr = document.createElement('tr');
-            for (let valor in filterCmp_prods[cmp_prod]) {
-                let td = document.createElement('td');
-                if (valor == 'id_cppd') {
-                    td = document.createElement('td');
-                    td.innerText = i;
-                    tr.appendChild(td);
-                    i++;
-                } else if (valor == 'cost_uni_cppd') {
-                    td.innerText = filterCmp_prods[cmp_prod][valor].toFixed(2) + ' Bs';
-                    tr.appendChild(td);
-                    let td2 = document.createElement('td');
-                    let subTotal = filterCmp_prods[cmp_prod]['cost_uni_cppd'] * filterCmp_prods[cmp_prod]['cantidad_cppd'];
-                    td2.innerText = subTotal.toFixed(2) + ' Bs';
-                    tr.appendChild(td2);
-                } else if (valor == 'descuento_cmp') {
-                    let desc = filterCmp_prods[cmp_prod][valor] * filterCmp_prods[cmp_prod]['cost_uni_cppd'] * filterCmp_prods[cmp_prod]['cantidad_cppd'] / 100;
-                    td.innerText = desc.toFixed(2) + ' Bs' + ' (' + filterCmp_prods[cmp_prod][valor] + '%)';
-                    tr.appendChild(td);
-                    let td2 = document.createElement('td');
-                    let total = filterCmp_prods[cmp_prod]['cantidad_cppd'] * filterCmp_prods[cmp_prod]['cost_uni_cppd'] * (100 - filterCmp_prods[cmp_prod]['descuento_cmp']) / 100;
-                    td2.innerText = total.toFixed(2) + ' Bs';
-                    tr.appendChild(td2);
-                } else if (valor == 'fk_id_cmp_cppd' || valor == 'apellido_usua' || valor == 'fk_id_prod_cppd' || valor == 'imagen_prod' || valor == 'estado_cmp' || valor == 'estado_cppd' || valor == 'nombre_usua' || valor == 'nombre_empp') {
-                } else {
-                    td.innerText = filterCmp_prods[cmp_prod][valor];
-                    tr.appendChild(td);
-                }
-            }
-            tbody.appendChild(tr);
-        } else {
-            i++;
-        }
-    }
+
+    cmpProds.forEach((cmpProd, index) => {
+        const compra = buys.find(buy => buy.id_cmp === cmpProd.fk_id_cmp_cppd);
+        const producto = products.find(product => product.id_prod === cmpProd.fk_id_prod_cppd);
+
+        const tr = document.createElement('tr');
+        tr.setAttribute('id_cppd', cmpProd.id_cppd);
+
+        const tdNumero = document.createElement('td');
+        tdNumero.innerText = inicio + index + 1;
+        tr.appendChild(tdNumero);
+
+        const tdNumeroOC = document.createElement('td');
+        tdNumeroOC.innerText = compra.numero_cmp;
+        tr.appendChild(tdNumeroOC);
+
+        const tdFechaOC = document.createElement('td');
+        tdFechaOC.innerText = compra.fecha_cmp;
+        tr.appendChild(tdFechaOC);
+
+        const tdFechaFactura = document.createElement('td');
+        tdFechaFactura.innerText = cmpProd.fecha_factura_cppd;
+        tr.appendChild(tdFechaFactura);
+
+        const tdFechaEntrega = document.createElement('td');
+        tdFechaEntrega.innerText = cmpProd.fecha_entrega_cppd;
+        tr.appendChild(tdFechaEntrega);
+
+        const tdCodigo = document.createElement('td');
+        tdCodigo.innerText = producto.codigo_prod;
+        tr.appendChild(tdCodigo);
+
+        const tdCantidad = document.createElement('td');
+        tdCantidad.innerText = cmpProd.cantidad_cppd;
+        tr.appendChild(tdCantidad);
+
+        const tdCostoUnitario = document.createElement('td');
+        tdCostoUnitario.innerText = `${cmpProd.cost_uni_cppd.toFixed(2)} Bs`;
+        tr.appendChild(tdCostoUnitario);
+
+        const tdSubTotal = document.createElement('td');
+        const subTotal = cmpProd.cost_uni_cppd * cmpProd.cantidad_cppd;
+        tdSubTotal.innerText = `${subTotal.toFixed(2)} Bs`;
+        tr.appendChild(tdSubTotal);
+
+        const tdDescuento = document.createElement('td');
+        const desc = compra.descuento_cmp * cmpProd.cost_uni_cppd * cmpProd.cantidad_cppd / 100;
+        tdDescuento.innerText = `-${desc.toFixed(2)} Bs (${compra.descuento_cmp}%)`;
+        tr.appendChild(tdDescuento);
+
+        const tdTotal = document.createElement('td');
+        const total = cmpProd.cantidad_cppd * cmpProd.cost_uni_cppd * (100 - compra.descuento_cmp) / 100;
+        tdTotal.innerText = `${total.toFixed(2)} Bs`;
+        tr.appendChild(tdTotal);
+
+        const tdFactura = document.createElement('td');
+        const factura = cmpProd.factura_cppd;
+        tdFactura.innerText = factura;
+        tr.appendChild(tdFactura);
+
+        const tdObservacion = document.createElement('td');
+        tdObservacion.innerText = cmpProd.observacion_cppd;
+        tr.appendChild(tdObservacion);
+
+        tbody.appendChild(tr);
+    });
 }
 //----------------------------------------CRUD CMP-PROD--------------------------------------------
 //------read Cmp_prods by id_cmp

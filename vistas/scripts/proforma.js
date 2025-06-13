@@ -1754,7 +1754,7 @@ function tablePdPf(page) {
         tr.setAttribute('id_pfpd', prod.id_pfpd);
 
         const tdNumero = document.createElement('td');
-        tdNumero.innerText = index + 1;
+        tdNumero.innerText = inicio + index + 1;
         tr.appendChild(tdNumero);
 
         const tdNumeroProforma = document.createElement('td');
