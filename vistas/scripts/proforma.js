@@ -1610,11 +1610,7 @@ async function readProf_prods() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            const isAdmin = ['Gerente general', 'Administrador'].includes(localStorage.getItem('rol_usua'));
-            prof_prods = isAdmin ? data : data.filter(prof_prod => {
-                const proforma = proformas.find(proforma => proforma.id_prof === prof_prod.fk_id_prof_pfpd);
-                return proforma.fk_id_usua_prof === localStorage.getItem('id_usua');
-            });
+            prof_prods = data;
             filterProf_prods = prof_prods;
             resolve();
         }).catch(err => console.log(err));
@@ -1703,7 +1699,7 @@ const totalPfPd = document.getElementById('totalPfPd');
 function paginacionPfPd(allProducts, page) {
     let total = 0;
     filterProf_prods.forEach(prof_prod => {
-        const proforma = proformas.find(proforma => proforma.id_prof == prof_prod.fk_id_prof_pfpd);
+        const proforma = proformas.find(proforma => proforma.id_prof === prof_prod.fk_id_prof_pfpd);
         total += prof_prod.cantidad_pfpd * prof_prod.cost_uni_pfpd * (100 - proforma.descuento_prof) / 100;
     })
     totalPfPd.innerHTML = `Total: ${total.toFixed(2)} Bs`;
@@ -1754,7 +1750,7 @@ function tablePdPf(page) {
         tr.setAttribute('id_pfpd', prod.id_pfpd);
 
         const tdNumero = document.createElement('td');
-        tdNumero.innerText = inicio + index + 1;
+        tdNumero.innerText = index + 1;
         tr.appendChild(tdNumero);
 
         const tdNumeroProforma = document.createElement('td');
@@ -3529,7 +3525,7 @@ async function readUsers() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            users = Object.values(data);
+            users = data;
             resolve();
         }).catch(err => {
             mostrarAlerta('Ocurrio un error al cargar la tabla de usuarios, cargue nuevamente la pagina');

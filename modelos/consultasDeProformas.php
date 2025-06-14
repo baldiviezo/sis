@@ -70,6 +70,7 @@ class consultas{
 		$nuevo_numero_prof = ($numero_prof['numero_prof'] == null) ? 1 : $numero_prof['numero_prof'] + 1;
 		$consulta = "INSERT INTO proforma (numero_prof, fecha_prof, fk_id_clte_prof, fk_id_usua_prof, cond_pago_prof, tpo_entrega_prof, tpo_valido_prof, descuento_prof, total_prof, moneda_prof, observacion_prof, tipo_cambio_prof, estado_prof) VALUES ('$nuevo_numero_prof' ,'$this->fecha', '$this->cliente' , '$this->encargado', '$this->condicionesDePago', '$this->tiempoDeEntrega', '$this->tiempoValido', '$this->descuento', '$this->total', '$this->moneda', '$this->observacion', '$this->tipo_cambio_prof', '0')";
 		$resultado = $conexion->query($consulta);
+		
 		$consulta = "SELECT MAX(id_prof) as id_prof_max FROM proforma ";
     	$resultado = $conexion->query($consulta);
     	$id_prof = $resultado->fetch_assoc();

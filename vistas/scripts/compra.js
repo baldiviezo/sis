@@ -337,7 +337,7 @@ async function createBuy() {
                 rqstBuy = false;
                 formBuyR.reset();
                 cmpProdRMW.innerHTML = '';
-                totalPriceCPPDR();
+                totalPriceR();
                 mostrarAlerta(data);
             });
         }).catch(err => {
@@ -415,9 +415,9 @@ async function changeStateBuy(divs) {
 const closeBuyRMW = document.getElementById('closeBuyRMW');
 const openBuyRMW = document.getElementById('openBuyRMW');
 openBuyRMW.addEventListener('click', () => {
+    formBuy = 'R';
     buyRMW.classList.add('modal__show');
     document.getElementsByName('fecha_cmpR')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
-    formBuy = 'R';
 });
 closeBuyRMW.addEventListener('click', () => {
     buyRMW.classList.remove('modal__show');
@@ -479,8 +479,8 @@ function searchProdOC() {
                 if (valor === 'factura_cppd' || valor === 'observacion_cppd') {
                     return cmp_prod[valor].toString().toLowerCase().includes(busqueda);
                 }else{
-                    return cmp_prod[valor].toLowerCase().includes(busqueda);
-                }
+            return cmp_prod[valor].toLowerCase().includes(busqueda);
+        }
             }
         }
     });
@@ -656,149 +656,33 @@ function tableCmpProds(page) {
         tdObservacion.innerText = cmpProd.observacion_cppd;
         tr.appendChild(tdObservacion);
 
-        tbody.appendChild(tr);
+            tbody.appendChild(tr);
     });
 }
 //----------------------------------------CRUD CMP-PROD--------------------------------------------
-//------read Cmp_prods by id_cmp
+//------read Cmp_prods by 
+const titleCmp_prodMMW = document.querySelector('#titleCmp_prodMMW');
 function readCmpProd(id_cmp) {
+    const compra = buys.find(buy => buy.id_cmp === id_cmp);
+    titleCmp_prodMMW.innerHTML = `${compra.numero_cmp}`;
     const productos = cmp_prods.filter(cmp_prod => cmp_prod.fk_id_cmp_cppd === id_cmp);
-    cmp_prodRMW.classList.add('modal__show');
-    cmpProdRMW.innerHTML = '';
+    cmp_prodMMW.classList.add('modal__show');
+    cmpProdMMW.innerHTML = '';
     productos.forEach(producto => {
-        const cart = cartCmp_prodM(producto, cmpProdRMW, totalPriceCPPDR);
-        cmpProdRMW.appendChild(cart);
+        const cart = cartCmp_prodM(producto, cmpProdMMW, totalPriceR);
+        cmpProdMMW.appendChild(cart);
     });
     //Drang and drop
-    const items = cmpProdRMW.querySelectorAll(".cart__item");
+    const items = cmpProdMMW.querySelectorAll(".cart__item");
     items.forEach(item => {
         item.addEventListener("dragstart", () => {
             setTimeout(() => item.classList.add("dragging"), 0);
         });
         item.addEventListener("dragend", () => item.classList.remove("dragging"));
     });
-    cmpProdRMW.addEventListener("dragover", initSortableList);
-    cmpProdRMW.addEventListener("dragenter", e => e.preventDefault());
-    totalPriceCPPDR();
-}
-
-function cartCmp_prodM(product, contenedor, totalPrice) {
-    const producto = products.find(producto => producto['id_prod'] == product.fk_id_prod_cppd);
-    const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === product.fk_id_prod_cppd && inventory.ubi_almacen === 0);
-    const inventoriesArce = inventories.filter(inventory => inventory.fk_id_prod_inv === product.fk_id_prod_cppd && inventory.ubi_almacen === 1);
-
-    const cantidad_invAlto = inventoriesAlto.length > 0 ? inventoriesAlto[0].cantidad_inv : 0;
-    const cantidad_invArce = inventoriesArce.length > 0 ? inventoriesArce[0].cantidad_inv : 0;
-    const cantidad_invTotal = cantidad_invAlto + cantidad_invArce;
-
-    const cost_uni2 = prices.find(price => price.modelo.trim() === producto.codigo_prod);
-    const cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio) * 1.1) : (inventoriesAlto.length > 0 ? Math.round(inventoriesAlto[0].cost_uni_inv * 1.1) : (inventoriesArce.length > 0 ? Math.round(inventoriesArce[0].cost_uni_inv * 1.1) : 0));
-
-    const item = document.createElement('div');
-    item.classList.add('cart__item');
-    item.setAttribute('id_prod', producto['id_prod']);
-    item.setAttribute('draggable', 'true');
-
-    const cantidadInvParagraph = document.createElement('p');
-    cantidadInvParagraph.classList.add('cart__item--stock');
-
-    if (cantidad_invAlto > 0 && cantidad_invArce > 0) {
-        cantidadInvParagraph.classList.add('almacen-ambos');
-    } else if (cantidad_invAlto > 0) {
-        cantidadInvParagraph.classList.add('almacen-alto');
-    } else if (cantidad_invArce > 0) {
-        cantidadInvParagraph.classList.add('almacen-arce');
-    }
-
-    cantidadInvParagraph.textContent = cantidad_invTotal;
-    item.appendChild(cantidadInvParagraph);
-
-    const img = document.createElement('img');
-    img.src = `../modelos/imagenes/${producto['imagen_prod']}`;
-    img.classList.add('cart__item--img');
-    item.appendChild(img);
-
-    const codigoParagraph = document.createElement('p');
-    codigoParagraph.classList.add('cart__item--code');
-    codigoParagraph.textContent = producto['codigo_prod'];
-    item.appendChild(codigoParagraph);
-
-    const descripcionTextarea = document.createElement('textarea');
-    descripcionTextarea.classList.add('cart__item--name');
-    descripcionTextarea.textContent = product.descripcion_cppd;
-    item.appendChild(descripcionTextarea);
-
-    function updateCostTotal(cantidadInput, costUnitInput, costTotalInput) {
-        const cantidad = parseInt(cantidadInput.value);
-        const costUnit = parseFloat(costUnitInput.value);
-        const costTotal = cantidad * costUnit;
-        costTotalInput.value = costTotal;
-        totalPriceCPPDR();
-    }
-
-    const cantidadInput = document.createElement('input');
-    cantidadInput.type = 'number';
-    cantidadInput.value = product.cantidad_cppd;
-    cantidadInput.min = '1';
-    cantidadInput.classList.add('cart__item--quantity');
-    cantidadInput.addEventListener('change', (e) => {
-        const costUnitInput = e.target.parentNode.querySelector('.cart__item--costUnit');
-        const costTotalInput = e.target.parentNode.querySelector('.cart__item--costTotal');
-        updateCostTotal(e.target, costUnitInput, costTotalInput);
-    });
-
-    item.appendChild(cantidadInput);
-
-    const costUnitInput = document.createElement('input');
-    costUnitInput.type = 'number';
-    costUnitInput.value = product.cost_uni_cppd;
-    costUnitInput.classList.add('cart__item--costUnit');
-    costUnitInput.addEventListener('change', (e) => {
-        const cantidadInput = e.target.parentNode.querySelector('.cart__item--quantity');
-        const costTotalInput = e.target.parentNode.querySelector('.cart__item--costTotal');
-        updateCostTotal(cantidadInput, e.target, costTotalInput);
-    });
-    item.appendChild(costUnitInput);
-
-    const costTotalInput = document.createElement('input');
-    costTotalInput.type = 'number';
-    costTotalInput.value = (product.cantidad_cppd * product.cost_uni_cppd).toFixed(2);
-    costTotalInput.classList.add('cart__item--costTotal');
-    costTotalInput.readOnly = true;
-    item.appendChild(costTotalInput);
-
-    const observacionInput = document.createElement('input');
-    observacionInput.type = 'text';
-    observacionInput.value = product.observacion_cppd;
-    observacionInput.classList.add('cart__item--observacion');
-    item.appendChild(observacionInput);
-
-    if (product.estado_cppd === 0) {
-        const img = document.createElement('img');
-        img.classList.add('icon__CRUD');
-        img.src = '../imagenes/cartAdd.svg';
-        img.setAttribute('onclick', 'openProductBuyMW(this.parentNode)');
-        img.setAttribute('title', 'Agregar producto');
-        item.appendChild(img);
-        const img2 = document.createElement('img');
-        img2.classList.add('icon__CRUD');
-        img2.src = '../imagenes/trash.svg';
-        img2.setAttribute('title', 'Eliminar producto');
-        img2.setAttribute('onclick', 'deleteCmp_prod(this.parentNode.children[0].value)');
-        item.appendChild(img2);
-    } else if (product.estado_cppd === 1) {
-        const img = document.createElement('img');
-        img.src = '../imagenes/checkCircle.svg';
-        img.setAttribute('title', 'Producto agregado');
-        item.appendChild(img);
-        const img2 = document.createElement('img');
-        img2.classList.add('icon__CRUD');
-        img2.src = '../imagenes/edit.svg';
-        img2.setAttribute('title', 'Editar producto');
-        img2.setAttribute('onclick', 'openProductBuyMW(this.parentNode)');
-        item.appendChild(img2);
-    }
-    return item;
+    cmpProdMMW.addEventListener("dragover", initSortableList);
+    cmpProdMMW.addEventListener("dragenter", e => e.preventDefault());
+    totalPriceR();
 }
 //----Create Cmp_prod
 async function createCmp_prod(row) {
@@ -921,10 +805,281 @@ function totalPriceCPPD(id_cmp) {
     totalCPMMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2) - desc).toFixed(2)} Bs`;
     quantityCPMMW.innerHTML = divs.length;
 }
+//-----------------------------------------------ADD CART------------------------------------------
+const cmpProdRMW = document.querySelector('#cmp_prodRMW div.modal__body');
+function cartCmp_prodR(id_prod, contenedor, totalPrice) {
+    const product = filterProductsMW.find(product => product['id_prod'] == id_prod);
+    const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === id_prod && inventory.ubi_almacen === 0);
+    const inventoriesArce = inventories.filter(inventory => inventory.fk_id_prod_inv === id_prod && inventory.ubi_almacen === 1);
 
+    const cantidad_invAlto = inventoriesAlto.length > 0 ? inventoriesAlto[0].cantidad_inv : 0;
+    const cantidad_invArce = inventoriesArce.length > 0 ? inventoriesArce[0].cantidad_inv : 0;
+    const cantidad_invTotal = cantidad_invAlto + cantidad_invArce;
 
+    const cost_uni2 = prices.find(price => price.modelo.trim() === product.codigo_prod);
+    const cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio) * 1.1) : (inventoriesAlto.length > 0 ? Math.round(inventoriesAlto[0].cost_uni_inv * 1.1) : (inventoriesArce.length > 0 ? Math.round(inventoriesArce[0].cost_uni_inv * 1.1) : 0));
 
+    const item = document.createElement('div');
+    item.classList.add('cart__item');
+    item.setAttribute('id_prod', product['id_prod']);
+    item.setAttribute('draggable', 'true');
 
+    const cantidadInvParagraph = document.createElement('p');
+    cantidadInvParagraph.classList.add('cart__item--stock');
+
+    if (cantidad_invAlto > 0 && cantidad_invArce > 0) {
+        cantidadInvParagraph.classList.add('almacen-ambos');
+    } else if (cantidad_invAlto > 0) {
+        cantidadInvParagraph.classList.add('almacen-alto');
+    } else if (cantidad_invArce > 0) {
+        cantidadInvParagraph.classList.add('almacen-arce');
+    }
+
+    cantidadInvParagraph.textContent = cantidad_invTotal;
+    item.appendChild(cantidadInvParagraph);
+
+    const img = document.createElement('img');
+    img.src = `../modelos/imagenes/${product['imagen_prod']}`;
+    img.classList.add('cart__item--img');
+    item.appendChild(img);
+
+    const codigoParagraph = document.createElement('p');
+    codigoParagraph.classList.add('cart__item--code');
+    codigoParagraph.textContent = product['codigo_prod'];
+    item.appendChild(codigoParagraph);
+
+    const descripcionTextarea = document.createElement('textarea');
+    descripcionTextarea.classList.add('cart__item--name');
+    descripcionTextarea.textContent = product['nombre_prod'];
+    item.appendChild(descripcionTextarea);
+
+    function updateCostTotal(cantidadInput, costUnitInput, costTotalInput) {
+        const cantidad = parseInt(cantidadInput.value);
+        const costUnit = parseFloat(costUnitInput.value);
+        const costTotal = cantidad * costUnit;
+        costTotalInput.value = costTotal;
+        totalPriceR();
+    }
+
+    const cantidadInput = document.createElement('input');
+    cantidadInput.type = 'number';
+    cantidadInput.value = '1';
+    cantidadInput.min = '1';
+    cantidadInput.classList.add('cart__item--quantity');
+    cantidadInput.addEventListener('change', (e) => {
+        const costUnitInput = e.target.parentNode.querySelector('.cart__item--costUnit');
+        const costTotalInput = e.target.parentNode.querySelector('.cart__item--costTotal');
+        updateCostTotal(e.target, costUnitInput, costTotalInput);
+    });
+
+    item.appendChild(cantidadInput);
+
+    const costUnitInput = document.createElement('input');
+    costUnitInput.type = 'number';
+    costUnitInput.value = cost_uni;
+    costUnitInput.classList.add('cart__item--costUnit');
+    costUnitInput.addEventListener('change', (e) => {
+        const cantidadInput = e.target.parentNode.querySelector('.cart__item--quantity');
+        const costTotalInput = e.target.parentNode.querySelector('.cart__item--costTotal');
+        updateCostTotal(cantidadInput, e.target, costTotalInput);
+    });
+    item.appendChild(costUnitInput);
+
+    const costTotalInput = document.createElement('input');
+    costTotalInput.type = 'number';
+    costTotalInput.value = cost_uni;
+    costTotalInput.classList.add('cart__item--costTotal');
+    costTotalInput.readOnly = true;
+    item.appendChild(costTotalInput);
+
+    const observacionInput = document.createElement('input');
+    observacionInput.type = 'text';
+    observacionInput.placeholder = 'Observaciones';
+    observacionInput.classList.add('cart__item--observacion');
+    item.appendChild(observacionInput);
+
+    const divImg = document.createElement('div');
+    divImg.classList.add('cart__item--imgCRUD');
+    const trashImg = document.createElement('img');
+    trashImg.src = '../imagenes/trash.svg';
+    trashImg.classList.add('icon__CRUD');
+    trashImg.addEventListener('click', (e) => removeCartR(e, contenedor, totalPrice));
+    divImg.appendChild(trashImg);
+    item.appendChild(divImg);
+    return item;
+}
+//-------Eliminar producto 
+function removeCartR(e, container, total) {
+    const item = e.target.parentNode.parentNode;
+    container.removeChild(item);
+    total();
+}
+const quantityCPRMW = document.getElementById('quantityCPRMW');
+const subTotalCPRMW = document.getElementById('subTotalCPRMW');
+const descCPRMW = document.getElementById('descCPRMW');
+const totalCPRMW = document.getElementById('totalCPRMW');
+const descuento_cmpR = document.getElementById('descuento_cmpR');
+const numberCPRMW = cmp_prodRMW.querySelector('div.modal__body--number');
+function totalPriceR() {
+    const divs = cmpProdRMW.querySelectorAll('.cart__item');
+    let total = 0;
+    if (divs.length > 0) {
+        divs.forEach(div => {
+            const costoTotal = div.querySelector('.cart__item--costTotal').value;
+            const costo = parseFloat(costoTotal);
+            if (!isNaN(costo)) {
+                total += costo;
+            }
+        });
+    }
+    const descuento = total * (descuento_cmpR.value / 100);
+    subTotalCPRMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2) + ' Bs';
+    descCPRMW.innerHTML = `Desc. ${descuento_cmpR.value}% (Bs): ${descuento.toFixed(2)} Bs`;
+    totalCPRMW.innerHTML = `Total (Bs): ${(total - descuento).toFixed(2)} Bs`;
+    quantityCPRMW.innerHTML = divs.length;
+    numberCPRMW.innerHTML = '';
+    for (let i = 1; i <= divs.length; i++) {
+        const div = document.createElement('div');
+        div.classList.add('modal__body--index');
+        div.innerText = i;
+        numberCPRMW.appendChild(div);
+    }
+}
+//<<-------------------------------------MODAL DE PRODUCTS PARA COMPRAR-------------------------------------------->>
+const closeCmp_prodRMW = document.getElementById('closeCmp_prodRMW');
+const cmp_prodRMW = document.getElementById('cmp_prodRMW');
+function openCmp_prodRMW() {
+    cmp_prodRMW.classList.add('modal__show');
+}
+closeCmp_prodRMW.addEventListener('click', (e) => {
+    cmp_prodRMW.classList.remove('modal__show');
+});
+const cmpProdMMW = document.querySelector('#cmp_prodMMW div.modal__body');
+function cartCmp_prodM(product, contenedor, totalPrice) {
+    const producto = products.find(producto => producto['id_prod'] == product.fk_id_prod_cppd);
+    const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === product.fk_id_prod_cppd && inventory.ubi_almacen === 0);
+    const inventoriesArce = inventories.filter(inventory => inventory.fk_id_prod_inv === product.fk_id_prod_cppd && inventory.ubi_almacen === 1);
+
+    const cantidad_invAlto = inventoriesAlto.length > 0 ? inventoriesAlto[0].cantidad_inv : 0;
+    const cantidad_invArce = inventoriesArce.length > 0 ? inventoriesArce[0].cantidad_inv : 0;
+    const cantidad_invTotal = cantidad_invAlto + cantidad_invArce;
+
+    const cost_uni2 = prices.find(price => price.modelo.trim() === producto.codigo_prod);
+    const cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio) * 1.1) : (inventoriesAlto.length > 0 ? Math.round(inventoriesAlto[0].cost_uni_inv * 1.1) : (inventoriesArce.length > 0 ? Math.round(inventoriesArce[0].cost_uni_inv * 1.1) : 0));
+
+    const item = document.createElement('div');
+    item.classList.add('cart__item');
+    item.setAttribute('id_prod', producto['id_prod']);
+    item.setAttribute('draggable', 'true');
+
+    const cantidadInvParagraph = document.createElement('p');
+    cantidadInvParagraph.classList.add('cart__item--stock');
+
+    if (cantidad_invAlto > 0 && cantidad_invArce > 0) {
+        cantidadInvParagraph.classList.add('almacen-ambos');
+    } else if (cantidad_invAlto > 0) {
+        cantidadInvParagraph.classList.add('almacen-alto');
+    } else if (cantidad_invArce > 0) {
+        cantidadInvParagraph.classList.add('almacen-arce');
+    }
+
+    cantidadInvParagraph.textContent = cantidad_invTotal;
+    item.appendChild(cantidadInvParagraph);
+
+    const img = document.createElement('img');
+    img.src = `../modelos/imagenes/${producto['imagen_prod']}`;
+    img.classList.add('cart__item--img');
+    item.appendChild(img);
+
+    const codigoParagraph = document.createElement('p');
+    codigoParagraph.classList.add('cart__item--code');
+    codigoParagraph.textContent = producto['codigo_prod'];
+    item.appendChild(codigoParagraph);
+
+    const descripcionTextarea = document.createElement('textarea');
+    descripcionTextarea.classList.add('cart__item--name');
+    descripcionTextarea.textContent = product.descripcion_cppd;
+    item.appendChild(descripcionTextarea);
+
+    function updateCostTotal(cantidadInput, costUnitInput, costTotalInput) {
+        const cantidad = parseInt(cantidadInput.value);
+        const costUnit = parseFloat(costUnitInput.value);
+        const costTotal = cantidad * costUnit;
+        costTotalInput.value = costTotal;
+        totalPriceR();
+    }
+
+    const cantidadInput = document.createElement('input');
+    cantidadInput.type = 'number';
+    cantidadInput.value = product.cantidad_cppd;
+    cantidadInput.min = '1';
+    cantidadInput.classList.add('cart__item--quantity');
+    cantidadInput.addEventListener('change', (e) => {
+        const costUnitInput = e.target.parentNode.querySelector('.cart__item--costUnit');
+        const costTotalInput = e.target.parentNode.querySelector('.cart__item--costTotal');
+        updateCostTotal(e.target, costUnitInput, costTotalInput);
+    });
+
+    item.appendChild(cantidadInput);
+
+    const costUnitInput = document.createElement('input');
+    costUnitInput.type = 'number';
+    costUnitInput.value = product.cost_uni_cppd;
+    costUnitInput.classList.add('cart__item--costUnit');
+    costUnitInput.addEventListener('change', (e) => {
+        const cantidadInput = e.target.parentNode.querySelector('.cart__item--quantity');
+        const costTotalInput = e.target.parentNode.querySelector('.cart__item--costTotal');
+        updateCostTotal(cantidadInput, e.target, costTotalInput);
+    });
+    item.appendChild(costUnitInput);
+
+    const costTotalInput = document.createElement('input');
+    costTotalInput.type = 'number';
+    costTotalInput.value = (product.cantidad_cppd * product.cost_uni_cppd).toFixed(2);
+    costTotalInput.classList.add('cart__item--costTotal');
+    costTotalInput.readOnly = true;
+    item.appendChild(costTotalInput);
+
+    const observacionInput = document.createElement('input');
+    observacionInput.type = 'text';
+    observacionInput.value = product.observacion_cppd;
+    observacionInput.classList.add('cart__item--observacion');
+    item.appendChild(observacionInput);
+
+    if (product.estado_cppd === 0) {
+        const img = document.createElement('img');
+        img.classList.add('icon__CRUD');
+        img.src = '../imagenes/cartAdd.svg';
+        img.setAttribute('onclick', 'openProductBuyMW(this.parentNode)');
+        img.setAttribute('title', 'Agregar producto');
+        item.appendChild(img);
+        const img2 = document.createElement('img');
+        img2.classList.add('icon__CRUD');
+        img2.src = '../imagenes/trash.svg';
+        img2.setAttribute('title', 'Eliminar producto');
+        img2.setAttribute('onclick', 'deleteCmp_prod(this.parentNode.children[0].value)');
+        item.appendChild(img2);
+    } else if (product.estado_cppd === 1) {
+        const img = document.createElement('img');
+        img.src = '../imagenes/checkCircle.svg';
+        img.setAttribute('title', 'Producto agregado');
+        item.appendChild(img);
+        const img2 = document.createElement('img');
+        img2.classList.add('icon__CRUD');
+        img2.src = '../imagenes/edit.svg';
+        img2.setAttribute('title', 'Editar producto');
+        img2.setAttribute('onclick', 'openProductBuyMW(this.parentNode)');
+        item.appendChild(img2);
+    }
+    return item;
+}
+
+//<<-------------------------------------MODAL DE PRODUCTS PARA COMPRAR-------------------------------------------->>
+const closeCmp_prodMMW = document.getElementById('closeCmp_prodMMW');
+const cmp_prodMMW = document.getElementById('cmp_prodMMW');
+closeCmp_prodMMW.addEventListener('click', (e) => {
+    cmp_prodMMW.classList.remove('modal__show');
+});
 
 
 //-------------------------------------------------SUPPLIER--------------------------------------------------
@@ -1490,15 +1645,6 @@ const closeAddBuyMW = document.getElementById('closeAddBuyMW');
 closeAddBuyMW.addEventListener('click', (e) => {
     addBuyMW.classList.remove('modal__show');
 });
-//<<-------------------------------------MODAL DE PRODUCTS PARA COMPRAR-------------------------------------------->>
-const closeCmp_prodRMW = document.getElementById('closeCmp_prodRMW');
-const cmp_prodRMW = document.getElementById('cmp_prodRMW');
-function openCmp_prodRMW() {
-    cmp_prodRMW.classList.add('modal__show');
-}
-closeCmp_prodRMW.addEventListener('click', (e) => {
-    cmp_prodRMW.classList.remove('modal__show');
-});
 
 
 //--------------------------------------------TABLA MODAL PRODUCTS-----------------------------------------------
@@ -1695,7 +1841,7 @@ function tableProductsMW(page) {
 }
 function sendProduct(id_prod) {
     if (formBuy === 'R') {
-        const row = cartCmp_prodR(id_prod, cmpProdRMW, totalPriceCPPDR);
+        const row = cartCmp_prodR(id_prod, cmpProdRMW, totalPriceR);
         cmpProdRMW.appendChild(row);
         //Drang and drop
         const items = cmpProdRMW.querySelectorAll(".cart__item");
@@ -1707,9 +1853,20 @@ function sendProduct(id_prod) {
         });
         cmpProdRMW.addEventListener("dragover", initSortableList);
         cmpProdRMW.addEventListener("dragenter", e => e.preventDefault());
-        totalPriceCPPDR();
-    } else if (formBuy != 'R') {
-        cartProduct_cppdM(id_prod, formBuy);
+        totalPriceR();
+    } else if (formBuy === 'M') {
+        const row = cartCmp_prodR(id_prod, cmpProdMMW, totalPriceR);
+        cmpProdRMW.appendChild(row);
+        //Drang and drop
+        const items = cmpProdRMW.querySelectorAll(".cart__item");
+        items.forEach(item => {
+            item.addEventListener("dragstart", () => {
+                setTimeout(() => item.classList.add("dragging"), 0);
+            });
+            item.addEventListener("dragend", () => item.classList.remove("dragging"));
+        });
+        cmpProdRMW.addEventListener("dragover", initSortableList);
+        cmpProdRMW.addEventListener("dragenter", e => e.preventDefault());
     }
 }
 const initSortableList = (e) => {
@@ -1724,146 +1881,6 @@ const initSortableList = (e) => {
     });
 
     cmpProdRMW.insertBefore(draggingItem, nextSibling);
-}
-const cmpProdRMW = document.querySelector('#cmp_prodRMW div.modal__body');
-function cartCmp_prodR(id_prod, contenedor, totalPrice) {
-    const product = filterProductsMW.find(product => product['id_prod'] == id_prod);
-    const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === id_prod && inventory.ubi_almacen === 0);
-    const inventoriesArce = inventories.filter(inventory => inventory.fk_id_prod_inv === id_prod && inventory.ubi_almacen === 1);
-
-    const cantidad_invAlto = inventoriesAlto.length > 0 ? inventoriesAlto[0].cantidad_inv : 0;
-    const cantidad_invArce = inventoriesArce.length > 0 ? inventoriesArce[0].cantidad_inv : 0;
-    const cantidad_invTotal = cantidad_invAlto + cantidad_invArce;
-
-    const cost_uni2 = prices.find(price => price.modelo.trim() === product.codigo_prod);
-    const cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio) * 1.1) : (inventoriesAlto.length > 0 ? Math.round(inventoriesAlto[0].cost_uni_inv * 1.1) : (inventoriesArce.length > 0 ? Math.round(inventoriesArce[0].cost_uni_inv * 1.1) : 0));
-
-    const item = document.createElement('div');
-    item.classList.add('cart__item');
-    item.setAttribute('id_prod', product['id_prod']);
-    item.setAttribute('draggable', 'true');
-
-    const cantidadInvParagraph = document.createElement('p');
-    cantidadInvParagraph.classList.add('cart__item--stock');
-
-    if (cantidad_invAlto > 0 && cantidad_invArce > 0) {
-        cantidadInvParagraph.classList.add('almacen-ambos');
-    } else if (cantidad_invAlto > 0) {
-        cantidadInvParagraph.classList.add('almacen-alto');
-    } else if (cantidad_invArce > 0) {
-        cantidadInvParagraph.classList.add('almacen-arce');
-    }
-
-    cantidadInvParagraph.textContent = cantidad_invTotal;
-    item.appendChild(cantidadInvParagraph);
-
-    const img = document.createElement('img');
-    img.src = `../modelos/imagenes/${product['imagen_prod']}`;
-    img.classList.add('cart__item--img');
-    item.appendChild(img);
-
-    const codigoParagraph = document.createElement('p');
-    codigoParagraph.classList.add('cart__item--code');
-    codigoParagraph.textContent = product['codigo_prod'];
-    item.appendChild(codigoParagraph);
-
-    const descripcionTextarea = document.createElement('textarea');
-    descripcionTextarea.classList.add('cart__item--name');
-    descripcionTextarea.textContent = product['nombre_prod'];
-    item.appendChild(descripcionTextarea);
-
-    function updateCostTotal(cantidadInput, costUnitInput, costTotalInput) {
-        const cantidad = parseInt(cantidadInput.value);
-        const costUnit = parseFloat(costUnitInput.value);
-        const costTotal = cantidad * costUnit;
-        costTotalInput.value = costTotal;
-        totalPriceCPPDR();
-    }
-
-    const cantidadInput = document.createElement('input');
-    cantidadInput.type = 'number';
-    cantidadInput.value = '1';
-    cantidadInput.min = '1';
-    cantidadInput.classList.add('cart__item--quantity');
-    cantidadInput.addEventListener('change', (e) => {
-        const costUnitInput = e.target.parentNode.querySelector('.cart__item--costUnit');
-        const costTotalInput = e.target.parentNode.querySelector('.cart__item--costTotal');
-        updateCostTotal(e.target, costUnitInput, costTotalInput);
-    });
-
-    item.appendChild(cantidadInput);
-
-    const costUnitInput = document.createElement('input');
-    costUnitInput.type = 'number';
-    costUnitInput.value = cost_uni;
-    costUnitInput.classList.add('cart__item--costUnit');
-    costUnitInput.addEventListener('change', (e) => {
-        const cantidadInput = e.target.parentNode.querySelector('.cart__item--quantity');
-        const costTotalInput = e.target.parentNode.querySelector('.cart__item--costTotal');
-        updateCostTotal(cantidadInput, e.target, costTotalInput);
-    });
-    item.appendChild(costUnitInput);
-
-    const costTotalInput = document.createElement('input');
-    costTotalInput.type = 'number';
-    costTotalInput.value = cost_uni;
-    costTotalInput.classList.add('cart__item--costTotal');
-    costTotalInput.readOnly = true;
-    item.appendChild(costTotalInput);
-
-    const observacionInput = document.createElement('input');
-    observacionInput.type = 'text';
-    observacionInput.placeholder = 'Observaciones';
-    observacionInput.classList.add('cart__item--observacion');
-    item.appendChild(observacionInput);
-
-    const divImg = document.createElement('div');
-    divImg.classList.add('cart__item--imgCRUD');
-    const trashImg = document.createElement('img');
-    trashImg.src = '../imagenes/trash.svg';
-    trashImg.classList.add('icon__CRUD');
-    trashImg.addEventListener('click', (e) => removeCartR(e, contenedor, totalPrice));
-    divImg.appendChild(trashImg);
-    item.appendChild(divImg);
-    return item;
-}
-//-------Eliminar producto 
-function removeCartR(e, container, total) {
-    console.log(container)
-    const item = e.target.parentNode;
-    container.removeChild(item);
-    total();
-}
-const quantityCPRMW = document.getElementById('quantityCPRMW');
-const subTotalCPRMW = document.getElementById('subTotalCPRMW');
-const descCPRMW = document.getElementById('descCPRMW');
-const totalCPRMW = document.getElementById('totalCPRMW');
-const descuento_cmpR = document.getElementById('descuento_cmpR');
-const numberCPRMW = cmp_prodRMW.querySelector('div.modal__body--number');
-function totalPriceCPPDR() {
-    const divs = cmpProdRMW.querySelectorAll('.cart__item');
-    let total = 0;
-    if (divs.length > 0) {
-        divs.forEach(div => {
-            const costoTotal = div.querySelector('.cart__item--costTotal').value;
-            const costo = parseFloat(costoTotal);
-            if (!isNaN(costo)) {
-                total += costo;
-            }
-        });
-    }
-    const descuento = total * (descuento_cmpR.value / 100);
-    subTotalCPRMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2) + ' Bs';
-    descCPRMW.innerHTML = `Desc. ${descuento_cmpR.value}% (Bs): ${descuento.toFixed(2)} Bs`;
-    totalCPRMW.innerHTML = `Total (Bs): ${(total - descuento).toFixed(2)} Bs`;
-    quantityCPRMW.innerHTML = divs.length;
-    numberCPRMW.innerHTML = '';
-    for (let i = 1; i <= divs.length; i++) {
-        const div = document.createElement('div');
-        div.classList.add('modal__body--index');
-        div.innerText = i;
-        numberCPRMW.appendChild(div);
-    }
 }
 //---------------------------VENTANA MODAL PARA BUSCAR PRODUCTOS
 const productSMW = document.getElementById('productSMW');
@@ -2478,8 +2495,7 @@ async function readUsers() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            users = Object.values(data);
-            console.log(users);
+            users = data;
             resolve();
         }).catch(err => {
             mostrarAlerta('Ocurrio un error al cargar la tabla de usuarios, cargue nuevamente la pagina');
