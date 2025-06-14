@@ -314,12 +314,13 @@ async function createBuy() {
         for (let producto of cmp_prodRMW.querySelectorAll('div.cart__item')) {
             productos.push({
                 fk_id_prod_cppd: producto.getAttribute('id_prod'),
-                descripcion_cppd: producto.querySelector('.cart__item--name').innerText,
+                descripcion_cppd: producto.querySelector('.cart__item--name').value,
                 cantidad_cppd: producto.querySelector('.cart__item--quantity').value,
                 cost_uni_cppd: producto.querySelector('.cart__item--costUnit').value,
                 observacion_cppd: producto.querySelector('.cart__item--observacion').value,
             });
         }
+        console.log(productos)
         let formData = new FormData(formBuyR);
         const total = Number(totalCPRMW.innerHTML.split(' ')[2]);
         formData.set('total_cmpR', total);
@@ -662,14 +663,17 @@ function tableCmpProds(page) {
 //----------------------------------------CRUD CMP-PROD--------------------------------------------
 //------read Cmp_prods by 
 const titleCmp_prodMMW = document.querySelector('#titleCmp_prodMMW');
+let globalId_cmp;
 function readCmpProd(id_cmp) {
+    formBuy = 'M';
+    globalId_cmp = id_cmp;
     const compra = buys.find(buy => buy.id_cmp === id_cmp);
     titleCmp_prodMMW.innerHTML = `${compra.numero_cmp}`;
     const productos = cmp_prods.filter(cmp_prod => cmp_prod.fk_id_cmp_cppd === id_cmp);
     cmp_prodMMW.classList.add('modal__show');
     cmpProdMMW.innerHTML = '';
     productos.forEach(producto => {
-        const cart = cartCmp_prodM(producto, cmpProdMMW, totalPriceR);
+        const cart = cartCmp_prodM(producto, cmpProdMMW, totalPriceM(id_cmp));
         cmpProdMMW.appendChild(cart);
     });
     //Drang and drop
@@ -682,7 +686,7 @@ function readCmpProd(id_cmp) {
     });
     cmpProdMMW.addEventListener("dragover", initSortableList);
     cmpProdMMW.addEventListener("dragenter", e => e.preventDefault());
-    totalPriceR();
+    totalPriceM(id_cmp);
 }
 //----Create Cmp_prod
 async function createCmp_prod(row) {
@@ -778,36 +782,19 @@ function openProductBuyMW(row) {
     document.getElementsByName('cantidad_cppd')[0].value = row.children[7].value;
     document.getElementsByName('cost_uni_cppd')[0].value = row.children[8].value + ' Bs';
 }
-function changeQuantityCPPD(row, id_cmp) {
-    let cantidad_prod = row.children[7].value;
-    let costo_uni = row.children[8].value;
-    let cost_uni_total = cantidad_prod * costo_uni;
-    row.children[9].value = cost_uni_total.toFixed(2);
-    totalPriceCPPD(id_cmp);
+//-----------------------------------------------ADD CART R------------------------------------------
+//<<-------------------------------------MODAL DE PRODUCTS PARA COMPRAR-------------------------------------------->>
+const closeCmp_prodRMW = document.getElementById('closeCmp_prodRMW');
+const cmp_prodRMW = document.getElementById('cmp_prodRMW');
+function openCmp_prodRMW() {
+    cmp_prodRMW.classList.add('modal__show');
 }
-function totalPriceCPPD(id_cmp) {
-    let divs = document.querySelectorAll('#productBuyMW div.modal__body div.cart__item');
-    let quantityCPMMW = document.getElementById('quantityaddBuyMW');
-    let subTotalCPMMW = document.getElementById('subTotaladdBuyMW');
-    let descCPMMW = document.getElementById('descaddBuyMW');
-    let totalCPMMW = document.getElementById('totaladdBuyMW');
-    let total = 0;
-    let desc = 0;
-    divs.forEach(div => {
-        costo_total = Number(div.children[9].value);
-        total = total + costo_total;
-    })
-    let ordenCompra = filterBuys.find(cmp_prod => cmp_prod.id_cmp == id_cmp);
-    subTotalCPMMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2) + ' Bs';
-    desc = Number(ordenCompra.descuento_cmp) * total / 100;
-    desc = desc.toFixed(2);
-    descCPMMW.innerHTML = `Desc. ${ordenCompra.descuento_cmp}% (Bs): ${desc} Bs`;
-    totalCPMMW.innerHTML = `Total (Bs): ${Number(total.toFixed(2) - desc).toFixed(2)} Bs`;
-    quantityCPMMW.innerHTML = divs.length;
-}
-//-----------------------------------------------ADD CART------------------------------------------
+closeCmp_prodRMW.addEventListener('click', (e) => {
+    cmp_prodRMW.classList.remove('modal__show');
+});
+//------ADD CART
 const cmpProdRMW = document.querySelector('#cmp_prodRMW div.modal__body');
-function cartCmp_prodR(id_prod, contenedor, totalPrice) {
+function cartCmp_prod(id_prod, contenedor, totalPrice) {
     const product = filterProductsMW.find(product => product['id_prod'] == id_prod);
     const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === id_prod && inventory.ubi_almacen === 0);
     const inventoriesArce = inventories.filter(inventory => inventory.fk_id_prod_inv === id_prod && inventory.ubi_almacen === 1);
@@ -850,7 +837,7 @@ function cartCmp_prodR(id_prod, contenedor, totalPrice) {
 
     const descripcionTextarea = document.createElement('textarea');
     descripcionTextarea.classList.add('cart__item--name');
-    descripcionTextarea.textContent = product['nombre_prod'];
+    descripcionTextarea.value = product['nombre_prod'];
     item.appendChild(descripcionTextarea);
 
     function updateCostTotal(cantidadInput, costUnitInput, costTotalInput) {
@@ -945,17 +932,15 @@ function totalPriceR() {
         numberCPRMW.appendChild(div);
     }
 }
+//<<-------------------------------------ADD CART M-------------------------------------------->>
 //<<-------------------------------------MODAL DE PRODUCTS PARA COMPRAR-------------------------------------------->>
-const closeCmp_prodRMW = document.getElementById('closeCmp_prodRMW');
-const cmp_prodRMW = document.getElementById('cmp_prodRMW');
-function openCmp_prodRMW() {
-    cmp_prodRMW.classList.add('modal__show');
-}
-closeCmp_prodRMW.addEventListener('click', (e) => {
-    cmp_prodRMW.classList.remove('modal__show');
+const closeCmp_prodMMW = document.getElementById('closeCmp_prodMMW');
+const cmp_prodMMW = document.getElementById('cmp_prodMMW');
+closeCmp_prodMMW.addEventListener('click', (e) => {
+    cmp_prodMMW.classList.remove('modal__show');
 });
 const cmpProdMMW = document.querySelector('#cmp_prodMMW div.modal__body');
-function cartCmp_prodM(product, contenedor, totalPrice) {
+function cartCmp_prodM(product, contenedor, total) {
     const producto = products.find(producto => producto['id_prod'] == product.fk_id_prod_cppd);
     const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === product.fk_id_prod_cppd && inventory.ubi_almacen === 0);
     const inventoriesArce = inventories.filter(inventory => inventory.fk_id_prod_inv === product.fk_id_prod_cppd && inventory.ubi_almacen === 1);
@@ -1006,9 +991,9 @@ function cartCmp_prodM(product, contenedor, totalPrice) {
         const costUnit = parseFloat(costUnitInput.value);
         const costTotal = cantidad * costUnit;
         costTotalInput.value = costTotal;
-        totalPriceR();
+        total();
     }
-
+    console.log('entro')
     const cantidadInput = document.createElement('input');
     cantidadInput.type = 'number';
     cantidadInput.value = product.cantidad_cppd;
@@ -1057,7 +1042,7 @@ function cartCmp_prodM(product, contenedor, totalPrice) {
         img2.classList.add('icon__CRUD');
         img2.src = '../imagenes/trash.svg';
         img2.setAttribute('title', 'Eliminar producto');
-        img2.setAttribute('onclick', 'deleteCmp_prod(this.parentNode.children[0].value)');
+        img2.setAttribute('onclick', `deleteCmp_prod(${product.id_cppd})`);
         item.appendChild(img2);
     } else if (product.estado_cppd === 1) {
         const img = document.createElement('img');
@@ -1073,13 +1058,39 @@ function cartCmp_prodM(product, contenedor, totalPrice) {
     }
     return item;
 }
+const quantityCPMMW = document.getElementById('quantityCPMMW');
+const subTotalCPMMW = document.getElementById('subTotalCPMMW');
+const descCPMMW = document.getElementById('descCPMMW');
+const totalCPMMW = document.getElementById('totalCPMMW');
+const descuento_cmpM = document.getElementById('descuento_cmpM');
+const numberCPMMW = cmp_prodMMW.querySelector('div.modal__body--number');
+function totalPriceM(id_cmp) {
+    const compra = buys.find(buy => buy.id_cmp === id_cmp);
+    const divs = cmpProdMMW.querySelectorAll('.cart__item');
+    let total = 0;
+    if (divs.length > 0) {
+        divs.forEach(div => {
+            const costoTotal = div.querySelector('.cart__item--costTotal').value;
+            const costo = parseFloat(costoTotal);
+            if (!isNaN(costo)) {
+                total += costo;
+            }
+        });
+    }
+    const descuento = total * (compra.descuento_cmp / 100);
+    subTotalCPMMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2) + ' Bs';
+    descCPMMW.innerHTML = `Desc. ${descuento_cmpR.value}% (Bs): ${descuento.toFixed(2)} Bs`;
+    totalCPMMW.innerHTML = `Total (Bs): ${(total - descuento).toFixed(2)} Bs`;
+    quantityCPMMW.innerHTML = divs.length;
+    numberCPMMW.innerHTML = '';
+    for (let i = 1; i <= divs.length; i++) {
+        const div = document.createElement('div');
+        div.classList.add('modal__body--index');
+        div.innerText = i;
+        numberCPMMW.appendChild(div);
+    }
+}
 
-//<<-------------------------------------MODAL DE PRODUCTS PARA COMPRAR-------------------------------------------->>
-const closeCmp_prodMMW = document.getElementById('closeCmp_prodMMW');
-const cmp_prodMMW = document.getElementById('cmp_prodMMW');
-closeCmp_prodMMW.addEventListener('click', (e) => {
-    cmp_prodMMW.classList.remove('modal__show');
-});
 
 
 //-------------------------------------------------SUPPLIER--------------------------------------------------
@@ -1452,7 +1463,7 @@ function readEnterprise(rm) {
     enterprisesMMW.classList.add('modal__show');
 }
 //------Actualizar una empresa
-let formEmpresaM = document.getElementById('formEmpresaM');
+const formEmpresaM = document.getElementById('formEmpresaM');
 formEmpresaM.addEventListener('submit', updateEnterprise);
 async function updateEnterprise() {
     event.preventDefault();
@@ -1507,8 +1518,8 @@ async function deleteEnterprise(rm) {
 //-----------------------------------Ventana modal para empresa---------------------------------//
 const enterprisesRMW = document.getElementById('enterprisesRMW');
 const enterprisesMMW = document.getElementById('enterprisesMMW');
-const closEEnterprisesRMW = document.getElementById('closEEnterprisesRMW');
-const closEEnterprisesMMW = document.getElementById('closEEnterprisesMMW');
+const closeEnterprisesRMW = document.getElementById('closeEnterprisesRMW');
+const closeEnterprisesMMW = document.getElementById('closeEnterprisesMMW');
 function openEnterprisesRMW() {
     enterprisesRMW.classList.add('modal__show');
 }
@@ -1841,7 +1852,7 @@ function tableProductsMW(page) {
 }
 function sendProduct(id_prod) {
     if (formBuy === 'R') {
-        const row = cartCmp_prodR(id_prod, cmpProdRMW, totalPriceR);
+        const row = cartCmp_prod(id_prod, cmpProdRMW, totalPriceR);
         cmpProdRMW.appendChild(row);
         //Drang and drop
         const items = cmpProdRMW.querySelectorAll(".cart__item");
@@ -1855,18 +1866,19 @@ function sendProduct(id_prod) {
         cmpProdRMW.addEventListener("dragenter", e => e.preventDefault());
         totalPriceR();
     } else if (formBuy === 'M') {
-        const row = cartCmp_prodR(id_prod, cmpProdMMW, totalPriceR);
-        cmpProdRMW.appendChild(row);
+        const row = cartCmp_prod(id_prod, cmpProdMMW, totalPriceM);
+        cmpProdMMW.appendChild(row);
         //Drang and drop
-        const items = cmpProdRMW.querySelectorAll(".cart__item");
+        const items = cmpProdMMW.querySelectorAll(".cart__item");
         items.forEach(item => {
             item.addEventListener("dragstart", () => {
                 setTimeout(() => item.classList.add("dragging"), 0);
             });
             item.addEventListener("dragend", () => item.classList.remove("dragging"));
         });
-        cmpProdRMW.addEventListener("dragover", initSortableList);
-        cmpProdRMW.addEventListener("dragenter", e => e.preventDefault());
+        cmpProdMMW.addEventListener("dragover", initSortableList);
+        cmpProdMMW.addEventListener("dragenter", e => e.preventDefault());
+        totalPriceM(globalId_cmp);
     }
 }
 const initSortableList = (e) => {
