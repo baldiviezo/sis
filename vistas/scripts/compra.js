@@ -673,9 +673,10 @@ function readCmpProd(id_cmp) {
     cmp_prodMMW.classList.add('modal__show');
     cmpProdMMW.innerHTML = '';
     productos.forEach(producto => {
-        const cart = cartCmp_prodM(producto, cmpProdMMW, totalPriceM(id_cmp));
+        const cart = cartCmp_prodM(producto, cmpProdMMW, totalPriceM);
         cmpProdMMW.appendChild(cart);
     });
+    descCPMMW.setAttribute('descuento_cmp', compra.descuento_cmp);
     //Drang and drop
     const items = cmpProdMMW.querySelectorAll(".cart__item");
     items.forEach(item => {
@@ -795,6 +796,7 @@ closeCmp_prodRMW.addEventListener('click', (e) => {
 //------ADD CART
 const cmpProdRMW = document.querySelector('#cmp_prodRMW div.modal__body');
 function cartCmp_prod(id_prod, contenedor, totalPrice) {
+
     const product = filterProductsMW.find(product => product['id_prod'] == id_prod);
     const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === id_prod && inventory.ubi_almacen === 0);
     const inventoriesArce = inventories.filter(inventory => inventory.fk_id_prod_inv === id_prod && inventory.ubi_almacen === 1);
@@ -845,7 +847,7 @@ function cartCmp_prod(id_prod, contenedor, totalPrice) {
         const costUnit = parseFloat(costUnitInput.value);
         const costTotal = cantidad * costUnit;
         costTotalInput.value = costTotal;
-        totalPriceR();
+        totalPrice(globalId_cmp);
     }
 
     const cantidadInput = document.createElement('input');
@@ -887,6 +889,13 @@ function cartCmp_prod(id_prod, contenedor, totalPrice) {
 
     const divImg = document.createElement('div');
     divImg.classList.add('cart__item--imgCRUD');
+    if (formBuy === 'M') {
+        const createImg = document.createElement('img');
+        createImg.src = '../imagenes/plus.svg';
+        createImg.classList.add('icon__CRUD');
+        createImg.addEventListener('click', createCmp_prod);
+        divImg.appendChild(createImg);
+    }
     const trashImg = document.createElement('img');
     trashImg.src = '../imagenes/trash.svg';
     trashImg.classList.add('icon__CRUD');
@@ -940,7 +949,7 @@ closeCmp_prodMMW.addEventListener('click', (e) => {
     cmp_prodMMW.classList.remove('modal__show');
 });
 const cmpProdMMW = document.querySelector('#cmp_prodMMW div.modal__body');
-function cartCmp_prodM(product, contenedor, total) {
+function cartCmp_prodM(product, contenedor, total) {    
     const producto = products.find(producto => producto['id_prod'] == product.fk_id_prod_cppd);
     const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === product.fk_id_prod_cppd && inventory.ubi_almacen === 0);
     const inventoriesArce = inventories.filter(inventory => inventory.fk_id_prod_inv === product.fk_id_prod_cppd && inventory.ubi_almacen === 1);
@@ -986,36 +995,19 @@ function cartCmp_prodM(product, contenedor, total) {
     descripcionTextarea.textContent = product.descripcion_cppd;
     item.appendChild(descripcionTextarea);
 
-    function updateCostTotal(cantidadInput, costUnitInput, costTotalInput) {
-        const cantidad = parseInt(cantidadInput.value);
-        const costUnit = parseFloat(costUnitInput.value);
-        const costTotal = cantidad * costUnit;
-        costTotalInput.value = costTotal;
-        total();
-    }
-    console.log('entro')
     const cantidadInput = document.createElement('input');
+    cantidadInput.setAttribute('readonly', 'true');
     cantidadInput.type = 'number';
     cantidadInput.value = product.cantidad_cppd;
     cantidadInput.min = '1';
     cantidadInput.classList.add('cart__item--quantity');
-    cantidadInput.addEventListener('change', (e) => {
-        const costUnitInput = e.target.parentNode.querySelector('.cart__item--costUnit');
-        const costTotalInput = e.target.parentNode.querySelector('.cart__item--costTotal');
-        updateCostTotal(e.target, costUnitInput, costTotalInput);
-    });
-
     item.appendChild(cantidadInput);
 
     const costUnitInput = document.createElement('input');
+    costUnitInput.setAttribute('readonly', 'true');
     costUnitInput.type = 'number';
     costUnitInput.value = product.cost_uni_cppd;
     costUnitInput.classList.add('cart__item--costUnit');
-    costUnitInput.addEventListener('change', (e) => {
-        const cantidadInput = e.target.parentNode.querySelector('.cart__item--quantity');
-        const costTotalInput = e.target.parentNode.querySelector('.cart__item--costTotal');
-        updateCostTotal(cantidadInput, e.target, costTotalInput);
-    });
     item.appendChild(costUnitInput);
 
     const costTotalInput = document.createElement('input');
@@ -1077,9 +1069,9 @@ function totalPriceM(id_cmp) {
             }
         });
     }
-    const descuento = total * (compra.descuento_cmp / 100);
+    const descuento = total * (Number(descCPMMW.getAttribute('descuento_cmp')) / 100);
     subTotalCPMMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2) + ' Bs';
-    descCPMMW.innerHTML = `Desc. ${descuento_cmpR.value}% (Bs): ${descuento.toFixed(2)} Bs`;
+    descCPMMW.innerHTML = `Desc. ${Number(descCPMMW.getAttribute('descuento_cmp')) }% (Bs): ${descuento.toFixed(2)} Bs`;
     totalCPMMW.innerHTML = `Total (Bs): ${(total - descuento).toFixed(2)} Bs`;
     quantityCPMMW.innerHTML = divs.length;
     numberCPMMW.innerHTML = '';
@@ -1090,6 +1082,14 @@ function totalPriceM(id_cmp) {
         numberCPMMW.appendChild(div);
     }
 }
+
+
+
+
+
+
+
+
 
 
 
