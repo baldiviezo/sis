@@ -107,6 +107,8 @@ function filterTableUsers(data) {
                 td.innerText = i;
                 tr.appendChild(td);
                 i++;
+            } else if (columna == 'contraseña_usua'){
+
             } else {
                 let td = document.createElement('td');
                 td.innerText = data[usuario][columna];

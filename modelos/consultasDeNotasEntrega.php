@@ -12,23 +12,15 @@ class consultas{
 	//-------Leer notas de entrega
 	public function readNotasEntrega(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM nota_entrega INNER JOIN proforma ON nota_entrega.fk_id_prof_ne = id_prof INNER JOIN usuario ON proforma.fk_id_usua_prof = id_usua INNER JOIN cliente ON proforma.fk_id_clte_prof = id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = id_emp ORDER BY id_ne DESC";
+		$consulta = "SELECT * FROM nota_entrega ORDER BY id_ne DESC";
 		$resultado = $conexion->query($consulta);
 		$numeroNotaEntrega = $resultado->num_rows;
 		$notasEntrega =  array();
 		if($numeroNotaEntrega > 0){
 			while ($fila = $resultado->fetch_assoc()) {
-				$_prof_mprof_ne = '';
-				if ($fila['nombre_emp'] == 'Ninguna'){
-					$_prof_mprof_ne = strtoupper('NE-SMS'.substr($fila['fecha_prof'],2,2).'-'.$this->addZerosGo($fila['numero_prof']).'-'.explode(" ",$fila['apellido_clte'])[0]);
-				}else{
-					$_prof_mprof_ne = strtoupper('NE-SMS'.substr($fila['fecha_prof'],2,2).'-'.$this->addZerosGo($fila['numero_prof']).'-'.$sigla_emp = $fila['sigla_emp']);
-				}
-				$datos = array ('id_ne'=>$fila['id_ne'], 'id_prof'=>intval($fila['fk_id_prof_ne']), 'numero_prof'=>$_prof_mprof_ne,  'fecha_prof'=>$fila['fecha_prof'], 'fecha_ne'=>$fila['fecha_ne'], 'fk_id_usua_prof'=>$fila['fk_id_usua_prof'], 'nombre_usua'=>$fila['nombre_usua'], 'apellido_usua'=>$fila['apellido_usua'], 'nombre_emp'=>$fila['nombre_emp'], 'id_clte'=>$fila['id_clte'], 'nombre_clte'=>$fila['nombre_clte'], 'apellido_clte'=>$fila['apellido_clte'], 'orden_ne'=>$fila['orden_ne'], 'total_prof'=>doubleval($fila['total_prof']), 'observacion_ne'=>$fila['observacion_ne'], 'estado_ne'=>$fila['estado_ne']);
-					$notasEntrega[$fila['id_ne'].'_ne'] = $datos;		
+				$notasEntrega[] = $fila;	
 			}
-			$json = json_encode($notasEntrega, JSON_UNESCAPED_UNICODE);
-			echo $json;
+			echo json_encode($notasEntrega, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 		}else{
 			echo json_encode('');
 		}
@@ -141,6 +133,7 @@ class consultas{
 		$resultado = $conexion->query($consulta);
 		$ordenCompra = array();
 		while ($fila = $resultado->fetch_array(MYSQLI_ASSOC)) {
+			$fila['numero_oc'] = strtoupper('OC-SMS' . substr($fila['fecha_oc'], 2, 2) . '-' . $this->addZerosGo($fila['numero_oc']));
 			$ordenCompra[] = $fila;
 		}
 		echo json_encode($ordenCompra, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
@@ -156,8 +149,8 @@ class consultas{
 		}
 		echo json_encode($oc_prods, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 	}
-	//-------------------------------------------CRUD PROF_PROD---------------------------
-	//-------Read Prof_prods
+	//-------------------------------------------CRUD NTE-INV---------------------------
+	//-------Read nte_inv
 	public function readNte_invs(){
     	include 'conexion.php';
     	$consulta = "SELECT * FROM nte_inv";

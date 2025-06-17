@@ -37,10 +37,14 @@ async function init() {
                 readProformas(),
                 readOcProd(),
                 readUsers(),
-                readEnterprises()
+                readEnterprises(),
+                readNotasEntrega(),
+                readNte_invs()
             ]);
             paginacionOrdenCompra(orderBuys.length, 1);
             paginacionInventoryMW(inventories.length, 1);
+            paginacionNotaEntrega(notasEntrega.length, 1);
+            paginacionNteInv(filterNte_invs.length, 1);
             rqstNotaEntrega = false;
             preloader.classList.remove('modal__show');
         } catch (error) {
@@ -60,6 +64,7 @@ async function readOrderBuys() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
+            console.log(data)
             orderBuys = data;
             filterOrderBuys = data;
             createYearOC();
@@ -88,17 +93,22 @@ function searchOrdenCompra() {
     const busqueda = inputSearchOC.value.toLowerCase().trim();
 
     filterOrderBuys = orderBuys.filter(ordenBuy => {
-        let cliente = customers.find(customer => customer.id_clte === ordenBuy.fk_id_clte_oc);
-        let empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
-        let usuario = users.find(user => user.id_usua === ordenBuy.fk_id_usua_oc);
+        const proforma = proformas.find(proforma => proforma.id_prof === ordenBuy.fk_id_prof_oc);
+        const cliente = customers.find(customer => customer.id_clte === ordenBuy.fk_id_clte_oc);
+        const empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
+        const usuario = users.find(user => user.id_usua === ordenBuy.fk_id_usua_oc);
 
         if (valor === 'todas') {
             return (
+                proforma.numero_prof.toLowerCase().includes(busqueda) ||
+                ordenBuy.numero_oc.toLowerCase().includes(busqueda) ||
                 ordenBuy.fecha_oc.toLowerCase().includes(busqueda) ||
                 empresa.nombre_emp.toLowerCase().includes(busqueda) ||
                 (usuario.nombre_usua + ' ' + usuario.apellido_usua).toLowerCase().includes(busqueda) ||
                 (cliente.apellido_clte + ' ' + cliente.nombre_clte).toLowerCase().includes(busqueda)
             );
+        } else if (valor === 'numero_prof') {
+            return proforma.numero_prof.toLowerCase().includes(busqueda);
         } else if (valor === 'encargado') {
             return (usuario.nombre_usua + ' ' + usuario.apellido_usua).toLowerCase().includes(busqueda);
         } else if (valor === 'cliente') {
@@ -223,14 +233,17 @@ function tableOrdenCompra(page) {
         tdNumero.innerText = index + 1;
         tr.appendChild(tdNumero);
 
-        const tdNumeroProforma = document.createElement('td');
-        //	(SMS25-1247-HUAYHUA)
-        tdNumeroProforma.innerText = proforma.numero_prof;
-        tr.appendChild(tdNumeroProforma);
+        const tdNumeroOC = document.createElement('td');
+        tdNumeroOC.innerText = orderBuy.numero_oc;
+        tr.appendChild(tdNumeroOC);
 
         const tdFecha = document.createElement('td');
         tdFecha.innerText = orderBuy.fecha_oc;
         tr.appendChild(tdFecha);
+
+        const tdNumeroProforma = document.createElement('td');
+        tdNumeroProforma.innerText = proforma.numero_prof;
+        tr.appendChild(tdNumeroProforma);
 
         const tdEncargado = document.createElement('td');
         tdEncargado.innerText = usuario.nombre_usua + ' ' + usuario.apellido_usua;
@@ -248,9 +261,9 @@ function tableOrdenCompra(page) {
         tdTotal.innerText = orderBuy.total_oc + ' ' + orderBuy.moneda_oc;
         tr.appendChild(tdTotal);
 
-        const tdNumeroOC = document.createElement('td');
-        tdNumeroOC.innerText = orderBuy.orden_oc;
-        tr.appendChild(tdNumeroOC);
+        const tdOC = document.createElement('td');
+        tdOC.innerText = orderBuy.orden_oc;
+        tr.appendChild(tdOC);
 
         const tdObservacion = document.createElement('td');
         tdObservacion.innerText = orderBuy.observacion_oc;
@@ -451,20 +464,20 @@ function totalPriceM() {
 //---------------------------------------------MODAL DE NOTA DE ENTREGA------------------------------------------------
 const prof_prodMW = document.getElementById('prof_prodMW');
 const closeProf_prodMW = document.getElementById('closeProf_prodMW');
+const titleProf_prodMW = document.getElementById('titleProf_prodMW');
 const openNotaEntregaRMW = (id_oc) => {
+    const ordenCompra = orderBuys.find(orderBuy => orderBuy.id_oc == id_oc);
+    titleProf_prodMW.innerText = `${ordenCompra.numero_oc}`
     prof_prodMW.classList.add('modal__show');
     readOc_prod(id_oc);
 }
 closeProf_prodMW.addEventListener('click', () => {
     prof_prodMW.classList.remove('modal__show');
 })
-
-
-
 //------------------------------------MOSTRAR LOS PRODUCTOS PREVIAMENTE--------------------------------------------
 const tbodyPreviewProd = document.getElementById('tbodyPreviewProd');
 function openPreviwProducts() {
-
+    console.log('entro al openPreviwProducts');
     cart = document.querySelectorAll('#cartsProf_prodMW .cart-item')
 
     if (cart.length > 0) {
@@ -592,10 +605,6 @@ const closePreviewProducts = document.getElementById('closePreviewProducts');
 closePreviewProducts.addEventListener('click', () => {
     previewProducts.classList.remove('modal__show');
 });
-
-
-
-
 //-----------------------------------------READ OC_PROD
 let oc_prods = [];
 function readOcProd() {
@@ -611,11 +620,282 @@ function readOcProd() {
         }).catch(err => console.log(err));
     })
 }
-
-
 //----------------------------------------------TABLA DE NOTA DE ENTREGA------------------------------------------------
-const tableNEMW = document.getElementById('tableNEMW');
+let notasEntrega = [];
+let filterNotasEntrega = [];
+async function readNotasEntrega() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readNotasEntrega', '');
+        fetch('../controladores/notaEntrega.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            const isAdmin = ['Gerente general', 'Administrador'].includes(localStorage.getItem('rol_usua'));
+            notasEntrega = isAdmin ? data : data.filter(notaEntrega => notaEntrega.fk_id_usua_ne === localStorage.getItem('id_usua'));
+            filterNotasEntrega = notasEntrega;
+            createYearNE();
+            resolve();
+        }).catch(err => console.log(err));
+    });
+}
+//------Select utilizado para buscar por columnas
+const selectSearchNe = document.getElementById('selectSearchNe');
+selectSearchNe.addEventListener('change', searchNotasEntrega);
+//------buscar por input
+const inputSearchNe = document.getElementById("inputSearchNe");
+inputSearchNe.addEventListener("keyup", searchNotasEntrega);
+//------Notas de entrega por pagina
+const selectNumberNe = document.getElementById('selectNumberNe');
+selectNumberNe.selectedIndex = 3;
+selectNumberNe.addEventListener('change', function () {
+    paginacionNotaEntrega(filterNotasEntrega.length, 1);
+});
+//-------Estado de proforma
+const selectStateNe = document.getElementById('selectStateNe');
+selectStateNe.addEventListener('change', searchNotasEntrega);
+//------buscar por:
+function searchNotasEntrega() {
+    const busqueda = inputSearchNe.value.toLowerCase().trim();
+    const valor = selectSearchNe.value.toLowerCase().trim();
+    filterNotasEntrega = notasEntrega.filter(notaEntrega => {
+        if (valor == 'todas') {
+            return (
+                notaEntrega.numero_prof.toLowerCase().includes(busqueda) ||
+                notaEntrega.fecha_prof.toLowerCase().includes(busqueda) ||
+                notaEntrega.fecha_ne.toLowerCase().includes(busqueda) ||
+                notaEntrega.nombre_emp.toLowerCase().includes(busqueda) ||
+                (notaEntrega.nombre_usua + ' ' + notaEntrega.apellido_usua).toLowerCase().includes(busqueda) ||
+                (notaEntrega.nombre_clte + ' ' + notaEntrega.apellido_clte).toLowerCase().includes(busqueda) ||
+                notaEntrega.orden_ne.toLowerCase().includes(busqueda) ||
+                notaEntrega.observacion_ne.toLowerCase().includes(busqueda)
+            );
+        } else if (valor == 'encargado') {
+            return (notaEntrega.nombre_usua + ' ' + notaEntrega.apellido_usua).toLowerCase().includes(busqueda);
+        } else if (valor == 'cliente') {
+            return (notaEntrega.nombre_clte + ' ' + notaEntrega.apellido_clte).toLowerCase().includes(busqueda);
+        } else {
+            return notaEntrega[valor].toLowerCase().includes(busqueda);
+        }
+    });
+    selectStateNotasEntrega();
+}
+function createYearNE() {
+    const anios = Array.from(new Set(notasEntrega.map(ne => ne.fecha_ne.split('-')[0])));
+
+    // Crear opciones para selectYearNE
+    selectYearNE.innerHTML = '';
+    let optionFirst = document.createElement('option');
+    optionFirst.value = 'todas';
+    optionFirst.innerText = 'Todos los años';
+    selectYearNE.appendChild(optionFirst);
+    for (let anio of anios) {
+        const option = document.createElement('option');
+        option.value = anio;
+        option.textContent = anio;
+        selectYearNE.appendChild(option);
+    }
+
+    // Crear opciones para selectYearNteInv
+    selectYearNteInv.innerHTML = '';
+    let optionFirstNteInv = document.createElement('option');
+    optionFirstNteInv.value = 'todas';
+    optionFirstNteInv.innerText = 'Todos los años';
+    selectYearNteInv.appendChild(optionFirstNteInv);
+    for (let anio of anios) {
+        const option = document.createElement('option');
+        option.value = anio;
+        option.textContent = anio;
+        selectYearNteInv.appendChild(option);
+    }
+}
+//-------Estado de proforma
+const selectYearNE = document.getElementById('selectYearNE');
+selectYearNE.addEventListener('change', searchNotasEntrega);
+const selectMonthNE = document.getElementById('selectMonthNE');
+selectMonthNE.addEventListener('change', searchNotasEntrega);
+//------buscar por marca y categoria:
+function selectStateNotasEntrega() {
+    filterNotasEntrega = filterNotasEntrega.filter(notaEntrega => {
+        const estado = selectStateNe.value === 'notasEntrega' ? true : notaEntrega.estado_ne === selectStateNe.value;
+        const fecha = selectYearNE.value === 'todas' ? true : notaEntrega.fecha_ne.split('-')[0] === selectYearNE.value;
+        const mes = selectMonthNE.value === 'todas' ? true : notaEntrega.fecha_ne.split('-')[1] === selectMonthNE.value;
+        return estado && fecha && mes;
+    });
+    paginacionNotaEntrega(filterNotasEntrega.length, 1);
+}
+//------Ordenar tabla descendente ascendente
+const orderNotaEntrega = document.querySelectorAll('.tbody__head--ne');
+orderNotaEntrega.forEach(div => {
+    div.children[0].addEventListener('click', function () {
+        filterNotasEntrega.sort((a, b) => {
+            let first = a[div.children[0].name];
+            let second = b[div.children[0].name];
+            if (typeof first === 'number' && typeof second === 'number') {
+                return first - second;
+            } else {
+                return String(first).localeCompare(String(second));
+            }
+        });
+        paginacionNotaEntrega(filterNotasEntrega.length, 1);
+    });
+    div.children[1].addEventListener('click', function () {
+        filterNotasEntrega.sort((a, b) => {
+            let first = a[div.children[0].name];
+            let second = b[div.children[0].name];
+            if (typeof first === 'number' && typeof second === 'number') {
+                return second - first;
+            } else {
+                return String(second).localeCompare(String(first));
+            }
+        });
+        paginacionNotaEntrega(filterNotasEntrega.length, 1);
+    });
+});
+//------PaginacionNotaEntrega
+function paginacionNotaEntrega(allProducts, page) {
+    let numberProducts = Number(selectNumberNe.value);
+    let allPages = Math.ceil(allProducts / numberProducts);
+    let ul = document.querySelector('#wrapperNE ul');
+    let li = '';
+    let beforePages = page - 1;
+    let afterPages = page + 1;
+    let liActive;
+    if (page > 1) {
+        li += `<li class="btn" onclick="paginacionNotaEntrega(${allProducts}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
+    }
+    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
+        if (pageLength > allPages) {
+            continue;
+        }
+        if (pageLength == 0) {
+            pageLength = pageLength + 1;
+        }
+        if (page == pageLength) {
+            liActive = 'active';
+        } else {
+            liActive = '';
+        }
+        li += `<li class="numb ${liActive}" onclick="paginacionNotaEntrega(${allProducts}, ${pageLength})"><span>${pageLength}</span></li>`;
+    }
+    if (page < allPages) {
+        li += `<li class="btn" onclick="paginacionNotaEntrega(${allProducts}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
+    }
+    ul.innerHTML = li;
+    let h2 = document.querySelector('#showPageNE h2');
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${allProducts} Notas entrega`;
+    tableNotaEntrega(page);
+}
+//--------Tabla de proforma
+function tableNotaEntrega(page) {
+    console.log(filterNotasEntrega);
+    const totalNE = document.getElementById('totalNE');
+    const total = filterNotasEntrega.reduce((acc, current) => acc + current.total_prof, 0);
+    totalNE.innerText = `Total: ${total.toFixed(2)} Bs`;
+
+    const tbody = document.getElementById('tbodyNE');
+    const inicio = (page - 1) * Number(selectNumberNe.value);
+    const final = inicio + Number(selectNumberNe.value);
+    const notasEntrega = Object.values(filterNotasEntrega).slice(inicio, final);
+    tbody.innerHTML = '';
+
+    notasEntrega.forEach((notaEntrega, index) => {
+        const tr = document.createElement('tr');
+
+        const tdIdNE = document.createElement('td');
+        tdIdNE.innerText = notaEntrega.id_ne;
+        tdIdNE.setAttribute('hidden', '');
+        tr.appendChild(tdIdNE);
+
+        const tdIdProf = document.createElement('td');
+        tdIdProf.innerText = notaEntrega.id_prof;
+        tdIdProf.setAttribute('hidden', '');
+        tr.appendChild(tdIdProf);
+
+        const tdNumero = document.createElement('td');
+        tdNumero.innerText = index + 1;
+        tr.appendChild(tdNumero);
+
+        const tdNumeroProforma = document.createElement('td');
+        tdNumeroProforma.innerText = notaEntrega.numero_prof;
+        tr.appendChild(tdNumeroProforma);
+
+        const tdFechaProf = document.createElement('td');
+        tdFechaProf.innerText = notaEntrega.fecha_prof;
+        tr.appendChild(tdFechaProf);
+
+        const tdFechaNE = document.createElement('td');
+        tdFechaNE.innerText = notaEntrega.fecha_ne;
+        tr.appendChild(tdFechaNE);
+
+        const tdEncargado = document.createElement('td');
+        tdEncargado.innerText = notaEntrega.nombre_usua + ' ' + notaEntrega.apellido_usua;
+        tr.appendChild(tdEncargado);
+
+        const tdEmpresa = document.createElement('td');
+        tdEmpresa.innerText = notaEntrega.nombre_emp;
+        tr.appendChild(tdEmpresa);
+
+        const tdCliente = document.createElement('td');
+        tdCliente.innerText = notaEntrega.nombre_clte + ' ' + notaEntrega.apellido_clte;
+        tr.appendChild(tdCliente);
+
+        const tdOrden = document.createElement('td');
+        tdOrden.innerText = notaEntrega.orden_ne;
+        tr.appendChild(tdOrden);
+
+       
+
+        const tdObservacion = document.createElement('td');
+        tdObservacion.innerText = notaEntrega.observacion_ne;
+        tr.appendChild(tdObservacion);
+
+        const tdAcciones = document.createElement('td');
+        const fragment = document.createDocumentFragment();
+
+        let imgs = [];
+
+        if (notaEntrega.estado_ne == 'vendido') {
+            imgs = [
+                { src: '../imagenes/pdf.svg', onclick: 'pdfNotaEntrega(this.parentNode.parentNode)', title: 'Descargar nota de entrega' },
+                { src: '../imagenes/return.svg', onclick: 'openReturnMW(this.parentNode.parentNode)', title: 'Devolución de la nota de entrega' }
+
+            ];
+        } else if (notaEntrega.estado_ne == 'pendiente') {
+            if (localStorage.getItem('rol_usua') == 'Administrador' || localStorage.getItem('rol_usua') == 'Gerente general') {
+                imgs = [
+                    { src: '../imagenes/receipt.svg', onclick: 'readSale(this.parentNode.parentNode)', title: 'Facturar' },
+                    { src: '../imagenes/pdf.svg', onclick: 'pdfNotaEntrega(this.parentNode.parentNode)', title: 'Descargar nota de entrega' },
+                    { src: '../imagenes/return.svg', onclick: 'openReturnMW(this.parentNode.parentNode)', title: 'Devolución de la nota de entrega' }
+                ];
+            } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
+                imgs = [
+                    { src: '../imagenes/pdf.svg', onclick: 'pdfNotaEntrega(this.parentNode.parentNode)', title: 'Descargar nota de entrega' },
+                    { src: '../imagenes/return.svg', onclick: 'openReturnMW(this.parentNode.parentNode)', title: 'Devolución de la nota de entrega' }
+                ];
+            }
+        } else if (notaEntrega.estado_ne == 'DEVOLUCION') {
+            imgs = [
+                { src: '../imagenes/annulled.svg', title: 'Nota de entrega anulada' },
+                { src: '../imagenes/pdf.svg', onclick: 'pdfNotaEntrega(this.parentNode.parentNode)', title: 'Descargar nota de entrega' }
+            ];
+        }
+        imgs.forEach((img) => {
+            const imgElement = document.createElement('img');
+            imgElement.src = img.src;
+            imgElement.onclick = new Function(img.onclick);
+            imgElement.title = img.title;
+            fragment.appendChild(imgElement);
+        });
+
+        tdAcciones.appendChild(fragment);
+        tr.appendChild(tdAcciones);
+
+        tbody.appendChild(tr);
+    });
+}
 //------------------------------------------OPEN AND CLOSE TABLA NOTA DE ENTREGA-----------------------------------
+const tableNEMW = document.getElementById('tableNEMW');
 const closeTableNEMW = document.getElementById('closeTableNEMW');
 closeTableNEMW.addEventListener('click', () => {
     tableNEMW.classList.remove('modal__show');
@@ -623,6 +903,216 @@ closeTableNEMW.addEventListener('click', () => {
 function openTableNEMW() {
     tableNEMW.classList.add('modal__show');
 }
+//----------------------------------------------------NTE-INV----------------------------------------------//
+//---------------------------------------------------CRUD NTE_INV------------------------------------------------
+let nte_invs = [];
+let filterNte_invs = [];
+async function readNte_invs() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readNte_invs', '');
+        fetch('../controladores/notaEntrega.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            console.log(data)
+            nte_invs = data;
+            filterNte_invs = nte_invs;
+            resolve();
+        }).catch(err => console.log(err));
+    })
+}
+//------------------------------------------------------TABLE NTE INV FILTER-----------------------------------------------------
+//------Select utilizado para buscar por columnas
+const selectSearchNteInv = document.getElementById('selectSearchNteInv');
+selectSearchNteInv.addEventListener('change', searchNteInv);
+//------buscar por input
+const inputSearchNteInv = document.getElementById("inputSearchNteInv");
+inputSearchNteInv.addEventListener("keyup", searchNteInv);
+//------NTE INV por pagina
+const selectNumberNteInv = document.getElementById('selectNumberNteInv');
+selectNumberNteInv.selectedIndex = 3;
+selectNumberNteInv.addEventListener('change', function () {
+    paginacionNteInv(filterNte_invs.length, 1);
+});
+//------buscar por:
+function searchNteInv() {
+    const busqueda = inputSearchNteInv.value.toLowerCase().trim();
+    const valor = selectSearchNteInv.value.toLowerCase().trim();
+    filterNte_invs = nte_invs.filter(cmp_inv => {
+        if (valor == 'todas') {
+            return (
+                cmp_inv.id_neiv.toLowerCase().includes(busqueda) ||
+                cmp_inv.codigo_neiv.toLowerCase().includes(busqueda) ||
+                cmp_inv.cantidad_neiv.toLowerCase().includes(busqueda)
+            )
+        } else {
+            return cmp_inv[valor].toLowerCase().includes(busqueda);
+        }
+    });
+    selectStateNteInvOC();
+}
+//------Seleccionar el año
+const selectYearNteInv = document.getElementById('selectYearNteInv');
+selectYearNteInv.addEventListener('change', searchNteInv);
+//-------Estado de nte_invs
+const selectStateNteInv = document.getElementById('selectStateNteInv');
+selectStateNteInv.addEventListener('change', searchNteInv);
+const selectMonthNteInv = document.getElementById('selectMonthNteInv');
+selectMonthNteInv.addEventListener('change', searchNteInv);
+function selectStateNteInvOC() {
+    filterNte_invs = filterNte_invs.filter(nteInv => {
+        const estado = selectStateNteInv.value === 'todas' ? true : nteInv.estado_neiv === selectStateNteInv.value;
+        const fecha = selectYearNteInv.value === 'todas' ? true : nteInv.fecha_neiv.split('-')[0] === selectYearNteInv.value;
+        const mes = selectMonthNteInv.value === 'todas' ? true : nteInv.fecha_neiv.split('-')[1] === selectMonthNteInv.value;
+        return estado && fecha && mes;
+    });
+    paginacionNteInv(filterNte_invs.length, 1);
+}
+//------Ordenar tabla descendente ascendente
+const orderNteInv = document.querySelectorAll('.tbody__head--NteInv');
+orderNteInv.forEach(div => {
+    div.children[0].addEventListener('click', function () {
+        filterNte_invs.sort((a, b) => {
+            let first = a[div.children[0].name];
+            let second = b[div.children[0].name];
+            if (typeof first === 'number' && typeof second === 'number') {
+                return first - second;
+            } else {
+                return String(first).localeCompare(String(second));
+            }
+        });
+        paginacionNteInv(filterNte_invs.length, 1);
+    });
+    div.children[1].addEventListener('click', function () {
+        filterNte_invs.sort((a, b) => {
+            let first = a[div.children[0].name];
+            let second = b[div.children[0].name];
+            if (typeof first === 'number' && typeof second === 'number') {
+                return second - first;
+            } else {
+                return String(second).localeCompare(String(first));
+            }
+        });
+        paginacionNteInv(filterNte_invs.length, 1);
+    });
+});
+//------paginacionNteInv
+function paginacionNteInv(allProducts, page) {
+    let totalNteInv = document.getElementById('totalNteInv');
+    let total = 0;
+    /*for (let nte_inv in filterNte_invs) {
+        const notaEntrega = filterNotasEntrega.find(notaEntrega => notaEntrega.id_ne == filterNte_invs[nte_inv].fk_id_ne_neiv);
+        total += filterNte_invs[nte_inv]['cantidad_neiv'] * filterNte_invs[nte_inv]['cost_uni_neiv'] * (100 - notaEntrega.descuento_ne) / 100;
+    }*/
+    //totalNteInv.innerHTML ='Total (Bs):' + total.toFixed(2) + ' Bs';
+    let numberProducts = Number(selectNumberNteInv.value);
+    let allPages = Math.ceil(allProducts / numberProducts);
+    let ul = document.querySelector('#wrapperNteInv ul');
+    let li = '';
+    let beforePages = page - 1;
+    let afterPages = page + 1;
+    let liActive;
+    if (page > 1) {
+        li += `<li class="btn" onclick="paginacionNteInv(${allProducts}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
+    }
+    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
+        if (pageLength > allPages) {
+            continue;
+        }
+        if (pageLength == 0) {
+            pageLength = pageLength + 1;
+        }
+        if (page == pageLength) {
+            liActive = 'active';
+        } else {
+            liActive = '';
+        }
+        li += `<li class="numb ${liActive}" onclick="paginacionNteInv(${allProducts}, ${pageLength})"><span>${pageLength}</span></li>`;
+    }
+    if (page < allPages) {
+        li += `<li class="btn" onclick="paginacionNteInv(${allProducts}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
+    }
+    ul.innerHTML = li;
+    let h2 = document.querySelector('#showPageNteInv h2');
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${allProducts} Productos`;
+    tableNteInvMW(page);
+}
+//--------Tabla de nte_invs
+function tableNteInvMW(page) {
+    console.log(filterNte_invs)
+    const tbody = document.getElementById('tbodyNteInv');
+    const inicio = (page - 1) * Number(selectNumberNteInv.value);
+    const final = inicio + Number(selectNumberNteInv.value);
+    const nte_invs = filterNte_invs.slice(inicio, final);
+    tbody.innerHTML = '';
+    nte_invs.forEach((nte_inv, index) => {
+        const notaEntrega = filterNotasEntrega.find(notaEntrega => notaEntrega.id_ne == nte_inv.fk_id_ne_neiv);
+        const stock = inventories.find(inventory => inventory.id_inv == nte_inv.fk_id_prod_neiv);
+        console.log(inventories)
+        const producto = products.find(product => product.id_prod == stock.fk_id_prod_inv);
+
+        const tr = document.createElement('tr');
+        tr.setAttribute('id_neiv', nte_inv.id_neiv);
+
+        const tdNumero = document.createElement('td');
+        tdNumero.innerText = index + 1;
+        tr.appendChild(tdNumero);
+
+        const tdNumeroNotaEntrega = document.createElement('td');
+        tdNumeroNotaEntrega.innerText = notaEntrega.numero_ne;
+        tr.appendChild(tdNumeroNotaEntrega);
+
+        const tdFechaNotaEntrega = document.createElement('td');
+        tdFechaNotaEntrega.innerText = notaEntrega.fecha_ne;
+        tr.appendChild(tdFechaNotaEntrega);
+
+        const tdCodigo = document.createElement('td');
+        tdCodigo.innerText = producto.codigo_prod;
+        tr.appendChild(tdCodigo);
+
+        const tdCantidad = document.createElement('td');
+        tdCantidad.innerText = nte_inv.cantidad_neiv;
+        tr.appendChild(tdCantidad);
+
+        const tdCostoUnitario = document.createElement('td');
+        tdCostoUnitario.innerText = nte_inv.cost_uni_neiv.toFixed(2) + ' Bs';
+        tr.appendChild(tdCostoUnitario);
+
+        const tdSubTotal = document.createElement('td');
+        const subTotal = nte_inv.cost_uni_neiv * nte_inv.cantidad_neiv;
+        tdSubTotal.innerText = subTotal.toFixed(2) + ' Bs';
+        tr.appendChild(tdSubTotal);
+/*
+        const tdDescuento = document.createElement('td');
+        const desc = notaEntrega.descuento_ne * nte_inv.cost_uni_neiv * nte_inv.cantidad_neiv / 100;
+        tdDescuento.innerText = desc.toFixed(2) + ' Bs' + ' (' + notaEntrega.descuento_ne + '%)';
+        tr.appendChild(tdDescuento);
+
+        const tdTotal = document.createElement('td');
+        const total = nte_inv.cantidad_neiv * nte_inv.cost_uni_neiv * (100 - notaEntrega.descuento_ne) / 100;
+        tdTotal.innerText = total.toFixed(2) + ' Bs';
+        tr.appendChild(tdTotal);*/
+
+        tbody.appendChild(tr);
+    });
+}
+
+//------open and close modal nte_inv
+const tableNteInv = document.querySelector('#tableNteInv');
+const openTableNteInv = document.querySelector('#openTableNteInv');
+const closeTableNteInv = document.querySelector('#closeTableNteInv');
+openTableNteInv.addEventListener('click', () => {
+    tableNteInv.classList.add('modal__show');
+});
+closeTableNteInv.addEventListener('click', () => {
+    tableNteInv.classList.remove('modal__show');
+})
+
+
+
+
+
 //--------------------------------------------PROFORMA-----------------------------------------------------
 let proformas = [];
 async function readProformas() {
@@ -863,8 +1353,6 @@ async function readProducts() {
         }).catch(err => console.log(err));
     })
 }
-
-
 //---------------------------------------------------CLIENTES----------------------------------------------
 let customers = [];
 let formCustomer = [];
