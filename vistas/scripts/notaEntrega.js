@@ -84,7 +84,7 @@ selectNumberOC.selectedIndex = 3;
 selectNumberOC.addEventListener('change', function () {
     paginacionOrdenCompra(filterProformas.length, 1);
 });
-//-------Estado de proforma
+//-------Estado de orden de compra
 const selectStateOC = document.getElementById('selectStateOC');
 selectStateOC.addEventListener('change', searchOrdenCompra);
 //------buscar por:
@@ -211,7 +211,7 @@ function paginacionOrdenCompra(allProducts, page) {
     h2.innerHTML = `Pagina ${page}/${allPages}, ${allProducts} Ordens de Compra`;
     tableOrdenCompra(page);
 }
-//--------Tabla de proforma
+//--------Tabla de Orden de Compra
 const tbodyOC = document.getElementById('tbodyOC');
 function tableOrdenCompra(page) {
     const inicio = (page - 1) * Number(selectNumberOC.value);
@@ -301,8 +301,8 @@ function tableOrdenCompra(page) {
         tbodyOC.appendChild(tr);
     });
 }
-//-------------------------------OPEN AND CLOSE MODAL DE NOTA DE ENTREGA---------------------------------------------
-//------read prof_prod
+//-------------------------------OPEN AND CLOSE MODAL DE OC_PROD---------------------------------------------
+//------read oc_prod
 const modalProf_prod = document.querySelector('#cartsProf_prodMW');
 const button__prof_prodMW = document.querySelector('#button__prof_prodMW');
 let golbalIdOc = 0;
@@ -340,7 +340,7 @@ const initSortableListM = (e) => {
 
     modalProf_prod.insertBefore(draggingItem, nextSibling);
 }
-//--------Muestra la lista de los productos de la proforma
+//--------Muestra la lista de los productos de la oc_prod
 const selectAlmacen = document.querySelector('#selectAlmacen');
 selectAlmacen.addEventListener('change', () => {
     const oc_prod = modalProf_prod.querySelectorAll('.cart-item');
@@ -349,7 +349,7 @@ selectAlmacen.addEventListener('change', () => {
     });
     readOc_prod(golbalIdOc);
 });
-//------Abrir modal de proforma
+//------Abrir modal de la card
 function cartProduct_ocpd(oc_prod, total) {
     const product = products.find(product => product.id_prod === oc_prod.fk_id_prod_ocpd);
     if (product) {
