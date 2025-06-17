@@ -1,5 +1,6 @@
 <?php 
 require '../modelos/consultasDeCompras.php';
+//----------------------------------------CRUD COMPRAS------------------------------------------------
 //-------read buys
 if (isset($_POST['readBuys'])) {
 	$readBuy = new Consultas;
@@ -11,12 +12,6 @@ if (isset($_POST['createBuy'])) {
 	$createBuy->asignarValores($_POST['id_usua']);
 	$createBuy->createBuy($_POST['createBuy']);
 }
-//------Update inComprario
-if (isset($_POST['updateBuy'])) {
-	$updateBuy = new Consultas;
-	$updateBuy->asignarValoresM($_POST['id_usua']);
-	$updateBuy->updateBuy();
-}
 //-------Delete una Compra
 if (isset($_POST['deleteBuy'])) {
 	$deleteBuy = new consultas;
@@ -27,6 +22,7 @@ if (isset($_POST['changeStateBuy'])) {
 	$changeStateBuy = new Consultas;
 	$changeStateBuy->changeStateBuy($_POST['changeStateBuy']);
 }
+//----------------------------------------CRUD CMP-PROD------------------------------------------------
 //------read cpm_prod
 if (isset($_POST['readCmp_prods'])) {
 	$readCmp_prods = new Consultas;
@@ -40,7 +36,9 @@ if (isset($_POST['createCmp_prod'])){
 //------Update cmp_prod
 if (isset($_POST['addBuyToInventory'])) {
 	$addBuyToInventory = new Consultas;
+	$addBuyToInventory->asignarValoresCppd();
 	$addBuyToInventory->addBuyToInventory();
+
 }
 //------delate cpm_prod
 if (isset($_POST['deleteCmp_prod'])) {

@@ -14,21 +14,16 @@ class Consultas{
 		$this->observacion_cmp = $conexion->real_escape_string($_POST['observacion_cmpR']);
 		$this->almacen_cmp = $conexion->real_escape_string($_POST['almacen_cmp']);
 	}
-	public function asignarValoresM ($id_usua){
-		//protegemos al servidor de los valores que el usuario esta introduciendo
+	public function asignarValoresCppd (){
 		include 'conexion.php';
-		$this->id_cmp = $conexion->real_escape_string($_POST['id_cmpM']);
-		$this->fecha_cmp = date('Y-m-d');
-		$this->forma_pago_cmp = $conexion->real_escape_string($_POST['forma_pago_cmpM']);
-		$this->tpo_entrega_cmp = $conexion->real_escape_string($_POST['tpo_entrega_cmpM']);
-		$this->fk_id_prov_cmp = $conexion->real_escape_string($_POST['fk_id_prov_cmpM']);
-		$this->encargado = $id_usua;
-		$this->total_cmp = floatval($_POST['total_cmpM']);
-		$this->tipo_cambio_cmp = $conexion->real_escape_string($_POST['tipo_cambio_cmpM']);
-		$this->descuento_cmp = $conexion->real_escape_string($_POST['descuento_cmpM']);
-		$this->observacion_cmp = $conexion->real_escape_string($_POST['observacion_cmpM']);
+		$this->id_cppd = $conexion->real_escape_string($_POST['id_cppd']);
+		$this->fecha_entrega_cppd = $conexion->real_escape_string($_POST['fecha_entrega_cppd']);
+		$this->fecha_factura_cppd = $conexion->real_escape_string($_POST['fecha_factura_cppd']);
+		$this->cantidad_cppd = $conexion->real_escape_string($_POST['cantidad_cppd']);
+		$this->factura_cppd = $conexion->real_escape_string($_POST['factura_cppd']);
 	}
-	 //------Read buys
+	//-------------------------------------CRUD COMPRAS------------------------------------------------
+	//------Read buys
 	public function readBuys(){
 		include 'conexion.php';
 		$consulta = "SELECT * FROM compra ORDER BY id_cmp DESC";
@@ -59,24 +54,13 @@ class Consultas{
 			//Insertando los productos de la compra
 			$productos = json_decode($productos,true);
 			foreach($productos as $celda){
-				if ( $this->almacen_cmp == '1'){
-					//Coprobar que el producto este creado en el alamcen de La Arce
-					$consulta = "SELECT * FROM inventario_arce WHERE fk_id_prod_inv = '$celda[fk_id_prod_cppd]'";
-					$resultado = $conexion->query($consulta);
-					$numero_productos = $resultado->num_rows;
-					if ($numero_productos == 0) {
-						$consulta = "INSERT INTO inventario_arce (fk_id_prod_inva, cantidad_inva, cost_uni_inva, descripcion_inva) VALUES ('$celda[fk_id_prod_cppd]', 0, '$celda[cost_uni_cppd]', '')";
-						$resultado = $conexion->query($consulta);
-					}
-				} else if ($this->almacen_cmp == '0') {
-					//Coprobar que el producto este creado en el alamcen de El Alto
-					$consulta = "SELECT * FROM inventario WHERE fk_id_prod_inv = '$celda[fk_id_prod_cppd]'";
-					$resultado = $conexion->query($consulta);
-					$numero_productos = $resultado->num_rows;
-					if ($numero_productos == 0) {
-						$consulta = "INSERT INTO inventario (fk_id_prod_inv, cantidad_inv, cost_uni_inv, descripcion_inv) VALUES ('$celda[fk_id_prod_cppd]', 0, '$celda[cost_uni_cppd]', '')";
-						$resultado = $conexion->query($consulta);
-					}
+				$tabla = ($this->almacen_cmp == '1') ? 'inventario_arce' : 'inventario';
+
+				$consulta = "SELECT * FROM $tabla WHERE fk_id_prod_inv = '$celda[fk_id_prod_cppd]'";
+				$resultado = $conexion->query($consulta);
+				if ($resultado->num_rows == 0) {
+   					$consulta = "INSERT INTO $tabla (fk_id_prod_inv, cantidad_inv, cost_uni_inv, descripcion_inv) VALUES ('$celda[fk_id_prod_cppd]', 0, '$celda[cost_uni_cppd]', '')";
+    			$resultado = $conexion->query($consulta);
 				}
 				
 				//Insertando los productos de la compra
@@ -92,41 +76,11 @@ class Consultas{
 		}
 
     }
-	//-----Update compra
-	public function updateBuy(){
-        include 'conexion.php';
-        $consulta = "UPDATE compra set fecha_cmp='$this->fecha_cmp', forma_pago_cmp='$this->forma_pago_cmp', tpo_entrega_cmp='$this->tpo_entrega_cmp', fk_id_prov_cmp='$this->fk_id_prov_cmp', fk_id_usua_cmp='$this->encargado', total_cmp='$this->total_cmp', tipo_cambio_cmp='$this->tipo_cambio_cmp', descuento_cmp='$this->descuento_cmp', observacion_cmp='$this->observacion_cmp' WHERE id_cmp = '$this->id_cmp'";
-		$resultado = $conexion->query($consulta);
-		if ($resultado) {
-			$productos = json_decode($_POST['updateBuy'],true);
-			//------Eliminar productos de la compra
-			$consulta = "DELETE FROM cmp_prod WHERE fk_id_cmp_cppd = '$this->id_cmp'";
-			$resultado = $conexion->query($consulta);
-			foreach($productos as $celda){
-				//Coprobar que los productos esten creados en inventario
-				$consulta = "SELECT * FROM inventario WHERE fk_id_prod_inv = '$celda[fk_id_prod_cppd]'";
-				$resultado = $conexion->query($consulta);
-				$numero_productos = $resultado->num_rows;
-				if ($numero_productos == 0) {
-					$consulta = "INSERT INTO inventario (fk_id_prod_inv, cantidad_inv, cost_uni_inv, descripcion_inv) VALUES ('$celda[fk_id_prod_cppd]', 0, 0, '')";
-					$resultado = $conexion->query($consulta);
-				}
-				//Insertando los productos de la compra
-				$fk_id_prod_cppd = $celda['fk_id_prod_cppd'];
-				$descripcion_cppd = $celda['descripcion_cppd'];
-				$cantidad_cppd = $celda['cantidad_cppd'];
-				$cost_uni_cppd = $celda['cost_uni_cppd'];
-				$consulta = "INSERT INTO cmp_prod (fk_id_cmp_cppd, fk_id_prod_cppd, descripcion_cppd, cantidad_cppd, cost_uni_cppd) VALUES ('$this->id_cmp' , '$fk_id_prod_cppd', '$descripcion_cppd', '$cantidad_cppd', '$cost_uni_cppd')";
-				$resultado = $conexion->query($consulta);
-			}
-			echo 'Compra actualizada exitosamente';
-		}
-    }
     public function deleteBuy($id_cmp){
 		//------Eliminar productos de la tabla prof_prof
 		include 'conexion.php';
 		//------verificar si hay productos recibidos en la compra
-		$consulta = "SELECT * FROM cmp_prod WHERE fk_id_cmp_cppd = '$id_cmp' AND estado_cppd = 'RECIBIDO'";
+		$consulta = "SELECT * FROM cmp_prod WHERE fk_id_cmp_cppd = '$id_cmp' AND estado_cppd = 1";
 		$resultado = $conexion->query($consulta);
 		$numero_productos = $resultado->num_rows;
 		if ($numero_productos > 0) {
@@ -152,6 +106,7 @@ class Consultas{
 			echo 'Compra actualizada exitosamente';
 		}
 	}
+	//-------------------------------------CRUD CMP_PROD------------------------------------------------
 	//------read cpm_prod
 	public function readCmp_prods(){
 		include 'conexion.php';
@@ -168,72 +123,97 @@ class Consultas{
 		include 'conexion.php';
 		//----Convertir el stric a objeto
 		$cmp_prod = json_decode($object, true);
-		//Coprobar que los productos esten creados en inventario
-		$consulta = "SELECT * FROM inventario WHERE fk_id_prod_inv = '$cmp_prod[fk_id_prod_cppd]'";
-		$resultado = $conexion->query($consulta);
-		$numero_productos = $resultado->num_rows;
-		if ($numero_productos == 0) {
-			$consulta = "INSERT INTO inventario (fk_id_prod_inv, cantidad_inv, cost_uni_inv, descripcion_inv) VALUES ('$cmp_prod[fk_id_prod_cppd]', 0, '$cmp_prod[cost_uni_cppd]', '')";
-			$resultado = $conexion->query($consulta);
-		}
-		$consulta = "INSERT INTO cmp_prod (fk_id_cmp_cppd, fk_id_prod_cppd, descripcion_cppd, cantidad_cppd, cost_uni_cppd, observacion_cppd, estado_cppd) VALUES ('$cmp_prod[fk_id_cmp_cppd]', '$cmp_prod[fk_id_prod_cppd]', '$cmp_prod[descripcion_cppd]', '$cmp_prod[cantidad_cppd]', '$cmp_prod[cost_uni_cppd]', '$cmp_prod[observacion_cppd]', 'PENDIENTE')";
-		$resultado = $conexion->query($consulta);
+		//----Verificar el almacen de la oc
 		$consulta = "SELECT * FROM compra WHERE id_cmp = '$cmp_prod[fk_id_cmp_cppd]'";
 		$resultado = $conexion->query($consulta);
-		$product = $resultado->fetch_assoc();
-		$descuento = floatval($product['descuento_cmp'])/100;
-		$total = (floatval($cmp_prod['cost_uni_cppd']) * intval($cmp_prod['cantidad_cppd']))*(1-$descuento);
-		if ($resultado) {
-			$consulta = "UPDATE compra set total_cmp = total_cmp + '$total' WHERE id_cmp = '$cmp_prod[fk_id_cmp_cppd]'";
+		$compra = $resultado->fetch_assoc();
+		if ($compra['almacen_cmp'] == '0') {
+			//Coprobar que los productos esten creados en inventario
+			$consulta = "SELECT * FROM inventario WHERE fk_id_prod_inv = '$cmp_prod[fk_id_prod_cppd]'";
 			$resultado = $conexion->query($consulta);
+			$numero_productos = $resultado->num_rows;
+			if ($numero_productos == 0) {
+				$consulta = "INSERT INTO inventario (fk_id_prod_inv, cantidad_inv, cost_uni_inv, descripcion_inv) VALUES ('$cmp_prod[fk_id_prod_cppd]', 0, '$cmp_prod[cost_uni_cppd]', '')";
+				$resultado = $conexion->query($consulta);
+			}
+		}else if ($compra['almacen_cmp'] == '1') {
+			$consulta = "SELECT * FROM inventario_arce WHERE fk_id_prod_inv = '$cmp_prod[fk_id_prod_cppd]'";
+			$resultado = $conexion->query($consulta);
+			$numero_productos = $resultado->num_rows;
+			if ($numero_productos == 0) {
+				$consulta = "INSERT INTO inventario_arce (fk_id_prod_inv, cantidad_inv, cost_uni_inv, descripcion_inv) VALUES ('$cmp_prod[fk_id_prod_cppd]', 0, '$cmp_prod[cost_uni_cppd]', '')";
+				$resultado = $conexion->query($consulta);
+			}
+		}
+		
+		$consulta = "INSERT INTO cmp_prod (fk_id_cmp_cppd, fk_id_prod_cppd, descripcion_cppd, cantidad_cppd, cost_uni_cppd, observacion_cppd, estado_cppd) VALUES ('$cmp_prod[fk_id_cmp_cppd]', '$cmp_prod[fk_id_prod_cppd]', '$cmp_prod[descripcion_cppd]', '$cmp_prod[cantidad_cppd]', '$cmp_prod[cost_uni_cppd]', '$cmp_prod[observacion_cppd]', 0)";
+		$resultado = $conexion->query($consulta);
+
+		//------Actualizar el total de la compra
+		$suma = ($cmp_prod['cost_uni_cppd'] * $cmp_prod['cantidad_cppd'])*(1-$compra['descuento_cmp']/100) + $compra['total_cmp'];
+		$consulta = "UPDATE compra SET total_cmp = '$suma' WHERE id_cmp = '$cmp_prod[fk_id_cmp_cppd]'";
+		$resultado = $conexion->query($consulta);
+
+		if ($resultado) {
 			echo $cmp_prod['fk_id_cmp_cppd'];
 		}
+		
 	}
 	//------Update productos recibidos
 	public function addBuyToInventory(){
 		include 'conexion.php';
-		$id_cppd = $_POST['id_cppd'];
-		$fk_id_prod_cppd = $_POST['fk_id_prod_cppd'];
-		$codigo_cppd = $_POST['codigo_cppd'];
-		$cantidad_cppd = intval($_POST['cantidad_cppd']);
-		$cost_uni_cppd = doubleval($_POST['cost_uni_cppd']);
-		$factura_cppd = $_POST['factura_cppd'];
-		$fecha_entrega_cppd = $_POST['fecha_entrega_cppd'];
-		$fecha_factura_cppd = $_POST['fecha_factura_cppd'];
-		$fk_id_cmp_cppd = $_POST['fk_id_cmp_cppd'];
-		//optener cantidad y cost unitario del producto
-		$consulta = "SELECT * FROM cmp_prod WHERE id_cppd = '$id_cppd'";
+		//obtener cantidad del producto
+		$consulta = "SELECT * FROM cmp_prod WHERE id_cppd = '$this->id_cppd'";
 		$resultado = $conexion->query($consulta);
 		$fila = $resultado->fetch_assoc();
-		if ($resultado) {
-			$cantidad = intval($fila['cantidad_cppd']);
-			$cost_uni = doubleval($fila['cost_uni_cppd']);
-			//encontra el descuento que tiene este producto en la orden de compra
-			$consulta = "SELECT compra.descuento_cmp FROM compra INNER JOIN cmp_prod ON compra.id_cmp = cmp_prod.fk_id_cmp_cppd WHERE cmp_prod.id_cppd = '$id_cppd'";
-			$resultado = $conexion->query($consulta);
-			$fila = $resultado->fetch_assoc();
-			$descuento = floatval($fila['descuento_cmp']);
-			$diferencia = ($cantidad_cppd*$cost_uni_cppd - $cantidad*$cost_uni)*(1-$descuento/100);
-			//restas la diferencia al costo total de la compra
-			$consulta = "UPDATE compra set total_cmp = total_cmp + '$diferencia' WHERE id_cmp = '$fk_id_cmp_cppd'";
+		$fk_id_cmp_cppd = $fila['fk_id_cmp_cppd'];
+		$fk_id_prod_cppd = $fila['fk_id_prod_cppd'];
+		$cantidad_cppd = $fila['cantidad_cppd'];
+		$descripcion_cppd = $fila['descripcion_cppd'];
+		$cost_uni_cppd = $fila['cost_uni_cppd'];
+		//obtener almacen
+		$consulta = "SELECT * FROM compra WHERE id_cmp = '$fk_id_cmp_cppd'";
+		$resultado = $conexion->query($consulta);
+		$fila = $resultado->fetch_assoc();
+		$almacen = $fila['almacen_cmp'];
+		$almacen = ($fila['almacen_cmp'] == '0') ? 'inventario' : 'inventario_arce';
+
+		if ($cantidad_cppd == $this->cantidad_cppd) {
+			$consulta = "UPDATE cmp_prod set  factura_cppd = '$this->factura_cppd', fecha_entrega_cppd = '$this->fecha_entrega_cppd',  fecha_factura_cppd = '$this->fecha_factura_cppd', estado_cppd = 1 WHERE id_cppd = '$this->id_cppd'";
 			$resultado = $conexion->query($consulta);
 			if ($resultado) {
-				$consulta = "UPDATE cmp_prod set cantidad_cppd = '$cantidad_cppd', cost_uni_cppd = '$cost_uni_cppd', factura_cppd = '$factura_cppd', fecha_entrega_cppd = '$fecha_entrega_cppd',  fecha_factura_cppd = '$fecha_factura_cppd', estado_cppd = 'RECIBIDO' WHERE id_cppd = '$id_cppd'";
+				$consulta = "UPDATE $almacen set cantidad_inv = cantidad_inv + '$this->cantidad_cppd' WHERE fk_id_prod_inv = '$fk_id_prod_cppd'";
 				$resultado = $conexion->query($consulta);
-				if ($resultado) {
-					$consulta = "UPDATE inventario set cantidad_inv = cantidad_inv + '$cantidad_cppd' WHERE fk_id_prod_inv = '$fk_id_prod_cppd'";
-					$resultado = $conexion->query($consulta);
-					echo $fk_id_cmp_cppd;
-				}
 			}
-		}
+		} else if ( $this->cantidad_cppd < $cantidad_cppd && $this->cantidad_cppd > 0) {
+			$consulta = "UPDATE cmp_prod set cantidad_cppd = '$this->cantidad_cppd',  factura_cppd = '$this->factura_cppd', fecha_entrega_cppd = '$this->fecha_entrega_cppd',  fecha_factura_cppd = '$this->fecha_factura_cppd', estado_cppd = 1 WHERE id_cppd = '$this->id_cppd'";
+			$resultado = $conexion->query($consulta);
+			//Añadir el producto restante a la compra
+			//vovler $cantidad_cppd  a un numero entero
+			$cantidad = intval($cantidad_cppd) - intval($this->cantidad_cppd);
+			$consulta2 = "INSERT INTO cmp_prod (fk_id_cmp_cppd, fk_id_prod_cppd, descripcion_cppd, cantidad_cppd, cost_uni_cppd, observacion_cppd, estado_cppd) VALUES ('$fk_id_cmp_cppd', '$fk_id_prod_cppd', '$descripcion_cppd', '$cantidad' , '$cost_uni_cppd' , 'Añadido automaticamente', 0)";
+			$resultado2 = $conexion->query($consulta2);
+			//Actualizar el inventario
+			if ($resultado) {
+				$consulta = "UPDATE $almacen set cantidad_inv = cantidad_inv + '$this->cantidad_cppd' WHERE fk_id_prod_inv = '$fk_id_prod_cppd'";
+				$resultado = $conexion->query($consulta);
+			}
+		} 
+		echo $fk_id_cmp_cppd;
 	}
 	//------Delete cmp_prod
 	public function deleteCmp_prod($cmp_prod){
 		include 'conexion.php';
 		$product = json_decode($cmp_prod, true);
-		$total = (floatval($product['cost_uni_cppd']) * intval($product['cantidad_cppd']))*(1-floatval($product['descuento_cmp'])/100);
-		$consulta = "UPDATE compra set total_cmp = total_cmp - '$total' WHERE id_cmp = '$product[fk_id_cmp_cppd]'";
+		//------Obtener orden de compra
+		$consulta = "SELECT * FROM compra WHERE id_cmp = '$product[fk_id_cmp_cppd]'";
+		$resultado = $conexion->query($consulta);
+		$compra = $resultado->fetch_assoc();
+
+		//------Actualizar el total de la compra
+		$resta = ($product['cost_uni_cppd'] * $product['cantidad_cppd'])*(1-$compra['descuento_cmp']/100);
+		
+		$consulta = "UPDATE compra set total_cmp = total_cmp - '$resta' WHERE id_cmp = '$product[fk_id_cmp_cppd]'";
 		$resultado = $conexion->query($consulta);
 		if ($resultado) {
 			$consulta = "DELETE FROM cmp_prod WHERE id_cppd = '$product[id_cppd]'";
@@ -243,11 +223,11 @@ class Consultas{
 	}
 	//------edit factura
 	public function editFactura(){
-		$id_cppd = $_POST['id_cppd2'];
-		$factura_cppd = $_POST['factura_cppd2'];
-		$fecha_entrega_cppd = $_POST['fecha_entrega_cppd2'];
-		$fecha_factura_cppd = $_POST['fecha_factura_cppd2'];
 		include 'conexion.php';
+		$id_cppd = $_POST['id_cppd'];
+		$factura_cppd = $_POST['factura_cppd'];
+		$fecha_entrega_cppd = $_POST['fecha_entrega_cppd'];
+		$fecha_factura_cppd = $_POST['fecha_factura_cppd'];
 		$consulta = "UPDATE cmp_prod set factura_cppd = '$factura_cppd', fecha_entrega_cppd = '$fecha_entrega_cppd', fecha_factura_cppd = '$fecha_factura_cppd' WHERE id_cppd = '$id_cppd'";
 		$resultado = $conexion->query($consulta);
 		if ($resultado) {

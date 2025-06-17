@@ -125,6 +125,7 @@
 									class="icon__CRUD"></div>
 						</th>
 						<th>Proveedor</th>
+						<th>Almacen</th>
 						<th>
 							<div class="tbody__head--buy">Total<img src="../imagenes/sortA_Z.svg" name="total_cmp"
 									class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="total_cmp"
@@ -308,7 +309,7 @@
 						<img src="../imagenes/carrito.svg">
 						<p id="quantityCPMMW">0</p>
 					</div>
-					<button onclick="createBuy()" class="form__submit">Orden de compra completa</button>
+					<button onclick="changeStateBuy()" class="form__submit">Orden de compra completa</button>
 				</div>
 			</div>
 		</div>
@@ -360,33 +361,6 @@
 			</div>
 		</div>
 	</section>
-	<!--Modal of edit factura of product of a Buy-->
-	<section id="editFactura" class="modal">
-		<div class="modal__container">
-			<div class="modal__header">
-				<h2 class="modal__title">Editar factura</h2>
-				<img src="../imagenes/salir.svg" id="closeEditFactura" class="button__close">
-			</div>
-			<form id="formEditFactura" class="form">
-				<div class="form__container">
-					<input type="hidden" name="id_cppd2">
-					<div class="form__group">
-						<input type="date" name="fecha_entrega_cppd2" placeholder=" " class="form__input">
-						<label for="fecha_entrega_cppd2" class="form__label">Fecha de entrega:</label>
-					</div>
-					<div class="form__group">
-						<input type="date" name="fecha_factura_cppd2" placeholder=" " class="form__input">
-						<label for="fecha_factura_cppd2" class="form__label">Fecha de factura</label>
-					</div>
-					<div class="form__group">
-						<input type="text" name="factura_cppd2" placeholder=" " class="form__input">
-						<label for="factura_cppd2" class="form__label">Numero de factura:</label>
-					</div>
-					<input type="submit" value="Editar" class="form__submit">
-				</div>
-			</form>
-		</div>
-	</section>
 	<!--Add buy to inventory-->
 	<section id="addBuyMW" class="modal">
 		<div class="modal__container">
@@ -396,43 +370,65 @@
 			</div>
 			<form id="formAddBuy" class="form">
 				<div class="form__container">
-					<input type="hidden" name="id_cppd">
-					<input type="hidden" name="fk_id_prod_cppd">
-					<input type="hidden" name="fk_id_cmp_cppd">
-					<div class="form__group">
-						<input type="text" name="codigo_cppd" placeholder=" " class="form__input" readonly>
-						<label for="codigo_cppd" class="form__label">Codigo:</label>
-					</div>
-					<div class="form__group">
-						<input type="text" name="cost_uni_cppd" placeholder=" " class="form__input" readonly>
-						<label for="cost_uni_cppd" class="form__label">Costo Unitario:</label>
-					</div>
-					<div class="form__group">
-						<input type="text" name="cantidad_cppd" placeholder=" " class="form__input" readonly>
-						<label for="cantidad_cppd" class="form__label">Cantidad:</label>
-					</div>
-					<label class="form__label--only">Almacen:</label>
-					<div class="form__group--select">
-						<select id="ubicacionAlamacen" name="ubi_alamcen">
-							<option value="0">El Alto</option>
-							<option value="1">Avenida Arce</option>
-						</select>
-					</div>
+					<input type="hidden" name="id_cppd" id="id_cppd">
 					<div class="form__group">
 						<input type="date" name="fecha_entrega_cppd" id="fecha_entrega_cppd" placeholder=" "
-							class="form__input">
+							class="form__input formAddProd">
 						<label for="fecha_entrega_cppd" class="form__label">Fecha de entrega:</label>
 					</div>
 					<div class="form__group">
 						<input type="date" name="fecha_factura_cppd" id="fecha_factura_cppd" placeholder=" "
-							class="form__input">
+							class="form__input formAddProd">
 						<label for="fecha_factura_cppd" class="form__label">Fecha de factura:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="factura_cppd" placeholder=" " class="form__input">
+						<input type="text" name="codigo_cppd" id="codigo_cppd" placeholder=" " class="form__input formAddProd" readonly>
+						<label for="codigo_cppd" class="form__label">Codigo:</label>
+					</div>
+					<div class="form__group">
+						<input type="number" name="factura_cppd" placeholder=" " class="form__input formAddProd">
 						<label for="factura_cppd" class="form__label">N° Factura:</label>
 					</div>
+					<div class="form__group">
+						<input type="number" name="cantidad_cppd" id="cantidad_cppd" placeholder=" " class="form__input formAddProd">
+						<label for="cantidad_cppd" class="form__label">Cantidad:</label>
+					</div>
+					<div class="form__group">
+						<input type="number" name="cost_uni_cppd" id="cost_uni_cppd" placeholder=" " class="form__input formAddProd" readonly>
+						<label for="cost_uni_cppd" class="form__label">Costo Unitario:</label>
+					</div>
 					<input type="submit" value="Registrar" class="form__submit">
+				</div>
+			</form>
+		</div>
+	</section>
+	<!--Modal of edit factura of product of a Buy-->
+	<section id="editFactura" class="modal">
+		<div class="modal__container">
+			<div class="modal__header">
+				<h2 class="modal__title">Editar factura</h2>
+				<img src="../imagenes/salir.svg" id="closeEditFactura" class="button__close">
+			</div>
+			<form id="formEditFactura" class="form">
+				<div class="form__container">
+					<input type="hidden" name="id_cppd">
+					<div class="form__group">
+						<input type="text" name="codigo_cppd" placeholder=" " class="form__input formAddProd">
+						<label for="codigo_cppd" class="form__label">Numero de factura:</label>
+					</div>
+					<div class="form__group">
+						<input type="date" name="fecha_entrega_cppd" placeholder=" " class="form__input formAddProd">
+						<label for="fecha_entrega_cppd" class="form__label">Fecha de entrega:</label>
+					</div>
+					<div class="form__group">
+						<input type="date" name="fecha_factura_cppd" placeholder=" " class="form__input formAddProd">
+						<label for="fecha_factura_cppd" class="form__label">Fecha de factura</label>
+					</div>
+					<div class="form__group">
+						<input type="number" name="factura_cppd" placeholder=" " class="form__input formAddProd">
+						<label for="factura_cppd" class="form__label">Numero de factura:</label>
+					</div>
+					<input type="submit" value="Editar" class="form__submit">
 				</div>
 			</form>
 		</div>

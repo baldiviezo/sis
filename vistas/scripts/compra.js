@@ -242,7 +242,7 @@ function tableBuys(page) {
         tr.appendChild(tdIndex);
 
         const tdNumeroOC = document.createElement('td');
-        tdNumeroOC.innerText = `OC-SMS${buy.fecha_cmp.slice(2, 4)}-${buy.numero_cmp}`;
+        tdNumeroOC.innerText = `${buy.numero_cmp}`;
         tr.appendChild(tdNumeroOC);
 
         const tdFecha = document.createElement('td');
@@ -260,6 +260,10 @@ function tableBuys(page) {
         const tdProveedor = document.createElement('td');
         tdProveedor.innerText = proveedor.apellido_prov;
         tr.appendChild(tdProveedor);
+
+        const tdAlmacen = document.createElement('td');
+        tdAlmacen.innerText = buy.almacen_cmp === 0 ? 'El Alto' : 'Arce';
+        tr.appendChild(tdAlmacen);
 
         const tdTotal = document.createElement('td');
         tdTotal.innerText = `${buy.total_cmp.toFixed(2)} ${buy.moneda_cmp}`;
@@ -320,7 +324,7 @@ async function createBuy() {
                 observacion_cppd: producto.querySelector('.cart__item--observacion').value,
             });
         }
-        console.log(productos)
+
         let formData = new FormData(formBuyR);
         const total = Number(totalCPRMW.innerHTML.split(' ')[2]);
         formData.set('total_cmpR', total);
@@ -376,9 +380,9 @@ function deleteBuy(id_cmp) {
     }
 }
 //------Estado de compra
-/*
-async function changeStateBuy(divs) {
-    const divshihijos = divs.children;
+async function changeStateBuy() {
+    console.log(globalId_cmp)
+    /*const divshihijos = divs.children;
     const cantidadDivsHijos = Array.prototype.filter.call(divshihijos, hijo => hijo.tagName === 'DIV').length;
     if (cantidadDivsHijos > 0) {
         id_cmp = divs.children[0].children[2].value;
@@ -410,8 +414,8 @@ async function changeStateBuy(divs) {
         }
     } else {
         mostrarAlerta('La nota de entrega no tiene ningun producto');
-    }
-}*/
+    }*/
+}
 //------Open and close buyR
 const closeBuyRMW = document.getElementById('closeBuyRMW');
 const openBuyRMW = document.getElementById('openBuyRMW');
@@ -694,13 +698,14 @@ async function createCmp_prod(row) {
     if (rqstBuy == false) {
         rqstBuy = true;
         preloader.classList.add('modal__show');
+        console.log(row);
         let object = {
-            'fk_id_cmp_cppd': row.children[2].value,
-            'fk_id_prod_cppd': row.children[1].value,
-            'descripcion_cppd': row.children[6].value,
-            'cantidad_cppd': row.children[7].value,
-            'cost_uni_cppd': row.children[8].value,
-            'observacion_cppd': row.children[10].value
+            'fk_id_cmp_cppd': globalId_cmp,
+            'fk_id_prod_cppd': row.getAttribute('id_prod'),
+            'descripcion_cppd': row.querySelector('.cart__item--name').value,
+            'cantidad_cppd': row.querySelector('.cart__item--quantity').value,
+            'cost_uni_cppd': row.querySelector('.cart__item--costUnit').value,
+            'observacion_cppd': row.querySelector('.cart__item--observacion').value,
         }
         let formData = new FormData();
         formData.append('createCmp_prod', JSON.stringify(object));
@@ -709,9 +714,11 @@ async function createCmp_prod(row) {
             body: formData
         }).then(response => response.text()).then(data => {
             Promise.all([readBuys(), readCmp_prods()]).then(() => {
-                rqstBuy = false;
+                paginacionBuy(filterBuys.length, 1);
+                paginacionProdOC(filterCmp_prods.length, 1);
+                readCmpProd(Number(data));
                 preloader.classList.remove('modal__show');
-                readCmpProd(data);
+                rqstBuy = false;
             })
         }).catch(err => {
             mostrarAlerta(err);
@@ -725,21 +732,23 @@ async function updateCmp_prod() {
     event.preventDefault();
     if (rqstBuy == false) {
         if (confirm('Se añadirá el producto a el inventario. ¿Esta usted seguro?')) {
-            rqstBuy = true;
             preloader.classList.add('modal__show');
-            let formData = new FormData(formAddBuy);
+            rqstBuy = true;
+            addBuyMW.classList.remove('modal__show');
+            const formData = new FormData(formAddBuy);
             formData.append('addBuyToInventory', '');
-            //formData.set("fecha_entrega_cppd", `${dateActual[2]}-${dateActual[1]}-${dateActual[0]} ${datePart[1]}`);
             fetch('../controladores/compras.php', {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                Promise.all([readBuys(), readCmp_prods()]).then(() => {
-                    rqstBuy = false;
+                Promise.all([readBuys(), readCmp_prods(), readInventories()]).then(() => {
+                    paginacionBuy(filterBuys.length, 1);
+                    paginacionProdOC(filterCmp_prods.length, 1);
+                    paginacionProductMW(filterProductsMW.length, 1);
                     formAddBuy.reset();
-                    addBuyMW.classList.remove('modal__show');
-                    readCmpProd(data);
+                    readCmpProd(Number(data));
                     preloader.classList.remove('modal__show');
+                    rqstBuy = false;
                 })
             }).catch(err => {
                 mostrarAlerta(err);
@@ -747,13 +756,31 @@ async function updateCmp_prod() {
         }
     }
 }
+const U_id_cppd = document.getElementById('id_cppd');
+const U_fecha_entrega_cppd = document.getElementById('fecha_entrega_cppd');
+const U_fecha_factura_cppd = document.getElementById('fecha_factura_cppd');
+const U_codigo_cppd = document.getElementById('codigo_cppd');
+const U_cantidad_cppd = document.getElementById('cantidad_cppd');
+const U_cost_uni_cppd = document.getElementById('cost_uni_cppd');
+function openProductBuyMW(row) {
+    addBuyMW.classList.add('modal__show');
+    U_id_cppd.value = row.getAttribute('id_cppd');
+    U_fecha_entrega_cppd.value = dateActual[2] + '-' + dateActual[1] + '-' + dateActual[0];
+    U_fecha_factura_cppd.value = dateActual[2] + '-' + dateActual[1] + '-' + dateActual[0];
+    U_codigo_cppd.value = row.querySelector('.cart__item--code').innerHTML;
+    U_cantidad_cppd.value = row.querySelector('.cart__item--quantity').value;
+    U_cantidad_cppd.setAttribute('min', 1);
+    U_cantidad_cppd.setAttribute('max', Number(row.querySelector('.cart__item--quantity').value));
+    U_cost_uni_cppd.value = row.querySelector('.cart__item--costUnit').value;
+}
 //-----Delete CMP_PRODS
 async function deleteCmp_prod(id_cppd) {
-    if (confirm('¿Esta usted seguro de eliminar el producto?')) {
+    if (confirm('¿Quieres eliminar el producto de la compra?')) {
         if (rqstBuy == false) {
-            rqstBuy = true;
-            let cmp_prod = cmp_prods.find(cmp_prod => cmp_prod.id_cppd == id_cppd);
             preloader.classList.add('modal__show');
+            rqstBuy = true;
+            const cmp_prod = cmp_prods.find(cmp_prod => cmp_prod.id_cppd == id_cppd);
+            
             let formData = new FormData();
             formData.append('deleteCmp_prod', JSON.stringify(cmp_prod));
             fetch('../controladores/compras.php', {
@@ -761,9 +788,11 @@ async function deleteCmp_prod(id_cppd) {
                 body: formData
             }).then(response => response.text()).then(data => {
                 Promise.all([readBuys(), readCmp_prods()]).then(() => {
-                    rqstBuy = false;
+                    paginacionBuy(filterBuys.length, 1);
+                    paginacionProdOC(filterCmp_prods.length, 1);
                     preloader.classList.remove('modal__show');
-                    readCmpProd(data);
+                    rqstBuy = false;
+                    readCmpProd(Number(data));
                 })
             }).catch(err => {
                 mostrarAlerta(err);
@@ -771,17 +800,45 @@ async function deleteCmp_prod(id_cppd) {
         }
     }
 }
-function openProductBuyMW(row) {
-    id_cppd = row.children[0].value;
-    addBuyMW.classList.add('modal__show');
-    document.getElementsByName('id_cppd')[0].value = row.children[0].value;
-    document.getElementsByName('fk_id_prod_cppd')[0].value = row.children[1].value;
-    document.getElementsByName('fk_id_cmp_cppd')[0].value = row.children[2].value;
-    document.getElementsByName('fecha_entrega_cppd')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
-    document.getElementsByName('fecha_factura_cppd')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
-    document.getElementsByName('codigo_cppd')[0].value = row.children[5].innerText;
-    document.getElementsByName('cantidad_cppd')[0].value = row.children[7].value;
-    document.getElementsByName('cost_uni_cppd')[0].value = row.children[8].value + ' Bs';
+//-------------------------------EDITAR EL NUMERO DE FACTURA---------------------------------------------
+const editFactura = document.getElementById('editFactura');
+const closeEditFactura = document.getElementById('closeEditFactura');
+closeEditFactura.addEventListener('click', (e) => {
+    editFactura.classList.remove('modal__show');
+})
+function openEditFactura(row) {
+    editFactura.classList.add('modal__show');
+    const editProd = cmp_prods.find(cmp_prod => cmp_prod.id_cppd == row.getAttribute('id_cppd'));
+    formEditFactura.querySelector('input[name="id_cppd"]').value = row.getAttribute('id_cppd');
+    formEditFactura.querySelector('input[name="codigo_cppd"]').value = row.querySelector('.cart__item--code').innerHTML;
+    formEditFactura.querySelector('input[name="fecha_entrega_cppd"]').value = editProd.fecha_entrega_cppd;
+    formEditFactura.querySelector('input[name="fecha_factura_cppd"]').value = editProd.fecha_factura_cppd;
+    formEditFactura.querySelector('input[name="factura_cppd"]').value = editProd.factura_cppd;
+}
+const formEditFactura = document.getElementById('formEditFactura');
+formEditFactura.addEventListener('submit', editFacturaCompra)
+async function editFacturaCompra() {
+    event.preventDefault();
+    if (rqstBuy == false) {
+        preloader.classList.add('modal__show');
+        rqstBuy = true;
+        addBuyMW.classList.remove('modal__show');
+        editFactura.classList.remove('modal__show');
+        let formData = new FormData(formEditFactura);
+        formData.append('editFactura', '');
+        fetch('../controladores/compras.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            Promise.all([readCmp_prods()]).then(() => {
+                paginacionProdOC(filterCmp_prods.length, 1);
+                formEditFactura.reset();
+                readCmpProd(Number(data));
+                preloader.classList.remove('modal__show');
+                rqstBuy = false;
+            })
+        })
+    }
 }
 //-----------------------------------------------ADD CART R------------------------------------------
 //<<-------------------------------------MODAL DE PRODUCTS PARA COMPRAR-------------------------------------------->>
@@ -893,7 +950,7 @@ function cartCmp_prod(id_prod, contenedor, totalPrice) {
         const createImg = document.createElement('img');
         createImg.src = '../imagenes/plus.svg';
         createImg.classList.add('icon__CRUD');
-        createImg.addEventListener('click', createCmp_prod);
+        createImg.addEventListener('click', (e) => createCmp_prod(e.target.parentNode.parentNode));
         divImg.appendChild(createImg);
     }
     const trashImg = document.createElement('img');
@@ -949,7 +1006,7 @@ closeCmp_prodMMW.addEventListener('click', (e) => {
     cmp_prodMMW.classList.remove('modal__show');
 });
 const cmpProdMMW = document.querySelector('#cmp_prodMMW div.modal__body');
-function cartCmp_prodM(product, contenedor, total) {    
+function cartCmp_prodM(product, contenedor, total) {  
     const producto = products.find(producto => producto['id_prod'] == product.fk_id_prod_cppd);
     const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === product.fk_id_prod_cppd && inventory.ubi_almacen === 0);
     const inventoriesArce = inventories.filter(inventory => inventory.fk_id_prod_inv === product.fk_id_prod_cppd && inventory.ubi_almacen === 1);
@@ -963,7 +1020,7 @@ function cartCmp_prodM(product, contenedor, total) {
 
     const item = document.createElement('div');
     item.classList.add('cart__item');
-    item.setAttribute('id_prod', producto['id_prod']);
+    item.setAttribute('id_cppd', product.id_cppd);
     item.setAttribute('draggable', 'true');
 
     const cantidadInvParagraph = document.createElement('p');
@@ -1045,7 +1102,7 @@ function cartCmp_prodM(product, contenedor, total) {
         img2.classList.add('icon__CRUD');
         img2.src = '../imagenes/edit.svg';
         img2.setAttribute('title', 'Editar producto');
-        img2.setAttribute('onclick', 'openProductBuyMW(this.parentNode)');
+        img2.setAttribute('onclick', 'openEditFactura(this.parentNode)');
         item.appendChild(img2);
     }
     return item;
@@ -1082,6 +1139,7 @@ function totalPriceM(id_cmp) {
         numberCPMMW.appendChild(div);
     }
 }
+
 
 
 
@@ -1596,60 +1654,12 @@ function showPDF(buy, array, pdf) {
     form.submit();
 
 }
-//------------------------------Campos obligatorios para registrar compra---------------------------
-spaceRequiretBuyR();
-function spaceRequiretBuyR() {
-    const tipo_cambio_cmpR = document.getElementsByName('tipo_cambio_cmpR')[0];
-    tipo_cambio_cmpR.addEventListener('input', function () {
-        const valor = this.value;
-        const regex = /^[0-9]+(\.[0-9]{1,2})?$/;
-        if (!regex.test(valor)) {
-            this.value = valor.replace(/[^0-9\.]/g, '');
-        }
-    });
-}
+
 const closeProductBuyMW = document.getElementById('closeProductBuyMW');
 closeProductBuyMW.addEventListener('click', (e) => {
     productBuyMW.classList.remove('modal__show');
 });
-//-------------------------------EDITAR EL NUMERO DE FACTURA---------------------------------------------
-const editFactura = document.getElementById('editFactura');
-const closeEditFactura = document.getElementById('closeEditFactura');
-closeEditFactura.addEventListener('click', (e) => {
-    editFactura.classList.remove('modal__show');
-})
-function openEditFactura(id_cppd) {
-    editFactura.classList.add('modal__show');
-    document.getElementsByName('id_cppd2')[0].value = id_cppd;
-    const editProd = cmp_prods.find(cmp_prod => cmp_prod.id_cppd == id_cppd);
-    document.getElementsByName('fecha_entrega_cppd2')[0].value = editProd.fecha_entrega_cppd;
-    document.getElementsByName('fecha_factura_cppd2')[0].value = editProd.fecha_factura_cppd;
-    document.getElementsByName('factura_cppd2')[0].value = editProd.factura_cppd;
-}
-const formEditFactura = document.getElementById('formEditFactura');
-formEditFactura.addEventListener('submit', editFacturaCompra)
-async function editFacturaCompra() {
-    event.preventDefault();
-    if (rqstBuy == false) {
-        rqstBuy = true;
-        preloader.classList.add('modal__show');
-        let formData = new FormData(formEditFactura);
-        formData.append('editFactura', '');
-        fetch('../controladores/compras.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.json()).then(data => {
-            Promise.all([readBuys(), readCmp_prods()]).then(() => {
-                rqstBuy = false;
-                formEditFactura.reset();
-                addBuyMW.classList.remove('modal__show');
-                editFactura.classList.remove('modal__show');
-                readCmpProd(data);
-                preloader.classList.remove('modal__show');
-            })
-        })
-    }
-}
+
 //------------------------------MODAL ADD BUY TO INVETORY-----------------------------------------------------
 const addBuyMW = document.getElementById('addBuyMW');
 const closeAddBuyMW = document.getElementById('closeAddBuyMW');
@@ -2361,7 +2371,7 @@ async function readInventories() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            inventories = Object.values(data);
+            inventories = data;
             resolve();
         }).catch(err => console.log(err));
     })

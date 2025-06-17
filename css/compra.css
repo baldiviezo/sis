@@ -488,3 +488,7 @@
 	border: none;
 }
 */
+.form__input.formAddProd {
+	font-size: 1.2rem;
+	font-weight: bold;
+}
