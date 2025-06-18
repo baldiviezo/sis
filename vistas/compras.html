@@ -150,38 +150,44 @@
 			</div>
 			<form id="formBuyR" class="form">
 				<div class="form__container">
-					<label class="form__label--only">Almacen:</label>
-					<div class="form__group--select">
-						<select name="almacen_cmp" class="select__marca">
-							<option value="0">EL ALTO</option>
-							<option value="1">AV. ARCE</option>
-						</select>
+					<div>
+						<label class="form__label--only">SUCURSAL:</label>
+						<div class="form__group--select">
+							<select name="almacen_cmp" class="select__marca">
+								<option value="0">EL ALTO</option>
+								<option value="1">AV. ARCE</option>
+							</select>
+						</div>
 					</div>
 					<div class="form__group">
 						<input type="text" name="fecha_cmpR" placeholder=" " class="form__input" readonly>
 						<label for="fecha_cmpR" class="form__label">Fecha:</label>
 					</div>
-					<label class="form__label--only">Empresa:</label>
-					<div class="form__group--select">
-						<select id="selectEnterpriseR" name="fk_id_emp_clteR"></select>
-						<img src="../imagenes/search.svg" onclick="openEnterpriseSMW('R')" class="icon__CRUD"
-							title="Buscar empresa">
-						<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()" class="icon__CRUD"
-							title="Registrar empresa">
-						<img src="../imagenes/edit.svg" onclick="readEnterprise('R')" class="icon__CRUD"
-							title="Editar empresa">
-						<img src="../imagenes/trash.svg" onclick="deleteEnterprise('R')" class="icon__CRUD"
-							title="Eliminar empresa">
+					<div>
+						<label class="form__label--only">Empresa:</label>
+						<div class="form__group--select">
+							<select id="selectEnterpriseR" name="fk_id_emp_clteR"></select>
+							<img src="../imagenes/search.svg" onclick="openEnterpriseSMW('R')" class="icon__CRUD"
+								title="Buscar empresa">
+							<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()" class="icon__CRUD"
+								title="Registrar empresa">
+							<img src="../imagenes/edit.svg" onclick="readEnterprise('R')" class="icon__CRUD"
+								title="Editar empresa">
+							<img src="../imagenes/trash.svg" onclick="deleteEnterprise('R')" class="icon__CRUD"
+								title="Eliminar empresa">
+						</div>
 					</div>
-					<label class="form__label--only">Proveedor:</label>
-					<div class="form__group--select">
-						<select id="selectSupplierR" name="fk_id_prov_cmpR"></select>
-						<img src="../imagenes/registrar.svg" onclick="openSupplierRMW()" class="icon__CRUD"
-							title="Registrar proveedor">
-						<img src="../imagenes/edit.svg" onclick="readSupplier('R')" class="icon__CRUD"
-							title="Editar proveedor">
-						<img src="../imagenes/trash.svg" onclick="deleteSupplier('R')" class="icon__CRUD"
-							title="Eliminar proveedor">
+					<div>
+						<label class="form__label--only">Proveedor:</label>
+						<div class="form__group--select">
+							<select id="selectSupplierR" name="fk_id_prov_cmpR"></select>
+							<img src="../imagenes/registrar.svg" onclick="openSupplierRMW()" class="icon__CRUD"
+								title="Registrar proveedor">
+							<img src="../imagenes/edit.svg" onclick="readSupplier('R')" class="icon__CRUD"
+								title="Editar proveedor">
+							<img src="../imagenes/trash.svg" onclick="deleteSupplier('R')" class="icon__CRUD"
+								title="Eliminar proveedor">
+						</div>
 					</div>
 					<div class="form__group">
 						<input type="text" name="descuento_cmpR" id="descuento_cmpR" placeholder=" "
@@ -239,10 +245,10 @@
 				</table>
 			</div>
 			<div class="box__container">
-			<div class="container--modal__body">
-				<div class="modal__body--number">
-				</div>
-				<div class="modal__body">
+				<div class="container--modal__body">
+					<div class="modal__body--number">
+					</div>
+					<div class="modal__body">
 					</div>
 				</div>
 			</div>
@@ -291,10 +297,10 @@
 				</table>
 			</div>
 			<div class="box__container">
-			<div class="container--modal__body">
-				<div class="modal__body--number">
-				</div>
-				<div class="modal__body">
+				<div class="container--modal__body">
+					<div class="modal__body--number">
+					</div>
+					<div class="modal__body">
 					</div>
 				</div>
 			</div>
@@ -382,7 +388,8 @@
 						<label for="fecha_factura_cppd" class="form__label">Fecha de factura:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="codigo_cppd" id="codigo_cppd" placeholder=" " class="form__input formAddProd" readonly>
+						<input type="text" name="codigo_cppd" id="codigo_cppd" placeholder=" "
+							class="form__input formAddProd" readonly>
 						<label for="codigo_cppd" class="form__label">Codigo:</label>
 					</div>
 					<div class="form__group">
@@ -390,11 +397,13 @@
 						<label for="factura_cppd" class="form__label">N° Factura:</label>
 					</div>
 					<div class="form__group">
-						<input type="number" name="cantidad_cppd" id="cantidad_cppd" placeholder=" " class="form__input formAddProd">
+						<input type="number" name="cantidad_cppd" id="cantidad_cppd" placeholder=" "
+							class="form__input formAddProd">
 						<label for="cantidad_cppd" class="form__label">Cantidad:</label>
 					</div>
 					<div class="form__group">
-						<input type="number" name="cost_uni_cppd" id="cost_uni_cppd" placeholder=" " class="form__input formAddProd" readonly>
+						<input type="number" name="cost_uni_cppd" id="cost_uni_cppd" placeholder=" "
+							class="form__input formAddProd" readonly>
 						<label for="cost_uni_cppd" class="form__label">Costo Unitario:</label>
 					</div>
 					<input type="submit" value="Registrar" class="form__submit">

@@ -46,6 +46,7 @@ class consultas{
 		$this->tipo_cambio_prof = trim($conexion->real_escape_string($_POST['tipo_cambio_oc']));
 		$this->orden_oc = trim($conexion->real_escape_string($_POST['orden_oc']));
 		$this->observacion_oc = trim($conexion->real_escape_string($_POST['observacion_oc']));
+		$this->almacen_oc = trim($conexion->real_escape_string($_POST['almacen_oc']));
 	}
 	//--------------------------------------------CRUD PROFORMAS-----------------------------
 	//-------Read proformas
@@ -169,7 +170,7 @@ class consultas{
 	public function createOC($productos){
 		include 'conexion.php';
 
-		$consulta = "INSERT INTO orden_compra (fk_id_prof_oc, fk_id_clte_oc, fk_id_usua_oc, fecha_oc, descuento_oc, total_oc, moneda_oc, tipo_cambio_oc, orden_oc, observacion_oc, estado_oc) VALUES ('$this->fk_id_prof_oc', '$this->fk_id_clte_oc', '$this->fk_id_usua_oc', '$this->fecha_oc', '$this->descuento_oc', '$this->total_oc', '$this->moneda_oc', '$this->tipo_cambio_prof', '$this->orden_oc', '$this->observacion_oc', '0')";
+		$consulta = "INSERT INTO orden_compra (fk_id_prof_oc, fk_id_clte_oc, fk_id_usua_oc, fecha_oc, descuento_oc, total_oc, moneda_oc, tipo_cambio_oc, orden_oc, observacion_oc, estado_oc, almacen_oc) VALUES ('$this->fk_id_prof_oc', '$this->fk_id_clte_oc', '$this->fk_id_usua_oc', '$this->fecha_oc', '$this->descuento_oc', '$this->total_oc', '$this->moneda_oc', '$this->tipo_cambio_prof', '$this->orden_oc', '$this->observacion_oc', '0', '$this->almacen_oc')";
 		$resultado = $conexion->query($consulta);
 
 		$consulta = "SELECT MAX(id_oc) as id_oc_max FROM orden_compra";

@@ -233,6 +233,10 @@ function tableOrdenCompra(page) {
         tdNumero.innerText = index + 1;
         tr.appendChild(tdNumero);
 
+        const tdSucursal = document.createElement('td');
+        tdSucursal.innerText = (orderBuy.almacen_oc === 0) ? 'El Alto' : 'Arce';
+        tr.appendChild(tdSucursal);
+
         const tdNumeroOC = document.createElement('td');
         tdNumeroOC.innerText = orderBuy.numero_oc;
         tr.appendChild(tdNumeroOC);
@@ -340,17 +344,9 @@ const initSortableListM = (e) => {
 
     modalProf_prod.insertBefore(draggingItem, nextSibling);
 }
-//--------Muestra la lista de los productos de la oc_prod
-const selectAlmacen = document.querySelector('#selectAlmacen');
-selectAlmacen.addEventListener('change', () => {
-    const oc_prod = modalProf_prod.querySelectorAll('.cart-item');
-    oc_prod.forEach(prod => {
-        prod.remove();
-    });
-    readOc_prod(golbalIdOc);
-});
 //------Abrir modal de la card
 function cartProduct_ocpd(oc_prod, total) {
+    const ordenCompra = orderBuys.find(orderBuy => orderBuy.id_oc === oc_prod.fk_id_oc_ocpd);
     const product = products.find(product => product.id_prod === oc_prod.fk_id_prod_ocpd);
     if (product) {
         const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 0);
@@ -358,9 +354,6 @@ function cartProduct_ocpd(oc_prod, total) {
 
         const cantidad_invAlto = inventoriesAlto.length > 0 ? inventoriesAlto[0].cantidad_inv : 0;
         const cantidad_invArce = inventoriesArce.length > 0 ? inventoriesArce[0].cantidad_inv : 0;
-
-        const cost_uni2 = prices.find(price => price.modelo.trim() === product.codigo_prod);
-        const cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio) * 1.1) : (inventoriesAlto.length > 0 ? Math.round(inventoriesAlto[0].cost_uni_inv * 1.1) : (inventoriesArce.length > 0 ? Math.round(inventoriesArce[0].cost_uni_inv * 1.1) : 0));
 
         const card = document.createElement('div');
         card.classList.add('cart-item');
@@ -370,9 +363,9 @@ function cartProduct_ocpd(oc_prod, total) {
         const cantidadInvParagraph = document.createElement('p');
         cantidadInvParagraph.classList.add('cart-item__cantInv');
 
-        if (selectAlmacen.value == '0') {
+        if (ordenCompra.almacen_oc === 0) {
             cantidadInvParagraph.textContent = cantidad_invAlto
-        } else if (selectAlmacen.value == '1') {
+        } else if (ordenCompra.almacen_oc === 1) {
             cantidadInvParagraph.textContent = cantidad_invArce;
         }
         card.appendChild(cantidadInvParagraph);
@@ -682,7 +675,6 @@ function searchNotasEntrega() {
 }
 function createYearNE() {
     const anios = Array.from(new Set(notasEntrega.map(ne => ne.fecha_ne.split('-')[0])));
-
     // Crear opciones para selectYearNE
     selectYearNE.innerHTML = '';
     let optionFirst = document.createElement('option');
@@ -787,6 +779,15 @@ function paginacionNotaEntrega(allProducts, page) {
     tableNotaEntrega(page);
 }
 //--------Tabla de proforma
+/*
+UPDATE nota_entrega
+SET estado_ne = 1
+WHERE estado_ne = 'vendido';
+
+UPDATE nota_entrega
+SET estado_ne = 0
+WHERE estado_ne = 'pendiente';
+*/
 function tableNotaEntrega(page) {
     console.log(filterNotasEntrega);
     const totalNE = document.getElementById('totalNE');

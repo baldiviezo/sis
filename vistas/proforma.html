@@ -585,8 +585,18 @@
 						<input type="text" name="descuento_oc" id="descuento_oc" class="form__input" hidden>
 						<input type="text" name="moneda_oc" id="moneda_oc" class="form__input" hidden>
 						<input type="text" name="tipo_cambio_oc" id="tipo_cambio_oc" class="form__input" hidden>
+						<div>
+							<label class="form__label--only">SUCURSAL:</label>
+							<div class="form__group--select">
+								<select name="almacen_oc" class="select__marca">
+									<option value="0">EL ALTO</option>
+									<option value="1">AV. ARCE</option>
+								</select>
+							</div>
+						</div>
 						<div class="form__group">
-							<input type="text" name="numero_prof_oc" id="numero_prof_oc" placeholder=" " class="form__input" readonly>
+							<input type="text" name="numero_prof_oc" id="numero_prof_oc" placeholder=" "
+								class="form__input" readonly>
 							<label for="numero_prof_oc" class="form__label">Numero de proforma:</label>
 						</div>
 						<div class="form__group">
@@ -655,7 +665,8 @@
 						<img src="../imagenes/carrito.svg">
 						<p id="count_pfpd">0</p>
 					</div>
-					<button class="button--sell" id="button__prof_prodMW" onclick="openPreviwProducts()">Modificar</button>
+					<button class="button--sell" id="button__prof_prodMW"
+						onclick="openPreviwProducts()">Modificar</button>
 				</div>
 			</div>
 
