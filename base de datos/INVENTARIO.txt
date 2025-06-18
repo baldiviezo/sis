@@ -1,0 +1,210 @@
+SELECT descripcion_inv, codigo_prod, cantidad_inv 
+FROM `inventario` 
+INNER JOIN producto ON inventario.fk_id_prod_inv = producto.id_prod 
+ORDER BY descripcion_inv, codigo_prod;
+
+SELECT descripcion_inv, codigo_prod, cantidad_inv 
+FROM `inventario` 
+INNER JOIN producto ON inventario.fk_id_prod_inv = producto.id_prod 
+WHERE cantidad_inv > 0
+ORDER BY descripcion_inv, codigo_prod;
+
+SELECT factura_vnt, nombre_emp, nombre_clte, apellido_clte, fecha_vnt, total_vnt FROM venta INNER JOIN nota_entrega ON venta.fk_id_ne_vnt = id_ne INNER JOIN proforma ON nota_entrega.fk_id_prof_ne = id_prof INNER JOIN cliente ON proforma.fk_id_clte_prof = id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = id_emp INNER JOIN usuario ON venta.fk_id_usua_vnt = id_usua WHERE MONTH(fecha_vnt) = 12 AND YEAR(fecha_vnt) = 2024 ORDER by fecha_vnt ASC;
+
+
+SELECT 
+  producto.codigo_prod, 
+  inventario.cost_uni_inv AS precio_sistema, 
+  lista_precios.precio AS precio_lista_precio
+FROM 
+  producto
+  INNER JOIN inventario ON producto.id_prod = inventario.fk_id_prod_inv
+  INNER JOIN lista_precios ON producto.codigo_prod = lista_precios.modelo
+WHERE 
+  inventario.cost_uni_inv <> lista_precios.precio
+
+
+SELECT * FROM producto WHERE codigo_prod LIKE 'CM2%';
+
+
+UPDATE producto SET catalogo_prod = 'https://static.smc.eu/pdf/AS_2-3_1F-A_ES.pdf' WHERE codigo_prod LIKE 'AL%';
+
+UPDATE producto SET catalogo_prod = 'https://static.smc.eu/pdf/KQB2_ES.pdf' WHERE codigo_prod LIKE 'KQB2%';
+
+UPDATE producto SET catalogo_prod = 'https://content2.smcetech.com/pdf/AC-B-B_ES.pdf' WHERE fk_id_ctgr_prod = 66 AND codigo_prod LIKE 'AR%';
+
+SELECT * FROM `cmp_prod` INNER JOIN producto ON cmp_prod.fk_id_prod_cppd = producto.id_prod WHERE codigo_prod LIKE 'zCP96C32-KD0018-400'
+
+UPDATE tu_tabla
+SET factura_cppd = 948
+WHERE fk_id_cmp_cppd = 88;
+
+
+
+SHOW PROCESSLIST;
+SET GLOBAL event_scheduler = 1;
+
+CREATE TABLE proformas_temp (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  producto_id INT,
+  cantidad INT,
+  fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  fecha_expiracion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+
+
+
+INSERT INTO proformas_temp (producto_id, cantidad, fecha_expiracion)
+VALUES (1, 1, CURRENT_TIMESTAMP + INTERVAL 1 HOUR);
+
+
+
+CREATE EVENT eliminar_proformas_expiradas
+ON SCHEDULE EVERY 1 DAY
+DO
+  DELETE FROM proformas_temp WHERE fecha_expiracion < CURRENT_TIMESTAMP;
+
+
+UPDATE proforma p
+JOIN nota_entrega ne ON p.id_prof = ne.fk_id_prof_ne
+SET p.fecha_ne_prof = ne.fecha_ne;
+
+UPDATE proforma p
+JOIN nota_entrega ne ON p.id_prof = ne.fk_id_prof_ne JOIN venta vtn ON vtn.fk_id_ne_vnt = ne.id_ne
+SET p.fecha_factura_prof = vtn.fecha_vnt;
+
+
+UPDATE proforma p
+JOIN prof_prod pfpd ON p.id_prof = pfpd.fk_id_prod_pfpd
+SET pfpd.estado_pfpd = p.estado_prof;
+
+SELECT modelo, COUNT(*) as cantidad
+FROM lista_precios
+GROUP BY modelo
+HAVING COUNT(*) > 1;
+
+
+SELECT * FROM `prof_prod` JOIN proforma ON prof_prod.fk_id_prof_pfpd = proforma.id_prof WHERE factura_prof= 19
+
+
+
+
+INSERT INTO nota_entrega (fk_id_prof_ne, fk_id_usua_ne, fecha_ne, orden_ne, observacion_ne, estado_ne) SELECT id_prof, fk_id_usua_prof, fecha_ne_prof, orden_compra_prof, detalle_prof, 'pendiente' FROM proforma WHERE estado_prof = 'vendido' AND id_prof NOT IN (SELECT fk_id_prof_ne FROM nota_entrega);
+
+
+
+
+SELECT fk_id_prof_pfpd, numero_prof, total_prof, ROUND(SUM(cantidad_pfpd * cost_uni_pfpd * (100-descuento_prof)/100), 2) AS total_prof_prod
+FROM prof_prod INNER JOIN proforma ON proforma.id_prof = prof_prod.fk_id_prof_pfpd
+GROUP BY fk_id_prof_pfpd
+HAVING total_prof != total_prof_prod
+
+
+
+SELECT fk_id_vnt_vtpd, numero_prof, total_prof, ROUND(SUM(cantidad_vtpd * cost_uni_vtpd * (100-descuento_prof)/100), 2) AS total_vnt_prod
+FROM vnt_prod INNER JOIN venta ON venta.id_vnt = vnt_prod.fk_id_vnt_vtpd
+INNER JOIN nota_entrega ON nota_entrega.id_ne = venta.fk_id_ne_vnt
+INNER JOIN proforma ON proforma.id_prof = nota_entrega.fk_id_prof_ne
+GROUP BY fk_id_vnt_vtpd
+HAVING total_prof != total_vnt_prod
+
+
+
+SELECT ubicacion,
+  codigo,
+  COUNT(*) AS Cantidad
+FROM 
+  siemens
+GROUP BY 
+  codigo ORDER BY ubicacion	
+
+
+
+/******************/
+
+SELECT *
+FROM levantamienti_arce
+GROUP BY codigo
+HAVING COUNT(codigo) > 1;
+
+
+
+INSERT INTO inventario_arce (fk_id_prod_inv, cantidad_inv, descripcion_inv)
+SELECT p.id_prod, la.cantidad, la.ubicacion
+FROM levantamiento_arce la
+INNER JOIN producto p ON la.codigo = p.codigo_prod;
+
+
+DELETE FROM inventario_arce
+WHERE id_inv BETWEEN 414 AND 537;
+
+
+SELECT * FROM `inventario_arce` INNER JOIN producto ON 	inventario_arce.fk_id_prod_inv = producto.id_prod where codigo_prod = '6gk5795-1tr10-0aa6'
+
+
+/***********************************************/
+INSERT INTO nte_inv (fk_id_ne_neiv, fk_id_inv_neiv, codigo_neiv, cantidad_neiv, cost_uni_neiv)
+SELECT 
+  ne.id_ne, 
+  i.id_inv, 
+  p.codigo_prod, 
+  pp.cantidad_pfpd, 
+  pp.cost_uni_pfpd
+FROM 
+  prof_prod pp
+  INNER JOIN proforma pf ON pp.fk_id_prof_pfpd = pf.id_prof
+  INNER JOIN producto p ON pp.fk_id_prod_pfpd = p.id_prod
+  INNER JOIN inventario i ON i.fk_id_prod_inv = p.id_prod
+  INNER JOIN nota_entrega ne ON ne.id_ne = i.id_inv
+WHERE 
+  pf.estado_prof = 'vendido';
+
+
+
+//////////////////LISTA PRECIO/////////////////////
+ALTER TABLE lista_precios ADD id INT AUTO_INCREMENT PRIMARY KEY FIRST;
+
+///////////////////////////////////NOTA DE ENTREGA///////////
+UPDATE nota_entrega
+INNER JOIN proforma ON nota_entrega.fk_id_prof_ne = proforma.id_prof
+SET nota_entrega.fk_id_clte_ne = proforma.fk_id_clte_prof,
+    nota_entrega.descuento_ne = proforma.descuento_prof,
+    nota_entrega.total_ne = proforma.total_prof,
+    nota_entrega.moneda_ne = proforma.moneda_prof,
+    nota_entrega.tipo_cambio_ne = proforma.tipo_cambio_prof;
+
+
+
+//////////////////estado proforma
+UPDATE proforma
+SET estado_prof = 1
+WHERE estado_prof = 'vendido';
+
+UPDATE proforma
+SET estado_prof = 0
+WHERE estado_prof = 'pendiente';
+
+UPDATE proforma
+SET estado_prof = 1
+WHERE estado_prof = 'devolucion';
+
+ALTER TABLE proforma
+CHANGE estado_prof estado_prof BOOLEAN;
+
+
+//////////////////////////////////////////numero oc 
+ALTER TABLE orden_compra
+ADD COLUMN numero_oc INT;
+
+DELIMITER $$
+CREATE TRIGGER trg_incrementar_numero_oc
+BEFORE INSERT ON orden_compra
+FOR EACH ROW
+BEGIN
+    SET NEW.numero_oc = (SELECT IFNULL(MAX(numero_oc), 0) + 1 FROM orden_compra);
+END$$
+DELIMITER ;
+

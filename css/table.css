@@ -340,10 +340,10 @@ tbody tr:hover{
 	min-width: 30rem;
 } 
 /*----------------------tabla inventario modal ---------------------------------------------*/
-#tbodyInvMW td:nth-of-type(7){
+#tbodyInvMW td:nth-of-type(6){
 	min-width: 12rem;
 }
-#tbodyInvMW td:nth-of-type(8){
+#tbodyInvMW td:nth-of-type(7){
 	min-width: 30rem;
 }
 /*-----------------------tabla preview-----------------------------*/

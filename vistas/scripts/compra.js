@@ -30,6 +30,7 @@ async function init() {
             fillSelectEmp(selectEnterpriseR, selectSupplierR);
             paginacionBuy(filterBuys.length, 1);
             paginacionProdOC(cmp_prods.length, 1);
+            paginacionInventoryMW(inventories.length, 1);
             createSelectDateBuy();
             preloader.classList.remove('modal__show');
             rqstBuy = false;
@@ -1649,13 +1650,250 @@ const closeProductBuyMW = document.getElementById('closeProductBuyMW');
 closeProductBuyMW.addEventListener('click', (e) => {
     productBuyMW.classList.remove('modal__show');
 });
-
 //------------------------------MODAL ADD BUY TO INVETORY-----------------------------------------------------
 const addBuyMW = document.getElementById('addBuyMW');
 const closeAddBuyMW = document.getElementById('closeAddBuyMW');
 closeAddBuyMW.addEventListener('click', (e) => {
     addBuyMW.classList.remove('modal__show');
 });
+
+
+
+
+
+
+
+//------------------------------------------------------INVENTARIO----------------------------------------------------------
+let inventories = [];
+let filterInventoriesMW = [];
+async function readInventories() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readInventories', '');
+        fetch('../controladores/inventario.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            inventories = data.filter(objeto => objeto.cantidad_inv !== 0);
+            filterInventoriesMW = inventories;
+            resolve();
+        }).catch(err => console.log(err));
+    })
+}
+//-------------------------------------------------TABLA MODAL INVENTARIOMW------------------------------------------------------------
+//------Select utilizado para buscar por columnas
+const selectSearchInvMW = document.getElementById('selectSearchInvMW');
+selectSearchInvMW.addEventListener('change', searchInventoriesMW);
+//------buscar por input
+const inputSearchInvMW = document.getElementById("inputSearchInvMW");
+inputSearchInvMW.addEventListener("keyup", searchInventoriesMW);
+//------Clientes por pagina
+const selectNumberInvMW = document.getElementById('selectNumberInvMW');
+selectNumberInvMW.selectedIndex = 3;
+selectNumberInvMW.addEventListener('change', function () {
+    paginacionInventoryMW(filterInventoriesMW.length, 1);
+});
+//-------Marca y categoria
+const selectMarcaInvMW = document.getElementById('selectMarcaInvMW');
+const selectCategoriaInvMW = document.getElementById('selectCategoriaInvMW');
+selectMarcaInvMW.addEventListener('change', selectCategoriaInventoryMW);
+selectCategoriaInvMW.addEventListener('change', searchInventoriesMW);
+const selectAlmacenInventory = document.getElementById('selectAlmacenInventory');
+selectAlmacenInventory.addEventListener('change', searchInventoriesMW);
+//------buscar por:
+function searchInventoriesMW() {
+    const valor = selectSearchInvMW.value;
+    const busqueda = inputSearchInvMW.value.toLowerCase().trim();
+    filterInventoriesMW = inventories.filter(inventory => {
+        let product = products.find(product => product.id_prod === inventory.fk_id_prod_inv);
+        if (valor === 'todas') {
+            return (
+                inventory.cost_uni_inv.toString().toLowerCase().includes(busqueda) ||
+                product.codigo_prod.toString().toLowerCase().includes(busqueda) ||
+                product.nombre_prod.toLowerCase().includes(busqueda) ||
+                product.descripcion_prod.toLowerCase().includes(busqueda) ||
+                inventory.descripcion_inv.toLowerCase().includes(busqueda)
+            );
+        } else if (valor in inventory) {
+            return inventory[valor].toString().toLowerCase().includes(busqueda);
+        } else if (valor in product) {
+            return product[valor].toString().toLowerCase().includes(busqueda);
+        }
+    });
+    selectInventoriesMW();
+}
+//------buscar por marca y categoria:
+function selectInventoriesMW() {
+    filterInventoriesMW = filterInventoriesMW.filter(inventory => {
+        let product = products.find(product => product.id_prod === inventory.fk_id_prod_inv);
+        const marca = selectMarcaInvMW.value === 'todasLasMarcas' ? true : product.fk_id_mrc_prod == selectMarcaInvMW.value;
+        const categoria = selectCategoriaInvMW.value === 'todasLasCategorias' ? true : product.fk_id_ctgr_prod == selectCategoriaInvMW.value;
+        const almacen = selectAlmacenInventory.value === 'todo' ? true : inventory.ubi_almacen == selectAlmacenInventory.value;
+        return marca && categoria && almacen;
+    })
+    paginacionInventoryMW(filterInventoriesMW.length, 1);
+}
+//------Ordenar tabla descendente ascendente
+const orderInventoriesMW = document.querySelectorAll('.tbody__head--invMW');
+orderInventoriesMW.forEach(div => {
+    div.children[0].addEventListener('click', function () {
+        const valor = div.children[0].name;
+        filterInventoriesMW.sort((a, b) => {
+            const productoA = products.find(p => p.id_prod === a.fk_id_prod_inv);
+            const productoB = products.find(p => p.id_prod === b.fk_id_prod_inv);
+            const valorA = String(productoA[valor]);
+            const valorB = String(productoB[valor]);
+            return valorA.localeCompare(valorB);
+        });
+        paginacionInventoryMW(filterInventoriesMW.length, 1);
+    });
+    div.children[1].addEventListener('click', function () {
+        const valor = div.children[0].name;
+        filterInventoriesMW.sort((a, b) => {
+            const productoA = products.find(p => p.id_prod === a.fk_id_prod_inv);
+            const productoB = products.find(p => p.id_prod === b.fk_id_prod_inv);
+            const valorA = String(productoA[valor]);
+            const valorB = String(productoB[valor]);
+            return valorB.localeCompare(valorA);
+        });
+        paginacionInventoryMW(filterInventoriesMW.length, 1);
+    });
+})
+//------PaginacionInventoryMW
+function paginacionInventoryMW(allInventoriesMW, page) {
+    let numberInventoriesMW = Number(selectNumberInvMW.value);
+    let allPages = Math.ceil(allInventoriesMW / numberInventoriesMW);
+    let ul = document.querySelector('#wrapperInvMW ul');
+    let li = '';
+    let beforePages = page - 1;
+    let afterPages = page + 1;
+    let liActive;
+    if (page > 1) {
+        li += `<li class="btn" onclick="paginacionInventoryMW(${allInventoriesMW}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
+    }
+    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
+        if (pageLength > allPages) {
+            continue;
+        }
+        if (pageLength == 0) {
+            pageLength = pageLength + 1;
+        }
+        if (page == pageLength) {
+            liActive = 'active';
+        } else {
+            liActive = '';
+        }
+        li += `<li class="numb ${liActive}" onclick="paginacionInventoryMW(${allInventoriesMW}, ${pageLength})"><span>${pageLength}</span></li>`;
+    }
+    if (page < allPages) {
+        li += `<li class="btn" onclick="paginacionInventoryMW(${allInventoriesMW}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
+    }
+    ul.innerHTML = li;
+    let h2 = document.querySelector('#showPageInvMW h2');
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${allInventoriesMW} Productos`;
+    tableInventoriesMW(page);
+}
+//------Crear la tabla
+function tableInventoriesMW(page) {
+    let tbody = document.getElementById('tbodyInvMW');
+    let inicio = (page - 1) * Number(selectNumberInvMW.value);
+    let final = inicio + Number(selectNumberInvMW.value);
+    i = 1;
+    tbody.innerHTML = '';
+    let fragment = document.createDocumentFragment();
+
+    const columnas = [
+        'ubi_almacen',
+        'codigo_prod',
+        'fk_id_mrc_prod',
+        'fk_id_ctgr_prod',
+        'nombre_prod',
+        'descripcion_prod',
+        'imagen_prod',
+        'cantidad_inv',
+        'cost_uni_inv',
+        'descripcion_inv'
+    ];
+
+    for (let inventory of filterInventoriesMW.slice(inicio, final)) {
+
+        let product = products.find(product => product.id_prod === inventory.fk_id_prod_inv);
+
+        let tr = document.createElement('tr');
+        tr.setAttribute('id_inv', inventory.id_inv);
+
+        let tdIndex = document.createElement('td');
+        tdIndex.innerText = inicio + i++;
+        tr.appendChild(tdIndex);
+
+        for (const columna of columnas) {
+
+            let td = document.createElement('td');
+
+            if (columna in inventory) {
+                if (columna == 'cost_uni_inv') {
+                    td.innerText = Number(inventory[columna]).toFixed(2);
+                } else if (columna == 'ubi_almacen') {
+                    td.innerText = inventory[columna] == 0 ? 'El Alto' : 'La Paz';
+                } else {
+                    td.innerText = inventory[columna];
+                }
+            } else if (columna in product) {
+                if (columna == 'fk_id_mrc_prod') {
+                    const marca = marcas.find((marca) => marca.id_mrc === product[columna]);
+                    td.innerText = marca ? marca.nombre_mrc : '';
+                } else if (columna == 'fk_id_ctgr_prod') {
+                    const categoria = categorias.find((categoria) => categoria.id_ctgr === product[columna]);
+                    td.innerText = categoria ? categoria.nombre_ctgr : '';
+
+                } else if (columna == 'imagen_prod') {
+                    let img = document.createElement('img');
+                    img.classList.add('tbody__img');
+                    img.setAttribute('src', '../modelos/imagenes/' + product[columna]);
+                    td.appendChild(img);
+                } else {
+                    td.innerText = product[columna];
+                }
+
+            }
+            tr.appendChild(td);
+        }
+        fragment.appendChild(tr);
+    }
+    tbody.innerHTML = '';
+    tbody.appendChild(fragment);
+}
+//---------------------------MODAL TABLA BUSCAR INVENTARIO
+const inventorySMW = document.getElementById('inventorySMW');
+const closeInventorySMW = document.getElementById('closeInventorySMW');
+function openInventorySMW() {
+    inventorySMW.classList.add('modal__show');
+}
+closeInventorySMW.addEventListener('click', () => {
+    inventorySMW.classList.remove('modal__show');
+});
+//*******************************************BEST SELLER PRODUCT**************************************************/
+//----------------------------------------------TABLE MODAL MOST VENDIDOS----------------------------------------->
+//-----------------------------------------------OPEN AND CLOSE MODAL----------------------------------------
+const tableMostProd = document.getElementById('tableMostProd');
+const closeTableMostProd = document.getElementById('closeTableMostProd');
+function openTableMostProd() {
+    tableMostProd.classList.add('modal__show');
+}
+closeTableMostProd.addEventListener('click', () => {
+    tableMostProd.classList.remove('modal__show');
+})
+
+
+
+
+
+
+
+
+
+
+
 
 
 //--------------------------------------------TABLA MODAL PRODUCTS-----------------------------------------------
@@ -1922,6 +2160,7 @@ async function readAllMarcas() {
             selectMarcaProdR();
             selectMarcaProductMW();
             selectMarcaProdM();
+            selectMarcaInventoryMW();
             resolve();
         }).catch(err => console.log(err));
     })
@@ -2048,6 +2287,41 @@ function selectCategoriaProductMW() {
         });
     }
     searchProductsMW();
+}
+/*----------------------------------------------Marca y categoria  modal inventory-------------------------------------------------*/
+//-------Select de marcas
+function selectMarcaInventoryMW() {
+    selectMarcaInvMW.innerHTML = '';
+    let option = document.createElement('option');
+    option.value = 'todasLasMarcas';
+    option.innerText = 'Todas las marcas';
+    selectMarcaInvMW.appendChild(option);
+    marcas.forEach(marca => {
+        let option = document.createElement('option');
+        option.value = marca.id_mrc;
+        option.innerText = marca.nombre_mrc;
+        selectMarcaInvMW.appendChild(option);
+    })
+}
+//------Select categorias
+function selectCategoriaInventoryMW() {
+    selectCategoriaInvMW.innerHTML = '';
+    let option = document.createElement('option');
+    option.value = 'todasLasCategorias';
+    option.innerText = 'Todas las categorias';
+    selectCategoriaInvMW.appendChild(option);
+    if (selectMarcaInvMW.value != 'todasLasMarcas') {
+        let id_mrc = selectMarcaInvMW.value;
+        categorias.forEach(categoria => {
+            if (categoria.fk_id_mrc_mccr == id_mrc) {
+                let option = document.createElement('option');
+                option.value = categoria.id_ctgr;
+                option.innerText = categoria.nombre_ctgr;
+                selectCategoriaInvMW.appendChild(option);
+            }
+        })
+    }
+    searchInventoriesMW();
 }
 //<<------------------------------------------CRUD DE PRODUCTS------------------------------------->>
 //------Create un producto
@@ -2351,21 +2625,7 @@ function mostrarAlerta(message) {
 botonAceptar.addEventListener('click', (e) => {
     modalAlerta.classList.remove('modal__show');
 });
-//------------------------------------------------------Leer invnetario
-let inventories = [];
-async function readInventories() {
-    return new Promise((resolve, reject) => {
-        let formData = new FormData();
-        formData.append('readInventories', '');
-        fetch('../controladores/inventario.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.json()).then(data => {
-            inventories = data;
-            resolve();
-        }).catch(err => console.log(err));
-    })
-}
+////////////////////////////////////////////////////////////////////////////////////
 //------div codigo smc
 const divCodigoSMCR = document.getElementById('divCodigoSMCR');
 const divCodigoSMCM = document.getElementById('divCodigoSMCM');
@@ -2537,3 +2797,4 @@ function cartProduct_cppdM(product, id_cmp) {
             <img src="../imagenes/plus.svg" onClick="createCmp_prod(this.parentNode)" class='icon__CRUD'>`;
     body.appendChild(div);
 }
+
