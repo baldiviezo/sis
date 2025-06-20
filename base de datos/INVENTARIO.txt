@@ -208,3 +208,47 @@ BEGIN
 END$$
 DELIMITER ;
 
+/*******Frecuencia******/
+SELECT p.codigo_prod, i.cantidad_inv FROM venta v INNER JOIN vnt_prod vp ON v.id_vnt = vp.fk_id_vnt_vtpd INNER JOIN producto p ON p.id_prod = vp.fk_id_prod_vtpd INNER JOIN inventario i ON i.fk_id_prod_inv = p.id_prod  
+
+
+SELECT 
+  p.codigo_prod, 
+  i.cantidad_inv, 
+  SUM(CASE WHEN MONTH(v.fecha_factura_vnt) = MONTH(CURDATE()) - 1 THEN vp.cantidad_vtpd ELSE 0 END) AS mes_1,
+  SUM(CASE WHEN MONTH(v.fecha_factura_vnt) = MONTH(CURDATE()) - 2 THEN vp.cantidad_vtpd ELSE 0 END) AS mes_2,
+  SUM(CASE WHEN MONTH(v.fecha_factura_vnt) = MONTH(CURDATE()) - 3 THEN vp.cantidad_vtpd ELSE 0 END) AS mes_3,
+  SUM(CASE WHEN MONTH(v.fecha_factura_vnt) = MONTH(CURDATE()) - 4 THEN vp.cantidad_vtpd ELSE 0 END) AS mes_4,
+  SUM(CASE WHEN MONTH(v.fecha_factura_vnt) = MONTH(CURDATE()) - 5 THEN vp.cantidad_vtpd ELSE 0 END) AS mes_5,
+  SUM(CASE WHEN MONTH(v.fecha_factura_vnt) = MONTH(CURDATE()) - 6 THEN vp.cantidad_vtpd ELSE 0 END) AS mes_6,
+  SUM(CASE WHEN MONTH(v.fecha_factura_vnt) = MONTH(CURDATE()) - 7 THEN vp.cantidad_vtpd ELSE 0 END) AS mes_7,
+  SUM(CASE WHEN MONTH(v.fecha_factura_vnt) = MONTH(CURDATE()) - 8 THEN vp.cantidad_vtpd ELSE 0 END) AS mes_8,
+  COUNT(DISTINCT MONTH(v.fecha_factura_vnt)) AS frecuencia_venta
+FROM venta v 
+INNER JOIN vnt_prod vp ON v.id_vnt = vp.fk_id_vnt_vtpd 
+INNER JOIN producto p ON p.id_prod = vp.fk_id_prod_vtpd 
+INNER JOIN inventario i ON i.fk_id_prod_inv = p.id_prod
+WHERE v.fecha_factura_vnt >= DATE_SUB(CURDATE(), INTERVAL 8 MONTH)
+GROUP BY p.codigo_prod, i.cantidad_inv
+ORDER BY frecuencia_venta DESC;
+
+SELECT 
+  i.id_inv,
+  p.codigo_prod, 
+  i.cantidad_inv, 
+  SUM(CASE WHEN MONTH(v.fecha_factura_vnt) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) THEN vp.cantidad_vtpd ELSE 0 END) AS `Mes1`,
+  SUM(CASE WHEN MONTH(v.fecha_factura_vnt) = MONTH(DATE_SUB(CURDATE(), INTERVAL 2 MONTH)) THEN vp.cantidad_vtpd ELSE 0 END) AS `Mes2`,
+  SUM(CASE WHEN MONTH(v.fecha_factura_vnt) = MONTH(DATE_SUB(CURDATE(), INTERVAL 3 MONTH)) THEN vp.cantidad_vtpd ELSE 0 END) AS `Mes3`,
+  SUM(CASE WHEN MONTH(v.fecha_factura_vnt) = MONTH(DATE_SUB(CURDATE(), INTERVAL 4 MONTH)) THEN vp.cantidad_vtpd ELSE 0 END) AS `Mes4`,
+  SUM(CASE WHEN MONTH(v.fecha_factura_vnt) = MONTH(DATE_SUB(CURDATE(), INTERVAL 5 MONTH)) THEN vp.cantidad_vtpd ELSE 0 END) AS `Mes5`,
+  SUM(CASE WHEN MONTH(v.fecha_factura_vnt) = MONTH(DATE_SUB(CURDATE(), INTERVAL 6 MONTH)) THEN vp.cantidad_vtpd ELSE 0 END) AS `Mes6`,
+  SUM(CASE WHEN MONTH(v.fecha_factura_vnt) = MONTH(DATE_SUB(CURDATE(), INTERVAL 7 MONTH)) THEN vp.cantidad_vtpd ELSE 0 END) AS `Mes7`,
+  SUM(CASE WHEN MONTH(v.fecha_factura_vnt) = MONTH(DATE_SUB(CURDATE(), INTERVAL 8 MONTH)) THEN vp.cantidad_vtpd ELSE 0 END) AS `Mes8`,
+  COUNT(DISTINCT MONTH(v.fecha_factura_vnt)) AS frecuencia
+FROM venta v 
+INNER JOIN vnt_prod vp ON v.id_vnt = vp.fk_id_vnt_vtpd 
+INNER JOIN producto p ON p.id_prod = vp.fk_id_prod_vtpd 
+INNER JOIN inventario i ON i.fk_id_prod_inv = p.id_prod
+WHERE v.fecha_factura_vnt >= DATE_SUB(CURDATE(), INTERVAL 8 MONTH)
+GROUP BY p.codigo_prod, i.cantidad_inv
+ORDER BY frecuencia DESC;

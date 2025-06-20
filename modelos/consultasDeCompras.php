@@ -241,5 +241,54 @@ class Consultas{
 	public function addZerosGo($numero) {
 		return str_pad($numero, 4, "0", STR_PAD_LEFT);
 	}
-}
+	/*-----Frecuencia */
+	public function readMostProd(){
+		/*
+		SUM: Esta función calcula la suma de una columna.
+		CASE: Esta función es una expresión condicional que evalúa una condición y devuelve un valor si la condición es verdadera, y otro valor si la condición es falsa.
+		WHEN MONTH(v.fecha_factura_vnt) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)): Esta es la condición que se evalúa. Se compara el mes de la fecha v.fecha_factura_vnt con el mes de la fecha actual (CURDATE()) menos 1 mes (DATE_SUB(CURDATE(), INTERVAL 1 MONTH)). Si la condición es verdadera, se devuelve el valor de vp.cantidad_vtpd.
+		THEN vp.cantidad_vtpd: Si la condición es verdadera, se devuelve el valor de vp.cantidad_vtpd.
+		ELSE 0: Si la condición es falsa, se devuelve 0.
+		END: Esta palabra clave indica el final de la expresión CASE.
+		*/
+		include 'conexion.php';
+		$consulta = "SELECT 
+    p.codigo_prod,
+    i.cantidad_inv,
+    SUM(CASE WHEN pm.mes = 7 THEN pm.suma ELSE 0 END) AS mes1,
+    SUM(CASE WHEN pm.mes = 6 THEN pm.suma ELSE 0 END) AS mes2,
+    SUM(CASE WHEN pm.mes = 5 THEN pm.suma ELSE 0 END) AS mes3,
+    SUM(CASE WHEN pm.mes = 4 THEN pm.suma ELSE 0 END) AS mes4,
+    SUM(CASE WHEN pm.mes = 3 THEN pm.suma ELSE 0 END) AS mes5,
+    SUM(CASE WHEN pm.mes = 2 THEN pm.suma ELSE 0 END) AS mes6,
+    SUM(CASE WHEN pm.mes = 1 THEN pm.suma ELSE 0 END) AS mes7,
+    SUM(CASE WHEN pm.mes = 0 THEN pm.suma ELSE 0 END) AS mes8,
+    COUNT(CASE WHEN pm.suma > 0 THEN 1 END) AS frecuencia
+FROM producto p
+INNER JOIN inventario i ON i.fk_id_prod_inv = p.id_prod
+LEFT JOIN (
+    SELECT 
+        vp.fk_id_prod_vtpd AS id_prod,
+        TIMESTAMPDIFF(MONTH, DATE_FORMAT(CURDATE(), '%Y-%m-01'), DATE_FORMAT(v.fecha_vnt, '%Y-%m-01')) * -1 AS mes,
+        SUM(vp.cantidad_vtpd) AS suma
+    FROM venta v
+    INNER JOIN vnt_prod vp ON v.id_vnt = vp.fk_id_vnt_vtpd
+    WHERE v.fecha_vnt >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 7 MONTH), '%Y-%m-01')
+      AND v.fecha_vnt < DATE_ADD(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 1 MONTH)
+    GROUP BY vp.fk_id_prod_vtpd, mes
+) pm ON pm.id_prod = p.id_prod AND pm.mes BETWEEN 0 AND 7
+GROUP BY p.codigo_prod, i.cantidad_inv
+HAVING frecuencia > 0
+ORDER BY frecuencia DESC";
+		$resultado = $conexion->query($consulta);
+		$tabla = array();
+		if ($resultado->num_rows > 0) {
+			while ($fila = $resultado->fetch_assoc()) {
+				$tabla[] = $fila;
+			}
+			echo json_encode($tabla , JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+		}
+	}
+}	
+		
 ?>

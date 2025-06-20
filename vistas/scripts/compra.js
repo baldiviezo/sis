@@ -479,14 +479,14 @@ function searchProdOC() {
         } else {
             if (valor === 'numero_cmp' || valor === 'fecha_cmp') {
                 return compra[valor].toLowerCase().includes(busqueda);
-            } else if (valor === 'codigo_prod') { 
+            } else if (valor === 'codigo_prod') {
                 return producto[valor].toLowerCase().includes(busqueda);
             } else {
                 if (valor === 'factura_cppd' || valor === 'observacion_cppd') {
                     return cmp_prod[valor].toString().toLowerCase().includes(busqueda);
-                }else{
-            return cmp_prod[valor].toLowerCase().includes(busqueda);
-        }
+                } else {
+                    return cmp_prod[valor].toLowerCase().includes(busqueda);
+                }
             }
         }
     });
@@ -662,7 +662,7 @@ function tableCmpProds(page) {
         tdObservacion.innerText = cmpProd.observacion_cppd;
         tr.appendChild(tdObservacion);
 
-            tbody.appendChild(tr);
+        tbody.appendChild(tr);
     });
 }
 //----------------------------------------CRUD CMP-PROD--------------------------------------------
@@ -781,7 +781,7 @@ async function deleteCmp_prod(id_cppd) {
             preloader.classList.add('modal__show');
             rqstBuy = true;
             const cmp_prod = cmp_prods.find(cmp_prod => cmp_prod.id_cppd == id_cppd);
-            
+
             let formData = new FormData();
             formData.append('deleteCmp_prod', JSON.stringify(cmp_prod));
             fetch('../controladores/compras.php', {
@@ -1007,7 +1007,7 @@ closeCmp_prodMMW.addEventListener('click', (e) => {
     cmp_prodMMW.classList.remove('modal__show');
 });
 const cmpProdMMW = document.querySelector('#cmp_prodMMW div.modal__body');
-function cartCmp_prodM(product, contenedor, total) {  
+function cartCmp_prodM(product, contenedor, total) {
     const producto = products.find(producto => producto['id_prod'] == product.fk_id_prod_cppd);
     const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === product.fk_id_prod_cppd && inventory.ubi_almacen === 0);
     const inventoriesArce = inventories.filter(inventory => inventory.fk_id_prod_inv === product.fk_id_prod_cppd && inventory.ubi_almacen === 1);
@@ -1129,7 +1129,7 @@ function totalPriceM(id_cmp) {
     }
     const descuento = total * (Number(descCPMMW.getAttribute('descuento_cmp')) / 100);
     subTotalCPMMW.innerHTML = 'Sub-Total (Bs): ' + total.toFixed(2) + ' Bs';
-    descCPMMW.innerHTML = `Desc. ${Number(descCPMMW.getAttribute('descuento_cmp')) }% (Bs): ${descuento.toFixed(2)} Bs`;
+    descCPMMW.innerHTML = `Desc. ${Number(descCPMMW.getAttribute('descuento_cmp'))}% (Bs): ${descuento.toFixed(2)} Bs`;
     totalCPMMW.innerHTML = `Total (Bs): ${(total - descuento).toFixed(2)} Bs`;
     quantityCPMMW.innerHTML = divs.length;
     numberCPMMW.innerHTML = '';
@@ -1313,7 +1313,7 @@ selectNumberEmpMW.addEventListener('change', function () {
 });
 //------buscar por:
 function searchEnterprisesMW() {
-    filterEnterprises = {};
+    filterEnterprises = [];
     for (let enterprise in enterprises) {
         for (let valor in enterprises[enterprise]) {
             if (selectSearchEmpMW.value == 'todas') {
@@ -1676,6 +1676,8 @@ async function readInventories() {
         }).then(response => response.json()).then(data => {
             inventories = data.filter(objeto => objeto.cantidad_inv !== 0);
             filterInventoriesMW = inventories;
+            inventoriesCopy = data;
+            filterInventoriesCopy = inventoriesCopy;
             resolve();
         }).catch(err => console.log(err));
     })
@@ -1873,7 +1875,177 @@ closeInventorySMW.addEventListener('click', () => {
     inventorySMW.classList.remove('modal__show');
 });
 //*******************************************BEST SELLER PRODUCT**************************************************/
-//----------------------------------------------TABLE MODAL MOST VENDIDOS----------------------------------------->
+const btnSearchMostProd = document.getElementById('btnSearchMostProd');
+btnSearchMostProd.addEventListener('click', readMostProd);
+let invMostProd = [];
+let filterInvMostProd = [];
+function readMostProd() {
+    if (rqstBuy == false) {
+        preloader.classList.add('modal__show');
+        rqstBuy = true;
+        return new Promise((resolve, reject) => {
+            let formData = new FormData();
+            formData.append('readMostProd', '');
+            fetch('../controladores/compras.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.json()).then(data => {
+                invMostProd = data;
+                filterInvMostProd = invMostProd;
+                paginacionMostProd(filterInvMostProd.length, 1);
+                preloader.classList.remove('modal__show');
+                rqstBuy = false;
+                resolve();
+            }).catch(err => console.log(err));
+        })
+    }
+}
+const theadMostProd = document.getElementById('theadMostProd');
+
+const mesesAnteriores = [];
+const mesActual = date.getMonth();
+
+for (let i = 7; i >= 0; i--) {
+    const mesAnterior = mesActual - i;
+    const fechaMesAnterior = new Date(date.getFullYear(), mesAnterior, 1);
+    mesesAnteriores.push(fechaMesAnterior.toLocaleString('es-ES', { month: 'long' }));
+}
+mesesAnteriores.forEach(mes => {
+    const th = document.createElement('th');
+    th.textContent = mes;
+    theadMostProd.appendChild(th);
+});
+
+//----------------------------------------------TABLE MODAL Frecuecnia----------------------------------------->
+//------buscar por input
+const inputSearchMostProd = document.getElementById("inputSearchMostProd");
+inputSearchMostProd.addEventListener("keyup", searchMostProd);
+//------Clientes por pagina
+const selectNumMostProd = document.getElementById('selectNumMostProd');
+selectNumMostProd.selectedIndex = 3;
+selectNumMostProd.addEventListener('change', function () {
+    paginacionMostProd(filterInvMostProd.length, 1);
+});
+//-------Marca y categoria
+const selectMarcaMostProd = document.getElementById('selectMarcaMostProd');
+const selectCtgMostProd = document.getElementById('selectCtgMostProd');
+selectMarcaMostProd.addEventListener('change', selectCategoriaInventoryMW);
+selectCtgMostProd.addEventListener('change', searchMostProd);
+//------buscar por:
+function searchMostProd() {
+    const busqueda = inputSearchMostProd.value.toLowerCase().trim();
+    console.log(busqueda)
+    filterInvMostProd = invMostProd.filter(inventory => {
+        return (
+            inventory.codigo_prod.toString().toLowerCase().includes(busqueda)
+        );
+    });
+inputSearchMostProds();
+}
+//------buscar por marca y categoria:
+function inputSearchMostProds() {
+    filterInvMostProd = filterInvMostProd.filter(inventory => {
+        const marca = selectMarcaInvMW.value === 'todasLasMarcas' ? true : inventory.fk_id_mrc_prod == selectMarcaInvMW.value;
+        const categoria = selectCategoriaInvMW.value === 'todasLasCategorias' ? true : inventory.fk_id_ctgr_prod == selectCategoriaInvMW.value;
+        return marca && categoria;
+    })
+    paginacionMostProd(filterInvMostProd.length, 1);
+}
+//------Ordenar tabla descendente ascendente
+const orderMostProd = document.querySelectorAll('.tbody__head--mostProd');
+orderMostProd.forEach(div => {
+    div.children[0].addEventListener('click', function () {
+        const valor = div.children[0].name;
+        filterInvMostProd.sort((a, b) => {
+            const productoA = a;
+            const productoB = b;
+            const valorA = String(productoA[valor]);
+            const valorB = String(productoB[valor]);
+            return valorA.localeCompare(valorB);
+        });
+        paginacionMostProd(filterInvMostProd.length, 1);
+    });
+    div.children[1].addEventListener('click', function () {
+        const valor = div.children[0].name;
+        filterInvMostProd.sort((a, b) => {
+            const productoA = a;
+            const productoB = b;
+            const valorA = String(productoA[valor]);
+            const valorB = String(productoB[valor]);
+            return valorB.localeCompare(valorA);
+        });
+        paginacionMostProd(filterInvMostProd.length, 1);
+    });
+})
+//------paginacionMostProd
+function paginacionMostProd(allInventoriesMW, page) {
+    let numberInventoriesMW = Number(selectNumberInvMW.value);
+    let allPages = Math.ceil(allInventoriesMW / numberInventoriesMW);
+    let ul = document.querySelector('#wrapperMostProd ul');
+    let li = '';
+    let beforePages = page - 1;
+    let afterPages = page + 1;
+    let liActive;
+    if (page > 1) {
+        li += `<li class="btn" onclick="paginacionMostProd(${allInventoriesMW}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
+    }
+    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
+        if (pageLength > allPages) {
+            continue;
+        }
+        if (pageLength == 0) {
+            pageLength = pageLength + 1;
+        }
+        if (page == pageLength) {
+            liActive = 'active';
+        } else {
+            liActive = '';
+        }
+        li += `<li class="numb ${liActive}" onclick="paginacionMostProd(${allInventoriesMW}, ${pageLength})"><span>${pageLength}</span></li>`;
+    }
+    if (page < allPages) {
+        li += `<li class="btn" onclick="paginacionMostProd(${allInventoriesMW}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
+    }
+    ul.innerHTML = li;
+    let h2 = document.querySelector('#showPageMostProd h2');
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${allInventoriesMW} Productos`;
+    tableMostProds(page);
+}
+//------Crear la tabla
+function tableMostProds(page) {
+    const tbody = document.getElementById('tbodyMostProd');
+    const inicio = (page - 1) * Number(selectNumMostProd.value);
+    const final = inicio + Number(selectNumMostProd.value);
+    const prods = filterInvMostProd.slice(inicio, final);
+    tbody.innerHTML = '';
+    prods.forEach((prod, index) => {
+        const tr = document.createElement('tr');
+
+        const tdNumero = document.createElement('td');
+        tdNumero.innerText = inicio + index + 1;
+        tr.appendChild(tdNumero);
+
+        const tdCodigo = document.createElement('td');
+        tdCodigo.innerText = prod.codigo_prod;
+        tr.appendChild(tdCodigo);
+
+        const tdCantidad = document.createElement('td');
+        tdCantidad.innerText = prod.cantidad_inv;
+        tr.appendChild(tdCantidad);
+
+        const tdFrecuencia = document.createElement('td');
+        tdFrecuencia.innerText = prod.frecuencia;
+        tr.appendChild(tdFrecuencia);
+
+        for (i = 1; i <= 8; i++) {
+            const td = document.createElement('td');
+            td.innerText = prod['mes' + i];
+            tr.appendChild(td);
+        }
+
+        tbody.appendChild(tr);
+    });
+}
 //-----------------------------------------------OPEN AND CLOSE MODAL----------------------------------------
 const tableMostProd = document.getElementById('tableMostProd');
 const closeTableMostProd = document.getElementById('closeTableMostProd');
@@ -2604,7 +2776,6 @@ function processFileM(file) {
     }
 }
 /***********************************************PRODUCT FILTER******************************************/
-
 //---------------------------------VENTANA MODAL PARA FILTRAR PRODUCTOS COMPRADOS ------------------------------>>
 const openProdOC = document.getElementById('openProdOC');
 const closeTableProdOC = document.getElementById('closeTableProdOC');
@@ -2755,7 +2926,6 @@ function tablePrices(page) {
         tbody.appendChild(tr);
     });
 }
-
 //********* USUARIO ***********/
 //------Leer tabla de usuarios
 let users = [];

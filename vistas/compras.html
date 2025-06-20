@@ -850,42 +850,24 @@
 				<section class="table__header">
 					<section class="select__search">
 						<div>
-							<label>Almacen: </label>
-							<select id="selectAlmacenInventory" class="select__marca">
-								<option value="todo">Todos los alamcenes</option>
-								<option value="0">EL ALTO</option>
-								<option value="1">AV. ARCE</option>
-							</select>
-						</div>
-						<div>
 							<label>Marcas: </label>
-							<select id="selectMarcaInvMW" class="select__marca">
+							<select id="selectMarcaMostProd" class="select__marca">
 								<option value="todasLasMarcas">Todas las marcas</option>
 							</select>
 						</div>
 						<div>
 							<label>Categorias: </label>
-							<select id="selectCategoriaInvMW" class="select__categoria">
+							<select id="selectCtgMostProd" class="select__categoria">
 								<option value="todasLasCategorias">Todas las categorias</option>
 							</select>
 						</div>
 					</section>
 					<div class="combo__search">
-						<div class="filter__search">
-							<h3>Filtrar por:</h3>
-							<select id="selectSearchInvMW" class="select">
-								<option value="todas">Todo</option>
-								<option value="codigo_prod">Código</option>
-								<option value="nombre_prod">Descripcion corta</option>
-								<option value="descripcion_prod">Descripcion</option>
-								<option value="cost_uni_inv">Precio</option>
-								<option value="descripcion_inv">Ubicación</option>
-							</select>
-						</div>
 						<div class="table__search">
-							<input type="search" id="inputSearchInvMW" placeholder="Buscar...">
+							<input type="search" id="inputSearchMostProd" placeholder="Buscar...">
 							<img src="../imagenes/search.png">
 						</div>
+						<button id="btnSearchMostProd">Buscar</button>
 					</div>
 				</section>
 				<div class="showPage" id="showPageMostProd">
@@ -898,7 +880,7 @@
 						</div>
 					</div>
 					<div>
-						<select id="selectNumberMostProd" class="select__number">
+						<select id="selectNumMostProd" class="select__number">
 							<option value="2">2</option>
 							<option value="4">4</option>
 							<option value="6">6</option>
@@ -910,27 +892,20 @@
 				<section class="table__body">
 					<table>
 						<thead>
-							<tr>
+							<tr id="theadMostProd">
 								<th>N°</th>
 								<th>
-									<div class="tbody__head--MP">Codigo<img src="../imagenes/sortA_Z.svg"
-											name="codigo_vtpd" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-											name="codigo_vtpd" class="icon__CRUD"></div>
+									<div class="tbody__head--mostProd">Codigo<img src="../imagenes/sortA_Z.svg"
+											name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="codigo_prod" class="icon__CRUD"></div>
 								</th>
-								<th>Frecuencia</th>
+								<th>Stock</th>
 								<th>
-									<div class="tbody__head--MP">Costo Total<img src="../imagenes/sortA_Z.svg"
-											name="costoTotal" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-											name="costoTotal" class="icon__CRUD"></div>
+									<div class="tbody__head--mostProd">Frecuencia<img src="../imagenes/sortA_Z.svg"
+											name="frecuencia" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="frecuencia" class="icon__CRUD"></div>
 								</th>
-								<th>
-									<div>Stock</div>
-								</th>
-								<th>
-									<div class="tbody__head--MP">Reponer<img src="../imagenes/sortA_Z.svg"
-											name="reponer" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-											name="reponer" class="icon__CRUD"></div>
-								</th>
+								<!-- 8 meses -->
 							</tr>
 						</thead>
 						<tbody id="tbodyMostProd">
