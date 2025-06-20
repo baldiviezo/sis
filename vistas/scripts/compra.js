@@ -300,7 +300,6 @@ function tableBuys(page) {
         }
 
         tr.appendChild(tdAcciones);
-
         tbody.appendChild(tr);
     });
 }
@@ -382,40 +381,34 @@ function deleteBuy(id_cmp) {
 }
 //------Estado de compra
 async function changeStateBuy() {
-    console.log(globalId_cmp)
-    /*const divshihijos = divs.children;
-    const cantidadDivsHijos = Array.prototype.filter.call(divshihijos, hijo => hijo.tagName === 'DIV').length;
-    if (cantidadDivsHijos > 0) {
-        id_cmp = divs.children[0].children[2].value;
-        const product = cmp_prods.filter(cmp_prod => cmp_prod.fk_id_cmp_cppd == id_cmp);
-        const productRecibidos = product.filter(obj => obj.estado_cppd === "RECIBIDO");
-        if (product.length == productRecibidos.length) {
-            if (rqstBuy == false) {
-                rqstBuy = true;
-                preloader.classList.add('modal__show');
-                let formData = new FormData();
-                formData.append('changeStateBuy', id_cmp);
-                fetch('../controladores/compras.php', {
-                    method: "POST",
-                    body: formData
-                }).then(response => response.text()).then(data => {
-                    readBuys().then(() => {
-                        preloader.classList.remove('modal__show');
-                        rqstBuy = false;
-                        document.getElementById('productBuyMW').classList.remove('modal__show');
-                        mostrarAlerta(data);
-                    })
-                }).catch(err => {
+    const productos = cmp_prods.filter(cmp_prod => cmp_prod.fk_id_cmp_cppd === globalId_cmp);
+    const productosRecibidos = productos.filter(cmp_prod => cmp_prod.estado_cppd === 1 && cmp_prod.factura_cppd !== 0);
+    if (productos.length === productosRecibidos.length) {
+        if (rqstBuy == false) {
+            preloader.classList.add('modal__show');
+            rqstBuy = true;
+            cmp_prodMMW.classList.remove('modal__show');
+            let formData = new FormData();
+            formData.append('changeStateBuy', globalId_cmp);
+            fetch('../controladores/compras.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                Promise.all([readBuys(), readCmp_prods()]).then(() => {
+                    paginacionBuy(filterBuys.length, 1);
+                    paginacionProdOC(filterCmp_prods.length, 1);
+                    preloader.classList.remove('modal__show');
                     rqstBuy = false;
-                    mostrarAlerta(err);
-                });
-            }
-        } else {
-            mostrarAlerta('Falta registrar productos');
+                    mostrarAlerta(data);
+                })
+            }).catch(err => {
+                rqstBuy = false;
+                mostrarAlerta(err);
+            });
         }
     } else {
-        mostrarAlerta('La nota de entrega no tiene ningun producto');
-    }*/
+        mostrarAlerta('No se puede cambiar el estado de la compra, aun hay productos que no han sido recibidos o no tienen factura.');
+    }
 }
 //------Open and close buyR
 const closeBuyRMW = document.getElementById('closeBuyRMW');
@@ -428,7 +421,7 @@ openBuyRMW.addEventListener('click', () => {
 closeBuyRMW.addEventListener('click', () => {
     buyRMW.classList.remove('modal__show');
 });
-//------------------------------------------CRUD CMP-PROD--------------------------------------------------
+//------------------------------------------TABLE CMP-PROD--------------------------------------------------
 //--------read Cmp_prods
 let cmp_prods = [];
 let filterCmp_prods = [];
@@ -446,7 +439,6 @@ async function readCmp_prods() {
         }).catch(err => console.log(err));
     })
 }
-//------------------------------------------------------TABLE PRODUCT FILTER-----------------------------------------------------
 //------Select utilizado para buscar por columnas
 const selectSearchProdOC = document.getElementById('selectSearchProdOC');
 selectSearchProdOC.addEventListener('change', searchProdOC);
@@ -682,16 +674,6 @@ function readCmpProd(id_cmp) {
         cmpProdMMW.appendChild(cart);
     });
     descCPMMW.setAttribute('descuento_cmp', compra.descuento_cmp);
-    //Drang and drop
-    const items = cmpProdMMW.querySelectorAll(".cart__item");
-    items.forEach(item => {
-        item.addEventListener("dragstart", () => {
-            setTimeout(() => item.classList.add("dragging"), 0);
-        });
-        item.addEventListener("dragend", () => item.classList.remove("dragging"));
-    });
-    cmpProdMMW.addEventListener("dragover", initSortableList);
-    cmpProdMMW.addEventListener("dragenter", e => e.preventDefault());
     totalPriceM(id_cmp);
 }
 //----Create Cmp_prod
@@ -699,7 +681,6 @@ async function createCmp_prod(row) {
     if (rqstBuy == false) {
         rqstBuy = true;
         preloader.classList.add('modal__show');
-        console.log(row);
         let object = {
             'fk_id_cmp_cppd': globalId_cmp,
             'fk_id_prod_cppd': row.getAttribute('id_prod'),
@@ -847,6 +828,7 @@ const closeCmp_prodRMW = document.getElementById('closeCmp_prodRMW');
 const cmp_prodRMW = document.getElementById('cmp_prodRMW');
 function openCmp_prodRMW() {
     cmp_prodRMW.classList.add('modal__show');
+    totalPriceR();
 }
 closeCmp_prodRMW.addEventListener('click', (e) => {
     cmp_prodRMW.classList.remove('modal__show');

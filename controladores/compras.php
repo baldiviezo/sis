@@ -50,7 +50,7 @@ if (isset($_POST['editFactura'])) {
 	$editFactura = new Consultas;
 	$editFactura->editFactura();
 }
-/*---------Frecuencia */
+//----------------------------------------TABLA FRECUENCIA DE VENTA------------------------------------------------
 if (isset($_POST['readMostProd'])){
 	$readMostProd = new Consultas;
 	$readMostProd->readMostProd();
