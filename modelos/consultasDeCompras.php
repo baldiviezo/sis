@@ -250,6 +250,8 @@ class Consultas{
 		*/
 		include 'conexion.php';
 		$consulta = "SELECT 
+		p.fk_id_mrc_prod,
+		p.fk_id_ctgr_prod,
 		p.codigo_prod, i.cantidad_inv,
 			SUM(CASE WHEN pm.mes = 7 THEN pm.suma ELSE 0 END) AS mes1,
     		SUM(CASE WHEN pm.mes = 6 THEN pm.suma ELSE 0 END) AS mes2,

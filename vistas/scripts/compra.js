@@ -19,11 +19,11 @@ async function init() {
                 readEnterprises(),
                 readCmp_prods(),
                 readProducts(),
-                readAllMarcas(),
-                readAllCategorias(),
                 readInventories(),
                 readPrices(),
-                readUsers()
+                readUsers(),
+                readAllMarcas(),
+                readAllCategorias()
             ]);
             paginacionProductMW(products.length, 1);
             paginacionEnterpriseMW(enterprises.length, 1);
@@ -755,7 +755,7 @@ function openProductBuyMW(row) {
     U_cantidad_cppd.setAttribute('max', Number(row.querySelector('.cart__item--quantity').value));
     U_cost_uni_cppd.value = row.querySelector('.cart__item--costUnit').value;
 }
-//-----Delete CMP_PRODS
+//------Delete CMP_PRODS
 async function deleteCmp_prod(id_cppd) {
     if (confirm('¿Quieres eliminar el producto de la compra?')) {
         if (rqstBuy == false) {
@@ -782,7 +782,7 @@ async function deleteCmp_prod(id_cppd) {
         }
     }
 }
-//-------------------------------EDITAR EL NUMERO DE FACTURA---------------------------------------------
+//------Edit Factura
 const editFactura = document.getElementById('editFactura');
 const closeEditFactura = document.getElementById('closeEditFactura');
 closeEditFactura.addEventListener('click', (e) => {
@@ -822,6 +822,13 @@ async function editFacturaCompra() {
         })
     }
 }
+//------------------------------MODAL ADD BUY TO INVETORY-----------------------------------------------------
+const addBuyMW = document.getElementById('addBuyMW');
+const closeAddBuyMW = document.getElementById('closeAddBuyMW');
+closeAddBuyMW.addEventListener('click', (e) => {
+    addBuyMW.classList.remove('modal__show');
+});
+
 //-----------------------------------------------ADD CART R------------------------------------------
 //<<-------------------------------------MODAL DE PRODUCTS PARA COMPRAR-------------------------------------------->>
 const closeCmp_prodRMW = document.getElementById('closeCmp_prodRMW');
@@ -1122,8 +1129,78 @@ function totalPriceM(id_cmp) {
         numberCPMMW.appendChild(div);
     }
 }
+//------------PDF of buys
+function selectPDFInformation(id_cmp) {
+    const buy = buys.find(b => b.id_cmp === id_cmp);
+    if (!buy) return;
 
+    const proveedor = suppliers.find(supplier => supplier.id_prov === buy.fk_id_prov_cmp);
+    const empresa = proveedor ? enterprises.find(ent => ent.id_empp === proveedor.fk_id_empp_prov) : null;
 
+    let buyCopy = { ...buy };
+    buyCopy.nombre_empp = empresa ? empresa.nombre_empp : '';
+    buyCopy.nombre_prov = proveedor ? proveedor.nombre_prov : '';
+    buyCopy.apellido_prov = proveedor ? proveedor.apellido_prov : '';
+
+    const array = cmp_prods
+        .filter(cmp_prod => cmp_prod.fk_id_cmp_cppd === id_cmp)
+        .map(cmp_prod => {
+            const product = products.find(p => p.id_prod === cmp_prod.fk_id_prod_cppd);
+            return {
+                id_cppd: cmp_prod.id_cppd,
+                fk_id_cmp_cppd: cmp_prod.fk_id_cmp_cppd,
+                fk_id_prod_cppd: cmp_prod.fk_id_prod_cppd,
+                codigo_prod: product ? product.codigo_prod : '',
+                descripcion_cppd: cmp_prod.descripcion_cppd,
+                cantidad_cppd: cmp_prod.cantidad_cppd,
+                cost_uni_cppd: cmp_prod.cost_uni_cppd
+            };
+        });
+
+    showPDF(buyCopy, array, 'oc');
+}
+function showPDF(buy, array, pdf) {
+    // Crea un formulario oculto
+    var form = document.createElement('form');
+    form.method = 'post';
+    form.action = '../modelos/reportes/ordenDeCompra.php';
+    form.target = '_blank'; // Abre la página en una nueva ventana
+    form.style.display = 'none'; // Oculta visualmente el formulario
+    // Crea un campo oculto para la variable prof_mprof_ne
+    var input1 = document.createElement('input');
+    input1.type = 'hidden';
+    input1.name = 'prof_mprof_ne';
+    input1.value = JSON.stringify(buy); // Reemplaza con el valor real
+
+    // Crea un campo oculto para la variable pf_pd
+    var input2 = document.createElement('input');
+    input2.type = 'hidden';
+    input2.name = 'pf_pd';
+    input2.value = JSON.stringify(array); // Reemplaza con el valor real
+
+    // Crea un campo oculto para la variable pdf
+    var input3 = document.createElement('input');
+    input3.type = 'hidden';
+    input3.name = 'pdf';
+    input3.value = pdf; // Reemplaza con el valor real
+
+    // Crea un campo oculto para la variable pdf
+    var input4 = document.createElement('input');
+    input4.type = 'hidden';
+    input4.name = 'id_usua';
+    input4.value = localStorage.getItem('id_usua'); // Reemplaza con el valor real
+
+    // Agrega los campos al formulario
+    form.appendChild(input1);
+    form.appendChild(input2);
+    form.appendChild(input3);
+    form.appendChild(input4);
+    // Agrega el formulario al cuerpo del documento HTML
+    document.body.appendChild(form);
+    // Submitir el formulario
+    form.submit();
+
+}
 //-------------------------------------------------SUPPLIER--------------------------------------------------
 //<<-----------------------------------------CRUD SUPPLIER----------------------------------------->>
 let suppliers = [];
@@ -1560,92 +1637,7 @@ closeEnterprisesRMW.addEventListener('click', () => {
 closeEnterprisesMMW.addEventListener('click', () => {
     enterprisesMMW.classList.remove('modal__show');
 });
-/*---------------------------------------------------------------------------------------------*/
-//------------PDF of buys
-function selectPDFInformation(id_cmp) {
-    for (let buy in buys) {
-        if (buys[buy]['id_cmp'] == id_cmp) {
-            let array = [];
-            for (let cmp_prod in cmp_prods) {
-                if (cmp_prods[cmp_prod]['fk_id_cmp_cppd'] == id_cmp) {
-                    let object = {
-                        'id_cppd': cmp_prods[cmp_prod]['id_cppd'],
-                        'fk_id_cmp_cppd': cmp_prods[cmp_prod]['fk_id_cmp_cppd'],
-                        'fk_id_prod_cppd': cmp_prods[cmp_prod]['fk_id_prod_cppd'],
-                        'codigo_prod': cmp_prods[cmp_prod]['codigo_prod'],
-                        'descripcion_cppd': cmp_prods[cmp_prod]['descripcion_cppd'],
-                        'cantidad_cppd': cmp_prods[cmp_prod]['cantidad_cppd'],
-                        'cost_uni_cppd': cmp_prods[cmp_prod]['cost_uni_cppd']
-                    }
-                    array.push(object);
-                }
-            }
-            showPDF(buys[buy], array, 'oc');
-            break;
-        }
-    }
-}
-function showPDF(buy, array, pdf) {
-    // Crea un formulario oculto
-    var form = document.createElement('form');
-    form.method = 'post';
-    form.action = '../modelos/reportes/ordenDeCompra.php';
-    form.target = '_blank'; // Abre la página en una nueva ventana
-    form.style.display = 'none'; // Oculta visualmente el formulario
-    // Crea un campo oculto para la variable prof_mprof_ne
-    var input1 = document.createElement('input');
-    input1.type = 'hidden';
-    input1.name = 'prof_mprof_ne';
-    input1.value = JSON.stringify(buy); // Reemplaza con el valor real
-
-    // Crea un campo oculto para la variable pf_pd
-    var input2 = document.createElement('input');
-    input2.type = 'hidden';
-    input2.name = 'pf_pd';
-    input2.value = JSON.stringify(array); // Reemplaza con el valor real
-
-    // Crea un campo oculto para la variable pdf
-    var input3 = document.createElement('input');
-    input3.type = 'hidden';
-    input3.name = 'pdf';
-    input3.value = pdf; // Reemplaza con el valor real
-
-    // Crea un campo oculto para la variable pdf
-    var input4 = document.createElement('input');
-    input4.type = 'hidden';
-    input4.name = 'id_usua';
-    input4.value = localStorage.getItem('id_usua'); // Reemplaza con el valor real
-
-    // Agrega los campos al formulario
-    form.appendChild(input1);
-    form.appendChild(input2);
-    form.appendChild(input3);
-    form.appendChild(input4);
-    // Agrega el formulario al cuerpo del documento HTML
-    document.body.appendChild(form);
-    // Submitir el formulario
-    form.submit();
-
-}
-
-const closeProductBuyMW = document.getElementById('closeProductBuyMW');
-closeProductBuyMW.addEventListener('click', (e) => {
-    productBuyMW.classList.remove('modal__show');
-});
-//------------------------------MODAL ADD BUY TO INVETORY-----------------------------------------------------
-const addBuyMW = document.getElementById('addBuyMW');
-const closeAddBuyMW = document.getElementById('closeAddBuyMW');
-closeAddBuyMW.addEventListener('click', (e) => {
-    addBuyMW.classList.remove('modal__show');
-});
-
-
-
-
-
-
-
-//------------------------------------------------------INVENTARIO----------------------------------------------------------
+//------------------------------------------------------INVENTARIO--------------------------------------------------------
 let inventories = [];
 let filterInventoriesMW = [];
 async function readInventories() {
@@ -1897,7 +1889,6 @@ mesesAnteriores.forEach(mes => {
     th.textContent = mes;
     theadMostProd.appendChild(th);
 });
-
 //----------------------------------------------TABLE MODAL Frecuecnia----------------------------------------->
 //------buscar por input
 const inputSearchMostProd = document.getElementById("inputSearchMostProd");
@@ -1911,18 +1902,24 @@ selectNumMostProd.addEventListener('change', function () {
 //-------Marca y categoria
 const selectMarcaMostProd = document.getElementById('selectMarcaMostProd');
 const selectCtgMostProd = document.getElementById('selectCtgMostProd');
-selectMarcaMostProd.addEventListener('change', selectCategoriaInventoryMW);
+selectMarcaMostProd.addEventListener('change', selectCategoriaMostProd);
 selectCtgMostProd.addEventListener('change', searchMostProd);
 //------buscar por:
 function searchMostProd() {
     const busqueda = inputSearchMostProd.value.toLowerCase().trim();
-    console.log(busqueda)
     filterInvMostProd = invMostProd.filter(inventory => {
-        return (
-            inventory.codigo_prod.toString().toLowerCase().includes(busqueda)
-        );
+        return inventory.codigo_prod.toString().toLowerCase().includes(busqueda);
+        
     });
-inputSearchMostProds();
+    selectPostMost();
+}
+function selectPostMost(){
+    filterInvMostProd = filterInvMostProd.filter(inventory => {
+        const marca = selectMarcaMostProd.value === 'todasLasMarcas' ? true : inventory.fk_id_mrc_prod == selectMarcaMostProd.value;
+        const categoria = selectCtgMostProd.value === 'todasLasCategorias' ? true : inventory.fk_id_ctgr_prod == selectCtgMostProd.value;
+        return marca && categoria;
+    });
+    paginacionMostProd(filterInvMostProd.length, 1);
 }
 //------buscar por marca y categoria:
 function inputSearchMostProds() {
@@ -2037,19 +2034,6 @@ function openTableMostProd() {
 closeTableMostProd.addEventListener('click', () => {
     tableMostProd.classList.remove('modal__show');
 })
-
-
-
-
-
-
-
-
-
-
-
-
-
 //--------------------------------------------TABLA MODAL PRODUCTS-----------------------------------------------
 let products = [];
 let filterProductsMW = [];
@@ -2295,13 +2279,10 @@ function openProductSMW() {
 closeProductSMW.addEventListener('click', () => {
     productSMW.classList.remove('modal__show');
 });
-
-
-
 /*----------------------------------------------Marca y categoria  modal product-------------------------------------------------*/
 /*-----------------------------------------Marca y categoria producto-------------------------------------------------*/
 //-------Read all Marcas
-let marcas = {};
+let marcas = [];
 async function readAllMarcas() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
@@ -2315,12 +2296,13 @@ async function readAllMarcas() {
             selectMarcaProductMW();
             selectMarcaProdM();
             selectMarcaInventoryMW();
+            selectMrcMostProd();
             resolve();
         }).catch(err => console.log(err));
     })
 }
 //-------Read all categorias
-let categorias = {};
+let categorias = [];
 async function readAllCategorias() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
@@ -2476,6 +2458,42 @@ function selectCategoriaInventoryMW() {
         })
     }
     searchInventoriesMW();
+}
+/*--------------------------------------Marca y categoria modal ----------------------- */
+
+//-------Select de marcas
+function selectMrcMostProd() {
+    selectMarcaMostProd.innerHTML = '';
+    let option = document.createElement('option');
+    option.value = 'todasLasMarcas';
+    option.innerText = 'Todas las marcas';
+    selectMarcaMostProd.appendChild(option);
+    marcas.forEach(marca => {
+        let option = document.createElement('option');
+        option.value = marca.id_mrc;
+        option.innerText = marca.nombre_mrc;
+        selectMarcaMostProd.appendChild(option);
+    })
+}
+//------Select categorias
+function selectCategoriaMostProd() {
+    selectCtgMostProd.innerHTML = '';
+    let option = document.createElement('option');
+    option.value = 'todasLasCategorias';
+    option.innerText = 'Todas las categorias';
+    selectCtgMostProd.appendChild(option);
+    if (selectMarcaMostProd.value != 'todasLasMarcas') {
+        let id_mrc = selectMarcaMostProd.value;
+        categorias.forEach(categoria => {
+            if (categoria.fk_id_mrc_mccr == id_mrc) {
+                let option = document.createElement('option');
+                option.value = categoria.id_ctgr;
+                option.innerText = categoria.nombre_ctgr;
+                selectCtgMostProd.appendChild(option);
+            }
+        })
+    }
+    searchMostProd();
 }
 //<<------------------------------------------CRUD DE PRODUCTS------------------------------------->>
 //------Create un producto
@@ -2926,27 +2944,3 @@ async function readUsers() {
         });
     });
 }
-
-
-
-
-function cartProduct_cppdM(product, id_cmp) {
-    let body = document.getElementById('productBuyMW').querySelector('.modal__body');
-    let div = document.createElement('div');
-    div.classList.add('cart__item');
-    div.innerHTML = `
-            <input type="hidden" value="">
-            <input type="hidden" value="${product['id_prod']}">
-            <input type="hidden" value="${id_cmp}">
-            <p class="numero--addProd"> - </p>
-            <img src="../modelos/imagenes/${product['imagen_prod']}" alt="" class="imagen--addProd"/>
-            <p class="codigo--addProd">${product['codigo_prod']}</p>
-            <textarea class="cart__item--name">${product['nombre_prod']}</textarea>
-            <input type="number" value = "1" min="1" onChange="changeQuantityCPPD(this.parentNode, ${id_cmp})" class="cart__item--quantity">
-            <input type="number" value = "${product['cost_uni_inv']}" onChange="changeQuantityCPPD(this.parentNode, ${id_cmp})" class="cart__item--costUnit">
-            <input type="number" value = "${product['cost_uni_inv']}" class="cart__item--costTotal" readonly>
-            <input type="text" class="cart__item--observacion">
-            <img src="../imagenes/plus.svg" onClick="createCmp_prod(this.parentNode)" class='icon__CRUD'>`;
-    body.appendChild(div);
-}
-

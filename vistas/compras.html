@@ -321,53 +321,6 @@
 			</div>
 		</div>
 	</section>
-	<!--Modal of product of a Buy-->
-	<section id="productBuyMW" class="modal">
-		<div class="modal__container--addProd">
-			<div class="modal__header--addProd">
-				<div>
-					<img src="../imagenes/p.svg" onclick="openProductSMW()" class="icon__CRUD">
-				</div>
-				<h2 class="modal__title" id="titleProductBuyMW">Productos</h2>
-				<img src="../imagenes/salir.svg" id="closeProductBuyMW" class="button__close">
-			</div>
-			<div class="modal__body--addProd">
-				<table>
-					<thead>
-						<tr>
-							<td>N°</td>
-							<td>Img.</td>
-							<td>Codigo</td>
-							<td>Descripcion corta</td>
-							<td>Cant.</td>
-							<td>Cost Uni.</td>
-							<td>Cost Total</td>
-							<td>N° Factura</td>
-							<td>Observacion</td>
-							<td>Acc.</td>
-						</tr>
-					</thead>
-				</table>
-			</div>
-			<div class="modal__body">
-			</div>
-			<div class="foot">
-				<div class="foot__left">
-					<p id="subTotaladdBuyMW">Sub-Total (Bs):</p>
-					<p id="descaddBuyMW">Desc. (Bs):</p>
-					<p id="totaladdBuyMW">Total (Bs):</p>
-				</div>
-				<div class="foot__right">
-					<div class="cart">
-						<img src="../imagenes/carrito.svg">
-						<p id="quantityaddBuyMW">0</p>
-					</div>
-					<button onclick="changeStateBuy(this.parentNode.parentNode.parentNode.children[2])"
-						class="form__submit">Registrar</button>
-				</div>
-			</div>
-		</div>
-	</section>
 	<!--Add buy to inventory-->
 	<section id="addBuyMW" class="modal">
 		<div class="modal__container">
@@ -867,7 +820,7 @@
 							<input type="search" id="inputSearchMostProd" placeholder="Buscar...">
 							<img src="../imagenes/search.png">
 						</div>
-						<button id="btnSearchMostProd">Buscar</button>
+						<button id="btnSearchMostProd" class="form__submit">Buscar</button>
 					</div>
 				</section>
 				<div class="showPage" id="showPageMostProd">
@@ -899,7 +852,9 @@
 											name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
 											name="codigo_prod" class="icon__CRUD"></div>
 								</th>
-								<th>Stock</th>
+								<th><div class="tbody__head--mostProd">Stock<img src="../imagenes/sortA_Z.svg"
+											name="cantidad_inv" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="cantidad_inv" class="icon__CRUD"></div></th>
 								<th>
 									<div class="tbody__head--mostProd">Frecuencia<img src="../imagenes/sortA_Z.svg"
 											name="frecuencia" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
