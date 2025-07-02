@@ -9,21 +9,41 @@ class consultas{
 		$this->orden_ne = trim($conexion->real_escape_string($_POST['orden_ne']));
 		$this->observacion_ne = trim($conexion->real_escape_string($_POST['observacion_ne']));
 	}
+	//---------------------------------------------------CRUD ORDEN DE COMPRA-------------------------------------------
+	//------Read orden de compra
+	public function readOrderBuys(){
+		require_once 'conexion.php';
+		$consulta = "SELECT * FROM orden_compra ORDER BY id_oc DESC";
+		$resultado = $conexion->query($consulta);
+		$ordenCompra = array();
+		while ($fila = $resultado->fetch_array(MYSQLI_ASSOC)) {
+			$fila['numero_oc'] = strtoupper('OC-SMS' . substr($fila['fecha_oc'], 2, 2) . '-' . $this->addZerosGo($fila['numero_oc']));
+			$ordenCompra[] = $fila;
+		}
+		echo json_encode($ordenCompra, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+	}
+	//------Read OC_PROD
+	public function readOcProd(){
+		require_once 'conexion.php';
+		$consulta = "SELECT * FROM oc_prod ORDER BY id_ocpd DESC";
+		$resultado = $conexion->query($consulta);
+		$oc_prods = array();
+		while ($fila = $resultado->fetch_array(MYSQLI_ASSOC)) {
+			$oc_prods[] = $fila;
+		}
+		echo json_encode($oc_prods, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+	}
+	//-----------------------------------------------------------CRUD NOTA DE ENTREGA-------------------------------------------
 	//-------Leer notas de entrega
 	public function readNotasEntrega(){
 		include 'conexion.php';
 		$consulta = "SELECT * FROM nota_entrega ORDER BY id_ne DESC";
 		$resultado = $conexion->query($consulta);
-		$numeroNotaEntrega = $resultado->num_rows;
-		$notasEntrega =  array();
-		if($numeroNotaEntrega > 0){
-			while ($fila = $resultado->fetch_assoc()) {
-				$notasEntrega[] = $fila;	
-			}
-			echo json_encode($notasEntrega, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
-		}else{
-			echo json_encode('');
+		$notasEntrega = array();
+		while ($fila = $resultado->fetch_array(MYSQLI_ASSOC)) {
+			$notasEntrega[] = $fila;
 		}
+		echo json_encode($notasEntrega, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 	}
 	//------Crear nota de entrega
 	public function createNotaEntrega(){
@@ -126,29 +146,8 @@ class consultas{
 		}
 		echo 'Nota de entrega eliminada correctamente';
 	}
-	//------Read orden de compra
-	public function readOrderBuys(){
-		require_once 'conexion.php';
-		$consulta = "SELECT * FROM orden_compra ORDER BY id_oc DESC";
-		$resultado = $conexion->query($consulta);
-		$ordenCompra = array();
-		while ($fila = $resultado->fetch_array(MYSQLI_ASSOC)) {
-			$fila['numero_oc'] = strtoupper('OC-SMS' . substr($fila['fecha_oc'], 2, 2) . '-' . $this->addZerosGo($fila['numero_oc']));
-			$ordenCompra[] = $fila;
-		}
-		echo json_encode($ordenCompra, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
-	}
-	//------Read OC_PROD
-	public function readOcProd(){
-		require_once 'conexion.php';
-		$consulta = "SELECT * FROM oc_prod ORDER BY id_ocpd DESC";
-		$resultado = $conexion->query($consulta);
-		$oc_prods = array();
-		while ($fila = $resultado->fetch_array(MYSQLI_ASSOC)) {
-			$oc_prods[] = $fila;
-		}
-		echo json_encode($oc_prods, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
-	}
+	
+	
 	//-------------------------------------------CRUD NTE-INV---------------------------
 	//-------Read nte_inv
 	public function readNte_invs(){

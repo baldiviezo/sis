@@ -252,3 +252,37 @@ INNER JOIN inventario i ON i.fk_id_prod_inv = p.id_prod
 WHERE v.fecha_factura_vnt >= DATE_SUB(CURDATE(), INTERVAL 8 MONTH)
 GROUP BY p.codigo_prod, i.cantidad_inv
 ORDER BY frecuencia DESC;
+
+
+/*tala nota de entrega*/
+se añadio la columna almancen_ne
+cambiar estado_ne a int
+cambiar fk_id_prof_ne a fk_id_oc_ne
+quitar la relacion de de fk_id_oc_ne
+
+
+UPDATE nota_entrega
+SET estado_ne = 1
+WHERE estado_ne = 'vendido';
+
+UPDATE nota_entrega
+SET estado_ne = 0
+WHERE estado_ne = 'pendiente';
+
+SELECT * FROM `nota_entrega` WHERE estado_ne = 'devolucion'
+
+UPDATE nota_entrega
+SET estado_ne = 2
+WHERE estado_ne = 'devolucion';
+
+
+INSERT INTO orden_compra ( numero_oc, fk_id_prof_oc, fk_id_clte_oc, fk_id_usua_oc, fecha_oc, descuento_oc, total_oc, moneda_oc, tipo_cambio_oc, orden_oc, observacion_oc, estado_oc, almacen_oc)
+SELECT  ROW_NUMBER() OVER (ORDER BY id_ne) AS numero_oc, fk_id_oc_ne, fk_id_clte_ne, fk_id_usua_ne, fecha_ne, descuento_ne, total_ne, moneda_ne, tipo_cambio_ne, orden_ne, observacion_ne, estado_ne, 0
+FROM nota_entrega;
+
+INSERT INTO oc_prod (fk_id_oc_ocpd, fk_id_prod_ocpd, cantidad_ocpd, cost_uni_ocpd, estado_ocpd)
+SELECT oc.id_oc, pp.fk_id_prod_pfpd, pp.cantidad_pfpd, pp.cost_uni_pfpd, p.estado_prof
+FROM prof_prod pp
+INNER JOIN proforma p ON pp.fk_id_prof_pfpd = p.id_prof
+INNER JOIN orden_compra oc ON oc.fk_id_prof_oc = p.id_prof
+WHERE p.estado_prof = 1;

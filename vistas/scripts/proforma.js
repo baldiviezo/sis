@@ -1153,6 +1153,10 @@ function createTable(tbody, productos, moneda) {
         tdIndex.innerText = index + 1;
         tr.appendChild(tdIndex);
 
+        const tdCodigo = document.createElement('td');
+        tdCodigo.innerText = row.codigo_prod;
+        tr.appendChild(tdCodigo);
+
         const tdDescripcion = document.createElement('td');
         tdDescripcion.innerText = row.descripcion_prod;
         tr.appendChild(tdDescripcion);
@@ -1195,6 +1199,7 @@ function updateTotales(total, desc, moneda) {
         tdLabel.setAttribute('colspan', '5');
 
         const tdValue = document.createElement('td');
+        tdValue.setAttribute('colspan', '2');
         tdValue.classList.add('footer__tbody');
         tdValue.innerText = `${item.value} ${moneda}`;
 
@@ -1220,7 +1225,7 @@ function createButton(tbody, formProformas) {
         button.setAttribute('onclick', 'createOC();');
     }
 
-    tdLabel.setAttribute('colspan', '5');
+    tdLabel.setAttribute('colspan', '6');
     tdValue.appendChild(button);
     tr.appendChild(tdLabel);
     tr.appendChild(tdValue);

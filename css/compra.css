@@ -40,7 +40,7 @@
 }
 .container--modal__body {
 	display: grid;
-	grid-template-columns: 2rem 1fr;
+	grid-template-columns: 2.5rem 1fr;
 }
 
 .modal__body--cppd {
@@ -82,7 +82,7 @@
 
 .modal__body--cppd table thead tr td:nth-of-type(6) {
 	padding: 0;
-	width: 6rem;
+	width: 5.5rem;
 	text-align: center;
 }
 
@@ -325,7 +325,7 @@
 }
 
 .cart__item--quantity {
-	width: 6rem;
+	width: 5.5rem;
 	border: none;
 }
 

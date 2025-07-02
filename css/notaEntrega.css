@@ -2,7 +2,7 @@
 .modalPdpf__container {
 	margin: auto;
 	background-color: #fff;
-	width: 33rem;
+	width: 33.5rem;
 	height: 90%;
 	border-radius: .5rem;
 	display: grid;
@@ -139,7 +139,6 @@
 	background-color: #fff;
 	border-radius: .5rem;
 	width: 100%;
-	margin: .5rem 0;
 	padding: .5rem .5rem;
 }
 
@@ -229,3 +228,35 @@
 	margin-bottom: 1rem;
 	width: 10rem;
 }
+/**************************************************/
+.box__container{
+	overflow: auto;
+	height: 100%;
+	width: 100%;
+}
+.box__container::-webkit-scrollbar {
+	width: 0.5rem;
+	height: 0.5rem;
+}
+
+.box__container::-webkit-scrollbar-thumb {
+	border-radius: .5rem;
+	background-color: #0004;
+	visibility: hidden;
+}
+
+.box__container:hover::-webkit-scrollbar-thumb {
+	visibility: visible;
+}
+.container--modal__body {
+	display: grid;
+	grid-template-columns: 2.5rem 1fr;
+}
+.modal__body--index {
+	display: flex;
+	align-items: center;
+	height: 5rem;
+	width: 100%;
+	border-right: #225c74 1px solid;
+	padding-left:  .5rem;
+}	

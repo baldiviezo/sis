@@ -253,21 +253,21 @@ class Consultas{
 		p.fk_id_mrc_prod,
 		p.fk_id_ctgr_prod,
 		p.codigo_prod, i.cantidad_inv,
-			SUM(CASE WHEN pm.mes = 7 THEN pm.suma ELSE 0 END) AS mes1,
-    		SUM(CASE WHEN pm.mes = 6 THEN pm.suma ELSE 0 END) AS mes2,
-    		SUM(CASE WHEN pm.mes = 5 THEN pm.suma ELSE 0 END) AS mes3,
-    		SUM(CASE WHEN pm.mes = 4 THEN pm.suma ELSE 0 END) AS mes4,
-    		SUM(CASE WHEN pm.mes = 3 THEN pm.suma ELSE 0 END) AS mes5,
-    		SUM(CASE WHEN pm.mes = 2 THEN pm.suma ELSE 0 END) AS mes6,
-    		SUM(CASE WHEN pm.mes = 1 THEN pm.suma ELSE 0 END) AS mes7,
-    		SUM(CASE WHEN pm.mes = 0 THEN pm.suma ELSE 0 END) AS mes8,
+			SUM(CASE WHEN pm.mes = 8 THEN pm.suma ELSE 0 END) AS mes1,
+    		SUM(CASE WHEN pm.mes = 7 THEN pm.suma ELSE 0 END) AS mes2,
+    		SUM(CASE WHEN pm.mes = 6 THEN pm.suma ELSE 0 END) AS mes3,
+    		SUM(CASE WHEN pm.mes = 5 THEN pm.suma ELSE 0 END) AS mes4,
+    		SUM(CASE WHEN pm.mes = 4 THEN pm.suma ELSE 0 END) AS mes5,
+    		SUM(CASE WHEN pm.mes = 3 THEN pm.suma ELSE 0 END) AS mes6,
+    		SUM(CASE WHEN pm.mes = 2 THEN pm.suma ELSE 0 END) AS mes7,
+    		SUM(CASE WHEN pm.mes = 1 THEN pm.suma ELSE 0 END) AS mes8,
     		COUNT(CASE WHEN pm.suma > 0 THEN 1 END) AS frecuencia
 		FROM producto p
 		INNER JOIN inventario i ON i.fk_id_prod_inv = p.id_prod
 		LEFT JOIN (
     		SELECT vp.fk_id_prod_vtpd AS id_prod, TIMESTAMPDIFF(MONTH, DATE_FORMAT(CURDATE(), '%Y-%m-01'), DATE_FORMAT(v.fecha_vnt, '%Y-%m-01')) * -1 AS mes, SUM(vp.cantidad_vtpd) AS suma FROM venta v
     	INNER JOIN vnt_prod vp ON v.id_vnt = vp.fk_id_vnt_vtpd
-    	WHERE v.fecha_vnt >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 7 MONTH), '%Y-%m-01') AND v.fecha_vnt < DATE_ADD(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 1 MONTH) GROUP BY vp.fk_id_prod_vtpd, mes) pm ON pm.id_prod = p.id_prod AND pm.mes BETWEEN 0 AND 7 GROUP BY p.codigo_prod, i.cantidad_inv HAVING frecuencia > 0 ORDER BY frecuencia DESC";
+    	WHERE v.fecha_vnt >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 7 MONTH), '%Y-%m-01') AND v.fecha_vnt < DATE_ADD(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 1 MONTH) GROUP BY vp.fk_id_prod_vtpd, mes) pm ON pm.id_prod = p.id_prod AND pm.mes BETWEEN 0 AND 7 GROUP BY p.codigo_prod, i.cantidad_inv HAVING frecuencia > 0 ORDER BY frecuencia DESC, p.codigo_prod ASC";
 		$resultado = $conexion->query($consulta);
 		$tabla = array();
 		if ($resultado->num_rows > 0) {

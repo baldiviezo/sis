@@ -53,6 +53,21 @@ async function init() {
         }
     }
 }
+//---------------------------------------------MODAL DE NOTA DE ENTREGA------------------------------------------------
+const prof_prodMW = document.getElementById('prof_prodMW');
+const closeProf_prodMW = document.getElementById('closeProf_prodMW');
+const titleProf_prodMW = document.getElementById('titleProf_prodMW');
+const titleAlmacenMW = document.getElementById('titleAlmacenMW');
+const openNotaEntregaRMW = (id_oc) => {
+    const ordenCompra = orderBuys.find(orderBuy => orderBuy.id_oc == id_oc);
+    titleAlmacenMW.innerText = (ordenCompra.almacen_oc === 0) ? 'El Alto' : 'Arce';
+    titleProf_prodMW.innerText = `${ordenCompra.numero_oc}`
+    prof_prodMW.classList.add('modal__show');
+    readOc_prod(id_oc);
+}
+closeProf_prodMW.addEventListener('click', () => {
+    prof_prodMW.classList.remove('modal__show');
+})
 //---------------------------------------------------------ORDEN DE COMPRA---------------------------------------------------
 let orderBuys = [];
 let filterOrderBuys = [];
@@ -64,7 +79,6 @@ async function readOrderBuys() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            console.log(data)
             orderBuys = data;
             filterOrderBuys = data;
             createYearOC();
@@ -305,29 +319,234 @@ function tableOrdenCompra(page) {
         tbodyOC.appendChild(tr);
     });
 }
-//-------------------------------OPEN AND CLOSE MODAL DE OC_PROD---------------------------------------------
+//-----------------------------------------------TABLE OC_PROD---------------------------------------------------------
+//-----------------------------------------READ OC_PROD
+let oc_prods = [];
+let filterOCProds = [];
+function readOcProd() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readOcProd', '');
+        fetch('../controladores/notaEntrega.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            console.log(data)
+            oc_prods = data;
+            filterOCProds = oc_prods;
+            resolve();
+        }).catch(err => console.log(err));
+    })
+}
+//------------------------------------------------TABLE PRODUCT FILTER---------------------------------------
+//------Select utilizado para buscar por columnas
+const selectSearchOCProd = document.getElementById('selectSearchOCProd');
+selectSearchOCProd.addEventListener('change', searchOCProd);
+//------buscar por input
+const inputSearchOCProd = document.getElementById("inputSearchOCProd");
+inputSearchOCProd.addEventListener("keyup", searchOCProd);
+//------Proformas por pagina
+const selectNumberOCProd = document.getElementById('selectNumberOCProd');
+selectNumberOCProd.selectedIndex = 3;
+selectNumberOCProd.addEventListener('change', function () {
+    paginacionOCPd(filterOCProds.length, 1);
+});
+//------buscar por:
+function searchOCProd() {
+    const busqueda = inputSearchOCProd.value.toLowerCase().trim();
+    const valor = selectSearchOCProd.value.toLowerCase().trim();
+    filterOCProds = oc_prods.filter(oc_prod => {
+        const ordenCompra = orderBuys.find(ordenCompra => ordenCompra.id_oc === oc_prod.fk_id_oc_ocpd);
+        const producto = products.find(product => product.id_prod === oc_prod.fk_id_prod_ocpd);
+        if (valor == 'todas') {
+            return (
+                ordenCompra.numero_oc.toLowerCase().includes(busqueda) ||
+                ordenCompra.fecha_oc.toLowerCase().includes(busqueda) ||
+                producto.codigo_prod.toString().toLowerCase().includes(busqueda)
+            )
+        } else if (valor == 'codigo_prod') {
+            return producto.codigo_prod.toString().toLowerCase().includes(busqueda);
+        } else {
+            return ordenCompra[valor].toLowerCase().includes(busqueda);
+        }
+    });
+    selectStateProductOC();
+}
+//------Seleccionar el año
+const selectYearOCProd = document.getElementById('selectYearOCProd');
+selectYearOCProd.addEventListener('change', searchOCProd);
+//-------Estado de oc_prods
+const selectStateOCProd = document.getElementById('selectStateOCProd');
+selectStateOCProd.addEventListener('change', searchOCProd);
+const selectMonthOCProd = document.getElementById('selectMonthOCProd');
+selectMonthOCProd.addEventListener('change', searchOCProd);
+function selectStateProductOC() {
+    filterOCProds = filterOCProds.filter(OCProd => {
+        const ordenCompra = orderBuys.find(ordenCompra => ordenCompra.id_oc === OCProd.fk_id_oc_ocpd);
+        const estado = selectStateOCProd.value === 'todas' ? true : ordenCompra.estado_oc == selectStateOCProd.value;
+        const fecha = selectYearOCProd.value === 'todas' ? true : ordenCompra.fecha_oc.split('-')[0] === selectYearOCProd.value;
+        const mes = selectMonthOCProd.value === 'todas' ? true : ordenCompra.fecha_oc.split('-')[1] === selectMonthOCProd.value;
+        return estado && fecha && mes;
+    });
+    paginacionOCPd(filterOCProds.length, 1);
+}
+//------Ordenar tabla descendente ascendente
+const orderOCPd = document.querySelectorAll('.tbody__head--OCProd');
+orderOCPd.forEach(div => {
+    div.children[0].addEventListener('click', function () {
+        const valor = div.children[0].name;
+        filterOCProds.sort((a, b) => {
+            const ordenCompraA = orderBuys.find(ordenCompra => ordenCompra.id_prof == a.fk_id_prof_ocpd);
+            const ordenCompraB = orderBuys.find(ordenCompra => ordenCompra.id_prof == b.fk_id_prof_ocpd);
+            const valorA = String(ordenCompraA[valor]);
+            const valorB = String(ordenCompraB[valor]);
+            return valorA.localeCompare(valorB);
+        });
+        paginacionOCPd(filterOCProds.length, 1);
+    });
+    div.children[1].addEventListener('click', function () {
+        const valor = div.children[0].name;
+        filterOCProds.sort((a, b) => {
+            const ordenCompraA = orderBuys.find(ordenCompra => ordenCompra.id_prof == a.fk_id_prof_pfpd);
+            const ordenCompraB = orderBuys.find(ordenCompra => ordenCompra.id_prof == b.fk_id_prof_pfpd);
+            const valorA = String(ordenCompraA[valor]);
+            const valorB = String(ordenCompraB[valor]);
+            return valorB.localeCompare(valorA);
+        });
+        paginacionOCPd(filterOCProds.length, 1);
+    });
+});
+//------
+const totalOCProd = document.getElementById('totalOCProd');
+function paginacionOCPd(allProducts, page) {
+    let total = 0;
+    filterOCProds.forEach(oc_prod => {
+        const ordenCompra = orderBuys.find(ordenCompra => ordenCompra.id_oc === oc_prod.fk_id_oc_ocpd);
+        total += oc_prod.cantidad_ocpd * oc_prod.cost_uni_ocpd * (100 - ordenCompra.descuento_oc) / 100;
+    })
+    totalOCProd.innerHTML = `Total: ${total.toFixed(2)} Bs`;
+    let numberProducts = Number(selectNumberOCProd.value);
+    let allPages = Math.ceil(allProducts / numberProducts);
+    let ul = document.querySelector('#wrapperOCProd ul');
+    let li = '';
+    let beforePages = page - 1;
+    let afterPages = page + 1;
+    let liActive;
+    if (page > 1) {
+        li += `<li class="btn" onclick="paginacionOCPd(${allProducts}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
+    }
+    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
+        if (pageLength > allPages) {
+            continue;
+        }
+        if (pageLength == 0) {
+            pageLength = pageLength + 1;
+        }
+        if (page == pageLength) {
+            liActive = 'active';
+        } else {
+            liActive = '';
+        }
+        li += `<li class="numb ${liActive}" onclick="paginacionOCPd(${allProducts}, ${pageLength})"><span>${pageLength}</span></li>`;
+    }
+    if (page < allPages) {
+        li += `<li class="btn" onclick="paginacionOCPd(${allProducts}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
+    }
+    ul.innerHTML = li;
+    let h2 = document.querySelector('#showPageOCProd h2');
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${allProducts} Productos`;
+    tableOCProd(page);
+}
+//--------Tabla de oc_prods
+function tableOCProd(page) {
+    const tbody = document.getElementById('tbodyOCProd');
+    const inicio = (page - 1) * Number(selectNumberOCProd.value);
+    const final = inicio + Number(selectNumberOCProd.value);
+    const prods = filterOCProds.slice(inicio, final);
+    tbody.innerHTML = '';
+    prods.forEach((prod, index) => {
+        const ordenCompra = orderBuys.find(ordenCompra => ordenCompra.id_oc == prod.fk_id_oc_ocpd);
+        const producto = products.find(product => product.id_prod == prod.fk_id_prod_ocpd);
+
+        const tr = document.createElement('tr');
+        tr.setAttribute('id_ocpd', prod.id_ocpd);
+
+        const tdNumero = document.createElement('td');
+        tdNumero.innerText = inicio + index + 1;
+        tr.appendChild(tdNumero);
+
+        const tdNumeroOrdenCompra = document.createElement('td');
+        tdNumeroOrdenCompra.innerText = ordenCompra.numero_oc;
+        tr.appendChild(tdNumeroOrdenCompra);
+
+        const tdFechaOrdenCompra = document.createElement('td');
+        tdFechaOrdenCompra.innerText = ordenCompra.fecha_oc;
+        tr.appendChild(tdFechaOrdenCompra);
+
+        const tdCodigo = document.createElement('td');
+        tdCodigo.innerText = producto.codigo_prod;
+        tr.appendChild(tdCodigo);
+
+        const tdCantidad = document.createElement('td');
+        tdCantidad.innerText = prod.cantidad_ocpd;
+        tr.appendChild(tdCantidad);
+
+        const tdCostoUnitario = document.createElement('td');
+        tdCostoUnitario.innerText = `${prod.cost_uni_ocpd} ${ordenCompra.moneda_oc}`;
+        tr.appendChild(tdCostoUnitario);
+
+        const tdSubTotal = document.createElement('td');
+        const subTotal = prod.cost_uni_ocpd * prod.cantidad_ocpd;
+        tdSubTotal.innerText = `${subTotal.toFixed(2)} ${ordenCompra.moneda_oc}`;
+        tr.appendChild(tdSubTotal);
+
+        const tdDescuento = document.createElement('td');
+        const desc = ordenCompra.descuento_oc * prod.cost_uni_ocpd * prod.cantidad_ocpd / 100;
+        tdDescuento.innerText = `-${desc.toFixed(2)} ${ordenCompra.moneda_oc} (${ordenCompra.descuento_oc}%)`;
+        tr.appendChild(tdDescuento);
+
+        const tdTotal = document.createElement('td');
+        const total = prod.cantidad_ocpd * prod.cost_uni_ocpd * (100 - ordenCompra.descuento_oc) / 100;
+        tdTotal.innerText = `${total.toFixed(2)} ${ordenCompra.moneda_oc}`;
+        tr.appendChild(tdTotal);
+
+        tbody.appendChild(tr);
+    });
+}
+//------open and close tabla de oc_prod
+const openTableOCProdMW = document.querySelector('#openTableOCProdMW');
+const closeTableOCProdMW = document.querySelector('#closeTableOCProdMW');
+const tableOCProdMW = document.querySelector('#tableOCProdMW');
+openTableOCProdMW.addEventListener('click', () => {
+    tableOCProdMW.classList.add('modal__show');
+});
+closeTableOCProdMW.addEventListener('click', () => {
+    tableOCProdMW.classList.remove('modal__show');
+});
+
+//-------------------------------MODAL DE OC_PROD---------------------------------------------
 //------read oc_prod
-const modalProf_prod = document.querySelector('#cartsProf_prodMW');
+const cartsProf_prodMW = document.querySelector('#cartsProf_prodMW');
 const button__prof_prodMW = document.querySelector('#button__prof_prodMW');
 let golbalIdOc = 0;
 function readOc_prod(id_oc) {
     golbalIdOc = id_oc;
-    modalProf_prod.innerHTML = '';
+    cartsProf_prodMW.innerHTML = '';
     const productos = oc_prods.filter(oc_prod => oc_prod['fk_id_oc_ocpd'] == id_oc);
     productos.forEach(oc_prod => {
         const card = cartProduct_ocpd(oc_prod, totalPriceM);
-        modalProf_prod.appendChild(card);
+        cartsProf_prodMW.appendChild(card);
     })
     //Drang and drop
-    const items = modalProf_prod.querySelectorAll(".cart-item");
+    const items = cartsProf_prodMW.querySelectorAll(".cart-item");
     items.forEach(item => {
         item.addEventListener("dragstart", () => {
             setTimeout(() => item.classList.add("dragging"), 0);
         });
         item.addEventListener("dragend", () => item.classList.remove("dragging"));
     });
-    modalProf_prod.addEventListener("dragover", initSortableListM);
-    modalProf_prod.addEventListener("dragenter", e => e.preventDefault());
+    cartsProf_prodMW.addEventListener("dragover", initSortableListM);
+    cartsProf_prodMW.addEventListener("dragenter", e => e.preventDefault());
 
     totalPriceM();
 }
@@ -335,14 +554,14 @@ const initSortableListM = (e) => {
     e.preventDefault();
     const draggingItem = document.querySelector(".dragging");
 
-    let siblings = [...modalProf_prod.querySelectorAll(".cart-item:not(.dragging)")];
+    let siblings = [...cartsProf_prodMW.querySelectorAll(".cart-item:not(.dragging)")];
 
     let nextSibling = siblings.find(sibling => {
         const rect = sibling.getBoundingClientRect();
         return e.clientY <= rect.top + rect.height / 2;
     });
 
-    modalProf_prod.insertBefore(draggingItem, nextSibling);
+    cartsProf_prodMW.insertBefore(draggingItem, nextSibling);
 }
 //------Abrir modal de la card
 function cartProduct_ocpd(oc_prod, total) {
@@ -357,7 +576,7 @@ function cartProduct_ocpd(oc_prod, total) {
 
         const card = document.createElement('div');
         card.classList.add('cart-item');
-        card.setAttribute('id_prod', product.id_prod);
+        card.setAttribute('id_ocpd', oc_prod.id_ocpd);
         card.setAttribute('draggable', 'true');
 
         const cantidadInvParagraph = document.createElement('p');
@@ -431,10 +650,13 @@ function cartProduct_ocpd(oc_prod, total) {
         return card;
     }
 }
+const numberCPRMW = prof_prodMW.querySelector('div.modal__body--number');
+const subTotal_pfpd = document.getElementById('subTotal_pfpd');
+const desc_pfpd = document.getElementById('desc_pfpd');
+const total_pfpd = document.getElementById('total_pfpd');
+const count_pfpd = document.getElementById('count_pfpd');
 function totalPriceM() {
-    console.log('entro al totalPriceM');
-
-    const divs = document.querySelectorAll('#cartsProf_prodMW div.cart-item');
+    const divs = cartsProf_prodMW.querySelectorAll('div.cart-item');
     let total = 0;
     let moneda = '';
     let descuento = 0;
@@ -447,34 +669,27 @@ function totalPriceM() {
     moneda = ordenCompra.moneda_oc;
     descuento = ordenCompra.descuento_oc
 
+    subTotal_pfpd.innerHTML = `Sub-Total(${moneda}): ${total.toFixed(2)} ${moneda}`;
+    desc_pfpd.innerHTML = `Desc. ${descuento}% (${moneda}):   ${((total * descuento) / 100).toFixed(2)} ${moneda}`;
+    total_pfpd.innerHTML = `Total(${moneda}): ${((total - (total * descuento) / 100)).toFixed(2)} ${moneda}`;
+    count_pfpd.innerHTML = divs.length;
 
-
-    document.getElementById('subTotal_pfpd').innerHTML = `Sub-Total(${moneda}): ${total.toFixed(2)} ${moneda}`;
-    document.getElementById('desc_pfpd').innerHTML = `Desc. ${descuento}% (${moneda}):   ${((total * descuento) / 100).toFixed(2)} ${moneda}`;
-    document.getElementById('total_pfpd').innerHTML = `Total(${moneda}): ${((total - (total * descuento) / 100)).toFixed(2)} ${moneda}`;
-    document.getElementById('count_pfpd').innerHTML = divs.length;
+    numberCPRMW.innerHTML = '';
+    for (let i = 1; i <= divs.length; i++) {
+        const div = document.createElement('div');
+        div.classList.add('modal__body--index');
+        div.innerText = i;
+        numberCPRMW.appendChild(div);
+    }
 }
-//---------------------------------------------MODAL DE NOTA DE ENTREGA------------------------------------------------
-const prof_prodMW = document.getElementById('prof_prodMW');
-const closeProf_prodMW = document.getElementById('closeProf_prodMW');
-const titleProf_prodMW = document.getElementById('titleProf_prodMW');
-const openNotaEntregaRMW = (id_oc) => {
-    const ordenCompra = orderBuys.find(orderBuy => orderBuy.id_oc == id_oc);
-    titleProf_prodMW.innerText = `${ordenCompra.numero_oc}`
-    prof_prodMW.classList.add('modal__show');
-    readOc_prod(id_oc);
-}
-closeProf_prodMW.addEventListener('click', () => {
-    prof_prodMW.classList.remove('modal__show');
-})
 //------------------------------------MOSTRAR LOS PRODUCTOS PREVIAMENTE--------------------------------------------
 const tbodyPreviewProd = document.getElementById('tbodyPreviewProd');
 function openPreviwProducts() {
-    console.log('entro al openPreviwProducts');
-    cart = document.querySelectorAll('#cartsProf_prodMW .cart-item')
+    cart = cartsProf_prodMW.querySelectorAll('.cart-item')
 
     if (cart.length > 0) {
         const productos = getProducts();
+        if (!checkCantidad(productos)) { return }
         const moneda = getMoneda();
         const total = calculateTotal(productos);
         const desc = getDescuento();
@@ -494,12 +709,32 @@ function getProducts() {
     const empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
     titleEnterprise.innerText = `EMPRESA: ${empresa.nombre_emp}`;
     titleCustomer.innerText = `CLIENTE: ${cliente.apellido_clte + ' ' + cliente.nombre_clte}`;
-    return document.querySelectorAll('#cartsProf_prodMW .cart-item');
-
+    // Obtener todos los productos seleccionados en la proforma que checkbox.checked = true
+    return Array.from(cartsProf_prodMW.querySelectorAll('.cart-item')).filter(item => item.querySelector('.icon__checkbox').checked);
+}
+function checkCantidad(productos) {
+    let msg = '';
+    productos.forEach(producto => {
+        const cantidad = Number(producto.querySelector('.cart-item__cantidad').value);
+        const cmp_prod = oc_prods.find(ocp => ocp.id_ocpd == producto.getAttribute('id_ocpd'));
+        if (cantidad <= 0 || cantidad > cmp_prod.cantidad_ocpd) {
+            msg += `El ${cmp_prod.codigo_ocpd} debe ser mayor a 0 y menor o igual a ${cmp_prod.cantidad_ocpd}`;
+        } 
+        // verificar si cantidad es un numero entero
+        if (!Number.isInteger(cantidad)) {
+            msg += `La cantidad de ${cmp_prod.codigo_ocpd} debe ser un número entero`;
+        }
+    });
+    if (msg === '') {
+        return true
+    } else {
+        mostrarAlerta(msg);
+        return false;
+    }
 }
 function getMoneda() {
     const ordenCompra = orderBuys.find(orderBuy => orderBuy.id_oc === golbalIdOc);
-    return  ordenCompra.moneda_oc;
+    return ordenCompra.moneda_oc;
 }
 function calculateTotal(productos) {
     let total = 0;
@@ -510,15 +745,14 @@ function calculateTotal(productos) {
 }
 function getDescuento() {
     const ordenCompra = orderBuys.find(orderBuy => orderBuy.id_oc === golbalIdOc);
-    return  ordenCompra.descuento_oc;
-  
+    return ordenCompra.descuento_oc;
 }
 function createTable(tbody, productos, moneda) {
     const fragment = document.createDocumentFragment();
 
     productos.forEach((producto, index) => {
-
-        const row = products.find(product => product.id_prod == producto.getAttribute('id_prod'));
+        const oc_prod = oc_prods.find(ocp => ocp.id_ocpd == producto.getAttribute('id_ocpd'));
+        const product = products.find(prod => prod.id_prod === oc_prod.fk_id_prod_ocpd);
         const monedaSymbol = `<b>${moneda}</b>`;
 
         const tr = document.createElement('tr');
@@ -528,14 +762,18 @@ function createTable(tbody, productos, moneda) {
         tdIndex.innerText = index + 1;
         tr.appendChild(tdIndex);
 
+        const tdCodigo = document.createElement('td');
+        tdCodigo.innerText = product.codigo_prod;
+        tr.appendChild(tdCodigo);
+        
         const tdDescripcion = document.createElement('td');
-        tdDescripcion.innerText = row.descripcion_prod;
+        tdDescripcion.innerText = product.descripcion_prod;
         tr.appendChild(tdDescripcion);
-
+        
         const tdImagen = document.createElement('td');
         const img = document.createElement('img');
         img.classList.add('tbody__img');
-        img.setAttribute('src', `../modelos/imagenes/${row.imagen_prod}`);
+        img.setAttribute('src', `../modelos/imagenes/${product.imagen_prod}`);
         tdImagen.appendChild(img);
         tr.appendChild(tdImagen);
 
@@ -570,6 +808,7 @@ function updateTotales(total, desc, moneda) {
         tdLabel.setAttribute('colspan', '5');
 
         const tdValue = document.createElement('td');
+        tdValue.setAttribute('colspan', '2');
         tdValue.classList.add('footer__tbody');
         tdValue.innerText = `${item.value} ${moneda}`;
 
@@ -586,7 +825,7 @@ function createButton(tbody) {
     button.classList.add('button__sell--previw');
     button.innerText = 'CREAR NOTA DE ENTREGA';
     button.setAttribute('onclick', 'updateProforma();');
-    tdLabel.setAttribute('colspan', '5');
+    tdLabel.setAttribute('colspan', '6');
     tdValue.appendChild(button);
     tr.appendChild(tdLabel);
     tr.appendChild(tdValue);
@@ -598,21 +837,7 @@ const closePreviewProducts = document.getElementById('closePreviewProducts');
 closePreviewProducts.addEventListener('click', () => {
     previewProducts.classList.remove('modal__show');
 });
-//-----------------------------------------READ OC_PROD
-let oc_prods = [];
-function readOcProd() {
-    return new Promise((resolve, reject) => {
-        let formData = new FormData();
-        formData.append('readOcProd', '');
-        fetch('../controladores/notaEntrega.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.json()).then(data => {
-            oc_prods = data;
-            resolve();
-        }).catch(err => console.log(err));
-    })
-}
+
 //----------------------------------------------TABLA DE NOTA DE ENTREGA------------------------------------------------
 let notasEntrega = [];
 let filterNotasEntrega = [];
@@ -778,16 +1003,7 @@ function paginacionNotaEntrega(allProducts, page) {
     h2.innerHTML = `Pagina ${page}/${allPages}, ${allProducts} Notas entrega`;
     tableNotaEntrega(page);
 }
-//--------Tabla de proforma
-/*
-UPDATE nota_entrega
-SET estado_ne = 1
-WHERE estado_ne = 'vendido';
-
-UPDATE nota_entrega
-SET estado_ne = 0
-WHERE estado_ne = 'pendiente';
-*/
+//--------Tabla de Nota de entrega
 function tableNotaEntrega(page) {
     console.log(filterNotasEntrega);
     const totalNE = document.getElementById('totalNE');
@@ -797,16 +1013,17 @@ function tableNotaEntrega(page) {
     const tbody = document.getElementById('tbodyNE');
     const inicio = (page - 1) * Number(selectNumberNe.value);
     const final = inicio + Number(selectNumberNe.value);
-    const notasEntrega = Object.values(filterNotasEntrega).slice(inicio, final);
+    const notasEntrega = filterNotasEntrega.slice(inicio, final);
     tbody.innerHTML = '';
 
     notasEntrega.forEach((notaEntrega, index) => {
-        const tr = document.createElement('tr');
+        console.log(notaEntrega)
 
-        const tdIdNE = document.createElement('td');
-        tdIdNE.innerText = notaEntrega.id_ne;
-        tdIdNE.setAttribute('hidden', '');
-        tr.appendChild(tdIdNE);
+        const oc = orderBuys.find(orderBuy => orderBuy.id_oc === notaEntrega.fk_id_oc_ne);
+
+
+        const tr = document.createElement('tr');
+        tr.setAttribute('id_ne', notaEntrega.id_ne);
 
         const tdIdProf = document.createElement('td');
         tdIdProf.innerText = notaEntrega.id_prof;
@@ -845,7 +1062,7 @@ function tableNotaEntrega(page) {
         tdOrden.innerText = notaEntrega.orden_ne;
         tr.appendChild(tdOrden);
 
-       
+
 
         const tdObservacion = document.createElement('td');
         tdObservacion.innerText = notaEntrega.observacion_ne;
@@ -1084,16 +1301,16 @@ function tableNteInvMW(page) {
         const subTotal = nte_inv.cost_uni_neiv * nte_inv.cantidad_neiv;
         tdSubTotal.innerText = subTotal.toFixed(2) + ' Bs';
         tr.appendChild(tdSubTotal);
-/*
-        const tdDescuento = document.createElement('td');
-        const desc = notaEntrega.descuento_ne * nte_inv.cost_uni_neiv * nte_inv.cantidad_neiv / 100;
-        tdDescuento.innerText = desc.toFixed(2) + ' Bs' + ' (' + notaEntrega.descuento_ne + '%)';
-        tr.appendChild(tdDescuento);
-
-        const tdTotal = document.createElement('td');
-        const total = nte_inv.cantidad_neiv * nte_inv.cost_uni_neiv * (100 - notaEntrega.descuento_ne) / 100;
-        tdTotal.innerText = total.toFixed(2) + ' Bs';
-        tr.appendChild(tdTotal);*/
+        /*
+                const tdDescuento = document.createElement('td');
+                const desc = notaEntrega.descuento_ne * nte_inv.cost_uni_neiv * nte_inv.cantidad_neiv / 100;
+                tdDescuento.innerText = desc.toFixed(2) + ' Bs' + ' (' + notaEntrega.descuento_ne + '%)';
+                tr.appendChild(tdDescuento);
+        
+                const tdTotal = document.createElement('td');
+                const total = nte_inv.cantidad_neiv * nte_inv.cost_uni_neiv * (100 - notaEntrega.descuento_ne) / 100;
+                tdTotal.innerText = total.toFixed(2) + ' Bs';
+                tr.appendChild(tdTotal);*/
 
         tbody.appendChild(tr);
     });

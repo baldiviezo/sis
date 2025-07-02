@@ -29,17 +29,19 @@
         <section class="table__header">
             <div>
                 <img src="../imagenes/folder.svg" onclick="openTableNEMW()" class="img__folder" title="Nota de entrega">
+                <img src="../imagenes/inventario.svg" id="openTableOCProdMW" class="icon__CRUD"
+						title="Productos de la orden de compra">
                 <img src="../imagenes/producto.svg" onclick="openInventorySMW()" class="icon__CRUD"
                     title="Inventario">
             </div>
             <section class="select__search">
                 <div>
-                    <label>Fecha proforma:</label>
+                    <label>Fecha oc:</label>
                     <select id="selectYearOC" class="select__number">
                     </select>
                 </div>
                 <div>
-                    <label>Mes de venta:</label>
+                    <label>Mes de oc:</label>
                     <select id="selectMonthOC" class="select__number">
                         <option value="todas">Todo</option>
                         <option value="01">Enero</option>
@@ -57,7 +59,7 @@
                     </select>
                 </div>
                 <div hidden>
-                    <label>Proformas:</label>
+                    <label>Orden de compra:</label>
                     <select id="selectStateOC" class="select__number">
                         <option value="todasLasOC">Todas</option>
                         <option value="0">Pendientes</option>
@@ -136,10 +138,118 @@
             </table>
         </section>
     </main>
+    <!--Tabla oc_prod-->
+	<section id="tableOCProdMW" class="modalTable">
+		<div class="modalTable__container">
+			<div class="table">
+				<div class="table__title">
+					<h1><img src="../imagenes/producto.svg">Productos</h1>
+					<img src="../imagenes/salir.svg" id="closeTableOCProdMW" class="button__close">
+				</div>
+				<section class="table__header">
+					<h1 id="totalOCProd">TOTAL:</h1>
+					<section class="select__search">
+						<div>
+							<label>Año proforma:</label>
+							<select id="selectYearOCProd" class="select"></select>
+						</div>
+						<div>
+							<label>Mes de proforma:</label>
+							<select id="selectMonthOCProd" class="select__number">
+								<option value="todas">Todo</option>
+								<option value="01">Enero</option>
+								<option value="02">Febrero</option>
+								<option value="03">Marzo</option>
+								<option value="04">Abril</option>
+								<option value="05">Mayo</option>
+								<option value="06">Junio</option>
+								<option value="07">Julio</option>
+								<option value="08">Agosto</option>
+								<option value="09">Septiembre</option>
+								<option value="10">Octubre</option>
+								<option value="11">Noviembre</option>
+								<option value="12">Diciembre</option>
+							</select>
+						</div>
+						<div hidden>
+							<label>Proformas:</label>
+							<select id="selectStateOCProd" class="select__number">
+								<option value="todas">Todas</option>
+								<option value="0">No confirmadas</option>
+								<option value="1">Confirmadas</option>
+							</select>
+						</div>
+					</section>
+					<div class="combo__search">
+						<div class="filter__search">
+							<h3>Filtrar por:</h3>
+							<select id="selectSearchOCProd" class="select">
+								<option value="todas">Todo</option>
+								<option value="numero_prof">N° Proforma</option>
+								<option value="fecha_prof">Fecha de proforma</option>
+								<option value="codigo_prod">Codigo</option>
+							</select>
+						</div>
+						<div class="table__search">
+							<input type="search" id="inputSearchOCProd" placeholder="Buscar...">
+							<img src="../imagenes/search.png">
+						</div>
+					</div>
+				</section>
+				<div class="showPage" id="showPageOCProd">
+					<h2></h2>
+				</div>
+				<div class="container__page">
+					<div class="paginacion">
+						<div class="wrapper" id="wrapperOCProd">
+							<ul></ul>
+						</div>
+					</div>
+					<div>
+						<select id="selectNumberOCProd" class="select__number">
+							<option value="2">2</option>
+							<option value="4">4</option>
+							<option value="6">6</option>
+							<option value="10">10 </option>
+							<option value="20">20</option>
+						</select>
+					</div>
+				</div>
+				<section class="table__body">
+					<table>
+						<thead>
+							<tr>
+								<th>N°</th>
+								<th>
+									<div class="tbody__head--OCProd">N° Proforma<img src="../imagenes/sortA_Z.svg"
+											name="numero_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="numero_prof" class="icon__CRUD"></div>
+								</th>
+								<th>
+									<div class="tbody__head--OCProd">Fecha proforma<img src="../imagenes/sortA_Z.svg"
+											name="fecha_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="fecha_prof" class="icon__CRUD"></div>
+								</th>
+								<th>Codigo</th>
+								<th>Cantidad</th>
+								<th>Cost uni.</th>
+								<th>Subtotal</th>
+								<th>Descuento</th>
+								<th>Total</th>
+							</tr>
+						</thead>
+						<tbody id="tbodyOCProd">
+						</tbody>
+					</table>
+				</section>
+			</div>
+		</div>
+	</section>
     <!--Modal of product of a proforma-->
     <section id="prof_prodMW" class="modal">
         <div class="modalPdpf__container">
             <div class="modalPdpf__header">
+                <h2 class="modal__title" id="titleAlmacenMW"></h2>
                 <h2 class="modal__title" id="titleProf_prodMW">Productos</h2>
                 <img src="../imagenes/salir.svg" id="closeProf_prodMW" class="button__close">
             </div>
@@ -159,9 +269,13 @@
                     </thead>
                 </table>
             </div>
-            <div class="container--modal__body">
+            <div class="box__container">
+				<div class="container--modal__body">
+                <div class="modal__body--number">
+				</div>
                 <div id="cartsProf_prodMW" class="modal__body--pfpd"></div>
             </div>
+			</div>
             <div class="foot">
                 <div class="foot__left table__subTitle">
                     <p id="subTotal_pfpd">Sub-Total (Bs):</p>
@@ -196,6 +310,7 @@
                         <thead>
                             <tr>
                                 <th>N°</th>
+                                <th>Codigo</th>
                                 <th>Descripcion</th>
                                 <th>Imagen</th>
                                 <th>Cantidad</th>
