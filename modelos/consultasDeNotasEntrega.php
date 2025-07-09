@@ -1,14 +1,5 @@
 <?php 
 class consultas{
-	public function asignarValores (){
-		//protegemos al servidor de los valores que el usuario esta introduciendo
-		include 'conexion.php';
-		$this->id_usua = trim($conexion->real_escape_string($_POST['id_usua']));
-		$this->id_prof = trim($conexion->real_escape_string($_POST['id_prof']));
-		$this->fecha_ne = trim($conexion->real_escape_string($_POST['fecha_ne']));
-		$this->orden_ne = trim($conexion->real_escape_string($_POST['orden_ne']));
-		$this->observacion_ne = trim($conexion->real_escape_string($_POST['observacion_ne']));
-	}
 	//---------------------------------------------------CRUD ORDEN DE COMPRA-------------------------------------------
 	//------Read orden de compra
 	public function readOrderBuys(){
@@ -41,53 +32,79 @@ class consultas{
 		$resultado = $conexion->query($consulta);
 		$notasEntrega = array();
 		while ($fila = $resultado->fetch_array(MYSQLI_ASSOC)) {
+			$fila['numero_ne'] = strtoupper('NE-SMS' . substr($fila['fecha_ne'], 2, 2) . '-' . $this->addZerosGo($fila['numero_ne']));
 			$notasEntrega[] = $fila;
 		}
 		echo json_encode($notasEntrega, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 	}
 	//------Crear nota de entrega
-	public function createNotaEntrega(){
-		if ($_POST['arrayObjetos'] == '' || $_POST['arrayObjetos'] == null || $_POST['arrayObjetos'] == '[]' || $_POST['arrayObjetos'] == '{}') {
+	public function createNotaEntrega($id_usua){
+		if ($_POST['createNotaEntrega'] == '' || $_POST['createNotaEntrega'] == null || $_POST['createNotaEntrega'] == '[]' || $_POST['createNotaEntrega'] == '{}') {
 			echo "La nota de entrega no se pudo registrar, inténtelo de nuevo más tarde";
 		}else{
-			$arrayObjetos = json_decode($_POST['arrayObjetos'], true);
+			$arrayObjetos = json_decode($_POST['createNotaEntrega'], true);
+			$ordenCompra = json_decode($_POST['ordenCompra'], true);
+			//-----Asignar valores
 			include 'conexion.php';
 			$i = 0;
+			$id_inv = 0;
 			foreach ($arrayObjetos as $valor) {
-				$id_inv = $valor['id_inv'];
-				$cantidad_neiv = $valor['cantidad_neiv'];
-				$consulta2 = "SELECT * FROM inventario WHERE id_inv = '$id_inv'";
+				$inventario = $ordenCompra['almacen_oc'] == 0 ? 'inventario' : 'inventario_arce';
+				$fk_id_prod_nepd = (int) $valor['fk_id_prod_nepd'];
+			
+				$consulta = "SELECT * FROM $inventario WHERE fk_id_prod_inv = '$fk_id_prod_nepd'";
+				$resultado = $conexion->query($consulta);
+				$id_inv = $resultado->fetch_assoc()['id_inv'];
+
+				$cantidad_nepd = $valor['cantidad_nepd'];
+				$consulta2 = "SELECT * FROM $inventario WHERE id_inv = '$id_inv'";
 				$resultado2 = $conexion->query($consulta2);
 				$numeroNotaEntrega = $resultado2->num_rows;
 				if($numeroNotaEntrega > 0){
 					//------Primero verificar que exista productos suficientes en el inventario
-					$inventario = $resultado2->fetch_assoc();
-					if ($cantidad_neiv <= $cantidad_inv = $inventario['cantidad_inv']){
+					$stock = $resultado2->fetch_assoc();
+					if ($cantidad_nepd <= $cantidad_inv = $stock['cantidad_inv']){
 						$i++;
 					}
 				}
+				
 			}
 			//-------Comprobar  que lo productos existan en el inventario
+			
 			if (count($arrayObjetos) == $i) {
-				//-----Cambiar el estado estado_Prof
-				$consulta = "UPDATE proforma set estado_prof='vendido' WHERE id_prof = '$this->id_prof'";
+				//Obtener el numero_ne mas alto
+				$consulta = "SELECT MAX(numero_ne) AS maximo FROM nota_entrega";
 				$resultado = $conexion->query($consulta);
-				//-----Cambiar el estado de la proforma
-				$consulta = "INSERT INTO nota_entrega (fk_id_prof_ne, fk_id_usua_ne, fecha_ne, orden_ne, observacion_ne, estado_ne) VALUES ('$this->id_prof', '$this->id_usua', '$this->fecha_ne', '$this->orden_ne', '$this->observacion_ne', 'pendiente')";
+				$max_id_ne = $resultado->fetch_assoc()['maximo'] + 1;
+				//-----Crear nota de entrega y que me devuelva el id_ne
+				$consulta = "INSERT INTO nota_entrega (numero_ne, fk_id_oc_ne, fk_id_clte_ne, fk_id_usua_ne, fecha_ne, descuento_ne, total_ne, moneda_ne, tipo_cambio_ne, orden_ne, estado_ne, almacen_ne) VALUES ('$max_id_ne','" . $ordenCompra['id_oc'] . "', '" . $ordenCompra['fk_id_clte_oc'] . "', ' $id_usua', '" . $_POST['fecha_ne'] . "', '" . $ordenCompra['descuento_oc'] . "', '" . $_POST['total_ne'] . "', '" . $ordenCompra['moneda_oc'] . "', '" . $ordenCompra['tipo_cambio_oc'] . "', '" . $ordenCompra['orden_oc'] . "', '0', '" . $ordenCompra['almacen_oc'] . "')";
 				$resultado = $conexion->query($consulta);
+				//-----Obtener el ultimo id de la nota de entrega
+				$consulta = "SELECT * FROM nota_entrega ORDER BY id_ne DESC LIMIT 1";
+				$resultado = $conexion->query($consulta);
+				$id_ne = $resultado->fetch_assoc()['id_ne'];
 
 				//-----Descontar del inventario
 				if ($resultado) {
 					foreach ($arrayObjetos as $valor) {
-						$id_inv = $valor['id_inv'];
-						$cantidad_neiv=	$valor['cantidad_neiv'];
+						$cantidad_nepd = $valor['cantidad_nepd'];
 						$consulta2 = "SELECT * FROM inventario WHERE id_inv = '$id_inv'";
 						$resultado2 = $conexion->query($consulta2);
 						$inventario = $resultado2->fetch_assoc();
 						$cantidad_inv = $inventario['cantidad_inv'];
-						$cantidad_inv = $cantidad_inv - $cantidad_neiv;
+						$cantidad_inv = $cantidad_inv - $cantidad_nepd;
 						$consulta3 = "UPDATE inventario set cantidad_inv='$cantidad_inv' WHERE id_inv='$id_inv'";
 						$resultado3 = $conexion->query($consulta3);
+						//cambiar estado oc_prod
+						$consulta4 = "UPDATE oc_prod set estado_ocpd = 1 WHERE id_ocpd = '" . $valor['id_ocpd'] . "'";
+						$resultado4 = $conexion->query($consulta4);
+						// obtener cantidad_ocpd
+						$consulta5 = "SELECT * FROM oc_prod WHERE id_ocpd = '" . $valor['id_ocpd'] . "'";
+						$resultado5 = $conexion->query($consulta5);
+						$cantidad_ocpd = $resultado5->fetch_assoc()['cantidad_ocpd'];
+						//crear ne_prod
+						$consulta6 = "INSERT INTO nte_prod (fk_id_ne_nepd, fk_id_prod_nepd, fk_id_ocpd_nepd, cantidad_nepd, cost_uni_nepd) VALUES ('" . $id_ne . "', '" . $valor['fk_id_prod_nepd'] . "', '" . $valor['id_ocpd'] . "', '$cantidad_nepd', '" . $valor['cost_uni_nepd'] . "')";
+						$resultado6 = $conexion->query($consulta6);
 					}
 					echo "La nota de entrega se registro correctamente";
 				}
@@ -146,21 +163,18 @@ class consultas{
 		}
 		echo 'Nota de entrega eliminada correctamente';
 	}
-	
-	
 	//-------------------------------------------CRUD NTE-INV---------------------------
 	//-------Read nte_inv
-	public function readNte_invs(){
+	public function readNte_prods(){
     	include 'conexion.php';
-    	$consulta = "SELECT * FROM nte_inv";
+    	$consulta = "SELECT * FROM nte_prod";
     	$resultado = $conexion->query($consulta);
-    	$nteInvs =  array();
+    	$nteProds =  array();
     	while ($fila = $resultado->fetch_assoc()){
-        	$nteInvs[] = $fila;
+        	$nteProds[] = $fila;
     	}
-    	echo json_encode($nteInvs, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+    	echo json_encode($nteProds, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 	}
-
 	public function addZerosGo($numero) {
 		return str_pad($numero, 4, "0", STR_PAD_LEFT);
 	}

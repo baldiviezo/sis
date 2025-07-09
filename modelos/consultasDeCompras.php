@@ -240,14 +240,6 @@ class Consultas{
 	}
 		/*-----Frecuencia */
 	public function readMostProd(){
-		/*
-		SUM: Esta función calcula la suma de una columna.
-		CASE: Esta función es una expresión condicional que evalúa una condición y devuelve un valor si la condición es verdadera, y otro valor si la condición es falsa.
-		WHEN MONTH(v.fecha_factura_vnt) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)): Esta es la condición que se evalúa. Se compara el mes de la fecha v.fecha_factura_vnt con el mes de la fecha actual (CURDATE()) menos 1 mes (DATE_SUB(CURDATE(), INTERVAL 1 MONTH)). Si la condición es verdadera, se devuelve el valor de vp.cantidad_vtpd.
-		THEN vp.cantidad_vtpd: Si la condición es verdadera, se devuelve el valor de vp.cantidad_vtpd.
-		ELSE 0: Si la condición es falsa, se devuelve 0.
-		END: Esta palabra clave indica el final de la expresión CASE.
-		*/
 		include 'conexion.php';
 		$consulta = "SELECT 
 		p.fk_id_mrc_prod,
@@ -267,7 +259,7 @@ class Consultas{
 		LEFT JOIN (
     		SELECT vp.fk_id_prod_vtpd AS id_prod, TIMESTAMPDIFF(MONTH, DATE_FORMAT(CURDATE(), '%Y-%m-01'), DATE_FORMAT(v.fecha_vnt, '%Y-%m-01')) * -1 AS mes, SUM(vp.cantidad_vtpd) AS suma FROM venta v
     	INNER JOIN vnt_prod vp ON v.id_vnt = vp.fk_id_vnt_vtpd
-    	WHERE v.fecha_vnt >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 7 MONTH), '%Y-%m-01') AND v.fecha_vnt < DATE_ADD(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 1 MONTH) GROUP BY vp.fk_id_prod_vtpd, mes) pm ON pm.id_prod = p.id_prod AND pm.mes BETWEEN 0 AND 7 GROUP BY p.codigo_prod, i.cantidad_inv HAVING frecuencia > 0 ORDER BY frecuencia DESC, p.codigo_prod ASC";
+    	WHERE v.fecha_vnt >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 8 MONTH), '%Y-%m-01') AND v.fecha_vnt < DATE_ADD(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 1 MONTH) GROUP BY vp.fk_id_prod_vtpd, mes) pm ON pm.id_prod = p.id_prod AND pm.mes BETWEEN 0 AND 8	 GROUP BY p.codigo_prod, i.cantidad_inv HAVING frecuencia > 0 ORDER BY frecuencia DESC, p.codigo_prod ASC";
 		$resultado = $conexion->query($consulta);
 		$tabla = array();
 		if ($resultado->num_rows > 0) {

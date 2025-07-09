@@ -2,10 +2,9 @@
 require '../modelos/consultasDeNotasEntrega.php';
 //----------------------------------------------CRUD NOTA DE ENTREGA
 //-------Create a nota de entrega
-if (isset($_POST['createNotaEntrega'])&&isset($_POST['arrayObjetos'])) {
+if (isset($_POST['createNotaEntrega'])) {
 	$createNotaEntrega = new consultas;
-	$createNotaEntrega->asignarValores();
-	$createNotaEntrega->createNotaEntrega();
+	$createNotaEntrega->createNotaEntrega($_POST['id_usua']);
 }
 //-------read notas de entrega
 if (isset($_POST['readNotasEntrega'])) {
@@ -22,11 +21,11 @@ if (isset($_POST['readAllNotaEntrega'])) {
 	$readAllNotaEntrega = new consultas;
 	$readAllNotaEntrega->readAllNotaEntrega();
 }
-//---------------------------------------------CRUD NTE_INV
-//-------Read Nte_invs
-	if (isset($_POST['readNte_invs'])) {
-	$readNte_invs = new consultas;
-	$readNte_invs->readNte_invs();
+//---------------------------------------------CRUD NTE_PROD
+//-------Read Nte_prods
+	if (isset($_POST['readNte_prods'])) {
+	$readNte_prods = new consultas;
+	$readNte_prods->readNte_prods();
 }
 //--------------------------------------------CRUD ORDEN DE COMPRA
 if (isset($_POST['readOrderBuys'])) {

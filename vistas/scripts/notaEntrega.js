@@ -39,12 +39,13 @@ async function init() {
                 readUsers(),
                 readEnterprises(),
                 readNotasEntrega(),
-                readNte_invs()
+                readNte_prods()
             ]);
             paginacionOrdenCompra(orderBuys.length, 1);
             paginacionInventoryMW(inventories.length, 1);
             paginacionNotaEntrega(notasEntrega.length, 1);
-            paginacionNteInv(filterNte_invs.length, 1);
+            //paginacionNteInv(filterNte_invs.length, 1);
+            paginacionOCPd(filterOCProds.length, 1);
             rqstNotaEntrega = false;
             preloader.classList.remove('modal__show');
         } catch (error) {
@@ -140,7 +141,7 @@ function createYearOC() {
 
     // Crear opciones para selectYearOC
     selectYearOC.innerHTML = '';
-    let optionFirst = document.createElement('option');
+    const optionFirst = document.createElement('option');
     optionFirst.value = 'todas';
     optionFirst.innerText = 'Todos los años';
     selectYearOC.appendChild(optionFirst);
@@ -149,6 +150,19 @@ function createYearOC() {
         option.value = anio;
         option.textContent = anio;
         selectYearOC.appendChild(option);
+    }
+
+    // Crear opciones para selectYearOC
+    selectYearOCProd.innerHTML = '';
+    const optionFirstOCProd = document.createElement('option');
+    optionFirstOCProd.value = 'todas';
+    optionFirstOCProd.innerText = 'Todos los años';
+    selectYearOCProd.appendChild(optionFirstOCProd);
+    for (let anio of anios) {
+        const option = document.createElement('option');
+        option.value = anio;
+        option.textContent = anio;
+        selectYearOCProd.appendChild(option);
     }
 }
 //------seleccionar el año
@@ -227,7 +241,14 @@ function paginacionOrdenCompra(allProducts, page) {
 }
 //--------Tabla de Orden de Compra
 const tbodyOC = document.getElementById('tbodyOC');
+const totalOC = document.getElementById('totalOC');
 function tableOrdenCompra(page) {
+    let total = 0;
+    filterOrderBuys.forEach(orderBuy => {
+        total += orderBuy.total_oc;
+    });
+    totalOC.innerHTML = `Total (Bs): ${total.toFixed(2)} Bs`;
+
     const inicio = (page - 1) * Number(selectNumberOC.value);
     const final = inicio + Number(selectNumberOC.value);
     const orderBuys = filterOrderBuys.slice(inicio, final);
@@ -331,7 +352,6 @@ function readOcProd() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            console.log(data)
             oc_prods = data;
             filterOCProds = oc_prods;
             resolve();
@@ -535,7 +555,9 @@ function readOc_prod(id_oc) {
     const productos = oc_prods.filter(oc_prod => oc_prod['fk_id_oc_ocpd'] == id_oc);
     productos.forEach(oc_prod => {
         const card = cartProduct_ocpd(oc_prod, totalPriceM);
-        cartsProf_prodMW.appendChild(card);
+        if (card) {
+            cartsProf_prodMW.appendChild(card);
+        }
     })
     //Drang and drop
     const items = cartsProf_prodMW.querySelectorAll(".cart-item");
@@ -565,89 +587,104 @@ const initSortableListM = (e) => {
 }
 //------Abrir modal de la card
 function cartProduct_ocpd(oc_prod, total) {
-    const ordenCompra = orderBuys.find(orderBuy => orderBuy.id_oc === oc_prod.fk_id_oc_ocpd);
-    const product = products.find(product => product.id_prod === oc_prod.fk_id_prod_ocpd);
-    if (product) {
-        const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 0);
-        const inventoriesArce = inventories.filter(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 1);
+    // buscar si el producto ya fue entregado parcial o total mente
+    const entregados = nte_prods.filter(nte_prod => nte_prod.fk_id_ocpd_nepd === oc_prod.id_ocpd);
+    let entregadosCantidad = 0;
+    // Del array entregados obtener la cantidad de productos entregados
+    if (entregados.length > 0) {
+        entregadosCantidad = entregados.reduce((acc, nte_prod) => acc + nte_prod.cantidad_nepd, 0);
+    }
 
-        const cantidad_invAlto = inventoriesAlto.length > 0 ? inventoriesAlto[0].cantidad_inv : 0;
-        const cantidad_invArce = inventoriesArce.length > 0 ? inventoriesArce[0].cantidad_inv : 0;
+    const cantidad_ocpd = oc_prod.cantidad_ocpd - entregadosCantidad;
+    console.log(cantidad_ocpd);
+    if (cantidad_ocpd > 0) {
+        const ordenCompra = orderBuys.find(orderBuy => orderBuy.id_oc === oc_prod.fk_id_oc_ocpd);
+        const product = products.find(product => product.id_prod === oc_prod.fk_id_prod_ocpd);
+        if (product) {
+            const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 0);
+            const inventoriesArce = inventories.filter(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 1);
 
-        const card = document.createElement('div');
-        card.classList.add('cart-item');
-        card.setAttribute('id_ocpd', oc_prod.id_ocpd);
-        card.setAttribute('draggable', 'true');
+            const cantidad_invAlto = inventoriesAlto.length > 0 ? inventoriesAlto[0].cantidad_inv : 0;
+            const cantidad_invArce = inventoriesArce.length > 0 ? inventoriesArce[0].cantidad_inv : 0;
 
-        const cantidadInvParagraph = document.createElement('p');
-        cantidadInvParagraph.classList.add('cart-item__cantInv');
+            const card = document.createElement('div');
+            card.classList.add('cart-item');
+            card.setAttribute('id_ocpd', oc_prod.id_ocpd);
+            card.setAttribute('draggable', 'true');
 
-        if (ordenCompra.almacen_oc === 0) {
-            cantidadInvParagraph.textContent = cantidad_invAlto
-        } else if (ordenCompra.almacen_oc === 1) {
-            cantidadInvParagraph.textContent = cantidad_invArce;
+            const cantidadInvParagraph = document.createElement('p');
+            cantidadInvParagraph.classList.add('cart-item__cantInv');
+
+            if (ordenCompra.almacen_oc === 0) {
+                cantidadInvParagraph.textContent = cantidad_invAlto
+            } else if (ordenCompra.almacen_oc === 1) {
+                cantidadInvParagraph.textContent = cantidad_invArce;
+            }
+            card.appendChild(cantidadInvParagraph);
+
+            const rowImgDiv = document.createElement('div');
+            rowImgDiv.classList.add('row-img');
+            const img = document.createElement('img');
+            img.src = `../modelos/imagenes/${product.imagen_prod}`;
+            img.classList.add('rowimg');
+            rowImgDiv.appendChild(img);
+            card.appendChild(rowImgDiv);
+
+            const codigoParagraph = document.createElement('p');
+            codigoParagraph.classList.add('cart-item__codigo');
+            codigoParagraph.textContent = product.codigo_prod;
+            card.appendChild(codigoParagraph);
+
+            function updateCostTotal(cantidadInput, costUnitInput, costTotalInput) {
+                const cantidad = parseInt(cantidadInput.value);
+                const costUnit = parseFloat(costUnitInput.value);
+                const costTotal = cantidad * costUnit;
+                costTotalInput.value = costTotal;
+                total();
+            }
+
+            const cantidadInput = document.createElement('input');
+            cantidadInput.type = 'number';
+            cantidadInput.value = cantidad_ocpd;
+            cantidadInput.min = '1';
+            cantidadInput.max = cantidad_ocpd;
+            cantidadInput.classList.add('cart-item__cantidad');
+            cantidadInput.addEventListener('change', (e) => {
+                const costUnitInput = e.target.parentNode.querySelector('.cart-item__costUnit');
+                const costTotalInput = e.target.parentNode.querySelector('.cart-item__costTotal');
+                updateCostTotal(e.target, costUnitInput, costTotalInput);
+            });
+            card.appendChild(cantidadInput);
+
+            const costUnitInput = document.createElement('input');
+            costUnitInput.type = 'number';
+            costUnitInput.value = oc_prod.cost_uni_ocpd;
+            costUnitInput.classList.add('cart-item__costUnit');
+            costUnitInput.addEventListener('change', (e) => {
+                const cantidadInput = e.target.parentNode.querySelector('.cart-item__cantidad');
+                const costTotalInput = e.target.parentNode.querySelector('.cart-item__costTotal');
+                updateCostTotal(cantidadInput, e.target, costTotalInput);
+            });
+            costUnitInput.readOnly = true;
+            card.appendChild(costUnitInput);
+
+            const costTotalInput = document.createElement('input');
+            costTotalInput.type = 'number';
+            costTotalInput.value = oc_prod.cost_uni_ocpd * cantidad_ocpd;
+            costTotalInput.classList.add('cart-item__costTotal');
+            costTotalInput.readOnly = true;
+            card.appendChild(costTotalInput);
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = true;
+            checkbox.classList.add('icon__checkbox');
+            card.appendChild(checkbox);
+            return card;
         }
-        card.appendChild(cantidadInvParagraph);
-
-        const rowImgDiv = document.createElement('div');
-        rowImgDiv.classList.add('row-img');
-        const img = document.createElement('img');
-        img.src = `../modelos/imagenes/${product.imagen_prod}`;
-        img.classList.add('rowimg');
-        rowImgDiv.appendChild(img);
-        card.appendChild(rowImgDiv);
-
-        const codigoParagraph = document.createElement('p');
-        codigoParagraph.classList.add('cart-item__codigo');
-        codigoParagraph.textContent = product.codigo_prod;
-        card.appendChild(codigoParagraph);
-
-        function updateCostTotal(cantidadInput, costUnitInput, costTotalInput) {
-            const cantidad = parseInt(cantidadInput.value);
-            const costUnit = parseFloat(costUnitInput.value);
-            const costTotal = cantidad * costUnit;
-            costTotalInput.value = costTotal;
-            total();
-        }
-
-        const cantidadInput = document.createElement('input');
-        cantidadInput.type = 'number';
-        cantidadInput.value = oc_prod.cantidad_ocpd;
-        cantidadInput.min = '1';
-        cantidadInput.max = oc_prod.cantidad_ocpd;
-        cantidadInput.classList.add('cart-item__cantidad');
-        cantidadInput.addEventListener('change', (e) => {
-            const costUnitInput = e.target.parentNode.querySelector('.cart-item__costUnit');
-            const costTotalInput = e.target.parentNode.querySelector('.cart-item__costTotal');
-            updateCostTotal(e.target, costUnitInput, costTotalInput);
-        });
-        card.appendChild(cantidadInput);
-
-        const costUnitInput = document.createElement('input');
-        costUnitInput.type = 'number';
-        costUnitInput.value = oc_prod.cost_uni_ocpd;
-        costUnitInput.classList.add('cart-item__costUnit');
-        costUnitInput.addEventListener('change', (e) => {
-            const cantidadInput = e.target.parentNode.querySelector('.cart-item__cantidad');
-            const costTotalInput = e.target.parentNode.querySelector('.cart-item__costTotal');
-            updateCostTotal(cantidadInput, e.target, costTotalInput);
-        });
-        costUnitInput.readOnly = true;
-        card.appendChild(costUnitInput);
-
-        const costTotalInput = document.createElement('input');
-        costTotalInput.type = 'number';
-        costTotalInput.value = oc_prod.cost_uni_ocpd * oc_prod.cantidad_ocpd;
-        costTotalInput.classList.add('cart-item__costTotal');
-        costTotalInput.readOnly = true;
-        card.appendChild(costTotalInput);
-
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.checked = true;
-        checkbox.classList.add('icon__checkbox');
-        card.appendChild(checkbox);
-        return card;
+    } else {
+        //hay que retornar algo
+        return null;
     }
 }
 const numberCPRMW = prof_prodMW.querySelector('div.modal__body--number');
@@ -717,12 +754,18 @@ function checkCantidad(productos) {
     productos.forEach(producto => {
         const cantidad = Number(producto.querySelector('.cart-item__cantidad').value);
         const cmp_prod = oc_prods.find(ocp => ocp.id_ocpd == producto.getAttribute('id_ocpd'));
+        const stock = Number(producto.querySelector('.cart-item__cantInv').textContent);
+        // verificar si cantidad es mayor a 0 y menor o igual a la cantidad del producto en inventario
+        if (cantidad > stock) {
+            msg += `No hay suficiente stock para el producto ${cmp_prod.codigo_ocpd}.\n`;
+        }
+        // verificar si cantidad es mayor a 0 y menor o igual a la cantidad del producto en oc_prods
         if (cantidad <= 0 || cantidad > cmp_prod.cantidad_ocpd) {
-            msg += `El ${cmp_prod.codigo_ocpd} debe ser mayor a 0 y menor o igual a ${cmp_prod.cantidad_ocpd}`;
-        } 
+            msg += `El ${cmp_prod.codigo_ocpd} debe ser mayor a 0 y menor o igual a ${cmp_prod.cantidad_ocpd}\n`;
+        }
         // verificar si cantidad es un numero entero
         if (!Number.isInteger(cantidad)) {
-            msg += `La cantidad de ${cmp_prod.codigo_ocpd} debe ser un número entero`;
+            msg += `La cantidad de ${cmp_prod.codigo_ocpd} debe ser un número entero\n`;
         }
     });
     if (msg === '') {
@@ -756,7 +799,8 @@ function createTable(tbody, productos, moneda) {
         const monedaSymbol = `<b>${moneda}</b>`;
 
         const tr = document.createElement('tr');
-        tr.setAttribute('id_prod', producto.getAttribute('id_prod'));
+        tr.setAttribute('id_ocpd', producto.getAttribute('id_ocpd'));
+        tr.setAttribute('id_prod', product.id_prod);
 
         const tdIndex = document.createElement('td');
         tdIndex.innerText = index + 1;
@@ -765,11 +809,11 @@ function createTable(tbody, productos, moneda) {
         const tdCodigo = document.createElement('td');
         tdCodigo.innerText = product.codigo_prod;
         tr.appendChild(tdCodigo);
-        
+
         const tdDescripcion = document.createElement('td');
         tdDescripcion.innerText = product.descripcion_prod;
         tr.appendChild(tdDescripcion);
-        
+
         const tdImagen = document.createElement('td');
         const img = document.createElement('img');
         img.classList.add('tbody__img');
@@ -797,9 +841,9 @@ function createTable(tbody, productos, moneda) {
 }
 function updateTotales(total, desc, moneda) {
     const footerData = [
-        { value: `Sub-Total: ${total.toFixed(2)}` },
-        { value: `Desc. ${desc}%: ${(total * desc / 100).toFixed(2)}` },
-        { value: `Total: ${(total - (total * desc / 100)).toFixed(2)}` }
+        { value: `Sub-Total: ${total.toFixed(2)}`, id: 'subTotalPWNE' },
+        { value: `Desc. ${desc}%: ${(total * desc / 100).toFixed(2)}`, id: 'descuentoPWNE' },
+        { value: `Total: ${(total - (total * desc / 100)).toFixed(2)}`, id: 'totalPWNE' }
     ];
 
     footerData.forEach((item, index) => {
@@ -809,6 +853,7 @@ function updateTotales(total, desc, moneda) {
 
         const tdValue = document.createElement('td');
         tdValue.setAttribute('colspan', '2');
+        tdValue.id = item.id;
         tdValue.classList.add('footer__tbody');
         tdValue.innerText = `${item.value} ${moneda}`;
 
@@ -824,7 +869,7 @@ function createButton(tbody) {
     const button = document.createElement('button');
     button.classList.add('button__sell--previw');
     button.innerText = 'CREAR NOTA DE ENTREGA';
-    button.setAttribute('onclick', 'updateProforma();');
+    button.setAttribute('onclick', 'createNotaEntrega()');
     tdLabel.setAttribute('colspan', '6');
     tdValue.appendChild(button);
     tr.appendChild(tdLabel);
@@ -878,20 +923,23 @@ function searchNotasEntrega() {
     const valor = selectSearchNe.value.toLowerCase().trim();
     filterNotasEntrega = notasEntrega.filter(notaEntrega => {
         if (valor == 'todas') {
+            const usuario = users.find(user => user.id_usua === notaEntrega.fk_id_usua_ne);
+            const cliente = customers.find(customer => customer.id_clte === notaEntrega.fk_id_clte_ne);
+            const empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
             return (
-                notaEntrega.numero_prof.toLowerCase().includes(busqueda) ||
-                notaEntrega.fecha_prof.toLowerCase().includes(busqueda) ||
+                notaEntrega.numero_ne.toLowerCase().includes(busqueda) ||
                 notaEntrega.fecha_ne.toLowerCase().includes(busqueda) ||
-                notaEntrega.nombre_emp.toLowerCase().includes(busqueda) ||
-                (notaEntrega.nombre_usua + ' ' + notaEntrega.apellido_usua).toLowerCase().includes(busqueda) ||
-                (notaEntrega.nombre_clte + ' ' + notaEntrega.apellido_clte).toLowerCase().includes(busqueda) ||
-                notaEntrega.orden_ne.toLowerCase().includes(busqueda) ||
-                notaEntrega.observacion_ne.toLowerCase().includes(busqueda)
+                notaEntrega.fecha_ne.toLowerCase().includes(busqueda) ||
+                empresa.nombre_emp.toLowerCase().includes(busqueda) ||
+                (usuario.nombre_usua + ' ' + usuario.apellido_usua).toLowerCase().includes(busqueda) ||
+                (cliente.nombre_clte + ' ' + cliente.apellido_clte).toLowerCase().includes(busqueda)
             );
         } else if (valor == 'encargado') {
-            return (notaEntrega.nombre_usua + ' ' + notaEntrega.apellido_usua).toLowerCase().includes(busqueda);
+            return (usuario.nombre_usua + ' ' + usuario.apellido_usua).toLowerCase().includes(busqueda);
         } else if (valor == 'cliente') {
-            return (notaEntrega.nombre_clte + ' ' + notaEntrega.apellido_clte).toLowerCase().includes(busqueda);
+            return (cliente.nombre_clte + ' ' + cliente.apellido_clte).toLowerCase().includes(busqueda);
+        } else if (valor == 'empresa') {
+            return empresa.nombre_emp.toLowerCase().includes(busqueda);
         } else {
             return notaEntrega[valor].toLowerCase().includes(busqueda);
         }
@@ -1004,10 +1052,9 @@ function paginacionNotaEntrega(allProducts, page) {
     tableNotaEntrega(page);
 }
 //--------Tabla de Nota de entrega
+const totalNE = document.getElementById('totalNE');
 function tableNotaEntrega(page) {
-    console.log(filterNotasEntrega);
-    const totalNE = document.getElementById('totalNE');
-    const total = filterNotasEntrega.reduce((acc, current) => acc + current.total_prof, 0);
+    const total = filterNotasEntrega.reduce((acc, current) => acc + current.total_ne, 0);
     totalNE.innerText = `Total: ${total.toFixed(2)} Bs`;
 
     const tbody = document.getElementById('tbodyNE');
@@ -1017,10 +1064,9 @@ function tableNotaEntrega(page) {
     tbody.innerHTML = '';
 
     notasEntrega.forEach((notaEntrega, index) => {
-        console.log(notaEntrega)
-
-        const oc = orderBuys.find(orderBuy => orderBuy.id_oc === notaEntrega.fk_id_oc_ne);
-
+        const usuario = users.find(user => user.id_usua === notaEntrega.fk_id_usua_ne);
+        const cliente = customers.find(customer => customer.id_clte === notaEntrega.fk_id_clte_ne);
+        const empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
 
         const tr = document.createElement('tr');
         tr.setAttribute('id_ne', notaEntrega.id_ne);
@@ -1035,38 +1081,32 @@ function tableNotaEntrega(page) {
         tr.appendChild(tdNumero);
 
         const tdNumeroProforma = document.createElement('td');
-        tdNumeroProforma.innerText = notaEntrega.numero_prof;
+        tdNumeroProforma.innerText = notaEntrega.numero_ne;
         tr.appendChild(tdNumeroProforma);
-
-        const tdFechaProf = document.createElement('td');
-        tdFechaProf.innerText = notaEntrega.fecha_prof;
-        tr.appendChild(tdFechaProf);
 
         const tdFechaNE = document.createElement('td');
         tdFechaNE.innerText = notaEntrega.fecha_ne;
         tr.appendChild(tdFechaNE);
 
         const tdEncargado = document.createElement('td');
-        tdEncargado.innerText = notaEntrega.nombre_usua + ' ' + notaEntrega.apellido_usua;
+        tdEncargado.innerText = usuario.nombre_usua + ' ' + usuario.apellido_usua;
         tr.appendChild(tdEncargado);
 
         const tdEmpresa = document.createElement('td');
-        tdEmpresa.innerText = notaEntrega.nombre_emp;
+        tdEmpresa.innerText = empresa.nombre_emp;
         tr.appendChild(tdEmpresa);
 
         const tdCliente = document.createElement('td');
-        tdCliente.innerText = notaEntrega.nombre_clte + ' ' + notaEntrega.apellido_clte;
+        tdCliente.innerText = cliente.nombre_clte + ' ' + cliente.apellido_clte;
         tr.appendChild(tdCliente);
+
+        const tdTotal = document.createElement('td');
+        tdTotal.innerText = `${notaEntrega.total_ne.toFixed(2)} ${notaEntrega.moneda_ne}`;
+        tr.appendChild(tdTotal);
 
         const tdOrden = document.createElement('td');
         tdOrden.innerText = notaEntrega.orden_ne;
         tr.appendChild(tdOrden);
-
-
-
-        const tdObservacion = document.createElement('td');
-        tdObservacion.innerText = notaEntrega.observacion_ne;
-        tr.appendChild(tdObservacion);
 
         const tdAcciones = document.createElement('td');
         const fragment = document.createDocumentFragment();
@@ -1121,21 +1161,74 @@ closeTableNEMW.addEventListener('click', () => {
 function openTableNEMW() {
     tableNEMW.classList.add('modal__show');
 }
+//--------------------------------------------CRUD NOTA DE ENTREGA------------------------------------------------
+//------Crear nota de entrega
+function createNotaEntrega() {
+    const totalPWNE = document.getElementById('totalPWNE');
+    const rows = tbodyPreviewProd.querySelectorAll('tr');
+
+    if (rows.length === 0) {
+        mostrarAlerta('No hay productos en la proforma');
+        return;
+    }
+    const ordenCompra = orderBuys.find(orderBuy => orderBuy.id_oc === golbalIdOc);
+    console.log(ordenCompra);
+    if (!ordenCompra) {
+        mostrarAlerta('No se encontró la orden de compra asociada a esta proforma');
+        return;
+    }
+
+    const productos = [];
+    for (let i = 0; i < rows.length - 4; i++) {
+        const row = rows[i];
+        productos.push({
+            id_ocpd: row.getAttribute('id_ocpd'),
+            fk_id_prod_nepd: row.getAttribute('id_prod'),
+            codigo_nepd: row.children[1].innerText,
+            cantidad_nepd: row.children[4].innerText,
+            cost_uni_nepd: row.children[5].innerText,
+        });
+    }
+    console.log(dateActual[2] + '-' + dateActual[1] + '-' + dateActual[0]);
+    console.log(totalPWNE.innerText.split(': ')[1].split(' ')[0]);
+    console.log(productos);
+
+    const formData = new FormData();
+    formData.append('createNotaEntrega', JSON.stringify(productos));
+    formData.append('ordenCompra', JSON.stringify(ordenCompra));
+    formData.append('id_usua', localStorage.getItem('id_usua'));
+    formData.append('total_ne', Number(totalPWNE.innerText.split(': ')[1].split(' ')[0]).toFixed(2));
+
+
+    formData.append('fecha_ne', dateActual[2] + '-' + dateActual[1] + '-' + dateActual[0]);
+    fetch('../controladores/notaEntrega.php', {
+        method: "POST",
+        body: formData
+    }).then(response => response.text()).then(data => {
+        console.log(data);
+        mostrarAlerta(data);
+        readNotasEntrega();
+    }).catch(err => console.log(err));
+
+}
+
+
+
 //----------------------------------------------------NTE-INV----------------------------------------------//
 //---------------------------------------------------CRUD NTE_INV------------------------------------------------
-let nte_invs = [];
-let filterNte_invs = [];
-async function readNte_invs() {
+let nte_prods = [];
+let filterNte_prods = [];
+async function readNte_prods() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
-        formData.append('readNte_invs', '');
+        formData.append('readNte_prods', '');
         fetch('../controladores/notaEntrega.php', {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
             console.log(data)
-            nte_invs = data;
-            filterNte_invs = nte_invs;
+            nte_prods = data;
+            filterNte_prods = nte_prods;
             resolve();
         }).catch(err => console.log(err));
     })
@@ -1315,7 +1408,6 @@ function tableNteInvMW(page) {
         tbody.appendChild(tr);
     });
 }
-
 //------open and close modal nte_inv
 const tableNteInv = document.querySelector('#tableNteInv');
 const openTableNteInv = document.querySelector('#openTableNteInv');
@@ -1325,12 +1417,7 @@ openTableNteInv.addEventListener('click', () => {
 });
 closeTableNteInv.addEventListener('click', () => {
     tableNteInv.classList.remove('modal__show');
-})
-
-
-
-
-
+});
 //--------------------------------------------PROFORMA-----------------------------------------------------
 let proformas = [];
 async function readProformas() {

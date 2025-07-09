@@ -79,7 +79,7 @@
 	border-radius: .5rem;
 	display: flex;
 	justify-content: center;
-	margin: .5rem auto;
+	margin: .1rem auto;
 	width: 10rem;
 }
 
@@ -112,7 +112,7 @@
 	background-color: #fff;
 	justify-content: space-between;
 	align-items: center;
-	padding: 4px 10px;
+	padding: 0px 10px;
 	width: 80px;
 }
 
@@ -257,6 +257,5 @@
 	align-items: center;
 	height: 5rem;
 	width: 100%;
-	border-right: #225c74 1px solid;
 	padding-left:  .5rem;
 }	

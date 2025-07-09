@@ -286,3 +286,63 @@ FROM prof_prod pp
 INNER JOIN proforma p ON pp.fk_id_prof_pfpd = p.id_prof
 INNER JOIN orden_compra oc ON oc.fk_id_prof_oc = p.id_prof
 WHERE p.estado_prof = 1;
+
+#############################################################3
+UPDATE nota_entrega
+JOIN orden_compra ON nota_entrega.fk_id_oc_ne = orden_compra.fk_id_prof_oc
+SET nota_entrega.fk_id_oc_ne = orden_compra.id_oc;
+
+//para la columna numero_ne
+SET @numero = 0;
+UPDATE nota_entrega
+SET numero_ne = (@numero := @numero + 1);
+
+
+CREATE TABLE `nte_prod` (
+  `id_nepd` int(11) NOT NULL,
+  `fk_id_ne_nepd` int(11) NOT NULL,
+  `fk_id_prod_nepd` int(11) NOT NULL,
+  `codigo_nepd` varchar(50) NOT NULL,
+  `cantidad_nepd` int(11) NOT NULL,
+  `cost_uni_nepd` double NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+
+
+***************************************########################################
+SELECT 
+    p.fk_id_mrc_prod,
+    p.fk_id_ctgr_prod,
+    p.codigo_prod, 
+    i.cantidad_inv,
+    SUM(CASE WHEN pm.mes = 12 THEN pm.suma ELSE 0 END) AS mes1,
+    SUM(CASE WHEN pm.mes = 11 THEN pm.suma ELSE 0 END) AS mes2,
+    SUM(CASE WHEN pm.mes = 10 THEN pm.suma ELSE 0 END) AS mes3,
+    SUM(CASE WHEN pm.mes = 9 THEN pm.suma ELSE 0 END) AS mes4,
+    SUM(CASE WHEN pm.mes = 8 THEN pm.suma ELSE 0 END) AS mes5,
+    SUM(CASE WHEN pm.mes = 7 THEN pm.suma ELSE 0 END) AS mes6,
+    SUM(CASE WHEN pm.mes = 6 THEN pm.suma ELSE 0 END) AS mes7,
+    SUM(CASE WHEN pm.mes = 5 THEN pm.suma ELSE 0 END) AS mes8,
+    SUM(CASE WHEN pm.mes = 4 THEN pm.suma ELSE 0 END) AS mes9,
+    SUM(CASE WHEN pm.mes = 3 THEN pm.suma ELSE 0 END) AS mes10,
+    SUM(CASE WHEN pm.mes = 2 THEN pm.suma ELSE 0 END) AS mes11,
+    SUM(CASE WHEN pm.mes = 1 THEN pm.suma ELSE 0 END) AS mes12,
+    COUNT(CASE WHEN pm.suma > 0 THEN 1 END) AS frecuencia
+FROM producto p
+INNER JOIN inventario i ON i.fk_id_prod_inv = p.id_prod
+LEFT JOIN (
+    SELECT vp.fk_id_prod_vtpd AS id_prod, 
+           TIMESTAMPDIFF(MONTH, DATE_FORMAT(CURDATE(), '%Y-%m-01'), DATE_FORMAT(v.fecha_vnt, '%Y-%m-01')) * -1 AS mes, 
+           SUM(vp.cantidad_vtpd) AS suma 
+    FROM venta v
+    INNER JOIN vnt_prod vp ON v.id_vnt = vp.fk_id_vnt_vtpd
+    WHERE v.fecha_vnt >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 12 MONTH), '%Y-%m-01') 
+          AND v.fecha_vnt < DATE_ADD(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 1 MONTH) 
+    GROUP BY vp.fk_id_prod_vtpd, mes
+) pm ON pm.id_prod = p.id_prod AND pm.mes BETWEEN 0 AND 12
+GROUP BY p.codigo_prod, i.cantidad_inv
+HAVING frecuencia >= 0
+ORDER BY frecuencia DESC, p.codigo_prod ASC
+
+******************************************###################################################

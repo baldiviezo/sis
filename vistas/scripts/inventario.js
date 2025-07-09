@@ -152,7 +152,7 @@ const totalCompra = document.querySelector('#totalCompra');
 function paginacionInventory(allInventories, page) {
     let stock = 0;
     for (let inventory in filterInventories) {
-        stock += Number(filterInventories[inventory].cantidad_inv) * Number(filterInventories[inventory].cost_uni_inv) * .65;
+        stock += Number(filterInventories[inventory].cantidad_inv) * Number(filterInventories[inventory].cost_uni_inv);
     }
     totalStock.innerText = `Precio de lista: ${stock.toFixed(2)} Bs`;
     totalCompra.innerText = `Precio de compra: ${(stock * .65).toFixed(2)} Bs`;

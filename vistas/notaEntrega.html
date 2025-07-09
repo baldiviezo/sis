@@ -27,6 +27,7 @@
             <h1><img src="../imagenes/proforma.svg">Ordenes de compra</h1>
         </div>
         <section class="table__header">
+            <h1 id="totalOC">TOTAL:</h1>
             <div>
                 <img src="../imagenes/folder.svg" onclick="openTableNEMW()" class="img__folder" title="Nota de entrega">
                 <img src="../imagenes/inventario.svg" id="openTableOCProdMW" class="icon__CRUD"
@@ -36,7 +37,7 @@
             </div>
             <section class="select__search">
                 <div>
-                    <label>Fecha oc:</label>
+                    <label>Año oc:</label>
                     <select id="selectYearOC" class="select__number">
                     </select>
                 </div>
@@ -150,11 +151,11 @@
 					<h1 id="totalOCProd">TOTAL:</h1>
 					<section class="select__search">
 						<div>
-							<label>Año proforma:</label>
+							<label>Año oc:</label>
 							<select id="selectYearOCProd" class="select"></select>
 						</div>
 						<div>
-							<label>Mes de proforma:</label>
+							<label>Mes de oc:</label>
 							<select id="selectMonthOCProd" class="select__number">
 								<option value="todas">Todo</option>
 								<option value="01">Enero</option>
@@ -172,7 +173,7 @@
 							</select>
 						</div>
 						<div hidden>
-							<label>Proformas:</label>
+							<label>Orden de compra:</label>
 							<select id="selectStateOCProd" class="select__number">
 								<option value="todas">Todas</option>
 								<option value="0">No confirmadas</option>
@@ -289,6 +290,7 @@
                     </div>
                     <button class="button--sell" id="button__prof_prodMW" onclick="openPreviwProducts()">Nota de
                         Entrega</button>
+                    <button class="button--sell">FINALIZAR</button>
                 </div>
             </div>
 
@@ -374,8 +376,8 @@
                             <h3>Filtrar por:</h3>
                             <select id="selectSearchNe" class="select">
                                 <option value="todas">Todo</option>
-                                <option value="numero_prof">N° Proforma</option>
-                                <option value="fecha_prof">Fecha proforma</option>
+                                <option value="numero_ne">N° Nota de entrega</option>
+                                <option value="fecha_ne">Fecha nota de entrega</option>
                                 <option value="encargado">Encargado</option>
                                 <option value="nombre_emp">Empresa</option>
                                 <option value="cliente">Cliente</option>
@@ -433,6 +435,7 @@
                                             name="total_prof" class="icon__CRUD">
                                     </div>
                                 </th>
+                                <th>Numero orden</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>

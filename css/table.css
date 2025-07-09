@@ -36,7 +36,7 @@
 .modal__container--previewProducts{
 	display: grid;/*activa el overlay*/
 	width: 94%;
-	max-width: 70rem;
+	max-width: 71rem;
 	height: 90%;
 	margin: auto;	
 	font-family: 'Roboto', sans-serif;
