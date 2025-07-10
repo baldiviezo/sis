@@ -1,5 +1,5 @@
 <?php
-require('tableWithMultiCell.php');
+require('tableWithMultiCellOC.php');
 
 /*HOJA CARTA 21.59 - 27.94*/
 $fpdf = new pdf("p","mm","letter");
@@ -98,7 +98,7 @@ $i = 1;
 $total = 0;
 foreach ($pf_pd as $producto) {
     $costoTotal =  $producto['cantidad_pfpd']*$producto['cost_uni_pfpd'];
-    $fpdf->Row(array($i, utf8_decode($producto['codigo_prod']),utf8_decode($producto['descripcion_prod']), $producto['cantidad_pfpd'], number_format($producto['cost_uni_pfpd'], 2, ',', '.'), number_format($costoTotal, 2, ',', '.')),'../imagenes/'.$producto['imagen_prod']);
+    $fpdf->Row(array($i, utf8_decode($producto['codigo_prod']),utf8_decode($producto['descripcion_prod']), $producto['cantidad_pfpd'], number_format($producto['cost_uni_pfpd'], 2, ',', '.'), number_format($costoTotal, 2, ',', '.')), null);
     $i++;
     $total = $total + $costoTotal;
 }

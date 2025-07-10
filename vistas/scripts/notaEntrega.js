@@ -314,14 +314,19 @@ function tableOrdenCompra(page) {
         let imgs = [];
 
         if (orderBuy.estado_oc === 1) {
+            imgs = [
+                { src: '../imagenes/pdf.svg', onclick: `pdfOrdenCompra(${orderBuy.id_oc})`, title: 'PDF' }
+            ];
         } else if (orderBuy.estado_oc === 0) {
             if (['Administrador', 'Gerente general'].includes(localStorage.getItem('rol_usua'))) {
                 imgs = [
                     { src: '../imagenes/notaEntrega.svg', onclick: `openNotaEntregaRMW(${orderBuy.id_oc})`, title: 'Generar Nota de Entrega' },
+                    { src: '../imagenes/pdf.svg', onclick: `pdfOrdenCompra(${orderBuy.id_oc})`, title: 'PDF' }
                 ];
             } else if (['Ingeniero', 'Gerente De Inventario'].includes(localStorage.getItem('rol_usua'))) {
                 imgs = [
                     { src: '../imagenes/notaEntrega.svg', onclick: `openNotaEntregaRMW(${orderBuy.id_oc})`, title: 'Generar Nota de Entrega' },
+                    { src: '../imagenes/pdf.svg', onclick: `pdfOrdenCompra(${orderBuy.id_oc})`, title: 'PDF' }
                 ];
             }
         }
@@ -339,6 +344,54 @@ function tableOrdenCompra(page) {
 
         tbodyOC.appendChild(tr);
     });
+}
+//-------------------------------------------PDF DE ORDEN DE COMPRA------------------------------------------------
+function pdfOrdenCompra(id_oc) {
+    const ordenCompra = orderBuys.find(orderBuy => orderBuy.id_oc === id_oc);
+    const productos = oc_prods.filter(oc_prod => oc_prod.fk_id_oc_ocpd === id_oc);
+    const objetos = [];
+    productos.forEach(oc_prod => {
+        const product = products.find(product => product.id_prod === oc_prod.fk_id_prod_ocpd);
+        objetos.push({
+            'codigo_prod': product.codigo_prod,
+            'descripcion_prod': product['nombre_prod'],
+            'cantidad_ocpd': oc_prod['cantidad_ocpd'],
+            'cost_uni_ocpd': oc_prod['cost_uni_ocpd']
+        });
+    });
+    //Crear un formulario oculto
+    var form = document.createElement('form');
+    form.method = 'post';
+    form.action = '../modelos/reportes/ordenCompraPDF.php';
+    form.target = '_blank'; // Abre la página en una nueva ventana
+    form.style.display = 'none'; // Oculta visualmente el formulario
+
+    // Crea un campo oculto para la variable 
+    var input1 = document.createElement('input');
+    input1.type = 'hidden';
+    input1.name = 'prof_mprof_ne';
+    input1.value = JSON.stringify(ordenCompra); // Reemplaza con el valor real
+
+    // Crea un campo oculto para la variable pf_pd
+    var input2 = document.createElement('input');
+    input2.type = 'hidden';
+    input2.name = 'pf_pd';
+    input2.value = JSON.stringify(objetos); // Reemplaza con el valor real
+
+    // Crea un campo oculto para la variable pdf
+    var input3 = document.createElement('input');
+    input3.type = 'hidden';
+    input3.name = 'pdf';
+    input3.value = 'oc'; // Reemplaza con el valor real
+
+    // Agrega los campos al formulario
+    form.appendChild(input1);
+    form.appendChild(input2);
+    form.appendChild(input3);
+    // Agrega el formulario al cuerpo del documento HTML
+    document.body.appendChild(form);
+    // Submitir el formulario
+    form.submit();
 }
 //-----------------------------------------------TABLE OC_PROD---------------------------------------------------------
 //-----------------------------------------READ OC_PROD
@@ -543,7 +596,6 @@ openTableOCProdMW.addEventListener('click', () => {
 closeTableOCProdMW.addEventListener('click', () => {
     tableOCProdMW.classList.remove('modal__show');
 });
-
 //-------------------------------MODAL DE OC_PROD---------------------------------------------
 //------read oc_prod
 const cartsProf_prodMW = document.querySelector('#cartsProf_prodMW');
@@ -1071,20 +1123,24 @@ function tableNotaEntrega(page) {
         const tr = document.createElement('tr');
         tr.setAttribute('id_ne', notaEntrega.id_ne);
 
-        const tdIdProf = document.createElement('td');
-        tdIdProf.innerText = notaEntrega.id_prof;
-        tdIdProf.setAttribute('hidden', '');
-        tr.appendChild(tdIdProf);
+        const tdIdNE = document.createElement('td');
+        tdIdNE.innerText = notaEntrega.id_ne;
+        tdIdNE.setAttribute('hidden', '');
+        tr.appendChild(tdIdNE);
 
         const tdNumero = document.createElement('td');
         tdNumero.innerText = index + 1;
         tr.appendChild(tdNumero);
 
-        const tdNumeroProforma = document.createElement('td');
-        tdNumeroProforma.innerText = notaEntrega.numero_ne;
-        tr.appendChild(tdNumeroProforma);
+        const tdNumeroNE = document.createElement('td');
+        tdNumeroNE.innerText = notaEntrega.numero_ne;
+        tr.appendChild(tdNumeroNE);
 
-        const tdFechaNE = document.createElement('td');
+        const tdOrdenCompra = document.createElement('td');
+        tdOrdenCompra.innerText = notaEntrega.fk_id_oc_ne;
+        tr.appendChild(tdOrdenCompra);
+
+        const tdFechaNE = document.createElement('td'); 
         tdFechaNE.innerText = notaEntrega.fecha_ne;
         tr.appendChild(tdFechaNE);
 
@@ -1113,31 +1169,26 @@ function tableNotaEntrega(page) {
 
         let imgs = [];
 
-        if (notaEntrega.estado_ne == 'vendido') {
+        if (notaEntrega.estado_ne == '1') {
             imgs = [
-                { src: '../imagenes/pdf.svg', onclick: 'pdfNotaEntrega(this.parentNode.parentNode)', title: 'Descargar nota de entrega' },
+                { src: '../imagenes/pdf.svg', onclick: `pdfNotaEntrega(${notaEntrega.id_ne})`, title: 'PDF' },
                 { src: '../imagenes/return.svg', onclick: 'openReturnMW(this.parentNode.parentNode)', title: 'Devolución de la nota de entrega' }
 
             ];
-        } else if (notaEntrega.estado_ne == 'pendiente') {
+        } else if (notaEntrega.estado_ne == '0') {
             if (localStorage.getItem('rol_usua') == 'Administrador' || localStorage.getItem('rol_usua') == 'Gerente general') {
                 imgs = [
                     { src: '../imagenes/receipt.svg', onclick: 'readSale(this.parentNode.parentNode)', title: 'Facturar' },
-                    { src: '../imagenes/pdf.svg', onclick: 'pdfNotaEntrega(this.parentNode.parentNode)', title: 'Descargar nota de entrega' },
+                    { src: '../imagenes/pdf.svg', onclick: `pdfNotaEntrega(${notaEntrega.id_ne})`, title: 'PDF' },
                     { src: '../imagenes/return.svg', onclick: 'openReturnMW(this.parentNode.parentNode)', title: 'Devolución de la nota de entrega' }
                 ];
             } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
                 imgs = [
-                    { src: '../imagenes/pdf.svg', onclick: 'pdfNotaEntrega(this.parentNode.parentNode)', title: 'Descargar nota de entrega' },
+                    { src: '../imagenes/pdf.svg', onclick: `pdfNotaEntrega(${notaEntrega.id_ne})`, title: 'PDF' },
                     { src: '../imagenes/return.svg', onclick: 'openReturnMW(this.parentNode.parentNode)', title: 'Devolución de la nota de entrega' }
                 ];
             }
-        } else if (notaEntrega.estado_ne == 'DEVOLUCION') {
-            imgs = [
-                { src: '../imagenes/annulled.svg', title: 'Nota de entrega anulada' },
-                { src: '../imagenes/pdf.svg', onclick: 'pdfNotaEntrega(this.parentNode.parentNode)', title: 'Descargar nota de entrega' }
-            ];
-        }
+        } 
         imgs.forEach((img) => {
             const imgElement = document.createElement('img');
             imgElement.src = img.src;
@@ -1151,6 +1202,54 @@ function tableNotaEntrega(page) {
 
         tbody.appendChild(tr);
     });
+}
+//-------pdf nota entrega
+function pdfNotaEntrega(id_ne) {
+    const notaEntrega = notasEntrega.find(nota => nota.id_ne === id_ne);
+    const productos = nte_prods.filter(nte_prod => nte_prod.fk_id_ne_nepd === id_ne);
+    const objeto = [];
+    productos.forEach(nte_prod => {
+        const product = products.find(prod => prod.id_prod === nte_prod.fk_id_prod_nepd);
+        objeto.push({
+            'codigo_prod': product.codigo_prod,
+            'descripcion_prod': product['nombre_prod'],
+            'cantidad_pfpd': nte_prod['cantidad_nepd'],
+            'cost_uni_pfpd': nte_prod['cost_uni_nepd']
+        });
+    });
+    //Crear un formulario oculto
+    var form = document.createElement('form');
+    form.method = 'post';
+    form.action = '../modelos/reportes/notaDeEntrega.php';
+    form.target = '_blank'; // Abre la página en una nueva ventana
+    form.style.display = 'none'; // Oculta visualmente el formulario
+
+    // Crea un campo oculto para la variable 
+    var input1 = document.createElement('input');
+    input1.type = 'hidden';
+    input1.name = 'prof_mprof_ne';
+    input1.value = JSON.stringify(notaEntrega); // Reemplaza con el valor real
+
+    // Crea un campo oculto para la variable pf_pd
+    var input2 = document.createElement('input');
+    input2.type = 'hidden';
+    input2.name = 'pf_pd';
+    input2.value = JSON.stringify(objeto); // Reemplaza con el valor real
+
+    // Crea un campo oculto para la variable pdf
+    var input3 = document.createElement('input');
+    input3.type = 'hidden';
+    input3.name = 'pdf';
+    input3.value = 'ne'; // Reemplaza con el valor real
+
+    // Agrega los campos al formulario
+    form.appendChild(input1);
+    form.appendChild(input2);
+    form.appendChild(input3);
+    // Agrega el formulario al cuerpo del documento HTML
+    document.body.appendChild(form);
+    // Submitir el formulario
+    form.submit();
 }
 //------------------------------------------OPEN AND CLOSE TABLA NOTA DE ENTREGA-----------------------------------
 const tableNEMW = document.getElementById('tableNEMW');
@@ -1214,8 +1313,8 @@ function createNotaEntrega() {
 
 
 
-//----------------------------------------------------NTE-INV----------------------------------------------//
-//---------------------------------------------------CRUD NTE_INV------------------------------------------------
+//----------------------------------------------------NTE_PROD----------------------------------------------//
+//---------------------------------------------------CRUD NTE_PROD------------------------------------------------
 let nte_prods = [];
 let filterNte_prods = [];
 async function readNte_prods() {

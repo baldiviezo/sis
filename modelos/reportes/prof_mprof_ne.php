@@ -3,7 +3,6 @@ $prof_mprof_ne = json_decode($_POST['prof_mprof_ne'], true);
 $pf_pd = json_decode($_POST['pf_pd'], true);
 $pdf = $_POST['pdf'];
 
-//$id_usua = $_POST['id_usua'];
 //Variables
 $_prof_mprof_ne = null;
 $_encargado = null;
@@ -117,45 +116,87 @@ if ($_POST['pdf'] == 'prof') {
         $_celular_usua = $usuario['celular_usua'];
     }
 } else if ($_POST['pdf'] == 'ne'){
-    if($prof_mprof_ne['nombre_emp'] == 'Ninguna'){
-        $_prof_mprof_ne = strtoupper('NE-'.$prof_mprof_ne['numero_prof']);
-        $_empresa = $prof_mprof_ne['nombre_clte'].' '.$prof_mprof_ne['apellido_clte'];
+    $consulta = "SELECT * FROM cliente WHERE id_clte = ".$prof_mprof_ne['fk_id_clte_ne'];
+    $resultado = mysqli_query($conexion, $consulta);
+    $cliente = $resultado->fetch_assoc();
+
+    $id_emp = $cliente['fk_id_emp_clte'];
+ 
+    $consulta = "SELECT * FROM empresa WHERE id_emp = ".$id_emp;
+    $resultado = mysqli_query($conexion, $consulta);
+    $empresa = $resultado->fetch_assoc();
+
+    $consulta = "SELECT * FROM usuario WHERE id_usua = ".$prof_mprof_ne['fk_id_usua_ne'];
+    $resultado = mysqli_query($conexion, $consulta);
+    $usuario = $resultado->fetch_assoc();
+
+    if($id_emp == '77'){
+        $_prof_mprof_ne = strtoupper($prof_mprof_ne['numero_ne']);
+        $_empresa = $cliente['nombre_clte'].' '.$cliente['apellido_clte'];
         $_cliente = '';
         $_direccion = '';
-        $_telefono = $prof_mprof_ne['celular_clte'];
+        $_telefono = $cliente['celular_clte'];
     
     }else{
-        $_prof_mprof_ne = strtoupper('NE-'.$prof_mprof_ne['numero_prof']);
-        $_empresa = $prof_mprof_ne['nombre_emp'];
-        $_cliente = $prof_mprof_ne['nombre_clte'].' '.$prof_mprof_ne['apellido_clte'];
-        $_direccion = $prof_mprof_ne['direccion_emp'];
-        if ($prof_mprof_ne['nombre_clte'] == ''){
-            $_telefono = ($prof_mprof_ne['telefono_emp'] == 0) ? '' : $prof_mprof_ne['telefono_emp'];
+        $_prof_mprof_ne = strtoupper($prof_mprof_ne['numero_ne']);
+        $_empresa = $empresa['nombre_emp'];
+        $_cliente = $cliente['nombre_clte'].' '.$cliente['apellido_clte'];
+        $_direccion = $empresa['direccion_emp'];
+        if ($cliente['nombre_clte'] == ''){
+            $_telefono = ($empresa['telefono_emp'] == 0) ? '' : $empresa['telefono_emp'];
         }else{
-            $_telefono = ($prof_mprof_ne['celular_clte'] == 0) ? '' : $prof_mprof_ne['celular_clte']; 
+            $_telefono = ($cliente['celular_clte'] == 0) ? '' : $cliente['celular_clte']; 
         }
     }
-    $_moneda = $prof_mprof_ne['moneda_prof'];
-    $_fecha = substr($prof_mprof_ne['fecha_prof'],0,10);
-    $_encargado = $prof_mprof_ne['nombre_usua'].' '.$prof_mprof_ne['apellido_usua'];
-    $_descuento = $prof_mprof_ne['descuento_prof'];
-    $_tpo_valido = $prof_mprof_ne['tpo_valido_prof'];
-    $_cond_pago = $prof_mprof_ne['cond_pago_prof'];
-    $_tpo_entrega = $prof_mprof_ne['tpo_entrega_prof'];
-    $_observacion = $prof_mprof_ne['observacion_prof'];
-    $_tipo_cambio = $prof_mprof_ne['tipo_cambio_prof'];
-    $_email_usua = $prof_mprof_ne['email_usua'];
-    $_celular_usua = $prof_mprof_ne['celular_usua'];
-    $_orden = $prof_mprof_ne['orden_ne'];
+    $_moneda = $prof_mprof_ne['moneda_ne'];
+    $_fecha = substr($prof_mprof_ne['fecha_ne'],0,10);
+    $_encargado = $usuario['nombre_usua'].' '.$usuario['apellido_usua'];
+    $_descuento = $prof_mprof_ne['descuento_ne'];
     $_observacion = $prof_mprof_ne['observacion_ne'];
+    $_tipo_cambio = $prof_mprof_ne['tipo_cambio_ne'];
+    $_email_usua = $usuario['email_usua'];
+    $_celular_usua = $usuario['celular_usua'];
 } else if ($_POST['pdf'] == 'oc'){
-    $_prof_mprof_ne = strtoupper($prof_mprof_ne['numero_cmp']);
-    $_encargado = "Benjamín A. Aparicio García";
-    $_fecha = substr($prof_mprof_ne['fecha_cmp'],0,10);
-    $_empresa = $prof_mprof_ne['nombre_empp'];
-    $_cliente = $prof_mprof_ne['nombre_prov'].' '.$prof_mprof_ne['apellido_prov'];
-    $_tipo_cambio = $prof_mprof_ne['tipo_cambio_cmp'];
-    $_descuento = $prof_mprof_ne['descuento_cmp'];
+    $consulta = "SELECT * FROM cliente WHERE id_clte = ".$prof_mprof_ne['fk_id_clte_oc'];
+    $resultado = mysqli_query($conexion, $consulta);
+    $cliente = $resultado->fetch_assoc();
+
+    $id_emp = $cliente['fk_id_emp_clte'];
+ 
+    $consulta = "SELECT * FROM empresa WHERE id_emp = ".$id_emp;
+    $resultado = mysqli_query($conexion, $consulta);
+    $empresa = $resultado->fetch_assoc();
+
+    $consulta = "SELECT * FROM usuario WHERE id_usua = ".$prof_mprof_ne['fk_id_usua_oc'];
+    $resultado = mysqli_query($conexion, $consulta);
+    $usuario = $resultado->fetch_assoc();
+
+    if($id_emp == '77'){
+        $_prof_mprof_ne = strtoupper($prof_mprof_ne['numero_oc']);
+        $_empresa = $cliente['nombre_clte'].' '.$cliente['apellido_clte'];
+        $_cliente = '';
+        $_direccion = '';
+        $_telefono = $cliente['celular_clte'];
+    
+    }else{
+        $_prof_mprof_ne = strtoupper($prof_mprof_ne['numero_oc']);
+        $_empresa = $empresa['nombre_emp'];
+        $_cliente = $cliente['nombre_clte'].' '.$cliente['apellido_clte'];
+        $_direccion = $empresa['direccion_emp'];
+        if ($cliente['nombre_clte'] == ''){
+            $_telefono = ($empresa['telefono_emp'] == 0) ? '' : $empresa['telefono_emp'];
+        }else{
+            $_telefono = ($cliente['celular_clte'] == 0) ? '' : $cliente['celular_clte']; 
+        }
+    }
+    $_moneda = $prof_mprof_ne['moneda_oc'];
+    $_fecha = substr($prof_mprof_ne['fecha_oc'],0,10);
+    $_encargado = $usuario['nombre_usua'].' '.$usuario['apellido_usua'];
+    $_descuento = $prof_mprof_ne['descuento_oc'];
+    $_observacion = $prof_mprof_ne['observacion_oc'];
+    $_tipo_cambio = $prof_mprof_ne['tipo_cambio_oc'];
+    $_email_usua = $usuario['email_usua'];
+    $_celular_usua = $usuario['celular_usua'];
 }
 
 ?>

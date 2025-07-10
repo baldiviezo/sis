@@ -28,11 +28,12 @@ class consultas{
 	//-------Leer notas de entrega
 	public function readNotasEntrega(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM nota_entrega ORDER BY id_ne DESC";
+		$consulta = "SELECT nota_entrega.*, orden_compra.fecha_oc FROM nota_entrega INNER JOIN orden_compra ON nota_entrega.fk_id_oc_ne = orden_compra.id_oc ORDER BY id_ne DESC";
 		$resultado = $conexion->query($consulta);
 		$notasEntrega = array();
 		while ($fila = $resultado->fetch_array(MYSQLI_ASSOC)) {
 			$fila['numero_ne'] = strtoupper('NE-SMS' . substr($fila['fecha_ne'], 2, 2) . '-' . $this->addZerosGo($fila['numero_ne']));
+			$fila['fk_id_oc_ne'] = strtoupper('OC-SMS' . substr($fila['fecha_oc'], 2, 2) . '-' . $this->addZerosGo($fila['fk_id_oc_ne']));
 			$notasEntrega[] = $fila;
 		}
 		echo json_encode($notasEntrega, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
