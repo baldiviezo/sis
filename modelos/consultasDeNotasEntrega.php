@@ -24,6 +24,18 @@ class consultas{
 		}
 		echo json_encode($oc_prods, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 	}
+	//------Finalizar oc
+	public function finalizarOC($id_oc){
+		require_once 'conexion.php';
+		$id_oc = trim($conexion->real_escape_string($id_oc));
+		$consulta = "UPDATE orden_compra SET estado_oc = 1 WHERE id_oc = '$id_oc'";
+		$resultado = $conexion->query($consulta);
+		if ($resultado) {
+			echo "La orden de compra se finalizó correctamente";
+		}else{
+			echo "Error al finalizar la orden de compra, inténtelo de nuevo más tarde";
+		}
+	}
 	//-----------------------------------------------------------CRUD NOTA DE ENTREGA-------------------------------------------
 	//-------Leer notas de entrega
 	public function readNotasEntrega(){
@@ -33,7 +45,7 @@ class consultas{
 		$notasEntrega = array();
 		while ($fila = $resultado->fetch_array(MYSQLI_ASSOC)) {
 			$fila['numero_ne'] = strtoupper('NE-SMS' . substr($fila['fecha_ne'], 2, 2) . '-' . $this->addZerosGo($fila['numero_ne']));
-			$fila['fk_id_oc_ne'] = strtoupper('OC-SMS' . substr($fila['fecha_oc'], 2, 2) . '-' . $this->addZerosGo($fila['fk_id_oc_ne']));
+			$fila['numero_oc'] = strtoupper('OC-SMS' . substr($fila['fecha_oc'], 2, 2) . '-' . $this->addZerosGo($fila['fk_id_oc_ne']));
 			$notasEntrega[] = $fila;
 		}
 		echo json_encode($notasEntrega, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
@@ -89,12 +101,12 @@ class consultas{
 				if ($resultado) {
 					foreach ($arrayObjetos as $valor) {
 						$cantidad_nepd = $valor['cantidad_nepd'];
-						$consulta2 = "SELECT * FROM inventario WHERE id_inv = '$id_inv'";
+						$consulta2 = "SELECT * FROM $inventario WHERE id_inv = '$id_inv'";
 						$resultado2 = $conexion->query($consulta2);
-						$inventario = $resultado2->fetch_assoc();
-						$cantidad_inv = $inventario['cantidad_inv'];
+						$stock = $resultado2->fetch_assoc();
+						$cantidad_inv = $stock['cantidad_inv'];
 						$cantidad_inv = $cantidad_inv - $cantidad_nepd;
-						$consulta3 = "UPDATE inventario set cantidad_inv='$cantidad_inv' WHERE id_inv='$id_inv'";
+						$consulta3 = "UPDATE $inventario set cantidad_inv='$cantidad_inv' WHERE id_inv='$id_inv'";
 						$resultado3 = $conexion->query($consulta3);
 						//cambiar estado oc_prod
 						$consulta4 = "UPDATE oc_prod set estado_ocpd = 1 WHERE id_ocpd = '" . $valor['id_ocpd'] . "'";

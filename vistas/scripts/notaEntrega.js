@@ -44,7 +44,7 @@ async function init() {
             paginacionOrdenCompra(orderBuys.length, 1);
             paginacionInventoryMW(inventories.length, 1);
             paginacionNotaEntrega(notasEntrega.length, 1);
-            //paginacionNteInv(filterNte_invs.length, 1);
+            paginacionNteProd(filterNte_prods.length, 1);
             paginacionOCPd(filterOCProds.length, 1);
             rqstNotaEntrega = false;
             preloader.classList.remove('modal__show');
@@ -393,6 +393,38 @@ function pdfOrdenCompra(id_oc) {
     // Submitir el formulario
     form.submit();
 }
+//------Finalizar orden de compra
+const finalizarOC = document.getElementById('finalizarOC');
+finalizarOC.addEventListener('click', () => {
+    let i = 0;
+    const productos = oc_prods.filter(oc_prod => oc_prod.fk_id_oc_ocpd === golbalIdOc);
+    productos.forEach(oc_prod => {
+        const entregados = nte_prods.filter(nte_prod => nte_prod.fk_id_ocpd_nepd === oc_prod.id_ocpd);
+        let entregadosCantidad = 0;
+        entregados.forEach(nte_prod => {
+            entregadosCantidad += nte_prod.cantidad_nepd;
+        })
+        if (entregadosCantidad != oc_prod.cantidad_ocpd) {
+            i++;
+        }
+    })
+
+    if (i == 0) {
+        prof_prodMW.classList.remove('modal__show');
+        let formData = new FormData();
+        formData.append('finalizarOC', golbalIdOc);
+        fetch('../controladores/notaEntrega.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            readOrderBuys().then(() => {
+                paginacionOrdenCompra(filterOCProds.length, 1);
+                mostrarAlerta(data);
+            })
+
+        }).catch(err => console.log(err));
+    }
+})
 //-----------------------------------------------TABLE OC_PROD---------------------------------------------------------
 //-----------------------------------------READ OC_PROD
 let oc_prods = [];
@@ -611,6 +643,13 @@ function readOc_prod(id_oc) {
             cartsProf_prodMW.appendChild(card);
         }
     })
+    //------Si no hay productos en la orden de compra, mostrar mensaje
+    if (cartsProf_prodMW.children.length === 0) {
+        const p = document.createElement('p');
+        p.classList.add('cart__item--empty');
+        p.textContent = 'Todos los productos de esta orden de compra ya fueron entregados.';
+        cartsProf_prodMW.appendChild(p);
+    }
     //Drang and drop
     const items = cartsProf_prodMW.querySelectorAll(".cart-item");
     items.forEach(item => {
@@ -648,7 +687,6 @@ function cartProduct_ocpd(oc_prod, total) {
     }
 
     const cantidad_ocpd = oc_prod.cantidad_ocpd - entregadosCantidad;
-    console.log(cantidad_ocpd);
     if (cantidad_ocpd > 0) {
         const ordenCompra = orderBuys.find(orderBuy => orderBuy.id_oc === oc_prod.fk_id_oc_ocpd);
         const product = products.find(product => product.id_prod === oc_prod.fk_id_prod_ocpd);
@@ -975,10 +1013,12 @@ function searchNotasEntrega() {
     const valor = selectSearchNe.value.toLowerCase().trim();
     filterNotasEntrega = notasEntrega.filter(notaEntrega => {
         if (valor == 'todas') {
+            const ordenCompra = orderBuys.find(ordenCompra => ordenCompra.id_oc === notaEntrega.fk_id_oc_ne);
             const usuario = users.find(user => user.id_usua === notaEntrega.fk_id_usua_ne);
             const cliente = customers.find(customer => customer.id_clte === notaEntrega.fk_id_clte_ne);
             const empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
             return (
+                ordenCompra.numero_oc.toLowerCase().includes(busqueda) ||
                 notaEntrega.numero_ne.toLowerCase().includes(busqueda) ||
                 notaEntrega.fecha_ne.toLowerCase().includes(busqueda) ||
                 notaEntrega.fecha_ne.toLowerCase().includes(busqueda) ||
@@ -1013,17 +1053,17 @@ function createYearNE() {
         selectYearNE.appendChild(option);
     }
 
-    // Crear opciones para selectYearNteInv
-    selectYearNteInv.innerHTML = '';
+    // Crear opciones para selectYearNteProd
+    selectYearNteProd.innerHTML = '';
     let optionFirstNteInv = document.createElement('option');
     optionFirstNteInv.value = 'todas';
     optionFirstNteInv.innerText = 'Todos los años';
-    selectYearNteInv.appendChild(optionFirstNteInv);
+    selectYearNteProd.appendChild(optionFirstNteInv);
     for (let anio of anios) {
         const option = document.createElement('option');
         option.value = anio;
         option.textContent = anio;
-        selectYearNteInv.appendChild(option);
+        selectYearNteProd.appendChild(option);
     }
 }
 //-------Estado de proforma
@@ -1137,10 +1177,10 @@ function tableNotaEntrega(page) {
         tr.appendChild(tdNumeroNE);
 
         const tdOrdenCompra = document.createElement('td');
-        tdOrdenCompra.innerText = notaEntrega.fk_id_oc_ne;
+        tdOrdenCompra.innerText = notaEntrega.numero_oc;
         tr.appendChild(tdOrdenCompra);
 
-        const tdFechaNE = document.createElement('td'); 
+        const tdFechaNE = document.createElement('td');
         tdFechaNE.innerText = notaEntrega.fecha_ne;
         tr.appendChild(tdFechaNE);
 
@@ -1188,7 +1228,7 @@ function tableNotaEntrega(page) {
                     { src: '../imagenes/return.svg', onclick: 'openReturnMW(this.parentNode.parentNode)', title: 'Devolución de la nota de entrega' }
                 ];
             }
-        } 
+        }
         imgs.forEach((img) => {
             const imgElement = document.createElement('img');
             imgElement.src = img.src;
@@ -1310,9 +1350,6 @@ function createNotaEntrega() {
     }).catch(err => console.log(err));
 
 }
-
-
-
 //----------------------------------------------------NTE_PROD----------------------------------------------//
 //---------------------------------------------------CRUD NTE_PROD------------------------------------------------
 let nte_prods = [];
@@ -1325,65 +1362,67 @@ async function readNte_prods() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            console.log(data)
             nte_prods = data;
             filterNte_prods = nte_prods;
             resolve();
         }).catch(err => console.log(err));
     })
 }
-//------------------------------------------------------TABLE NTE INV FILTER-----------------------------------------------------
+//------------------------------------------------------TABLE NTE PROD FILTER-----------------------------------------------------
 //------Select utilizado para buscar por columnas
-const selectSearchNteInv = document.getElementById('selectSearchNteInv');
-selectSearchNteInv.addEventListener('change', searchNteInv);
+const selectSearchNteProd = document.getElementById('selectSearchNteProd');
+selectSearchNteProd.addEventListener('change', searchNteProd);
 //------buscar por input
-const inputSearchNteInv = document.getElementById("inputSearchNteInv");
-inputSearchNteInv.addEventListener("keyup", searchNteInv);
-//------NTE INV por pagina
-const selectNumberNteInv = document.getElementById('selectNumberNteInv');
-selectNumberNteInv.selectedIndex = 3;
-selectNumberNteInv.addEventListener('change', function () {
-    paginacionNteInv(filterNte_invs.length, 1);
+const inputSearchNteProd = document.getElementById("inputSearchNteProd");
+inputSearchNteProd.addEventListener("keyup", searchNteProd);
+//------NTE PROD por pagina
+const selectNumberNteProd = document.getElementById('selectNumberNteProd');
+selectNumberNteProd.selectedIndex = 3;
+selectNumberNteProd.addEventListener('change', function () {
+    paginacionNteProd(filterNte_prods.length, 1);
 });
 //------buscar por:
-function searchNteInv() {
-    const busqueda = inputSearchNteInv.value.toLowerCase().trim();
-    const valor = selectSearchNteInv.value.toLowerCase().trim();
-    filterNte_invs = nte_invs.filter(cmp_inv => {
+function searchNteProd() {
+    const busqueda = inputSearchNteProd.value.toLowerCase().trim();
+    const valor = selectSearchNteProd.value.toLowerCase().trim();
+    filterNte_prods = nte_prods.filter(nte_prod => {
         if (valor == 'todas') {
+            const notaEntrega = notasEntrega.find(notaEntrega => notaEntrega.id_ne === nte_prod.fk_id_ne_nepd);
+            const product = products.find(product => product.id_prod === nte_prod.fk_id_prod_nepd);
             return (
-                cmp_inv.id_neiv.toLowerCase().includes(busqueda) ||
-                cmp_inv.codigo_neiv.toLowerCase().includes(busqueda) ||
-                cmp_inv.cantidad_neiv.toLowerCase().includes(busqueda)
+                notaEntrega.numero_ne.toLowerCase().includes(busqueda) ||
+                notaEntrega.fecha_ne.toLowerCase().includes(busqueda) ||
+                product.codigo_prod.toString().toLowerCase().includes(busqueda)
             )
         } else {
-            return cmp_inv[valor].toLowerCase().includes(busqueda);
+            return nte_prod[valor].toLowerCase().includes(busqueda);
         }
     });
-    selectStateNteInvOC();
+    selectStateNteProdOC();
 }
 //------Seleccionar el año
-const selectYearNteInv = document.getElementById('selectYearNteInv');
-selectYearNteInv.addEventListener('change', searchNteInv);
+const selectYearNteProd = document.getElementById('selectYearNteProd');
+selectYearNteProd.addEventListener('change', searchNteProd);
 //-------Estado de nte_invs
-const selectStateNteInv = document.getElementById('selectStateNteInv');
-selectStateNteInv.addEventListener('change', searchNteInv);
-const selectMonthNteInv = document.getElementById('selectMonthNteInv');
-selectMonthNteInv.addEventListener('change', searchNteInv);
-function selectStateNteInvOC() {
-    filterNte_invs = filterNte_invs.filter(nteInv => {
-        const estado = selectStateNteInv.value === 'todas' ? true : nteInv.estado_neiv === selectStateNteInv.value;
-        const fecha = selectYearNteInv.value === 'todas' ? true : nteInv.fecha_neiv.split('-')[0] === selectYearNteInv.value;
-        const mes = selectMonthNteInv.value === 'todas' ? true : nteInv.fecha_neiv.split('-')[1] === selectMonthNteInv.value;
+const selectStateNteProd = document.getElementById('selectStateNteProd');
+selectStateNteProd.addEventListener('change', searchNteProd);
+const selectMonthNteProd = document.getElementById('selectMonthNteProd');
+selectMonthNteProd.addEventListener('change', searchNteProd);
+function selectStateNteProdOC() {
+    filterNte_prods = filterNte_prods.filter(nteProd => {
+        const notaEntrega = notasEntrega.find(notaEntrega => notaEntrega.id_ne === nteProd.fk_id_ne_nepd);
+        const estado = selectStateNteProd.value === 'todas' ? true : notaEntrega.estado_ne === selectStateNteProd.value;
+        const fecha = selectYearNteProd.value === 'todas' ? true : notaEntrega.fecha_ne.split('-')[0] === selectYearNteProd.value;
+        const mes = selectMonthNteProd.value === 'todas' ? true : notaEntrega.fecha_ne.split('-')[1] === selectMonthNteProd.value;
         return estado && fecha && mes;
     });
-    paginacionNteInv(filterNte_invs.length, 1);
+    paginacionNteProd(filterNte_prods.length, 1);
 }
 //------Ordenar tabla descendente ascendente
-const orderNteInv = document.querySelectorAll('.tbody__head--NteInv');
-orderNteInv.forEach(div => {
+const orderNteProd = document.querySelectorAll('.tbody__head--NteProd');
+orderNteProd.forEach(div => {
     div.children[0].addEventListener('click', function () {
-        filterNte_invs.sort((a, b) => {
+        filterNte_prods.sort((a, b) => {
             let first = a[div.children[0].name];
             let second = b[div.children[0].name];
             if (typeof first === 'number' && typeof second === 'number') {
@@ -1392,10 +1431,10 @@ orderNteInv.forEach(div => {
                 return String(first).localeCompare(String(second));
             }
         });
-        paginacionNteInv(filterNte_invs.length, 1);
+        paginacionNteProd(filterNte_prods.length, 1);
     });
     div.children[1].addEventListener('click', function () {
-        filterNte_invs.sort((a, b) => {
+        filterNte_prods.sort((a, b) => {
             let first = a[div.children[0].name];
             let second = b[div.children[0].name];
             if (typeof first === 'number' && typeof second === 'number') {
@@ -1404,27 +1443,28 @@ orderNteInv.forEach(div => {
                 return String(second).localeCompare(String(first));
             }
         });
-        paginacionNteInv(filterNte_invs.length, 1);
+        paginacionNteProd(filterNte_prods.length, 1);
     });
 });
-//------paginacionNteInv
-function paginacionNteInv(allProducts, page) {
-    let totalNteInv = document.getElementById('totalNteInv');
+//------paginacionNteProd
+const totalNteProd = document.getElementById('totalNteProd');
+function paginacionNteProd(allProducts, page) {
     let total = 0;
-    /*for (let nte_inv in filterNte_invs) {
-        const notaEntrega = filterNotasEntrega.find(notaEntrega => notaEntrega.id_ne == filterNte_invs[nte_inv].fk_id_ne_neiv);
-        total += filterNte_invs[nte_inv]['cantidad_neiv'] * filterNte_invs[nte_inv]['cost_uni_neiv'] * (100 - notaEntrega.descuento_ne) / 100;
-    }*/
-    //totalNteInv.innerHTML ='Total (Bs):' + total.toFixed(2) + ' Bs';
-    let numberProducts = Number(selectNumberNteInv.value);
+    filterNte_prods.forEach(nte_prod => {
+        const notaEntrega = notasEntrega.find(notaEntrega => notaEntrega.id_ne === nte_prod.fk_id_ne_nepd);
+        total += nte_prod.cantidad_nepd * nte_prod.cost_uni_nepd * (100 - notaEntrega.descuento_ne) / 100;
+    });
+    totalNteProd.innerHTML = 'Total (Bs):' + total.toFixed(2) + ' Bs';
+
+    let numberProducts = Number(selectNumberNteProd.value);
     let allPages = Math.ceil(allProducts / numberProducts);
-    let ul = document.querySelector('#wrapperNteInv ul');
+    let ul = document.querySelector('#wrapperNteProd ul');
     let li = '';
     let beforePages = page - 1;
     let afterPages = page + 1;
     let liActive;
     if (page > 1) {
-        li += `<li class="btn" onclick="paginacionNteInv(${allProducts}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
+        li += `<li class="btn" onclick="paginacionNteProd(${allProducts}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
     }
     for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
         if (pageLength > allPages) {
@@ -1438,32 +1478,30 @@ function paginacionNteInv(allProducts, page) {
         } else {
             liActive = '';
         }
-        li += `<li class="numb ${liActive}" onclick="paginacionNteInv(${allProducts}, ${pageLength})"><span>${pageLength}</span></li>`;
+        li += `<li class="numb ${liActive}" onclick="paginacionNteProd(${allProducts}, ${pageLength})"><span>${pageLength}</span></li>`;
     }
     if (page < allPages) {
-        li += `<li class="btn" onclick="paginacionNteInv(${allProducts}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
+        li += `<li class="btn" onclick="paginacionNteProd(${allProducts}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
     }
     ul.innerHTML = li;
-    let h2 = document.querySelector('#showPageNteInv h2');
+    let h2 = document.querySelector('#showPageNteProd h2');
     h2.innerHTML = `Pagina ${page}/${allPages}, ${allProducts} Productos`;
-    tableNteInvMW(page);
+    tableNteProdMW(page);
 }
 //--------Tabla de nte_invs
-function tableNteInvMW(page) {
-    console.log(filterNte_invs)
-    const tbody = document.getElementById('tbodyNteInv');
-    const inicio = (page - 1) * Number(selectNumberNteInv.value);
-    const final = inicio + Number(selectNumberNteInv.value);
-    const nte_invs = filterNte_invs.slice(inicio, final);
+function tableNteProdMW(page) {
+    const tbody = document.getElementById('tbodyNteProd');
+    const inicio = (page - 1) * Number(selectNumberNteProd.value);
+    const final = inicio + Number(selectNumberNteProd.value);
+    const nte_invs = filterNte_prods.slice(inicio, final);
     tbody.innerHTML = '';
     nte_invs.forEach((nte_inv, index) => {
-        const notaEntrega = filterNotasEntrega.find(notaEntrega => notaEntrega.id_ne == nte_inv.fk_id_ne_neiv);
-        const stock = inventories.find(inventory => inventory.id_inv == nte_inv.fk_id_prod_neiv);
-        console.log(inventories)
-        const producto = products.find(product => product.id_prod == stock.fk_id_prod_inv);
+        const notaEntrega = filterNotasEntrega.find(notaEntrega => notaEntrega.id_ne === nte_inv.fk_id_ne_nepd);
+        const stock = inventories.find(inventory => inventory.fk_id_prod_inv === nte_inv.fk_id_prod_nepd);
+        const producto = products.find(product => product.id_prod === stock.fk_id_prod_inv);
 
         const tr = document.createElement('tr');
-        tr.setAttribute('id_neiv', nte_inv.id_neiv);
+        tr.setAttribute('id_nepd', nte_inv.id_nepd);
 
         const tdNumero = document.createElement('td');
         tdNumero.innerText = index + 1;
@@ -1482,40 +1520,40 @@ function tableNteInvMW(page) {
         tr.appendChild(tdCodigo);
 
         const tdCantidad = document.createElement('td');
-        tdCantidad.innerText = nte_inv.cantidad_neiv;
+        tdCantidad.innerText = nte_inv.cantidad_nepd;
         tr.appendChild(tdCantidad);
 
         const tdCostoUnitario = document.createElement('td');
-        tdCostoUnitario.innerText = nte_inv.cost_uni_neiv.toFixed(2) + ' Bs';
+        tdCostoUnitario.innerText = nte_inv.cost_uni_nepd.toFixed(2) + ' Bs';
         tr.appendChild(tdCostoUnitario);
 
         const tdSubTotal = document.createElement('td');
-        const subTotal = nte_inv.cost_uni_neiv * nte_inv.cantidad_neiv;
+        const subTotal = nte_inv.cost_uni_nepd * nte_inv.cantidad_nepd;
         tdSubTotal.innerText = subTotal.toFixed(2) + ' Bs';
         tr.appendChild(tdSubTotal);
-        /*
-                const tdDescuento = document.createElement('td');
-                const desc = notaEntrega.descuento_ne * nte_inv.cost_uni_neiv * nte_inv.cantidad_neiv / 100;
-                tdDescuento.innerText = desc.toFixed(2) + ' Bs' + ' (' + notaEntrega.descuento_ne + '%)';
-                tr.appendChild(tdDescuento);
-        
-                const tdTotal = document.createElement('td');
-                const total = nte_inv.cantidad_neiv * nte_inv.cost_uni_neiv * (100 - notaEntrega.descuento_ne) / 100;
-                tdTotal.innerText = total.toFixed(2) + ' Bs';
-                tr.appendChild(tdTotal);*/
+
+        const tdDescuento = document.createElement('td');
+        const desc = notaEntrega.descuento_ne * nte_inv.cost_uni_nepd * nte_inv.cantidad_nepd / 100;
+        tdDescuento.innerText = desc.toFixed(2) + ' Bs' + ' (' + notaEntrega.descuento_ne + '%)';
+        tr.appendChild(tdDescuento);
+
+        const tdTotal = document.createElement('td');
+        const total = nte_inv.cantidad_nepd * nte_inv.cost_uni_nepd * (100 - notaEntrega.descuento_ne) / 100;
+        tdTotal.innerText = total.toFixed(2) + ' Bs';
+        tr.appendChild(tdTotal);
 
         tbody.appendChild(tr);
     });
 }
 //------open and close modal nte_inv
-const tableNteInv = document.querySelector('#tableNteInv');
-const openTableNteInv = document.querySelector('#openTableNteInv');
-const closeTableNteInv = document.querySelector('#closeTableNteInv');
-openTableNteInv.addEventListener('click', () => {
-    tableNteInv.classList.add('modal__show');
+const tableNteProd = document.querySelector('#tableNteProd');
+const openTableNteProd = document.querySelector('#openTableNteProd');
+const closeTableNteProd = document.querySelector('#closeTableNteProd');
+openTableNteProd.addEventListener('click', () => {
+    tableNteProd.classList.add('modal__show');
 });
-closeTableNteInv.addEventListener('click', () => {
-    tableNteInv.classList.remove('modal__show');
+closeTableNteProd.addEventListener('click', () => {
+    tableNteProd.classList.remove('modal__show');
 });
 //--------------------------------------------PROFORMA-----------------------------------------------------
 let proformas = [];

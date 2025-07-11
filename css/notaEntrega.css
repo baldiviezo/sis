@@ -259,3 +259,9 @@
 	width: 100%;
 	padding-left:  .5rem;
 }	
+.cart__item--empty {
+	text-align: center;
+	padding: 1rem;
+	font-size: 1.5rem;
+	color: #225c74;
+}

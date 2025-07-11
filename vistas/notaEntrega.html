@@ -186,8 +186,8 @@
 							<h3>Filtrar por:</h3>
 							<select id="selectSearchOCProd" class="select">
 								<option value="todas">Todo</option>
-								<option value="numero_prof">N° Proforma</option>
-								<option value="fecha_prof">Fecha de proforma</option>
+								<option value="numero_oc">N° Orden de compra</option>
+								<option value="fecha_oc">Fecha de orden de compra</option>
 								<option value="codigo_prod">Codigo</option>
 							</select>
 						</div>
@@ -222,14 +222,14 @@
 							<tr>
 								<th>N°</th>
 								<th>
-									<div class="tbody__head--OCProd">N° Proforma<img src="../imagenes/sortA_Z.svg"
-											name="numero_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-											name="numero_prof" class="icon__CRUD"></div>
+									<div class="tbody__head--OCProd">Orden de compra<img src="../imagenes/sortA_Z.svg"
+											name="numero_oc" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="numero_oc" class="icon__CRUD"></div>
 								</th>
 								<th>
-									<div class="tbody__head--OCProd">Fecha proforma<img src="../imagenes/sortA_Z.svg"
-											name="fecha_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-											name="fecha_prof" class="icon__CRUD"></div>
+									<div class="tbody__head--OCProd">Fecha OC<img src="../imagenes/sortA_Z.svg"
+											name="fecha_oc" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="fecha_oc" class="icon__CRUD"></div>
 								</th>
 								<th>Codigo</th>
 								<th>Cantidad</th>
@@ -290,7 +290,7 @@
                     </div>
                     <button class="button--sell" id="button__prof_prodMW" onclick="openPreviwProducts()">Nota de
                         Entrega</button>
-                    <button class="button--sell">FINALIZAR</button>
+                    <button class="button--sell" id="finalizarOC">FINALIZAR</button>
                 </div>
             </div>
 
@@ -336,7 +336,7 @@
                 </div>
                 <section class="table__header">
                     <h1 id="totalNE">Total:</h1>
-                    <img src="../imagenes/inventario.svg" id="openTableNteInv" class="icon__CRUD"
+                    <img src="../imagenes/inventario.svg" id="openTableNteProd" class="icon__CRUD"
                         title="Productos de la proforma">
                     <section class="select__search">
                         <div>
@@ -389,13 +389,13 @@
                         </div>
                     </div>
                 </section>
-                <div class="showPage" id="showPageNteInv">
+                <div class="showPage" id="showPageNE">
                     <h2></h2>
                 </div>
                 <div class="container__page">
                     <div class="paginacion">
                         <!--Envoltura-->
-                        <div class="wrapper" id="wrapperNteInv">
+                        <div class="wrapper" id="wrapperNE">
                             <ul></ul>
                         </div>
                     </div>
@@ -447,27 +447,27 @@
             </div>
         </div>
     </section>
-    <!--Table Nte_inv-->
-    <section id="tableNteInv" class="modalTable">
+    <!--Table Nte_prod-->
+    <section id="tableNteProd" class="modalTable">
         <div class="modalTable__container">
             <div class="table">
                 <div class="table__title">
-                    <h1>Notas de Entrega</h1>
-                    <img src="../imagenes/salir.svg" id="closeTableNteInv" class="icon__CRUD"
+                    <h1>Productos</h1>
+                    <img src="../imagenes/salir.svg" id="closeTableNteProd" class="icon__CRUD"
                         title="Productos de la proforma">
                 </div>
                 <section class="table__header">
-                    <h1 id="totalNE">Total:</h1>
+                    <h1 id="totalNteProd">Total:</h1>
                     
                     <section class="select__search">
                         <div>
                             <label>Fecha Nota Entraga:</label>
-                            <select id="selectYearNteInv" class="select__number">
+                            <select id="selectYearNteProd" class="select__number">
                             </select>
                         </div>
                         <div>
                             <label>Mes:</label>
-                            <select id="selectMonthNteInv" class="select__number">
+                            <select id="selectMonthNteProd" class="select__number">
                                 <option value="todas">Todo</option>
                                 <option value="01">Enero</option>
                                 <option value="02">Febrero</option>
@@ -485,7 +485,7 @@
                         </div>
                         <div>
                             <label>Estado nota entrega:</label>
-                            <select id="selectStateNteInv" class="select__number">
+                            <select id="selectStateNteProd" class="select__number">
                                 <option value="todas">Todo</option>
                                 <option value="pendiente">Pendiente</option>
                                 <option value="vendido">Vendido</option>
@@ -495,7 +495,7 @@
                     </section>
                     <div class="combo__search">
                         <div>
-                            <select id="selectSearchNteInv" class="select">
+                            <select id="selectSearchNteProd" class="select">
                                 <option value="todas">Buscar por</option>
                                 <option value="numero_prof"> Por nota de entrega</option>
                                 <option value="fecha_prof">Por fecha proforma</option>
@@ -506,23 +506,23 @@
                             </select>
                         </div>
                         <div class="table__search">
-                            <input type="search" id="inputSearchNteInv" placeholder="Search Data...">
+                            <input type="search" id="inputSearchNteProd" placeholder="Search Data...">
                             <img src="../imagenes/search.png">
                         </div>
                     </div>
                 </section>
-                <div class="showPage" id="showPageNE">
+                <div class="showPage" id="showPageNteProd">
                     <h2></h2>
                 </div>
                 <div class="container__page">
                     <div class="paginacion">
                         <!--Envoltura-->
-                        <div class="wrapper" id="wrapperNE">
+                        <div class="wrapper" id="wrapperNteProd">
                             <ul></ul>
                         </div>
                     </div>
                     <div>
-                        <select id="selectNumberNteInv" class="select__number">
+                        <select id="selectNumberNteProd" class="select__number">
                             <option value="2">2</option>
                             <option value="4">4</option>
                             <option value="6">6</option>
@@ -537,34 +537,24 @@
                             <tr>
                                 <th>N°</th>
                                 <th>
-                                    <div class="tbody__head--ne">Proforma <img src="../imagenes/sortA_Z.svg"
-                                            name="numero_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-                                            name="numero_prof" class="icon__CRUD"></div>
+                                    <div class="tbody__head--NteProd">Nota de entrega<img src="../imagenes/sortA_Z.svg"
+                                            name="numero_ne" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+                                            name="numero_ne" class="icon__CRUD"></div>
                                 </th>
                                 <th>
-                                    <div class="tbody__head--ne">Fecha PROF<img src="../imagenes/sortA_Z.svg"
-                                            name="fecha_prof" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-                                            name="fecha_prof" class="icon__CRUD"></div>
-                                </th>
-                                <th>
-                                    <div class="tbody__head--ne">Fecha NE <img src="../imagenes/sortA_Z.svg"
+                                    <div class="tbody__head--NteProd">Fecha NE <img src="../imagenes/sortA_Z.svg"
                                             name="fecha_ne" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
                                             name="fecha_ne" class="icon__CRUD"></div>
                                 </th>
-                                <th>Encargado</th>
-                                <th>
-                                    <div class="tbody__head--ne">Empresa <img src="../imagenes/sortA_Z.svg"
-                                            name="nombre_emp" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-                                            name="nombre_emp" class="icon__CRUD"></div>
-                                </th>
-                                <th>Cliente</th>
-                                <th>Según Orden/Invit</th>
-                                <th>Total</th>
-                                <th>Observaciones</th>
-                                <th>Acciones</th>
+                                <th>Codigo</th>
+								<th>Cantidad</th>
+								<th>Cost uni.</th>
+								<th>Subtotal</th>
+								<th>Descuento</th>
+								<th>Total</th>
                             </tr>
                         </thead>
-                        <tbody id="tbodyNteInv"></tbody>
+                        <tbody id="tbodyNteProd"></tbody>
                     </table>
                 </section>
             </div>

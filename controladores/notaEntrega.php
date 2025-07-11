@@ -37,4 +37,9 @@ if (isset($_POST['readOcProd'])) {
 	$readOcProd = new consultas;
 	$readOcProd->readOcProd();
 }
+//-------Finalizar OC
+if (isset($_POST['finalizarOC'])) {
+	$finalizarOC = new consultas;
+	$finalizarOC->finalizarOC($_POST['finalizarOC']);
+}
 ?>
