@@ -1311,7 +1311,6 @@ function createNotaEntrega() {
         return;
     }
     const ordenCompra = orderBuys.find(orderBuy => orderBuy.id_oc === golbalIdOc);
-    console.log(ordenCompra);
     if (!ordenCompra) {
         mostrarAlerta('No se encontró la orden de compra asociada a esta proforma');
         return;
@@ -1328,25 +1327,21 @@ function createNotaEntrega() {
             cost_uni_nepd: row.children[5].innerText,
         });
     }
-    console.log(dateActual[2] + '-' + dateActual[1] + '-' + dateActual[0]);
-    console.log(totalPWNE.innerText.split(': ')[1].split(' ')[0]);
-    console.log(productos);
-
+    previewProducts.classList.remove('modal__show');
+    prof_prodMW.classList.remove('modal__show');
     const formData = new FormData();
     formData.append('createNotaEntrega', JSON.stringify(productos));
     formData.append('ordenCompra', JSON.stringify(ordenCompra));
     formData.append('id_usua', localStorage.getItem('id_usua'));
     formData.append('total_ne', Number(totalPWNE.innerText.split(': ')[1].split(' ')[0]).toFixed(2));
-
-
     formData.append('fecha_ne', dateActual[2] + '-' + dateActual[1] + '-' + dateActual[0]);
     fetch('../controladores/notaEntrega.php', {
         method: "POST",
         body: formData
     }).then(response => response.text()).then(data => {
-        console.log(data);
-        mostrarAlerta(data);
-        readNotasEntrega();
+        Promise.all([readNotasEntrega(), readNte_prods(), readInventories()]).then(() => {
+            mostrarAlerta(data);
+        })
     }).catch(err => console.log(err));
 
 }

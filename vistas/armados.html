@@ -102,8 +102,12 @@
 			</div>
 			<div class="double__list--bottom">
 				<div>
-					<img src="../imagenes/p.svg" onclick="openProductSMW()" title="Inventario">
+					<img src="../imagenes/p.svg" onclick="openProductSMW()" title="Productos">
 					<img src="../imagenes/i.svg" onclick="openInventorySMW()" title="Inventario">
+					<select name="select" class="select" id="almacen">
+						<option value="0">El Alto</option>
+						<option value="1">Av. Arce</option>
+					</select>
 				</div>
 				<button class="button__submit" onclick="openFormArmedRMW()">Registrar</button>
 			</div>
@@ -135,107 +139,6 @@
 			<button onclick="createArmed()" class="form__submit" >Registrar</button>
 		</div>
 	</section>
-	<!--Tabla modal inventario-->
-	<section id="inventorySMW" class="modalTable">
-		<div class="modalTable__container">
-			<div class="table">
-				<div class="table__title">
-					<h1><img src="../imagenes/inventario.svg">Inventario</h1>
-					<img src="../imagenes/salir.svg" id="closeInventorySMW" class="button__close">
-				</div>
-				<section class="table__header">
-					<section class="select__search">
-						<div>
-							<label>Marcas: </label>
-							<select id="selectMarcaInvMW" class="select__marca">
-								<option value="todasLasMarcas">Todas las marcas</option>
-							</select>
-						</div>
-						<div>
-							<label>Categorias: </label>
-							<select id="selectCategoriaInvMW" class="select__categoria">
-								<option value="todasLasCategorias">Todas las categorias</option>
-							</select>
-						</div>
-					</section>
-					<div class="combo__search">
-						<div>
-							<select id="selectSearchInvMW" class="select">
-								<option value="todas">Buscar por</option>
-								<option value="codigo_prod">Código</option>
-								<option value="nombre_prod">Nombre</option>
-								<option value="descripcion_prod">Descripcion</option>
-								<option value="cost_uni_inv">Costo</option>
-							</select>
-						</div>
-						<div class="table__search">
-							<input type="search" id="inputSearchInvMW" placeholder="Buscar...">
-							<img src="../imagenes/search.png">
-						</div>
-					</div>
-				</section>
-				<div class="showPage" id="showPageInvMW">
-					<h2></h2>
-				</div>
-				<div class="container__page">
-					<div class="paginacion">
-						<!--Envoltura-->
-						<div class="wrapper" id="wrapperInvMW">
-							<ul></ul>
-						</div>
-					</div>
-					<div>
-						<select id="selectNumberInvMW" class="select__number">
-							<option value="2">2</option>
-							<option value="4">4</option>
-							<option value="6">6</option>
-							<option value="10">10 </option>
-							<option value="20">20</option>
-						</select>
-					</div>
-				</div>
-				<section class="table__body">
-					<table>
-						<thead>
-							<tr>
-								<th>N°</th>
-								<th>
-									<div class="tbody__head--invMW">Marca <img src="../imagenes/sortA_Z.svg"
-											name="marca_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-											name="marca_prod" class="icon__CRUD">
-									</div>
-								</th>
-								<th>
-									<div class="tbody__head--invMW">Categoria <img src="../imagenes/sortA_Z.svg"
-											name="categoria_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-											name="categoria_prod" class="icon__CRUD"></div>
-								</th>
-								<th>
-									<div class="tbody__head--invMW">Codigo <img src="../imagenes/sortA_Z.svg"
-											name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-											name="codigo_prod" class="icon__CRUD">
-									</div>
-								</th>
-								<th>
-									<div class="tbody__head--invMW">Nombre <img src="../imagenes/sortA_Z.svg"
-											name="nombre_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-											name="nombre_prod" class="icon__CRUD">
-									</div>
-								</th>
-								<th>Descripcion</th>
-								<th>imagen</th>
-								<th>Cantidad</th>
-								<th>Costo unitario</th>
-								<th>Detalles</th>
-								<th>Acciones</th>
-							</tr>
-						</thead>
-						<tbody id="tbodyInvMW"></tbody>
-					</table>
-				</section>
-			</div>
-		</div>
-	</section>
 	<!--Tabla modal productos-->
 	<section id="productSMW" class="modalTable">
 		<div class="modalTable__container">
@@ -265,7 +168,7 @@
 							<select id="selectSearchProdMW" class="select">
 								<option value="todas">Buscar por</option>
 								<option value="codigo_prod">Código</option>
-								<option value="nombre_prod">Nombre</option>
+								<option value="nombre_prod">Descripcion corta</option>
 								<option value="descripcion_prod">Descripcion</option>
 							</select>
 						</div>
@@ -301,27 +204,18 @@
 							<tr>
 								<th>N°</th>
 								<th>
-									<div class="tbody__head--ProdMW">Marca <img src="../imagenes/sortA_Z.svg"
-											name="marca_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="marca_prod" class="icon__CRUD">
-									</div>
-								</th>
-								<th>
-									<div class="tbody__head--ProdMW">Categoria <img src="../imagenes/sortA_Z.svg"
-											name="categoria_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-											name="categoria_prod" class="icon__CRUD"></div>
-								</th>
-								<th>
 									<div class="tbody__head--ProdMW">Codigo <img src="../imagenes/sortA_Z.svg"
-											name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="codigo_prod" class="icon__CRUD">
+											name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="codigo_prod" class="icon__CRUD">
 									</div>
 								</th>
-								<th>
-									<div class="tbody__head--ProdMW">Nombre <img src="../imagenes/sortA_Z.svg"
-											name="nombre_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="nombre_prod" class="icon__CRUD">
-									</div>
-								</th>
+								<th>Marca</th>
+								<th>Categoria</th>
+								<th>Descripcion corta</th>
 								<th>Descripcion</th>
-								<th>imagen</th>
+								<th>Imagen</th>
+								<th>Stock</th>
+								<th>Costo unitario</th>
 								<th>Acciones</th>
 							</tr>
 						</thead>

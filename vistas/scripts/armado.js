@@ -296,218 +296,12 @@ async function readInventories() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            inventories = Object.values(data);
+            inventories = data;
             filterInventoriesMW = inventories;
-            paginacionInventoryMW(inventories.length, 1);
             resolve();
         }).catch(err => console.log(err));
     });
 }
-//------Select utilizado para buscar por columnas
-const selectSearchInvMW = document.getElementById('selectSearchInvMW');
-selectSearchInvMW.addEventListener('change', searchInventoriesMW);
-//------buscar por input
-const inputSearchInvMW = document.getElementById("inputSearchInvMW");
-inputSearchInvMW.addEventListener("keyup", searchInventoriesMW);
-//------Clientes por pagina
-const selectNumberInvMW = document.getElementById('selectNumberInvMW');
-selectNumberInvMW.selectedIndex = 3;
-selectNumberInvMW.addEventListener('change', function () {
-    paginacionInventoryMW(Object.values(filterInventoriesMW).length, 1);
-});
-//-------Marca y categoria
-const selectMarcaInvMW = document.getElementById('selectMarcaInvMW');
-selectMarcaInvMW.addEventListener('change', selectCategoriaInventoryMW);
-const MWMW = document.getElementById('MWMW');
-selectCategoriaInvMW.addEventListener('change', searchInventoriesMW);
-//------buscar por:
-function searchInventoriesMW() {
-    filterInventoriesMW = {};
-    for (let inventory in inventories) {
-        for (let valor in inventories[inventory]) {
-            if (selectSearchInvMW.value == 'todas') {
-                if (valor == 'codigo_prod' || valor == 'nombre_prod' || valor == 'descripcion_prod' || valor == 'cost_uni_inv') {
-                    if (inventories[inventory][valor].toLowerCase().indexOf(inputSearchInvMW.value.toLowerCase()) >= 0) {
-                        filterInventoriesMW[inventory] = inventories[inventory];
-                        break;
-                    }
-                }
-            } else {
-                if (valor == selectSearchInvMW.value) {
-                    if (inventories[inventory][valor].toLowerCase().indexOf(inputSearchInvMW.value.toLowerCase()) >= 0) {
-                        filterInventoriesMW[inventory] = inventories[inventory];
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    selectInventoriesMW();
-}
-//------buscar por marca y categoria:
-function selectInventoriesMW() {
-    if (selectMarcaInvMW.value == 'todasLasMarcas' && selectCategoriaInvMW.value == 'todasLasCategorias') {
-        paginacionInventoryMW(Object.values(filterInventoriesMW).length, 1);
-    } else {
-        for (let ìnventory in filterInventoriesMW) {
-            for (let valor in filterInventoriesMW[ìnventory]) {
-                if (selectMarcaInvMW.value == 'todasLasMarcas') {
-                    if (filterInventoriesMW[ìnventory]['id_ctgr'] != selectCategoriaInvMW.value) {
-                        delete filterInventoriesMW[ìnventory];
-                        break;
-                    }
-                } else if (selectCategoriaInvMW.value == 'todasLasCategorias') {
-                    if (filterInventoriesMW[ìnventory]['id_mrc'] != selectMarcaInvMW.value) {
-                        delete filterInventoriesMW[ìnventory];
-                        break;
-                    }
-                } else {
-                    if (filterInventoriesMW[ìnventory]['id_ctgr'] != selectCategoriaInvMW.value || filterInventoriesMW[ìnventory]['id_mrc'] != selectMarcaInvMW.value) {
-                        delete filterInventoriesMW[ìnventory];
-                        break;
-                    }
-                }
-            }
-        }
-        paginacionInventoryMW(Object.values(filterInventoriesMW).length, 1);
-    }
-}
-//------Ordenar tabla descendente ascendente
-let orderInventoriesMW = document.querySelectorAll('.tbody__head--invMW');
-orderInventoriesMW.forEach(div => {
-    div.children[0].addEventListener('click', function () {
-        let array = Object.entries(filterInventoriesMW).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
-            if (first < second) { return -1 }
-            if (first > second) { return 1 }
-            return 0;
-        })
-        filterInventoriesMW = Object.fromEntries(array);
-        paginacionInventoryMW(Object.values(filterInventoriesMW).length, 1);
-    });
-    div.children[1].addEventListener('click', function () {
-        let array = Object.entries(filterInventoriesMW).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
-            if (first > second) { return -1 }
-            if (first < second) { return 1 }
-            return 0;
-        })
-        filterInventoriesMW = Object.fromEntries(array);
-        paginacionInventoryMW(Object.values(filterInventoriesMW).length, 1);
-    });
-})
-//------PaginacionInventoryMW
-function paginacionInventoryMW(allInventoriesMW, page) {
-    let numberInventoriesMW = Number(selectNumberInvMW.value);
-    let allPages = Math.ceil(allInventoriesMW / numberInventoriesMW);
-    let ul = document.querySelector('#wrapperInvMW ul');
-    let li = '';
-    let beforePages = page - 1;
-    let afterPages = page + 1;
-    let liActive;
-    if (page > 1) {
-        li += `<li class="btn" onclick="paginacionInventoryMW(${allInventoriesMW}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
-    }
-    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
-        if (pageLength > allPages) {
-            continue;
-        }
-        if (pageLength == 0) {
-            pageLength = pageLength + 1;
-        }
-        if (page == pageLength) {
-            liActive = 'active';
-        } else {
-            liActive = '';
-        }
-        li += `<li class="numb ${liActive}" onclick="paginacionInventoryMW(${allInventoriesMW}, ${pageLength})"><span>${pageLength}</span></li>`;
-    }
-    if (page < allPages) {
-        li += `<li class="btn" onclick="paginacionInventoryMW(${allInventoriesMW}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
-    }
-    ul.innerHTML = li;
-    let h2 = document.querySelector('#showPageInvMW h2');
-    h2.innerHTML = `Pagina ${page}/${allPages}, ${allInventoriesMW} Productos`;
-    tableInventoriesMW(page);
-}
-//------Crear la tabla
-function tableInventoriesMW(page) {
-    let tbody = document.getElementById('tbodyInvMW');
-    inicio = (page - 1) * Number(selectNumberInvMW.value);
-    final = inicio + Number(selectNumberInvMW.value);
-    i = 1;
-    tbody.innerHTML = '';
-    for (let inventory in filterInventoriesMW) {
-        if (i > inicio && i <= final) {
-            let tr = document.createElement('tr');
-            for (let valor in filterInventoriesMW[inventory]) {
-                let td = document.createElement('td');
-                if (valor == 'id_inv') {
-                    td.innerText = filterInventoriesMW[inventory][valor];
-                    td.setAttribute('hidden', '');
-                    tr.appendChild(td);
-                } else if (valor == 'id_mrc') {
-                } else if (valor == 'id_ctgr') {
-                } else if (valor == 'fk_id_prod_inv') {
-                    td.innerText = filterInventoriesMW[inventory][valor];
-                    td.setAttribute('hidden', '');
-                    tr.appendChild(td);
-                    td = document.createElement('td');
-                    td.innerText = i;
-                    tr.appendChild(td);
-                    i++;
-                } else if (valor == 'imagen_prod') {
-                    let img = document.createElement('img');
-                    img.classList.add('tbody__img');
-                    img.setAttribute('src', '../modelos/imagenes/' + filterInventoriesMW[inventory][valor]);
-                    td.appendChild(img);
-                    tr.appendChild(td);
-                } else {
-                    td.innerText = filterInventoriesMW[inventory][valor];
-                    tr.appendChild(td);
-                }
-            }
-            let td = document.createElement('td');
-            td.innerHTML = `
-        <img src='../imagenes/send.svg' onclick='sendInventory(this.parentNode.parentNode)'>`;
-            tr.appendChild(td);
-            tbody.appendChild(tr);
-        } else {
-            i++;
-        }
-    }
-}
-function sendInventory(tr) {
-    let id_inv = tr.children[0].innerText;
-    for (let inventario in filterInventoriesMW) {
-        if (filterInventoriesMW[inventario]['id_inv'] == id_inv) {
-            let prof_prods = columnOne.querySelectorAll('.cart-item');
-            let i = 0;
-            prof_prods.forEach(prod => {
-                let codigo = prod.children[3].innerText;
-                if (codigo == filterInventoriesMW[inventario]['codigo_prod']) {
-                    i++;
-                }
-            })
-            if (i == 0) {
-                addProduct(filterInventoriesMW[inventario]);
-            } else {
-                mostrarAlerta("El producto ya se encuentra en la lista");
-            }
-        }
-    }
-}
-//---------------------------MODAL TABLA BUSCAR INVENTARIO
-const inventorySMW = document.getElementById('inventorySMW');
-const closeInventorySMW = document.getElementById('closeInventorySMW');
-function openInventorySMW() {
-    inventorySMW.classList.add('modal__show');
-}
-closeInventorySMW.addEventListener('click', () => {
-    inventorySMW.classList.remove('modal__show');
-});
 //----------------------------------------------ARMADO Y DESARMADO-------------------------------------------------
 //-------Agragar producto
 function addProduct(product) {
@@ -590,13 +384,14 @@ async function readProducts() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            products = Object.values(data);
+            products = data;
             filterProductsMW = products;
             paginacionProductMW(filterProductsMW.length, 1);
             resolve();
         }).catch(err => console.log(err));
     })
 }
+//--------------------------------------------TABLA MODAL PRODUCTS-----------------------------------------------
 //------Select utilizado para buscar por columnas
 const selectSearchProdMW = document.getElementById('selectSearchProdMW');
 selectSearchProdMW.addEventListener('change', searchProductsMW);
@@ -607,7 +402,7 @@ inputSearchProdMW.addEventListener("keyup", searchProductsMW);
 const selectNumberProdMW = document.getElementById('selectNumberProdMW');
 selectNumberProdMW.selectedIndex = 3;
 selectNumberProdMW.addEventListener('change', function () {
-    paginacionProductMW(Object.values(filterProductsMW).length, 1);
+    paginacionProductMW(filterProductsMW.length, 1);
 });
 //-------Marca y categoria
 const selectMarcaProdMW = document.getElementById('selectMarcaProdMW');
@@ -616,80 +411,50 @@ const selectCategoriaProdMW = document.getElementById('selectCategoriaProdMW');
 selectCategoriaProdMW.addEventListener('change', searchProductsMW);
 //------buscar por:
 function searchProductsMW() {
-    filterProductsMW = {};
-    for (let product in products) {
-        for (let valor in products[product]) {
-            if (selectSearchProdMW.value == 'todas') {
-                if (valor == 'codigo_prod' || valor == 'nombre_prod' || valor == 'descripcion_prod') {
-                    if (products[product][valor].toLowerCase().indexOf(inputSearchProdMW.value.toLowerCase()) >= 0) {
-                        filterProductsMW[product] = products[product];
-                        break;
-                    }
-                }
-            } else {
-                if (valor == selectSearchProdMW.value) {
-                    if (products[product][valor].toLowerCase().indexOf(inputSearchProdMW.value.toLowerCase()) >= 0) {
-                        filterProductsMW[product] = products[product];
-                        break;
-                    }
-                }
-            }
+    const valor = selectSearchProdMW.value;
+    const busqueda = inputSearchProdMW.value.toLowerCase().trim();
+    filterProductsMW = products.filter(product => {
+        if (valor === 'todas') {
+            return (
+                product.codigo_prod.toString().toLowerCase().includes(busqueda) ||
+                product.nombre_prod.toLowerCase().includes(busqueda) ||
+                product.descripcion_prod.toLowerCase().includes(busqueda)
+            );
+        } else {
+            return product[valor].toString().toLowerCase().includes(busqueda);
         }
-    }
+    });
     selectProductsMW();
 }
 //------buscar por marca y categoria:
 function selectProductsMW() {
-    if (selectMarcaProdMW.value == 'todasLasMarcas' && selectCategoriaProdMW.value == 'todasLasCategorias') {
-        paginacionProductMW(Object.values(filterProductsMW).length, 1);
-    } else {
-        for (let product in filterProductsMW) {
-            for (let valor in filterProductsMW[product]) {
-                if (selectMarcaProdMW.value == 'todasLasMarcas') {
-                    if (filterProductsMW[product]['id_ctgr'] != selectCategoriaProdMW.value) {
-                        delete filterProductsMW[product];
-                        break;
-                    }
-                } else if (selectCategoriaProdMW.value == 'todasLasCategorias') {
-                    if (filterProductsMW[product]['id_mrc'] != selectMarcaProdMW.value) {
-                        delete filterProductsMW[product];
-                        break;
-                    }
-                } else {
-                    if (filterProductsMW[product]['id_ctgr'] != selectCategoriaProdMW.value || filterProductsMW[product]['id_mrc'] != selectMarcaProdMW.value) {
-                        delete filterProductsMW[product];
-                        break;
-                    }
-                }
-            }
-        }
-        paginacionProductMW(Object.values(filterProductsMW).length, 1);
-    }
+    filterProductsMW = filterProductsMW.filter(product => {
+        const marca = selectMarcaProdMW.value === 'todasLasMarcas' ? true : product.fk_id_mrc_prod == selectMarcaProdMW.value;
+        const categoria = selectCategoriaProdMW.value === 'todasLasCategorias' ? true : product.fk_id_ctgr_prod == selectCategoriaProdMW.value;
+        return marca && categoria;
+    });
+    paginacionProductMW(filterProductsMW.length, 1);
 }
 //------Ordenar tabla descendente ascendente
-let orderProducts = document.querySelectorAll('.tbody__head--ProdMW');
+const orderProducts = document.querySelectorAll('.tbody__head--ProdMW');
 orderProducts.forEach(div => {
     div.children[0].addEventListener('click', function () {
-        let array = Object.entries(filterProductsMW).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
-            if (first < second) { return -1 }
-            if (first > second) { return 1 }
-            return 0;
-        })
-        filterProductsMW = Object.fromEntries(array);
-        paginacionProductMW(Object.values(filterProductsMW).length, 1);
+        const valor = div.children[0].name;
+        filterProductsMW.sort((a, b) => {
+            const valorA = String(a[valor]);
+            const valorB = String(b[valor]);
+            return valorA.localeCompare(valorB);
+        });
+        paginacionProductMW(filterProductsMW.length, 1);
     });
     div.children[1].addEventListener('click', function () {
-        let array = Object.entries(filterProductsMW).sort((a, b) => {
-            let first = a[1][div.children[0].name].toLowerCase();
-            let second = b[1][div.children[0].name].toLowerCase();
-            if (first > second) { return -1 }
-            if (first < second) { return 1 }
-            return 0;
-        })
-        filterProductsMW = Object.fromEntries(array);
-        paginacionProductMW(Object.values(filterProductsMW).length, 1);
+        const valor = div.children[0].name;
+        filterProductsMW.sort((a, b) => {
+            const valorA = String(a[valor]);
+            const valorB = String(b[valor]);
+            return valorB.localeCompare(valorA);
+        });
+        paginacionProductMW(filterProductsMW.length, 1);
     });
 })
 //------PaginacionProductMW
@@ -727,64 +492,104 @@ function paginacionProductMW(allProducts, page) {
     tableProductsMW(page);
 }
 //------Crear la tabla
-function tableProductsMW(page) {
-    let tbody = document.getElementById('tbodyProductMW');
-    inicio = (page - 1) * Number(selectNumberProdMW.value);
-    final = inicio + Number(selectNumberProdMW.value);
-    i = 1;
+function tableProductsMW(page) {   
+    const tbody = document.getElementById('tbodyProductMW');
+    const inicio = (page - 1) * Number(selectNumberProdMW.value);
+    const final = inicio + Number(selectNumberProdMW.value);
+    const products = filterProductsMW.slice(inicio, final);
     tbody.innerHTML = '';
-    for (let product in filterProductsMW) {
-        if (i > inicio && i <= final) {
-            let tr = document.createElement('tr');
-            for (let valor in filterProductsMW[product]) {
-                let td = document.createElement('td');
-                if (valor == 'id_prod') {
-                    td.innerText = filterProductsMW[product][valor];
-                    td.setAttribute('hidden', '');
-                    tr.appendChild(td);
-                    td = document.createElement('td');
-                    td.innerText = i;
-                    tr.appendChild(td);
-                    i++;
-                } else if (valor == 'codigo_smc_prod' || valor == 'id_mrc' || valor == 'id_ctgr' || valor == 'catalogo_prod') {
-                } else if (valor == 'imagen_prod') {
-                    let img = document.createElement('img');
-                    img.classList.add('tbody__img');
-                    img.setAttribute('src', '../modelos/imagenes/' + filterProductsMW[product][valor]);
-                    td.appendChild(img);
-                    tr.appendChild(td);
-                } else {
-                    td.innerText = filterProductsMW[product][valor];
-                    tr.appendChild(td);
-                }
-            }
-            let td = document.createElement('td');
-            td.innerHTML = `
-        <img src='../imagenes/send.svg' onclick='sendProduct(this.parentNode.parentNode)'>`;
-            tr.appendChild(td);
-            tbody.appendChild(tr);
-        } else {
-            i++;
-        }
-    }
+    products.forEach((product, index) => {
+
+        const marca = marcas.find(marca => marca.id_mrc === product.fk_id_mrc_prod);
+        const categoria = categorias.find(categoria => categoria.id_ctgr === product.fk_id_ctgr_prod);
+        const inventarioArce = inventories.find(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 1);
+        const inventarioAlto = inventories.find(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 0);
+        const stock = (inventarioArce ? inventarioArce.cantidad_inv : 0) + (inventarioAlto ? inventarioAlto.cantidad_inv : 0);
+
+        const tr = document.createElement('tr');
+        tr.setAttribute('id_prod', product.id_prod);
+
+        const tdIndex = document.createElement('td');
+        tdIndex.innerText = inicio + index + 1;
+        tr.appendChild(tdIndex);
+
+        const tdCodigo = document.createElement('td');
+        tdCodigo.innerText = product.codigo_prod;
+        tr.appendChild(tdCodigo);
+
+        const tdMarca = document.createElement('td');
+        tdMarca.innerText = marca ? marca.nombre_mrc : '';
+        tr.appendChild(tdMarca);
+
+        const tdCategoria = document.createElement('td');
+        tdCategoria.innerText = categoria ? categoria.nombre_ctgr : '';
+        tr.appendChild(tdCategoria);
+
+        const tdNombre = document.createElement('td');
+        tdNombre.innerText = product.nombre_prod;
+        tr.appendChild(tdNombre);
+
+        const tdDescripcion = document.createElement('td');
+        tdDescripcion.innerText = product.descripcion_prod;
+        tr.appendChild(tdDescripcion);
+
+        const tdImagen = document.createElement('td');
+        const img = document.createElement('img');
+        img.classList.add('tbody__img');
+        img.setAttribute('src', '../modelos/imagenes/' + product.imagen_prod);
+        tdImagen.appendChild(img);
+        tr.appendChild(tdImagen);
+
+        const tdStock = document.createElement('td');
+        tdStock.innerText = stock > 0 ? stock : 'Sin Stock';
+        tr.appendChild(tdStock);
+
+        const tdAcciones = document.createElement('td');
+        const fragment = document.createDocumentFragment();
+        let imgs = [];
+
+        imgs.push({ src: '../imagenes/send.svg', onclick: `sendProduct(${product.id_prod})`, title: 'Seleccionar' });
+
+        imgs.forEach((img) => {
+            const imgElement = document.createElement('img');
+            imgElement.src = img.src;
+            imgElement.onclick = new Function(img.onclick);
+            imgElement.title = img.title;
+            fragment.appendChild(imgElement);
+        });
+
+        tdAcciones.appendChild(fragment);
+        tr.appendChild(tdAcciones);
+
+        tbody.appendChild(tr);
+    });
 }
-function sendProduct(tr) {
-    let id_prod = tr.children[0].innerText;
-    for (let product in filterProductsMW) {
-        if (filterProductsMW[product]['id_prod'] == id_prod) {
-            let prof_prods = columnOne.querySelectorAll('.cart-item');
-            let i = 0;
-            prof_prods.forEach(prod => {
-                let codigo = prod.children[3].innerText;
-                if (codigo == filterProductsMW[product]['codigo_prod']) {
-                    i++;
-                }
-            })
-            if (i == 0) {
-                addProduct(filterProductsMW[product]);
-            } else {
-                mostrarAlerta("El producto ya se encuentra en la lista");
-            }
+function sendProduct(id_prod) {
+    const product = filterProductsMW.find(prod => prod['id_prod'] === id_prod);
+    if (product) {
+        let prof_prods = modalProf_prod.querySelectorAll('.cart-item');
+        const codigo = product['codigo_prod'];
+        const existe = Array.from(prof_prods).some(prod => prod.children[2].innerText === codigo);
+        if (!existe) {
+
+            const card = cartProduct(id_prod, modalProf_prod, totalPriceM);
+            modalProf_prod.appendChild(card);
+
+            //Drang and drop
+            const items = modalProf_prod.querySelectorAll(".cart-item");
+            items.forEach(item => {
+                item.addEventListener("dragstart", () => {
+                    setTimeout(() => item.classList.add("dragging"), 0);
+                });
+                item.addEventListener("dragend", () => item.classList.remove("dragging"));
+            });
+
+            modalProf_prod.addEventListener("dragover", initSortableListM);
+            modalProf_prod.addEventListener("dragenter", e => e.preventDefault());
+
+            totalPriceM();
+        } else {
+            mostrarAlerta("El producto ya se encuentra en la lista");
         }
     }
 }
@@ -822,7 +627,7 @@ async function createProduct() {
                 if (data == "El codigo ya existe") {
                     mostrarAlerta(data);
                     preloader.classList.remove('modal__show');
-                } else if (data == "El codigo SMC ya existe"){
+                } else if (data == "El codigo SMC ya existe") {
                     mostrarAlerta(data);
                     preloader.classList.remove('modal__show');
                 } else {
@@ -941,10 +746,9 @@ async function readAllMarcas() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            marcas = JSON.parse(JSON.stringify(data));
+            marcas = data;
             selectMarcaProdR();
             selectMarcaProductMW();
-            selectMarcaInventoryMW();
             resolve();
         }).catch(err => console.log(err));
     })
@@ -959,48 +763,12 @@ async function readAllCategorias() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            categorias = JSON.parse(JSON.stringify(data));
+            categorias = data;
             resolve();
         }).catch(err => console.log(err));
     })
 }
-/*----------------------------------------------Marca y categoria  modal inventory-------------------------------------------------*/
-//-------Select de marcas
-function selectMarcaInventoryMW() {
-    selectMarcaInvMW.innerHTML = '';
-    let option = document.createElement('option');
-    option.value = 'todasLasMarcas';
-    option.innerText = 'Todas las marcas';
-    selectMarcaInvMW.appendChild(option);
-    for (let clave in marcas) {
-        let option = document.createElement('option');
-        option.value = marcas[clave]['id_mrc'];
-        option.innerText = marcas[clave]['nombre_mrc'];
-        selectMarcaInvMW.appendChild(option);
-    }
-}
-//------Select categorias
-function selectCategoriaInventoryMW() {
-    selectCategoriaInvMW.innerHTML = '';
-    let option = document.createElement('option');
-    option.value = 'todasLasCategorias';
-    option.innerText = 'Todas las categorias';
-    selectCategoriaInvMW.appendChild(option);
-    if (selectMarcaInvMW.value != 'todasLasMarcas') {
-        let id_mrc = selectMarcaInvMW.value;
-        for (let clave in categorias) {
-            if (categorias[clave]['id_mrc'] == id_mrc) {
-                let option = document.createElement('option');
-                option.value = categorias[clave]['id_ctgr'];
-                option.innerText = categorias[clave]['nombre_ctgr'];
-                selectCategoriaInvMW.appendChild(option);
-            }
-        }
-    }
-    searchInventoriesMW();
-}
-/*----------------------------------------------Marca y categoria  modal product-------------------------------------------------*/
-//-------Select de marcas
+/*----------------------------------------------Marca y categoria  modal /*----------------------------------------------Marca y categoria  modal product-------------------------------------------------*/
 function selectMarcaProductMW() {
     selectMarcaProdMW.innerHTML = '';
     let option = document.createElement('option');
@@ -1023,14 +791,14 @@ function selectCategoriaProductMW() {
     selectCategoriaProdMW.appendChild(option);
     if (selectMarcaProdMW.value != 'todasLasMarcas') {
         let id_mrc = selectMarcaProdMW.value;
-        for (let clave in categorias) {
-            if (categorias[clave]['id_mrc'] == id_mrc) {
+        categorias.forEach(categoria => {
+            if (categoria.fk_id_mrc_mccr == id_mrc) {
                 let option = document.createElement('option');
-                option.value = categorias[clave]['id_ctgr'];
-                option.innerText = categorias[clave]['nombre_ctgr'];
+                option.value = categoria.id_ctgr;
+                option.innerText = categoria.nombre_ctgr;
                 selectCategoriaProdMW.appendChild(option);
             }
-        }
+        });
     }
     searchProductsMW();
 }

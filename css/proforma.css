@@ -251,24 +251,11 @@
 /*<<--------------------container-------------------------->>*/
 .main__container {
 	display: grid;
-	grid-template-columns: 1fr 30.5rem;
+	grid-template-columns: 1fr 32.5rem;
 	width: 100%;
 	height: 100%;
 	overflow-y: hidden;
 }
-
-/*.main__container::-webkit-scrollbar{
-	width: 0.5rem;
-	height: 0.5rem;
-}
-.main__container::-webkit-scrollbar-thumb{
-	border-radius: .5rem;
-	background-color: #0004;
-	visibility: hidden;
-}
-.main__container:hover::-webkit-scrollbar-thumb{
-	visibility: visible;
-}*/
 #root {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
@@ -637,6 +624,21 @@ button:hover {
 
 .cart-item .cart-item__costTotal::-webkit-outer-spin-button,
 .cart-item .cart-item__costTotal::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+.cart-item__tmpEntrega{
+	width: 2rem;
+	border: none;
+	font-weight: bold;
+	font-size: .8rem;
+}
+.cart-item .cart-item__tmpEntrega:focus {
+	outline: none;
+}
+
+.cart-item .cart-item__tmpEntrega::-webkit-outer-spin-button,
+.cart-item .cart-item__tmpEntrega::-webkit-inner-spin-button {
 	-webkit-appearance: none;
 	margin: 0;
 }

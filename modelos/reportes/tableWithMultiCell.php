@@ -9,25 +9,26 @@ class pdf extends FPDF{
         $this->SetFont('arial','',10);
         $this->SetTextColor(0,0,0);  
         //Direccion
-        $this->SetX(13);
+        $this->SetX(5);
         $this->Cell(0,4, utf8_decode('SMS Integración y Control LTDA.'),0,1,'L',false);
-        $this->SetX(13);
+        $this->SetX(5);
         $this->Cell(0,4, utf8_decode('Dirección: Av. Ballivian Otero # 1209-B'),0,1,'L',false);
-        $this->SetX(13);
+        $this->SetX(5);
         $this->Cell(0,4, utf8_decode('Ciudad Satelite'),0,1,'L',false);
-        $this->SetX(13);
+        $this->SetX(5);
         $this->Cell(0,4, utf8_decode('Telf. (591-2) 2430864-2430867'),0,1,'L',false);
-        $this->SetX(13);
+        $this->SetX(5);
         $this->Cell(0,4, utf8_decode('La Paz - Bolivia'),0,1,'L',false);
-        $this->SetY(10);
+        
         //Logo
-        $this->Image('logos/logo.jpg',146,10,56,15);
+        $this->Image('logos/logo.jpg',155,5,55,15);
         //total de paginas
         $this->AliasNbPages();
         $this->SetTextColor(0,0,0);
+        $this->SetY(5);
         $this->Cell(0,5, utf8_decode('Página '. $this->PageNo().' de '.'{nb}'),0,1,'C',false);
         $this->Cell(0,5, $_prof_mprof_ne,0,1,'C',false);
-        $this->ln(16);	
+        $this->ln(12);	
     }
 	public function footer(){
         $this->SetTextColor(0,0,0);
@@ -51,7 +52,7 @@ function Row($data,$imagen){
     $nb=0;
     for($i=0;$i<count($data);$i++)
         $nb=max($nb,$this->NbLines($this->widths[$i],$data[$i]));
-    $h=5*$nb;
+    $h=3*$nb + 2; // Aumenta la altura de la celda en 2 unidades
     //Issue a page break first if needed
     $this->CheckPageBreak($h);
     //Draw the cells of the row
@@ -63,15 +64,21 @@ function Row($data,$imagen){
         $x=$this->GetX();
         $y=$this->GetY();
         //Draw the border
-        if($h<=35){
-            $h=35;
+        if($h<=37){
+            $h=37;
         }
         $this->Rect($x,$y,$w,$h);
         if($i==5){
-            $this->Image($imagen,$x-12,$y+5,29,29);
+            $this->SetXY($x, $y +1);
+            $this->Image($imagen,$x-12,$y+($h-29)/2,29,29);
+        } else if ($i==2 || $i==3 || $i==4) {
+            $this->SetXY($x, $y +1); // Centra el texto verticalmente
+        } else {
+            //Print the text
+            $this->SetXY($x, $y + ($h - 3) / 2); // Centra el texto verticalmente
         }
-        //Print the text
-        $this->MultiCell($w,5,$data[$i],0,$a);
+        
+        $this->MultiCell($w,3,$data[$i],0,$a);
         //Put the position to the right of the cell
         $this->SetXY($x+$w,$y);
     }
@@ -82,7 +89,6 @@ function Row($data,$imagen){
         $this->CheckPageBreak($h);
     }
 }
-
 //-----------DESPUES DE UN SALTO DE LINEA-----------------------//
 function CheckPageBreak($h){
     //importar variables globales a la clase
@@ -102,8 +108,8 @@ function CheckPageBreak($h){
         }
         $this->SetTextColor(255,255,255);
         $this->SetFont('arial','b',9);
-        $this->Cell(10,12, utf8_decode('Item'),1,0,'C',true);
-        $this->Cell(20,12, utf8_decode('Código'),1,0,'C',true);
+        $this->Cell(8,12, utf8_decode('Item'),1,0,'C',true);
+        $this->Cell(30,12, utf8_decode('Código'),1,0,'C',true);
         $this->Cell(96,12, utf8_decode('Descripción'),1,0,'C',true);
         $this->Cell(15,12, utf8_decode('Cant.'),1,0,'C',true);
         $x = $this->GetX();

@@ -362,6 +362,13 @@ function cartProduct(id_prod, contenedor, total) {
         costTotalInput.readOnly = true;
         card.appendChild(costTotalInput);
 
+        //tiempo de entrega
+        const tiempoEntrega = document.createElement('input');
+        tiempoEntrega.type = 'number';
+        tiempoEntrega.value = '0';
+        tiempoEntrega.classList.add('cart-item__tmpEntrega');
+        card.appendChild(tiempoEntrega);
+
         const trashImg = document.createElement('img');
         trashImg.src = '../imagenes/trash.svg';
         trashImg.classList.add('icon__CRUD');
