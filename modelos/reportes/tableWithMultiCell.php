@@ -31,10 +31,17 @@ class pdf extends FPDF{
         $this->ln(12);	
     }
 	public function footer(){
+        /*
         $this->SetTextColor(0,0,0);
 		$this->SetFont('arial','',9);
         $this->SetY(-15);
-        $this->Cell(0,10, utf8_decode('SMS Integración y Control LTDA. - Dirección: Av. Arce Esq. Clavijo 2896 - Telf. (591-2) 2430864-2430867 - La Paz - Bolivia'),0,1,'C',false);
+        $this->Cell(0,10, utf8_decode('SMS Integración y Control LTDA. - Dirección: Av. Arce Esq. Clavijo 2896 - Telf. (591-2) 2430864-2430867 - La Paz - Bolivia'),0,1,'C',false);*/
+
+        $this->Image('logos/smc.jpg',5,262,50,15);
+        $this->Image('logos/siemens.jpg',60,262,50,15);
+        $this->Image('logos/kimo.jpg',115,262,40,15);
+        $this->Image('logos/nacionalInstruments.jpg',160,262,50,15);
+
 	}
 //---------------------script para ajuste de texto en celda---------------//
 var $widths;
@@ -109,22 +116,24 @@ function CheckPageBreak($h){
         $this->SetTextColor(255,255,255);
         $this->SetFont('arial','b',9);
         $this->Cell(8,12, utf8_decode('Item'),1,0,'C',true);
-        $this->Cell(30,12, utf8_decode('Código'),1,0,'C',true);
-        $this->Cell(96,12, utf8_decode('Descripción'),1,0,'C',true);
-        $this->Cell(15,12, utf8_decode('Cant.'),1,0,'C',true);
+        $this->Cell(32,12, utf8_decode('Código'),1,0,'C',true);
+        $this->Cell(90,12, utf8_decode('Descripción'),1,0,'C',true);
+        $this->Cell(10,12, utf8_decode('Cant.'),1,0,'C',true);
         $x = $this->GetX();
-        $this->Cell(41,6, utf8_decode('Costo '.$unidad3),1,1,'C',true);
+        $this->Cell(46,6, utf8_decode('Costo '.$unidad3),1,1,'C',true);
         $this->SetX($x);
-        $this->Cell(17,6, utf8_decode('Unitario'),1,0,'C',true);
-        $this->Cell(24,6, utf8_decode('Total'),1,1,'C',true);
+        $this->Cell(19,6, utf8_decode('Unitario'),1,0,'C',true);
+        $this->Cell(27,6, utf8_decode('Total'),1,1,'C',true);
+        $this->SetXY(191, 27);
+        $this->MultiCell(20,6, utf8_decode('Tiempo de entrega '),1,'C',true);
         $this->SetTextColor(0,0,0);
         $this->SetFont('arial','',9);
 
         $this->SetLineWidth(0.8);
-        $this->line(15,35,201,35);
-        $this->line(201,35,201,260);
-        $this->line(15,35,15,260);
-        $this->line(15,260,201,260);
+        $this->line(5,27,211,27);
+        $this->line(211,27,211,260);
+        $this->line(5,27,5,260);
+        $this->line(5,260,211,260);
         $this->SetLineWidth(0.2);
     }
 }

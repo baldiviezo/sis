@@ -82,7 +82,8 @@ class consultas{
     		$id_prod = $celda['id_prod'];
     		$cantidad = $celda['cantidad'];
     		$costoUnitario = $celda['costoUnitario'];
-    		$consulta2 = "INSERT INTO  prof_prod (fk_id_prof_pfpd, fk_id_prod_pfpd, cantidad_pfpd, cost_uni_pfpd) VALUES ('$numero_prof','$id_prod','$cantidad','$costoUnitario')";	
+			$tiempoEntrega = $celda['tiempoEntrega'];
+    		$consulta2 = "INSERT INTO  prof_prod (fk_id_prof_pfpd, fk_id_prod_pfpd, cantidad_pfpd, cost_uni_pfpd, tmp_entrega_pfpd) VALUES ('$numero_prof','$id_prod','$cantidad','$costoUnitario', '$tiempoEntrega')";	
 			$resultado2 = $conexion->query($consulta2);
 		}
 		echo "Proforma creada exitosamente";

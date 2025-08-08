@@ -81,7 +81,7 @@ $fpdf->ln(14);
 $fpdf->SetTextColor(0,0,0);
 $fpdf->SetFont('arial','',9);
 
-$fpdf->SetWidths(array(8,32,90,10,19,27));
+$fpdf->SetWidths(array(8,32,90,10,19,27,20));
 //------
 //$productos = json_decode($_SESSION['cart'],true);
 include '../../modelos/conexion.php';
@@ -98,50 +98,25 @@ if ($pdf == 'prof'){
 
 foreach ($pf_pd as $producto) {
     $costoTotal =  $producto['cantidad_'.$referencia]*$producto['cost_uni_'.$referencia];
-    $fpdf->Row(array($i, utf8_decode($producto['codigo_prod']),utf8_decode($producto['descripcion_prod']), $producto['cantidad_'.$referencia], number_format($producto['cost_uni_'.$referencia], 2, ',', '.'), number_format($costoTotal, 2, ',', '.')),'../imagenes/'.$producto['imagen_prod']);
+    $fpdf->Row(array($i, utf8_decode($producto['codigo_prod']),utf8_decode($producto['descripcion_prod']), $producto['cantidad_'.$referencia], number_format($producto['cost_uni_'.$referencia], 2, ',', '.'), number_format($costoTotal, 2, ',', '.'), $producto['tmp_entrega_pfpd'] == 0 ? 'inmediata' : utf8_decode($producto['tmp_entrega_pfpd'].' días')),'../imagenes/'.$producto['imagen_prod']);
     $i++;
     $total = $total + $costoTotal;
 }
 
-/*
-if($fpdf->GetY()>210){
-    $fpdf->AddPage();
-
-    $fpdf->SetTextColor(255,255,255);
-    $fpdf->SetFont('arial','b',9);
-    $fpdf->Cell(10,12, utf8_decode('Item'),1,0,'C',true);
-    $fpdf->Cell(20,12, utf8_decode('Código'),1,0,'C',true);
-    $fpdf->Cell(96,12, utf8_decode('Descripción'),1,0,'C',true);
-    $fpdf->Cell(15,12, utf8_decode('Cant.'),1,0,'C',true);
-    $x = $fpdf->GetX();
-    $fpdf->Cell(41,6, utf8_decode('Costo '.$unidad2),1,1,'C',true);
-    $fpdf->SetX($x);
-    $fpdf->Cell(17,6, utf8_decode('Unitario'),1,0,'C',true);
-    $fpdf->Cell(24,6, utf8_decode('Total'),1,1,'C',true);
-    $fpdf->SetTextColor(0,0,0);
-    $fpdf->SetFont('arial','',9);
-
-    $fpdf->SetLineWidth(0.8);
-    $fpdf->line(15,35,201,35);
-    $fpdf->line(201,35,201,260);
-    $fpdf->line(15,35,15,260);
-    $fpdf->line(15,260,201,260);
-    $fpdf->SetLineWidth(0.2);
-}*/
 //------
 $fpdf->SetTextColor(255,255,255);
 $fpdf->SetFont('arial','b',9);
-$fpdf->SetX(143);
+$fpdf->SetX(155);
 
 $fpdf->Cell(32,6, 'Sub-Total('.$unidad2.')',1,0,'R',true);
 $fpdf->MultiCell(24,6, number_format($total, 2, ',', '.').' '.$moneda.'',1,'R',true);
 if($_descuento!='0'){
-    $fpdf->SetX(143);
+    $fpdf->SetX(155);
     $fpdf->Cell(32,6, 'Desc. '.($_descuento).'%('.$unidad2.')',1,0,'R',true);
     $descuento = ($total*$_descuento)/100;
     $fpdf->MultiCell(24,6, number_format($descuento,2, ',', '.').' '.$moneda.'',1,'R',true);
 }
-$fpdf->SetX(143);
+$fpdf->SetX(155);
 $fpdf->Cell(32,6, 'TOTAL('.$unidad2.')',1,0,'R',true);
 $total = $total*(1-$_descuento/100);
 $total = round($total, 2);
@@ -149,7 +124,7 @@ $fpdf->MultiCell(24,6, number_format($total, 2, ',', '.').' '.$moneda.'',1,'R',t
 
 
 if($moneda == '$'){
-    $fpdf->SetX(143);
+    $fpdf->SetX(155);
     $fpdf->Cell(32,6, 'TOTAL(Bs)',1,0,'R',true);
 
     $total = $total*$_tipo_cambio;
@@ -170,11 +145,6 @@ require_once "cifrasEnLetras.php";
 $modelonumero = new modelonumero();
 $letra=$modelonumero->numtoletras($total);
 $fpdf->MultiCell(0,6, strtoupper(utf8_decode($letra)),0,'L',false);
-$fpdf->SetTextColor(255,0,0);
-$fpdf->SetFont('arial','b',8);
-$fpdf->SetY(253); //En 54 se pasa de hoja
-$fpdf->Cell(0,6, utf8_decode('El tiempo de entrega se contabiliza una vez se cumplan las condiciones de pago.'),'',1,'',false);
-
 
 $fpdf->AddPage();
 $fpdf->SetFont('arial','b',10);

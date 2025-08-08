@@ -33,10 +33,10 @@
 	background-color: #fff;
 	border-radius: .5rem;
 }
-.modal__container--previewProducts{
+.container--previewProducts{
 	display: grid;/*activa el overlay*/
 	width: 94%;
-	max-width: 71rem;
+	max-width: 78rem;
 	height: 90%;
 	margin: auto;	
 	font-family: 'Roboto', sans-serif;
@@ -366,6 +366,9 @@ tbody tr:hover{
 }
 #previewProducts td:nth-of-type(5), #previewProducts td:nth-of-type(6){
 	min-width: 5rem;
+}
+#previewProducts td:nth-of-type(7){
+	min-width: 7rem;
 }
 .textarea__preview{
 	min-width: 100%;

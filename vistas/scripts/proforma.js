@@ -731,7 +731,8 @@ async function createProforma() {
             productos.push({
                 id_prod: div.getAttribute('id_prod'),
                 cantidad: div.querySelector('.cart-item__cantidad').value,
-                costoUnitario: div.querySelector('.cart-item__costUnit').value
+                costoUnitario: div.querySelector('.cart-item__costUnit').value,
+                tiempoEntrega: div.querySelector('.cart-item__tmpEntrega').value
             })
         }
 
@@ -1187,6 +1188,10 @@ function createTable(tbody, productos, moneda) {
         tdTotal.innerHTML = `${producto.querySelector('.cart-item__costTotal').value} ${monedaSymbol}`;
         tr.appendChild(tdTotal);
 
+        const tdTiempoEntrega = document.createElement('td');
+        tdTiempoEntrega.innerText = producto.querySelector('.cart-item__tmpEntrega').value == 0 ? 'Inmediato' : `${producto.querySelector('.cart-item__tmpEntrega').value} dias`;
+        tr.appendChild(tdTiempoEntrega);
+
         fragment.appendChild(tr);
     });
 
@@ -1203,7 +1208,7 @@ function updateTotales(total, desc, moneda) {
     footerData.forEach((item, index) => {
         const tr = document.createElement('tr');
         const tdLabel = document.createElement('td');
-        tdLabel.setAttribute('colspan', '5');
+        tdLabel.setAttribute('colspan', '6');
 
         const tdValue = document.createElement('td');
         tdValue.setAttribute('colspan', '2');
@@ -1232,7 +1237,7 @@ function createButton(tbody, formProformas) {
         button.setAttribute('onclick', 'createOC();');
     }
 
-    tdLabel.setAttribute('colspan', '6');
+    tdLabel.setAttribute('colspan', '7');
     tdValue.appendChild(button);
     tr.appendChild(tdLabel);
     tr.appendChild(tdValue);
@@ -1452,7 +1457,8 @@ function selectPDFInformation(id, pdf) {
                         'descripcion_prod': product['descripcion_prod'],
                         'cantidad_pfpd': pf_pd['cantidad_pfpd'],
                         'cost_uni_pfpd': pf_pd['cost_uni_pfpd'],
-                        'imagen_prod': product['imagen_prod']
+                        'imagen_prod': product['imagen_prod'],
+                        'tmp_entrega_pfpd': pf_pd['tmp_entrega_pfpd']
                     };
                 });
             showPDF(proforma, objects, pdf);
@@ -1477,7 +1483,6 @@ function selectPDFInformation(id, pdf) {
 }
 //-------Crear el pdf de la proforma
 function showPDF(prof_mprof_ne, pf_pd, pdf) {
-
     // Crea un formulario oculto
     var form = document.createElement('form');
     form.method = 'post';
