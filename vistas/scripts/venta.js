@@ -462,6 +462,7 @@ excelProdVnt.addEventListener('click', () => {
     console.log(filterVnt_prods)
     const reporte = filterVnt_prods.map((obj, index) => ({
         'Item': index + 1,
+        'Factura': obj.factura_vnt,
         'Nombre cliente': obj.nombre_emp === 'Ninguna' ? obj.nombre_clte + ' ' + obj.apellido_clte : obj.nombre_emp,
         'Codigo producto': obj.codigo_smc_prod,
         'Codigo Japón': obj.codigo_vtpd,
