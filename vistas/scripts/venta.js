@@ -37,7 +37,8 @@ async function readSales() {
         fetch('../controladores/ventas.php', {
             method: "POST",
             body: formData
-        }).then(response => response.json()).then(data => {
+        }).then(response => response.text()).then(data => {
+            console.log(data)
             sales = Object.values(data);
             selectYearVnt();
             filterSales = sales;

@@ -4,7 +4,6 @@ const roles = {
   'Gerente general': [
     { href: 'inicio.html', text: 'Inicio' },
     { href: 'usuarios.html', text: 'Usuarios' },
-    { href: 'productos.html', text: 'Productos' },
     { href: 'inventario.html', text: 'Inventario' },
     { href: 'proforma.html', text: 'Proforma' },
     { href: 'notaEntrega.html', text: 'Orden de compra' },
@@ -17,7 +16,6 @@ const roles = {
   'Administrador': [
     { href: 'inicio.html', text: 'Inicio' },
     { href: 'usuarios.html', text: 'Usuarios' },
-    { href: 'productos.html', text: 'Productos' },
     { href: 'inventario.html', text: 'Inventario' },
     { href: 'proforma.html', text: 'Proforma' },
     { href: 'notaEntrega.html', text: 'Orden de compra' },
@@ -29,7 +27,6 @@ const roles = {
   'Ingeniero': [
     { href: 'inicio.html', text: 'Inicio' },
     { href: 'usuarios.html', text: 'Usuario' },
-    { href: 'productos.html', text: 'Productos' },
     { href: 'inventario.html', text: 'Inventario' },
     { href: 'proforma.html', text: 'Proforma' },
     { href: 'cerrar.html', text: 'Cerrar sesión' }
@@ -37,7 +34,6 @@ const roles = {
   'Gerente De Inventario': [
     { href: 'inicio.html', text: 'Inicio' },
     { href: 'usuarios.html', text: 'Usuario' },
-    { href: 'productos.html', text: 'Productos' },
     { href: 'inventario.html', text: 'Inventario' },
     { href: 'proforma.html', text: 'Proforma' },
     { href: 'cerrar.html', text: 'Cerrar sesión' }
