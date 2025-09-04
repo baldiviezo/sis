@@ -37,8 +37,7 @@ async function readSales() {
         fetch('../controladores/ventas.php', {
             method: "POST",
             body: formData
-        }).then(response => response.text()).then(data => {
-            console.log(data)
+        }).then(response => response.json()).then(data => {
             sales = Object.values(data);
             selectYearVnt();
             filterSales = sales;
@@ -460,20 +459,20 @@ function saveAsExcel(buffer, filename) {
 }
 const excelProdVnt = document.getElementById('excelProdVnt');
 excelProdVnt.addEventListener('click', () => {
-    console.log(filterVnt_prods)
     const reporte = filterVnt_prods.map((obj, index) => ({
         'Item': index + 1,
-        'Factura': obj.factura_vnt,
+        'Numero cliente': obj.numero_clte,
         'Nombre cliente': obj.nombre_emp === 'Ninguna' ? obj.nombre_clte + ' ' + obj.apellido_clte : obj.nombre_emp,
         'Codigo producto': obj.codigo_smc_prod,
         'Codigo Japón': obj.codigo_vtpd,
         'Descripcion del producto': obj.nombre_prod,
         'Cantidad': obj.cantidad_vtpd,
+        'Precio Lista': obj.cost_uni_inv,
+        'Total a precio de lista': obj.cost_uni_inv * obj.cantidad_vtpd,
         'Precio venta sin IVA': obj.cost_uni_vtpd * obj.cantidad_vtpd * (1- obj.descuento_prof/100)  * 0.87,
         'Total a precio venta': obj.cost_uni_vtpd * obj.cantidad_vtpd * (1- obj.descuento_prof/100),
         'Fecha venta': obj.fecha_vnt.toString().split(' ')[0],
-        'Precio Lista': obj.cost_uni_inv,
-        'Total a precio de lista': obj.cost_uni_inv * obj.cantidad_vtpd
+        'Factura': obj.factura_vnt
     }));
     downloadAsExcel(reporte);
 });

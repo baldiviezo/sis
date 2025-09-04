@@ -39,6 +39,7 @@ async function init() {
             paginacionProductMW(products.length, 1);
             paginacionPfPd(filterProf_prods.length, 1);
             paginacionInventoryMW(inventories.length, 1);
+            paginacionTableClteMW(filterCustomers.length, 1);
             createYearProforma();
             requestProf = false;
             preloader.classList.remove('modal__show');
@@ -511,9 +512,7 @@ function searchProforma() {
     selectStateProformas();
 }
 function createYearProforma() {
-    const anios = Array.from(new Set(proformas.map(proforma => proforma.fecha_prof.split('-')[0])));
-
-    // Crear opciones para selectYearProf
+    const anios = Array.from(new Set(proformas.map(proforma => proforma.fecha_prof.split('-')[0])));    
     selectYearProf.innerHTML = '';
     let optionFirst = document.createElement('option');
     optionFirst.value = 'todas';
@@ -525,8 +524,6 @@ function createYearProforma() {
         option.textContent = anio;
         selectYearProf.appendChild(option);
     }
-
-    // Crear opciones para selectYearPfPd
     selectYearPfPd.innerHTML = '';
     optionFirst = document.createElement('option');
     optionFirst.value = 'todas';
@@ -1148,53 +1145,40 @@ function getDescuento() {
 }
 function createTable(tbody, productos, moneda) {
     const fragment = document.createDocumentFragment();
-
     productos.forEach((producto, index) => {
-
         const row = products.find(product => product.id_prod == producto.getAttribute('id_prod'));
         const monedaSymbol = `<b>${moneda}</b>`;
-
         const tr = document.createElement('tr');
         tr.setAttribute('id_prod', producto.getAttribute('id_prod'));
-
         const tdIndex = document.createElement('td');
         tdIndex.innerText = index + 1;
         tr.appendChild(tdIndex);
-
         const tdCodigo = document.createElement('td');
         tdCodigo.innerText = row.codigo_prod;
         tr.appendChild(tdCodigo);
-
         const tdDescripcion = document.createElement('td');
         tdDescripcion.innerText = row.descripcion_prod;
         tr.appendChild(tdDescripcion);
-
         const tdImagen = document.createElement('td');
         const img = document.createElement('img');
         img.classList.add('tbody__img');
         img.setAttribute('src', `../modelos/imagenes/${row.imagen_prod}`);
         tdImagen.appendChild(img);
         tr.appendChild(tdImagen);
-
         const tdCantidad = document.createElement('td');
         tdCantidad.innerText = producto.querySelector('.cart-item__cantidad').value;
         tr.appendChild(tdCantidad);
-
         const tdPrecio = document.createElement('td');
         tdPrecio.innerHTML = `${producto.querySelector('.cart-item__costUnit').value} ${monedaSymbol}`;
         tr.appendChild(tdPrecio);
-
         const tdTotal = document.createElement('td');
         tdTotal.innerHTML = `${producto.querySelector('.cart-item__costTotal').value} ${monedaSymbol}`;
         tr.appendChild(tdTotal);
-
         const tdTiempoEntrega = document.createElement('td');
         tdTiempoEntrega.innerText = producto.querySelector('.cart-item__tmpEntrega').value == 0 ? 'Inmediato' : `${producto.querySelector('.cart-item__tmpEntrega').value} dias`;
         tr.appendChild(tdTiempoEntrega);
-
         fragment.appendChild(tr);
     });
-
     tbody.innerHTML = '';
     tbody.appendChild(fragment);
 }
@@ -1209,12 +1193,10 @@ function updateTotales(total, desc, moneda) {
         const tr = document.createElement('tr');
         const tdLabel = document.createElement('td');
         tdLabel.setAttribute('colspan', '6');
-
         const tdValue = document.createElement('td');
         tdValue.setAttribute('colspan', '2');
         tdValue.classList.add('footer__tbody');
         tdValue.innerText = `${item.value} ${moneda}`;
-
         tr.appendChild(tdLabel);
         tr.appendChild(tdValue);
         tbodyPreviewProd.appendChild(tr);
@@ -1236,7 +1218,6 @@ function createButton(tbody, formProformas) {
         button.innerText = 'CREAR OC';
         button.setAttribute('onclick', 'createOC();');
     }
-
     tdLabel.setAttribute('colspan', '7');
     tdValue.appendChild(button);
     tr.appendChild(tdLabel);
@@ -1334,11 +1315,9 @@ async function readMdfProforma() {
 function showMdfProforma(id_prof) {
     const tbody = document.getElementById('tbodymProforma');
     const tablemProfMW = document.getElementById('tablemProfMW');
-
     tablemProfMW.classList.add('modal__show');
     tbody.innerHTML = '';
     document.querySelector('#tablemProfMW div.table__title h1').innerHTML = proformas.find(proforma => proforma.id_prof === id_prof).numero_prof;
-
     let i = 1;
     mdfPproforma.forEach((proforma, index) => {
         if (proforma.id_prof_mprof === id_prof) {
@@ -1346,43 +1325,31 @@ function showMdfProforma(id_prof) {
             const usuario = users.find(user => user.id_usua === proforma.fk_id_usua_mprof);
             const empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
             const tr = document.createElement('tr');
-
             tr.setAttribute('id_mprof', proforma.id_mprof);
-
             const tdNumero = document.createElement('td');
             tdNumero.innerText = i;
             tr.appendChild(tdNumero);
-
             const tdNumeroProforma = document.createElement('td');
             tdNumeroProforma.innerText = proforma.numero_mprof;
             tr.appendChild(tdNumeroProforma);
-
             const tdFecha = document.createElement('td');
             tdFecha.innerText = proforma.fecha_mprof;
             tr.appendChild(tdFecha);
-
             const tdEncargado = document.createElement('td');
             tdEncargado.innerText = usuario.nombre_usua + ' ' + usuario.apellido_usua;
             tr.appendChild(tdEncargado);
-
             const tdEmpresa = document.createElement('td');
             tdEmpresa.innerText = empresa.nombre_emp;
             tr.appendChild(tdEmpresa);
-
             const tdCliente = document.createElement('td');
             tdCliente.innerText = cliente.apellido_clte + ' ' + cliente.nombre_clte;
             tr.appendChild(tdCliente);
-
             const tdTotal = document.createElement('td');
             tdTotal.innerText = proforma.total_mprof + ' ' + proforma.moneda_mprof;
             tr.appendChild(tdTotal);
-
             const tdAcciones = document.createElement('td');
             const fragment = document.createDocumentFragment();
-
             let imgs = [];
-
-
             if (['Administrador', 'Gerente general'].includes(localStorage.getItem('rol_usua'))) {
                 imgs = [
                     { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_mprof}, "mprof")`, title: 'PDF' },
@@ -1393,8 +1360,6 @@ function showMdfProforma(id_prof) {
                     { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_mprof}, "mprof")`, title: 'PDF' }
                 ];
             }
-
-
             imgs.forEach((img) => {
                 const imgElement = document.createElement('img');
                 imgElement.src = img.src;
@@ -1402,10 +1367,8 @@ function showMdfProforma(id_prof) {
                 imgElement.title = img.title;
                 fragment.appendChild(imgElement);
             });
-
             tdAcciones.appendChild(fragment);
             tr.appendChild(tdAcciones);
-
             tbody.appendChild(tr);
             i++;
         }
@@ -3547,5 +3510,114 @@ async function readUsers() {
         }).catch(err => {
             mostrarAlerta('Ocurrio un error al cargar la tabla de usuarios, cargue nuevamente la pagina');
         });
+    });
+}
+
+
+
+/****************************TABLA CLIENTES****************************************/
+//-------Abrir Tabla
+const tableClteMW = document.getElementById('tableClteMW');
+const closetableClteMW = document.getElementById('closetableClteMW');
+function openTableClteMW(){
+    tableClteMW.classList.add('modal__show');
+}
+closetableClteMW.addEventListener('click', ()=>{
+    tableClteMW.classList.remove('modal__show');
+});
+
+
+//---------------------------------------------TABLA MODAL CUSTOMER---------------------------------
+//------Select utilizado para buscar por columnas
+const selectSearchClteMW = document.getElementById('selectSearchClteMW');
+selectSearchClteMW.addEventListener('change', searchCustomersMW);
+//------buscar por input
+const inputSearchClteMW = document.getElementById("inputSearchClteMW");
+inputSearchClteMW.addEventListener("keyup", searchCustomersMW);
+//------Clientes por pagina
+const selectNumberClteMW = document.getElementById('selectNumberClteMW');
+selectNumberClteMW.selectedIndex = 3;
+selectNumberClteMW.addEventListener('change', function () {
+    paginacionTableClteMW(filterCustomers.length, 1);
+});
+//------buscar por:
+function searchCustomersMW() {
+    const busqueda = inputSearchClteMW.value.toLowerCase();
+    const valor = selectSearchClteMW.value.toLowerCase().trim();
+    filterCustomers = chosenCustomer.filter(customer => {
+        const empresa = enterprises.find(enterprise => enterprise.id_emp === customer.fk_id_emp_clte);
+        if (valor === 'todas') {
+            return (
+                customer.nit_clte.toString().toLowerCase().includes(busqueda) ||
+                empresa.nombre_emp.toLowerCase().includes(busqueda) ||
+                customer.email_clte.toLowerCase().includes(busqueda) ||
+                customer.direccion_clte.toLowerCase().includes(busqueda) ||
+                customer.celular_clte.toString().toLowerCase().includes(busqueda) ||
+                (customer.apellido_clte + ' ' + customer.nombre_clte).toLowerCase().includes(busqueda)
+            );
+        } else if (valor === 'cliente') {
+            return (customer.apellido_clte + ' ' + customer.nombre_clte).toLowerCase().includes(busqueda);
+        } else {
+            return customer[valor].toLowerCase().includes(busqueda);
+        }
+    });
+    paginacionTableClteMW(filterCustomers.length, 1);
+}
+//------PaginacionCustomer
+function paginacionTableClteMW(filterCustomers, page) {
+    let numberEnterprises = Number(selectNumberClteMW.value);
+    let allPages = Math.ceil(filterCustomers / numberEnterprises);
+    let ul = document.querySelector('#wrapperClteMW ul');
+    let li = '';
+    let beforePages = page - 1;
+    let afterPages = page + 1;
+    let liActive;
+    if (page > 1) {
+        li += `<li class="btn" onclick="paginacionTableClteMW(${filterCustomers}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
+    }
+    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
+        if (pageLength > allPages) {
+            continue;
+        }
+        if (pageLength == 0) {
+            pageLength = pageLength + 1;
+        }
+        if (page == pageLength) {
+            liActive = 'active';
+        } else {
+            liActive = '';
+        }
+        li += `<li class="numb ${liActive}" onclick="paginacionTableClteMW(${filterCustomers}, ${pageLength})"><span>${pageLength}</span></li>`;
+    }
+    if (page < allPages) {
+        li += `<li class="btn" onclick="paginacionTableClteMW(${filterCustomers}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
+    }
+    ul.innerHTML = li;
+    let h2 = document.querySelector('#showPageClteMW h2');
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${filterCustomers} Clientes`;
+    tableCltesMW(page);
+}
+//------Crear la tabla
+function tableCltesMW(page) {
+    const tbody = document.getElementById('tbodyClteMW');
+    const inicio = (page - 1) * Number(selectNumberClteMW.value);
+    const final = inicio + Number(selectNumberClteMW.value);
+    let i = 1;
+    tbody.innerHTML = '';
+
+    const customer = filterCustomers.slice(inicio, final);
+    customer.forEach((clte, index) => {
+        const tr = document.createElement('tr');
+        
+        const tdNumero = document.createElement('td');
+        tdNumero.innerText = index + 1;
+        tr.appendChild(tdNumero);
+
+        const tdEmpresa = document.createElement('td');
+        const empresa = enterprises.find(enterprise => enterprise.id_emp === clte.fk_id_emp_clte);
+        tdEmpresa.innerText = empresa ? empresa.nombre_emp : 'N/A';
+        tr.appendChild(tdEmpresa);
+
+        tbody.appendChild(tr);
     });
 }
