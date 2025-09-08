@@ -512,7 +512,7 @@ function searchProforma() {
     selectStateProformas();
 }
 function createYearProforma() {
-    const anios = Array.from(new Set(proformas.map(proforma => proforma.fecha_prof.split('-')[0])));    
+    const anios = Array.from(new Set(proformas.map(proforma => proforma.fecha_prof.split('-')[0])));
     selectYearProf.innerHTML = '';
     let optionFirst = document.createElement('option');
     optionFirst.value = 'todas';
@@ -629,7 +629,7 @@ function tableProformas(page) {
         const cliente = customers.find(customer => customer.id_clte === proforma.fk_id_clte_prof);
         const usuario = users.find(user => user.id_usua === proforma.fk_id_usua_prof);
         const empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
-        
+
         const tr = document.createElement('tr');
         tr.setAttribute('id_prof', proforma.id_prof);
 
@@ -684,7 +684,7 @@ function tableProformas(page) {
                     { src: '../imagenes/edit.svg', onclick: `readProforma(${proforma.id_prof})`, title: 'Editar Proforma' }
                 ];
             }
-        } 
+        }
         const hasMdfProforma = mdfPproforma.filter(mdfProforma => mdfProforma.id_prof_mprof == proforma.id_prof).length > 0;
         if (hasMdfProforma) {
             imgs.push({ src: '../imagenes/folder.svg', onclick: `showMdfProforma(${proforma.id_prof})`, title: 'Proformas anteriores' });
@@ -1937,7 +1937,9 @@ function tableEnterprisesMW(page) {
             }
             let td = document.createElement('td');
             td.innerHTML = `
-                <img src='../imagenes/send.svg' onclick='sendEnterprise(${filterEnterprises[enterprise].id_emp})'>`;
+                <img src='../imagenes/send.svg' onclick='sendEnterprise(${filterEnterprises[enterprise].id_emp})'>
+                <img src='../imagenes/edit.svg' onclick='readEnterprise(${filterEnterprises[enterprise].id_emp})'>
+                <img src='../imagenes/trash.svg' onclick='deleteEnterprise(${filterEnterprises[enterprise].id_emp})'>`;
             tr.appendChild(td);
             tbody.appendChild(tr);
         } else {
@@ -1968,7 +1970,7 @@ function sendEnterprise(id_emp) {
             fk_cliente_profR.value = `${clienteDefault.apellido_clte} ${clienteDefault.nombre_clte}`;
         }
 
-        filterCustomers = customers.filter(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte !== '' && customer.apellido_clte !== '');
+        chosenCustomer = customers.filter(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte !== '' && customer.apellido_clte !== '');
     } else if (formProformas === 'M') {
         const empresa = enterprises.find(enterprise => enterprise.id_emp === id_emp);
         const cliente = customers.find(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte === '' && customer.apellido_clte === '');
@@ -1985,10 +1987,9 @@ function sendEnterprise(id_emp) {
             fk_cliente_profM.value = `${clienteDefault.apellido_clte} ${clienteDefault.nombre_clte}`;
         }
 
-        filterCustomers = customers.filter(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte !== '' && customer.apellido_clte !== '');
+        chosenCustomer = customers.filter(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte !== '' && customer.apellido_clte !== '');
     }
-    chosenCustomer = filterCustomers;
-    paginacionCustomerMW(filterCustomers.length, 1);
+    paginacionCustomerMW(chosenCustomers.length, 1);
 }
 //----------------------------------ventana modal EnterpriseSMW-------------------------------------------
 const enterpriseSMW = document.getElementById('enterpriseSMW');
@@ -2004,15 +2005,10 @@ closeEnterpriseSMW.addEventListener('click', () => {
 });
 //<<---------------------------CRUD EMPRESA------------------------------->>
 //------Leer una empresa
-function readEnterprise(div) {
-    let id_emp = div.children[0].value;
-    for (let enterprise in enterprises) {
-        if (enterprises[enterprise]['id_emp'] == id_emp) {
-            for (let valor in enterprises[enterprise]) {
-                document.getElementsByName(valor + 'M')[0].value = enterprises[enterprise][valor];
-            }
-            break;
-        }
+function readEnterprise(id_emp) {
+    const empresa = enterprises.find(enterprise => enterprise['id_emp'] === id_emp);
+    for (const key in empresa) {
+        document.getElementsByName(`${key}M`)[0].value = empresa[key];
     }
     enterprisesMMW.classList.add('modal__show');
 }
@@ -2024,7 +2020,7 @@ async function createEnterprise() {
     if (requestProf == false) {
         requestProf = true;
         enterprisesRMW.classList.remove('modal__show');
-        let formData = new FormData(formEmpresaR);
+        const formData = new FormData(formEmpresaR);
         formData.append('createEnterprise', '');
         preloader.classList.add('modal__show');
         fetch('../controladores/clientes.php', {
@@ -2038,6 +2034,7 @@ async function createEnterprise() {
                 formEmpresaR.reset();
                 mostrarAlerta(data);
                 paginacionEnterpriseMW(filterEnterprises.length, 1);
+                paginacionTableClteMW(filterCustomers.length, 1);
                 preloader.classList.remove('modal__show');
             })
         }).catch(err => {
@@ -2062,9 +2059,13 @@ async function updateEnterprise() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            readEnterprises().then(() => {
+            readCustomers().then(() => {
+                return readEnterprises();
+            }).then(() => {
                 requestProf = false;
                 mostrarAlerta(data);
+                paginacionEnterpriseMW(filterEnterprises.length, 1);
+                paginacionTableClteMW(filterCustomers.length, 1);
                 fk_id_emp_clteR.value = indexEnterprise;
                 preloader.classList.remove('modal__show');
             })
@@ -2075,8 +2076,7 @@ async function updateEnterprise() {
     }
 }
 //------Borrar una empresa
-async function deleteEnterprise(div) {
-    let id_emp = div.children[0].value;
+async function deleteEnterprise(id_emp) {
     if (confirm('¿Esta usted seguro?')) {
         if (requestProf == false) {
             requestProf = true;
@@ -2087,9 +2087,13 @@ async function deleteEnterprise(div) {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
-                readEnterprises().then(() => {
+                readCustomers().then(() => {
+                    return readEnterprises();
+                }).then(() => {
                     requestProf = false;
                     mostrarAlerta(data);
+                    paginacionEnterpriseMW(filterEnterprises.length, 1);
+                    paginacionTableClteMW(filterCustomers.length, 1);
                     indexEnterprise = 0;
                     preloader.classList.remove('modal__show');
                 })
@@ -2121,6 +2125,7 @@ const fk_id_clte_profM = document.getElementById('fk_id_clte_profM');
 let customers = [];
 let filterCustomers = [];
 let chosenCustomer = [];
+let chosenCustomers = [];
 let formCustomer;
 async function readCustomers() {
     return new Promise((resolve, reject) => {
@@ -2151,9 +2156,10 @@ selectNumberClteSMW.addEventListener('change', function () {
 });
 //------buscar por:
 function searchCustomersSMW() {
+    console.log(chosenCustomer)
     const busqueda = inputSearchClteSMW.value.toLowerCase();
     const valor = selectSearchClteSMW.value.toLowerCase().trim();
-    filterCustomers = chosenCustomer.filter(customer => {
+    chosenCustomers = chosenCustomer.filter(customer => {
         const empresa = enterprises.find(enterprise => enterprise.id_emp === customer.fk_id_emp_clte);
         if (valor === 'todas') {
             return (
@@ -2170,7 +2176,7 @@ function searchCustomersSMW() {
             return customer[valor].toLowerCase().includes(busqueda);
         }
     });
-    paginacionCustomerMW(filterCustomers.length, 1);
+    paginacionCustomerMW(chosenCustomers.length, 1);
 }
 //------PaginacionCustomer
 function paginacionCustomerMW(allEnterprises, page) {
@@ -2214,49 +2220,38 @@ function tableCustomersMW(page) {
     let i = 1;
     tbody.innerHTML = '';
 
-    for (let customer in filterCustomers) {
-        if (i > inicio && i <= final) {
-            const tr = document.createElement('tr');
-            tr.setAttribute('id', `${filterCustomers[customer].id_clte}`);
+    console.log(chosenCustomers);
+    const customer = chosenCustomers.slice(inicio, final);
+    customer.forEach((clte, index) => {
+        const tr = document.createElement('tr');
 
-            for (let valor in filterCustomers[customer]) {
-                const td = document.createElement('td');
-                if (valor === 'id_clte') {
-                    td.innerText = i;
-                    tr.appendChild(td);
-                    i++;
-                } else if (valor === 'nombre_clte') {
-                    td.innerText = `${filterCustomers[customer].apellido_clte} ${filterCustomers[customer].nombre_clte}`;
-                    tr.appendChild(td);
-                } else if (valor === 'apellido_clte') {
+        const tdNumero = document.createElement('td');
+        tdNumero.innerText = index + 1;
+        tr.appendChild(tdNumero);
 
-                } else if (valor === 'fk_id_emp_clte') {
-                    let empresa = enterprises.find(enterprise => enterprise.id_emp == filterCustomers[customer][valor]);
-                    td.innerText = empresa.nombre_emp;
-                    tr.appendChild(td);
-                } else if (valor === 'nit_clte' || valor === 'celular_clte') {
-                    if (filterCustomers[customer][valor] === '0') {
-                        td.innerText = '';
-                    } else {
-                        td.innerText = filterCustomers[customer][valor];
-                    }
-                    tr.appendChild(td);
-                } else {
-                    td.innerText = filterCustomers[customer][valor];
-                    tr.appendChild(td);
-                }
-            }
+        const tdCliente = document.createElement('td');
+        tdCliente.innerText = clte.nombre_clte + ' ' + clte.apellido_clte;
+        tr.appendChild(tdCliente);
 
-            const td = document.createElement('td');
-            td.innerHTML = `
-          <img src='../imagenes/send.svg' onclick='sendCustomers(${filterCustomers[customer].id_clte})'>
-        `;
-            tr.appendChild(td);
-            tbody.appendChild(tr);
-        } else {
-            i++;
-        }
-    }
+        const tdNit = document.createElement('td');
+        tdNit.innerText = clte.nit_clte;
+        tr.appendChild(tdNit);
+
+        const tdEmail = document.createElement('td');
+        tdEmail.innerText = clte.email_clte;
+        tr.appendChild(tdEmail);
+
+        const tdDirecion = document.createElement('td');
+        tdDirecion.innerText = clte.direccion_clte;
+        tr.appendChild(tdDirecion);
+
+        const tdCelular = document.createElement('td');
+        tdCelular.innerText = clte.celular_clte;
+        tr.appendChild(tdCelular);
+
+        tbody.appendChild(tr);
+
+    });
 }
 function sendCustomers(id_clte) {
     customerSMW.classList.remove('modal__show');
@@ -2714,7 +2709,7 @@ function paginacionProductMW(allProducts, page) {
     tableProductsMW(page);
 }
 //------Crear la tabla
-function tableProductsMW(page) {   
+function tableProductsMW(page) {
     const tbody = document.getElementById('tbodyProductMW');
     const inicio = (page - 1) * Number(selectNumberProdMW.value);
     const final = inicio + Number(selectNumberProdMW.value);
@@ -3519,10 +3514,10 @@ async function readUsers() {
 //-------Abrir Tabla
 const tableClteMW = document.getElementById('tableClteMW');
 const closetableClteMW = document.getElementById('closetableClteMW');
-function openTableClteMW(){
+function openTableClteMW() {
     tableClteMW.classList.add('modal__show');
 }
-closetableClteMW.addEventListener('click', ()=>{
+closetableClteMW.addEventListener('click', () => {
     tableClteMW.classList.remove('modal__show');
 });
 
@@ -3544,21 +3539,21 @@ selectNumberClteMW.addEventListener('change', function () {
 function searchCustomersMW() {
     const busqueda = inputSearchClteMW.value.toLowerCase();
     const valor = selectSearchClteMW.value.toLowerCase().trim();
-    filterCustomers = chosenCustomer.filter(customer => {
+    filterCustomers = customers.filter(customer => {
         const empresa = enterprises.find(enterprise => enterprise.id_emp === customer.fk_id_emp_clte);
         if (valor === 'todas') {
             return (
+                (customer.nombre_clte + ' ' + customer.apellido_clte).toLowerCase().includes(busqueda) ||
                 customer.nit_clte.toString().toLowerCase().includes(busqueda) ||
-                empresa.nombre_emp.toLowerCase().includes(busqueda) ||
                 customer.email_clte.toLowerCase().includes(busqueda) ||
-                customer.direccion_clte.toLowerCase().includes(busqueda) ||
-                customer.celular_clte.toString().toLowerCase().includes(busqueda) ||
-                (customer.apellido_clte + ' ' + customer.nombre_clte).toLowerCase().includes(busqueda)
+                empresa.nombre_emp.toLowerCase().includes(busqueda) ||
+                empresa.sigla_emp.toString().toLowerCase().includes(busqueda) ||
+                empresa.nit_emp.toString().toLowerCase().includes(busqueda)
             );
         } else if (valor === 'cliente') {
-            return (customer.apellido_clte + ' ' + customer.nombre_clte).toLowerCase().includes(busqueda);
-        } else {
-            return customer[valor].toLowerCase().includes(busqueda);
+            return (customer.nombre_clte + ' ' + customer.apellido_clte).toLowerCase().includes(busqueda);
+        } else if (valor === 'nombre_emp') {
+            return empresa.nombre_emp.toLowerCase().includes(busqueda);
         }
     });
     paginacionTableClteMW(filterCustomers.length, 1);
@@ -3608,7 +3603,7 @@ function tableCltesMW(page) {
     const customer = filterCustomers.slice(inicio, final);
     customer.forEach((clte, index) => {
         const tr = document.createElement('tr');
-        
+
         const tdNumero = document.createElement('td');
         tdNumero.innerText = index + 1;
         tr.appendChild(tdNumero);
@@ -3617,6 +3612,30 @@ function tableCltesMW(page) {
         const empresa = enterprises.find(enterprise => enterprise.id_emp === clte.fk_id_emp_clte);
         tdEmpresa.innerText = empresa ? empresa.nombre_emp : 'N/A';
         tr.appendChild(tdEmpresa);
+
+        const tdSigla = document.createElement('td');
+        tdSigla.innerText = empresa ? empresa.sigla_emp : 'N/A';
+        tr.appendChild(tdSigla);
+
+        const tdCliente = document.createElement('td');
+        tdCliente.innerText = clte.nombre_clte + ' ' + clte.apellido_clte;
+        tr.appendChild(tdCliente);
+
+        const tdNit = document.createElement('td');
+        tdNit.innerText = empresa.id_emp === 77 ? clte.nit_clte : empresa.nit_emp;
+        tr.appendChild(tdNit);
+
+        const tdEmail = document.createElement('td');
+        tdEmail.innerText = clte.email_clte;
+        tr.appendChild(tdEmail);
+
+        const tdDirecion = document.createElement('td');
+        tdDirecion.innerText = clte.direccion_clte;
+        tr.appendChild(tdDirecion);
+
+        const tdCelular = document.createElement('td');
+        tdCelular.innerText = (empresa.id_emp === 77 ? clte.celular_clte : empresa.telefono_emp) || '';
+        tr.appendChild(tdCelular);
 
         tbody.appendChild(tr);
     });

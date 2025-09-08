@@ -272,11 +272,12 @@
 				<section class="table__header">
 					<div></div>
 					<div class="combo__search">
-						<div>
+						<div class="filter__search">
+							<h3>Filtrar por:</h3>
 							<select id="selectSearchClteMW" class="select">
-								<option value="todas">Buscar por</option>
-								<option value="cliente">Por Cliente</option>
-								<option value="nit_clte"> Por Nit/CI</option>
+								<option value="todas">Todo</option>
+								<option value="nombre_emp">Empresa</option>
+								<option value="cliente">Contacto</option>
 							</select>
 						</div>
 						<div class="table__search">
@@ -311,7 +312,8 @@
 							<tr>
 								<th>N°</th>
 								<th>Empresa</th>
-								<th>Cliente</th>
+								<th>Sigla</th>
+								<th>Contacto</th>
 								<th>NIT/CI</th>
 								<th>Email</th>
 								<th>Direccion</th>
@@ -958,7 +960,7 @@
 					</div>
 					<div class="form__group">
 						<!--la clase form__input se esta utilizando para realizar una funcionalidad del sistema (clpFormREnterprise())-->
-						<input type="text" name="telefono_empR" placeholder=" " class="form__input">
+						<input type="number" name="telefono_empR" placeholder=" " class="form__input">
 						<label for="telefono_empR" class="form__label">Telefono:</label>
 					</div>
 				</div>
@@ -1001,7 +1003,7 @@
 						<label for="direccion_empM" class="form__label">Direccion:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="telefono_empM" placeholder=" " class="form__input">
+						<input type="number" name="telefono_empM" placeholder=" " class="form__input">
 						<label for="telefono_empM" class="form__label">Telefono:</label>
 					</div>
 				</div>
