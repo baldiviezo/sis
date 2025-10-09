@@ -32,6 +32,12 @@ if (isset($_POST['createMarca'])){
 	$registrarMarca = new consultas;
 	$registrarMarca->createMarca();
 }
+//------Actualizar una marca
+if (isset($_POST['updateMarca'])){
+	$guardarMarca = new consultas;
+	$guardarMarca->updateMarca();
+}
+//------Eliminar una marca
 if (isset($_POST['deleteMarca'])){
 	$deleteMarca = new consultas;
 	$deleteMarca->deleteMarca($_POST['deleteMarca']);

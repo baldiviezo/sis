@@ -46,6 +46,7 @@
 						<option value="todasLasMarcas">Todas las marcas</option>
 					</select>
 					<img src="../imagenes/registrar.svg" id="openMarcaRMW" hidden>
+					<img src="../imagenes/edit.svg" id="openMarcaMMW" hidden>
 					<img src="../imagenes/trash.svg" id="buttondDeleteMarca" onclick="deleteMarcaInv()" hidden>
 				</div>
 				<div>
@@ -54,6 +55,7 @@
 						<option value="todasLasCategorias">Todas las categorias</option>
 					</select>
 					<img src="../imagenes/registrar.svg" id="openCategoriaRMW" hidden>
+					<img src="../imagenes/edit.svg" id="openCategoriaMMW" hidden>
 					<img src="../imagenes/trash.svg" id="buttonDeleteCategoria" onclick="deleteCategoriaInv()" hidden>
 				</div>
 			</section>
@@ -409,6 +411,7 @@
 		</div>
 	</section>
 	<!--Marca y Categoria-->
+	<!--Modal de registro de marca y categoria-->
 	<section id="marcaRMW" class="modal">
 		<div class="modal__container">
 			<div class="modal__header">
@@ -440,6 +443,41 @@
 					</div>
 				</div>
 				<input type="submit" value="Registrar" class="form__submit">
+			</form>
+		</div>
+	</section>
+	<!--Modal de editar de marca y categoria-->
+	<section id="marcaMMW" class="modal">
+		<div class="modal__container">
+			<div class="modal__header">
+				<h2>Marca</h2>
+				<img src="../imagenes/salir.svg" id="closeMarcaMMW" class="button__close" title="Minimizar">
+			</div>
+			<form id="formMarcaM" class="form">
+				<div class="form__inputs">
+					<div class="form__group">
+						<input type="text" name="nombre_mrc" placeholder=" " class="form__input">
+						<label for="nombre_mrc" class="form__label">Marca:</label>
+					</div>
+				</div>
+				<input type="submit" value="Guardar" class="form__submit">
+			</form>
+		</div>
+	</section>
+	<section id="categoriaMMW" class="modal">
+		<div class="modal__container">
+			<div class="modal__header">
+				<h2>Categoria</h2>
+				<img src="../imagenes/salir.svg" id="closeCategoriaMMW" class="button__close" title="Minimizar">
+			</div>
+			<form id="formCategoriaM" class="form">
+				<div class="form__inputs">
+					<div class="form__group">
+						<input type="text" name="nombre_ctgr" placeholder=" " class="form__input">
+						<label for="nombre_ctgr" class="form__label">Categoria:</label>
+					</div>
+				</div>
+				<input type="submit" value="Guardar" class="form__submit">
 			</form>
 		</div>
 	</section>

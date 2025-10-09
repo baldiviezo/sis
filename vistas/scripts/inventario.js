@@ -1,13 +1,17 @@
 //--------------------------------------------Restricciones de usuario----------------------------------------------
 const openMarcaRMW = document.getElementById('openMarcaRMW');
+const openMarcaMMW = document.getElementById('openMarcaMMW');
 const buttondDeleteMarca = document.getElementById('buttondDeleteMarca');
 const openCategoriaRMW = document.getElementById('openCategoriaRMW');
+const openCategoriaMMW = document.getElementById('openCategoriaMMW');
 const buttonDeleteCategoria = document.getElementById('buttonDeleteCategoria');
 if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getItem('rol_usua') == 'Administrador') {
     //Marca y Categoria
     openMarcaRMW.removeAttribute('hidden');
+    openMarcaMMW.removeAttribute('hidden');
     buttondDeleteMarca.removeAttribute('hidden');
     openCategoriaRMW.removeAttribute('hidden');
+    openCategoriaMMW.removeAttribute('hidden');
     buttonDeleteCategoria.removeAttribute('hidden');
     //inventoryMMW
     document.getElementsByName('cantidad_invM')[0].setAttribute('readonly', 'readonly');
@@ -922,6 +926,30 @@ function createMarcaInv() {
         }).catch(err => mostrarAlerta('Ocurrio un error al crear la marca. Cargue nuevamente la pagina.'));
     }
 }
+//-------Update Marca
+const formMarcaM = document.getElementById('formMarcaM');
+formMarcaM.addEventListener('submit', updateMarcaInv);
+function updateMarcaInv() {
+    event.preventDefault();
+    if (requestInventory == false) {
+        requestInventory = true;
+        preloader.classList.add('modal__show');
+        let formData = new FormData(formMarcaM);
+        formData.append('updateMarca', '');
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            readAllMarcas().then(() => {
+                mostrarAlerta(data);
+                requestInventory = false;
+                formMarcaM.reset();
+                preloader.classList.remove('modal__show');
+                marcaMMW.classList.remove('modal__show');
+            })
+        }).catch(err => mostrarAlerta('Ocurrio un error al actualizar la marca. Cargue nuevamente la pagina.'));
+    }
+}
 //-------Eliminar Marca
 function deleteMarcaInv() {
     if (confirm('¿Esta usted seguro?')) {
@@ -1165,6 +1193,17 @@ openCategoriaRMW.addEventListener('click', (e) => {
 });
 closeCategoriaRMW.addEventListener('click', (e) => {
     categoriaRMW.classList.remove('modal__show');
+});
+openCategoriaMMW.addEventListener('click', (e) => {
+    if (marca_prodM.value != 'todasLasMarcas') {
+        categoriaRMW.classList.add('modal__show');
+    }
+});
+openMarcaMMW.addEventListener('click', (e) => {
+    marcaRMW.classList.add('modal__show');
+});
+openCategoriaMMW.addEventListener('click', (e) => {
+    categoriaRMW.classList.add('modal__show');
 });
 //------Alert
 const modalAlerta = document.getElementById('alerta');

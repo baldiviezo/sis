@@ -18,13 +18,13 @@ class consultas {
 		include 'conexion.php';
 		//Primero vovlemos toda la palabra en minusculas y despues la primera letra en mayuscula
 		$this->id = $conexion->real_escape_string($_POST['id_clteM']);
+		$this->numeroCliente = $conexion->real_escape_string($_POST['numero_clteM']);
 		$this->nombreCliente = ucwords(strtolower(trim($conexion->real_escape_string($_POST['nombre_clteM']))));
 		$this->apellidoCliente = ucwords(strtolower(trim($conexion->real_escape_string($_POST['apellido_clteM']))));
 		$this->nit_clte = $conexion->real_escape_string($_POST['nit_clteM']);
 		$this->email_clte = trim($conexion->real_escape_string($_POST['email_clteM']));
 		$this->direccion_clte = trim($conexion->real_escape_string($_POST['direccion_clteM']));
 		$this->celularCliente = $conexion->real_escape_string($_POST['celular_clteM']);
-		$this->empresaCliente = number_format($_POST['fk_id_emp_clteM']);
 	}
 	//-------ENTERPRISE
 	public function asignarValoresRE(){
@@ -118,7 +118,7 @@ class consultas {
 	//------Actualizar un cliente
 	public function updateCustomer(){
 		include 'conexion.php';
-		$consulta = "UPDATE cliente set nombre_clte='$this->nombreCliente', apellido_clte='$this->apellidoCliente', nit_clte='$this->nit_clte', email_clte='$this->email_clte', direccion_clte='$this->direccion_clte', celular_clte='$this->celularCliente', fk_id_emp_clte='$this->empresaCliente' WHERE id_clte='$this->id'";
+		$consulta = "UPDATE cliente set numero_clte='$this->numeroCliente', nombre_clte='$this->nombreCliente', apellido_clte='$this->apellidoCliente', nit_clte='$this->nit_clte', email_clte='$this->email_clte', direccion_clte='$this->direccion_clte', celular_clte='$this->celularCliente' WHERE id_clte='$this->id'";
 		$resultado = $conexion->query($consulta);
 		echo ("Cliente modificado con éxito");
 	}
