@@ -1006,6 +1006,34 @@ async function createCategoriaInv() {
         mostrarAlerta('Seleccione una marca');
     }
 }
+//-------Actualizar Categoria
+const formCategoriaM = document.getElementById('formCategoriaM');
+formCategoriaM.addEventListener('submit', updateCategoriaInv);
+async function updateCategoriaInv() {
+    event.preventDefault();
+    if (requestInventory == false) {
+        requestInventory = true;
+        preloader.classList.add('modal__show');
+        let formData = new FormData(formCategoriaM);
+        formData.append('updateCategoria', '');
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            readAllCategorias().then(() => {
+                selectCategoriaInv();
+                selectCategoriaProd();
+                selectCategoriaProdR();
+                selectCategoriaProdM();
+                formCategoriaM.reset();
+                requestInventory = false;
+                categoriaMMW.classList.remove('modal__show');
+                preloader.classList.remove('modal__show');
+                mostrarAlerta(data);
+            })
+        }).catch(err => mostrarAlerta('Ocurrio un error al actualizar la categoria. Cargue nuevamente la pagina.'));
+    }
+}
 //-------Eliminar Categoria
 async function deleteCategoriaInv() {
     if (confirm('¿Esta usted seguro?')) {
@@ -1107,6 +1135,8 @@ function selectCategoriaProd() {
 const marca_prodR = document.getElementById('fk_id_mrc_prodR');
 marca_prodR.addEventListener('change', selectCategoriaProdR);
 const categoria_prodR = document.getElementById('fk_id_ctgr_prodR');
+const nombre_mrcMMW = document.getElementById('nombre_mrcMMW');
+const nombre_ctgrMMW = document.getElementById('nombre_ctgrMMW');
 //-------Select de marcas registrar
 function selectMarcaProdR() {
     marca_prodR.innerHTML = '';
@@ -1179,31 +1209,46 @@ function selectCategoriaProdM() {
 }
 //<<------------------------ABRIR Y CERRAR VENTANAS MODALES--------------------------------->>
 const marcaRMW = document.getElementById('marcaRMW');
+const marcaMMW = document.getElementById('marcaMMW');
 const closeMarcaRMW = document.getElementById('closeMarcaRMW');
+const closeMarcaMMW = document.getElementById('closeMarcaMMW');
+const id_mrcMMW = document.getElementById('id_mrcMMW');
 openMarcaRMW.addEventListener('click', (e) => {
     marcaRMW.classList.add('modal__show');
+});
+openMarcaMMW.addEventListener('click', (e) => {
+    if (selectMarcaInventory.value != 'todasLasMarcas') {
+        nombre_mrcMMW.value = selectMarcaInventory.options[selectMarcaInventory.selectedIndex].text;
+        id_mrcMMW.value = selectMarcaInventory.value;
+        marcaMMW.classList.add('modal__show');
+    }
+});
+closeMarcaMMW.addEventListener('click', (e) => {
+    marcaMMW.classList.remove('modal__show');
 });
 closeMarcaRMW.addEventListener('click', (e) => {
     marcaRMW.classList.remove('modal__show');
 });
 const categoriaRMW = document.getElementById('categoriaRMW');
+const categoriaMMW = document.getElementById('categoriaMMW');
 const closeCategoriaRMW = document.getElementById('closeCategoriaRMW');
+const closeCategoriaMMW = document.getElementById('closeCategoriaMMW');
+const id_ctgrMMW = document.getElementById('id_ctgrMMW');
 openCategoriaRMW.addEventListener('click', (e) => {
     categoriaRMW.classList.add('modal__show');
 });
 closeCategoriaRMW.addEventListener('click', (e) => {
     categoriaRMW.classList.remove('modal__show');
 });
+closeCategoriaMMW.addEventListener('click', (e) => {
+    categoriaMMW.classList.remove('modal__show');
+});
 openCategoriaMMW.addEventListener('click', (e) => {
-    if (marca_prodM.value != 'todasLasMarcas') {
-        categoriaRMW.classList.add('modal__show');
+    if (selectCategoriaInventory.value != 'todasLasCategorias') {
+        nombre_ctgrMMW.value = selectCategoriaInventory.options[selectCategoriaInventory.selectedIndex].text;
+        id_ctgrMMW.value = selectCategoriaInventory.value;
+        categoriaMMW.classList.add('modal__show');
     }
-});
-openMarcaMMW.addEventListener('click', (e) => {
-    marcaRMW.classList.add('modal__show');
-});
-openCategoriaMMW.addEventListener('click', (e) => {
-    categoriaRMW.classList.add('modal__show');
 });
 //------Alert
 const modalAlerta = document.getElementById('alerta');

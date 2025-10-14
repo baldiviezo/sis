@@ -51,6 +51,12 @@ if (isset($_POST['createCategoria'])){
 	$registrarCategoria = new consultas;
 	$registrarCategoria->createCategoria();
 }
+//------Actualizar una categoria
+if (isset($_POST['updateCategoria'])){
+	$guardarCategoria = new consultas;
+	$guardarCategoria->updateCategoria();
+}
+//------Eliminar una categoria
 if (isset($_POST['deleteCategoria'])){
 	$deleteCategoria = new consultas;
 	$deleteCategoria->deleteCategoria($_POST['deleteCategoria']);

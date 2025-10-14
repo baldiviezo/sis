@@ -5,10 +5,6 @@
 .showPage h2{
 	font-size: 1rem;
 }
-.paginacion{
-    width: 100%;
-
-}
 .wrapper ul{
 	display: flex;
     padding: .2rem 0;

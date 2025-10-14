@@ -415,7 +415,7 @@
 	<section id="marcaRMW" class="modal">
 		<div class="modal__container">
 			<div class="modal__header">
-				<h2>Marca</h2>
+				<h2>Registrar Marca</h2>
 				<img src="../imagenes/salir.svg" id="closeMarcaRMW" class="button__close" title="Minimizar">
 			</div>
 			<form id="formMarcaR" class="form">
@@ -432,7 +432,7 @@
 	<section id="categoriaRMW" class="modal">
 		<div class="modal__container">
 			<div class="modal__header">
-				<h2>Categoria</h2>
+				<h2>Registrar Categoria</h2>
 				<img src="../imagenes/salir.svg" id="closeCategoriaRMW" class="button__close" title="Minimizar">
 			</div>
 			<form id="formCategoriaR" class="form">
@@ -450,13 +450,14 @@
 	<section id="marcaMMW" class="modal">
 		<div class="modal__container">
 			<div class="modal__header">
-				<h2>Marca</h2>
+				<h2>Modificar Marca</h2>
 				<img src="../imagenes/salir.svg" id="closeMarcaMMW" class="button__close" title="Minimizar">
 			</div>
 			<form id="formMarcaM" class="form">
 				<div class="form__inputs">
 					<div class="form__group">
-						<input type="text" name="nombre_mrc" placeholder=" " class="form__input">
+						<input type="text" name="id_mrc" id="id_mrcMMW" placeholder=" " class="form__input" hidden>
+						<input type="text" name="nombre_mrc" id="nombre_mrcMMW" placeholder=" " class="form__input">
 						<label for="nombre_mrc" class="form__label">Marca:</label>
 					</div>
 				</div>
@@ -467,13 +468,14 @@
 	<section id="categoriaMMW" class="modal">
 		<div class="modal__container">
 			<div class="modal__header">
-				<h2>Categoria</h2>
+				<h2>Modificar Categoria</h2>
 				<img src="../imagenes/salir.svg" id="closeCategoriaMMW" class="button__close" title="Minimizar">
 			</div>
 			<form id="formCategoriaM" class="form">
 				<div class="form__inputs">
 					<div class="form__group">
-						<input type="text" name="nombre_ctgr" placeholder=" " class="form__input">
+						<input type="number" name="id_ctgr" id="id_ctgrMMW" placeholder=" " class="form__input" hidden>
+						<input type="text" name="nombre_ctgr" id="nombre_ctgrMMW" placeholder=" " class="form__input">
 						<label for="nombre_ctgr" class="form__label">Categoria:</label>
 					</div>
 				</div>
