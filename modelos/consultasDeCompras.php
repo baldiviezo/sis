@@ -191,7 +191,7 @@ class Consultas{
 			//Añadir el producto restante a la compra
 			//vovler $cantidad_cppd  a un numero entero
 			$cantidad = intval($cantidad_cppd) - intval($this->cantidad_cppd);
-			$consulta2 = "INSERT INTO cmp_prod (fk_id_cmp_cppd, fk_id_prod_cppd, descripcion_cppd, cantidad_cppd, cost_uni_cppd, observacion_cppd, estado_cppd) VALUES ('$fk_id_cmp_cppd', '$fk_id_prod_cppd', '$descripcion_cppd', '$cantidad' , '$cost_uni_cppd' , 'Añadido automaticamente', 0)";
+			$consulta2 = "INSERT INTO cmp_prod (fk_id_cmp_cppd, fk_id_prod_cppd, descripcion_cppd, cantidad_cppd, cost_uni_cppd, observacion_cppd, estado_cppd) VALUES ('$fk_id_cmp_cppd', '$fk_id_prod_cppd', '$descripcion_cppd', '$cantidad' , '$cost_uni_cppd' , 'AUTO', 0)";
 			$resultado2 = $conexion->query($consulta2);
 			//Actualizar el inventario
 			if ($resultado) {

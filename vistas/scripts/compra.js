@@ -417,6 +417,7 @@ openBuyRMW.addEventListener('click', () => {
     formBuy = 'R';
     buyRMW.classList.add('modal__show');
     document.getElementsByName('fecha_cmpR')[0].value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
+    fillSelectClte(selectEnterpriseR, selectSupplierR);
 });
 closeBuyRMW.addEventListener('click', () => {
     buyRMW.classList.remove('modal__show');
@@ -853,7 +854,7 @@ function cartCmp_prod(id_prod, contenedor, totalPrice) {
     const cantidad_invTotal = cantidad_invAlto + cantidad_invArce;
 
     const cost_uni2 = prices.find(price => price.modelo.trim() === product.codigo_prod);
-    const cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio) * 1.1) : (inventoriesAlto.length > 0 ? Math.round(inventoriesAlto[0].cost_uni_inv * 1.1) : (inventoriesArce.length > 0 ? Math.round(inventoriesArce[0].cost_uni_inv * 1.1) : 0));
+    const cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio)) : (inventoriesAlto.length > 0 ? Math.round(inventoriesAlto[0].cost_uni_inv) : (inventoriesArce.length > 0 ? Math.round(inventoriesArce[0].cost_uni_inv) : 0));
 
     const item = document.createElement('div');
     item.classList.add('cart__item');
@@ -996,7 +997,7 @@ closeCmp_prodMMW.addEventListener('click', (e) => {
     cmp_prodMMW.classList.remove('modal__show');
 });
 const cmpProdMMW = document.querySelector('#cmp_prodMMW div.modal__body');
-function cartCmp_prodM(product, contenedor, total) {
+function cartCmp_prodM(product) {
     const producto = products.find(producto => producto['id_prod'] == product.fk_id_prod_cppd);
     const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === product.fk_id_prod_cppd && inventory.ubi_almacen === 0);
     const inventoriesArce = inventories.filter(inventory => inventory.fk_id_prod_inv === product.fk_id_prod_cppd && inventory.ubi_almacen === 1);
@@ -1004,9 +1005,6 @@ function cartCmp_prodM(product, contenedor, total) {
     const cantidad_invAlto = inventoriesAlto.length > 0 ? inventoriesAlto[0].cantidad_inv : 0;
     const cantidad_invArce = inventoriesArce.length > 0 ? inventoriesArce[0].cantidad_inv : 0;
     const cantidad_invTotal = cantidad_invAlto + cantidad_invArce;
-
-    const cost_uni2 = prices.find(price => price.modelo.trim() === producto.codigo_prod);
-    const cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio) * 1.1) : (inventoriesAlto.length > 0 ? Math.round(inventoriesAlto[0].cost_uni_inv * 1.1) : (inventoriesArce.length > 0 ? Math.round(inventoriesArce[0].cost_uni_inv * 1.1) : 0));
 
     const item = document.createElement('div');
     item.classList.add('cart__item');
@@ -1157,7 +1155,7 @@ function selectPDFInformation(id_cmp) {
             };
         });
 
-    showPDF(buyCopy, array, 'oc');
+    showPDF(buyCopy, array, 'cmp');
 }
 function showPDF(buy, array, pdf) {
     // Crea un formulario oculto
