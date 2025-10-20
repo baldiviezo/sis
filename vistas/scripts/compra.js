@@ -5,8 +5,8 @@ if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getIte
     document.getElementsByName('codigo_prodM')[0].setAttribute('readonly', 'readonly');
 }
 //--------------------------------------------BLOCK REQUEST WITH A FLAG----------------------------------------------
-let rqstBuy = false;
 const preloader = document.getElementById('preloader');
+let rqstBuy = false;
 init();
 async function init() {
     if (rqstBuy == false) {
@@ -829,7 +829,6 @@ const closeAddBuyMW = document.getElementById('closeAddBuyMW');
 closeAddBuyMW.addEventListener('click', (e) => {
     addBuyMW.classList.remove('modal__show');
 });
-
 //-----------------------------------------------ADD CART R------------------------------------------
 //<<-------------------------------------MODAL DE PRODUCTS PARA COMPRAR-------------------------------------------->>
 const closeCmp_prodRMW = document.getElementById('closeCmp_prodRMW');
@@ -938,6 +937,7 @@ function cartCmp_prod(id_prod, contenedor, totalPrice) {
     const divImg = document.createElement('div');
     divImg.classList.add('cart__item--imgCRUD');
     if (formBuy === 'M') {
+        console.log('entro a formBuy M')
         const createImg = document.createElement('img');
         createImg.src = '../imagenes/plus.svg';
         createImg.classList.add('icon__CRUD');
@@ -2258,14 +2258,11 @@ function sendProduct(id_prod) {
 const initSortableList = (e) => {
     e.preventDefault();
     const draggingItem = document.querySelector(".dragging");
-
     let siblings = [...cmpProdRMW.querySelectorAll(".cart__item:not(.dragging)")];
-
     let nextSibling = siblings.find(sibling => {
         const rect = sibling.getBoundingClientRect();
         return e.clientY <= rect.top + rect.height / 2;
     });
-
     cmpProdRMW.insertBefore(draggingItem, nextSibling);
 }
 //---------------------------VENTANA MODAL PARA BUSCAR PRODUCTOS
@@ -2522,6 +2519,7 @@ function createProduct() {
                     preloader.classList.remove('modal__show');
                 } else {
                     readProducts().then(() => {
+                        paginacionProductMW(products.length, 1);
                         mostrarAlerta("El producto fue creado con éxito");
                         productsRMW.classList.remove('modal__show');
                         divCodigoSMCR.setAttribute('hidden', '');
