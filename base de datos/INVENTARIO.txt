@@ -453,3 +453,14 @@ ORDER BY frecuencia DESC, p.codigo_prod ASC;
 
 /**********TABLA DE CLIENTES Y PRODUCTOS***********/
 SELECT empresa.nombre_emp, cliente.nombre_clte, cliente.apellido_clte, venta.fecha_vnt, producto.codigo_prod, vnt_prod.cantidad_vtpd, vnt_prod.cost_uni_vtpd FROM `venta` INNER JOIN vnt_prod ON venta.id_vnt = vnt_prod.fk_id_vnt_vtpd INNER JOIN producto ON vnt_prod.fk_id_prod_vtpd = producto.id_prod INNER JOIN nota_entrega ON venta.fk_id_ne_vnt = nota_entrega.id_ne INNER JOIN proforma ON nota_entrega.fk_id_prof_ne = proforma.id_prof INNER JOIN cliente ON proforma.fk_id_clte_prof = cliente.id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = empresa.id_emp;
+
+
+
+/*estado cmp_prod**/
+UPDATE compra
+SET compra.estado_cmp = CASE
+    WHEN estado_cmp = 'RECIBIDO' THEN 1
+    WHEN estado_cmp = 'PENDIENTE' THEN 0
+    ELSE estado_cmp
+END;
+

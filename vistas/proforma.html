@@ -79,7 +79,21 @@
 						<ul></ul>
 					</div>
 				</div>
-				<div>
+				<div class="box__number">
+					<div class="box__number--mensaje">
+						<div class="mensaje">
+							<div class="color red"></div>
+							El Alto
+						</div>
+						<div class="mensaje">
+							<div class="color verde"></div>
+							Av. Arce
+						</div>
+						<div class="mensaje">
+							<div class="color amarillo"></div>
+							Ambos
+						</div>
+					</div>
 					<select id="selectNumberProduct" class="select__number">
 						<option value="3">3</option>
 						<option value="4">4</option>
@@ -311,6 +325,7 @@
 						<thead>
 							<tr>
 								<th>N°</th>
+								<th>Numero cliente</th>
 								<th>Empresa</th>
 								<th>Sigla</th>
 								<th>Contacto</th>
@@ -770,95 +785,6 @@
 			</div>
 		</div>
 	</section>
-	<!--Ventana modal para registrar y modificar clientes-->
-	<section id="customersRMW" class="modal">
-		<div class="modal__container">
-			<div class="modal__header">
-				<h2 class="modal__title">Cliente<img src="../imagenes/user.svg"></h2>
-				<img src="../imagenes/salir.svg" id="closeCustomersRMW">
-			</div>
-			<form id="formClienteR" class="form">
-				<div class="form__container">
-					<div class="form__group">
-						<input type="text" name="nombre_clteR" placeholder=" " class="form__input" required>
-						<label for="nombre_clteR" class="form__label">Nombres:</label>
-					</div>
-					<div class="form__group">
-						<input type="text" name="apellido_clteR" placeholder=" " class="form__input" required>
-						<label for="apellido_clteR" class="form__label">Apellidos:</label>
-					</div>
-					<label class="form__label--only">Empresa:</label>
-					<div class="form__group--select">
-						<select name="fk_id_emp_clteR" id="fk_id_emp_clteR2"></select>
-					</div>
-					<div class="form__group">
-						<input type="text" name="nit_clteR" placeholder=" " class="form__input">
-						<label for="nit_clteR" class="form__label">NIT/C.I.:</label>
-					</div>
-					<div class="form__group">
-						<input type="text" name="email_clteR" placeholder=" " class="form__input">
-						<label for="email_clteR" class="form__label">Email:</label>
-					</div>
-					<div class="form__group">
-						<input type="text" name="direccion_clteR" placeholder=" " class="form__input">
-						<label for="direccion_clteR" class="form__label">Direccion:</label>
-					</div>
-					<div class="form__group">
-						<input type="text" name="celular_clteR" placeholder=" " class="form__input">
-						<label for="celular_clteR" class="form__label">Celular:</label>
-					</div>
-				</div>
-				<div class="form__container--button">
-					<input type="submit" value="Registrar" class="form__submit">
-				</div>
-			</form>
-		</div>
-	</section>
-	<section id="customersMMW" class="modal">
-		<div class="modal__container">
-			<div class="modal__header">
-				<h2 class="modal__title">Cliente<img src="../imagenes/user.svg"></h2>
-				<img src="../imagenes/salir.svg" id="closeCustomersMMW">
-			</div>
-			<form id="formClienteM" class="form">
-				<div class="form__container">
-					<!--Para guadar el id del cliente a modificar-->
-					<input type="text" name="id_clteM" placeholder=" " class="form__input" hidden>
-					<div class="form__group">
-						<input type="text" name="nombre_clteM" placeholder=" " class="form__input" required>
-						<label for="nombre_clteM" class="form__label">Nombres:</label>
-					</div>
-					<div class="form__group">
-						<input type="text" name="apellido_clteM" placeholder=" " class="form__input" required>
-						<label for="apellido_clteM" class="form__label">Apellidos:</label>
-					</div>
-					<label class="form__label--only">Empresa:</label>
-					<div class="form__group--select">
-						<select name="fk_id_emp_clteM" id="fk_id_emp_clteM2"></select>
-					</div>
-					<div class="form__group">
-						<input type="text" name="nit_clteM" placeholder=" " class="form__input">
-						<label for="nit_clteM" class="form__label">NIT/C.I.:</label>
-					</div>
-					<div class="form__group">
-						<input type="text" name="email_clteM" placeholder=" " class="form__input">
-						<label for="email_clteM" class="form__label">Email:</label>
-					</div>
-					<div class="form__group">
-						<input type="text" name="direccion_clteM" placeholder=" " class="form__input">
-						<label for="direccion_clteM" class="form__label">Direccion:</label>
-					</div>
-					<div class="form__group">
-						<input type="text" name="celular_clteM" placeholder=" " class="form__input">
-						<label for="celular_clteM" class="form__label">Celular:</label>
-					</div>
-				</div>
-				<div class="form__container--button">
-					<input type="submit" value="Modificar" class="form__submit">
-				</div>
-			</form>
-		</div>
-	</section>
 	<!--Tabla Modal Empresa-->
 	<section id="enterpriseSMW" class="modalTable">
 		<div class="modalTable__container">
@@ -871,9 +797,10 @@
 					<img src="../imagenes/registrar.svg" onclick="openEnterprisesRMW()" class="icon__CRUD"
 						title="Registrar empresa">
 					<div class="combo__search">
-						<div>
+						<div class="filter__search">
+							<h3>Filtrar por:</h3>
 							<select id="selectSearchEmpMW" class="select">
-								<option value="todas">Buscar por</option>
+								<option value="todas">Todo</option>
 								<option value="sigla_emp">Sigla</option>
 								<option value="nombre_emp">Empresa</option>
 							</select>
@@ -1024,11 +951,12 @@
 				<section class="table__header">
 					<div></div>
 					<div class="combo__search">
-						<div>
+						<div class="filter__search">
+							<h3>Filtrar por:</h3>
 							<select id="selectSearchClteSMW" class="select">
-								<option value="todas">Buscar por</option>
-								<option value="cliente">Por Cliente</option>
-								<option value="nit_clte"> Por Nit/CI</option>
+								<option value="todas">Todo</option>
+								<option value="cliente">Cliente</option>
+								<option value="nit_clte">Nit/CI</option>
 							</select>
 						</div>
 						<div class="table__search">
@@ -1062,12 +990,12 @@
 						<thead>
 							<tr>
 								<th>N°</th>
+								<th>Numero cliente</th>
 								<th>Cliente</th>
 								<th>NIT/CI</th>
 								<th>Email</th>
 								<th>Direccion</th>
 								<th>Celular</th>
-								<th>Empresa</th>
 								<th>Acciones</th>
 							</tr>
 						</thead>
@@ -1075,6 +1003,99 @@
 					</table>
 				</section>
 			</div>
+		</div>
+	</section>
+	<!--Ventana modal para registrar y modificar clientes-->
+	<section id="customersRMW" class="modal">
+		<div class="modal__container">
+			<div class="modal__header">
+				<h2 class="modal__title">Cliente<img src="../imagenes/user.svg"></h2>
+				<img src="../imagenes/salir.svg" id="closeCustomersRMW">
+			</div>
+			<form id="formClienteR" class="form">
+				<div class="form__container">
+					<div class="form__group">
+						<input type="text" name="nombre_clteR" placeholder=" " class="form__input" required>
+						<label for="nombre_clteR" class="form__label">Nombres:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="apellido_clteR" placeholder=" " class="form__input" required>
+						<label for="apellido_clteR" class="form__label">Apellidos:</label>
+					</div>
+					<label class="form__label--only">Empresa:</label>
+					<div class="form__group--select">
+						<select name="fk_id_emp_clteR" id="fk_id_emp_clteR2"></select>
+					</div>
+					<div class="form__group">
+						<input type="text" name="nit_clteR" placeholder=" " class="form__input">
+						<label for="nit_clteR" class="form__label">NIT/C.I.:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="email_clteR" placeholder=" " class="form__input">
+						<label for="email_clteR" class="form__label">Email:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="direccion_clteR" placeholder=" " class="form__input">
+						<label for="direccion_clteR" class="form__label">Direccion:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="celular_clteR" placeholder=" " class="form__input">
+						<label for="celular_clteR" class="form__label">Celular:</label>
+					</div>
+				</div>
+				<div class="form__container--button">
+					<input type="submit" value="Registrar" class="form__submit">
+				</div>
+			</form>
+		</div>
+	</section>
+	<section id="customersMMW" class="modal">
+		<div class="modal__container">
+			<div class="modal__header">
+				<h2 class="modal__title">Cliente<img src="../imagenes/user.svg"></h2>
+				<img src="../imagenes/salir.svg" id="closeCustomersMMW">
+			</div>
+			<form id="formClienteM" class="form">
+				<div class="form__container">
+					<!--Para guadar el id del cliente a modificar-->
+					<input type="text" name="id_clteM" placeholder=" " class="form__input" hidden>
+					<div class="form__group">
+						<input type="text" name="fk_id_emp_clteM" placeholder=" " class="form__input" readonly>
+						<label for="fk_id_emp_clteM" class="form__label">Empresa:</label>
+					</div>
+					<div class="form__group">
+						<input type="number" name="numero_clteM" placeholder=" " class="form__input">
+						<label for="numero_clteM" class="form__label">Numero de cliente:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="nombre_clteM" placeholder=" " class="form__input" required>
+						<label for="nombre_clteM" class="form__label">Nombres:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="apellido_clteM" placeholder=" " class="form__input" required>
+						<label for="apellido_clteM" class="form__label">Apellidos:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="nit_clteM" placeholder=" " class="form__input">
+						<label for="nit_clteM" class="form__label">NIT/C.I.:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="email_clteM" placeholder=" " class="form__input">
+						<label for="email_clteM" class="form__label">Email:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="direccion_clteM" placeholder=" " class="form__input">
+						<label for="direccion_clteM" class="form__label">Direccion:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="celular_clteM" placeholder=" " class="form__input">
+						<label for="celular_clteM" class="form__label">Celular:</label>
+					</div>
+				</div>
+				<div class="form__container--button">
+					<input type="submit" value="Modificar" class="form__submit">
+				</div>
+			</form>
 		</div>
 	</section>
 	<!--Tabla modal inventario-->

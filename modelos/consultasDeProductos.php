@@ -237,6 +237,7 @@ class consultas {
 		}
 		echo json_encode($marcas, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 	}
+	//------Crear marca
 	public function createMarca(){
 		include 'conexion.php';
 		$nombre_mrc = trim($conexion->real_escape_string(strtoupper($_POST['nombre_mrc'])));
@@ -251,6 +252,36 @@ class consultas {
 			echo ("Marca creada exitosamente");
 		}
 	}
+	//------Editar marca
+	public function updateMarca(){
+		include 'conexion.php';
+		$id_mrc = trim($conexion->real_escape_string($_POST['id_mrc']));
+		$nombre_mrc = trim($conexion->real_escape_string(strtoupper($_POST['nombre_mrc'])));
+		echo $id_mrc.$nombre_mrc;
+		$consulta = "SELECT * FROM marca WHERE nombre_mrc ='$nombre_mrc'";
+		$resultado = $conexion->query($consulta);
+		$numeroMarcas = $resultado->num_rows;
+		if ($numeroMarcas > 0){
+			$marca = $resultado->fetch_assoc();
+			$id_mrc2 = $marca['id_mrc'];
+			if ($id_mrc == $id_mrc2){
+				$consulta = "UPDATE marca set nombre_mrc='$nombre_mrc' WHERE id_mrc='$id_mrc'";
+				$resultado = $conexion->query($consulta);
+				if ($resultado){
+					echo ("Marca modificada exitosamente");
+				}
+			}else{
+				echo ("La marca ya existe");
+			}
+		}else{
+			$consulta = "UPDATE marca set nombre_mrc='$nombre_mrc' WHERE id_mrc='$id_mrc'";
+			$resultado = $conexion->query($consulta);
+			if ($resultado){
+				echo ("Marca modificada exitosamente");
+			}
+		}
+	}
+	//------Eliminar marca
 	public function deleteMarca($id_mrc){
 		include 'conexion.php';
 		$consulta = "SELECT * FROM producto WHERE fk_id_mrc_prod='$id_mrc'";
@@ -287,6 +318,7 @@ class consultas {
 		}
 		echo json_encode($categorias, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 	}
+	//------Crear categoria
 	public function createCategoria(){
 		include 'conexion.php';
 		$nombre_ctgr = strtoupper(trim($conexion->real_escape_string($_POST['nombre_ctgr'])));
@@ -319,6 +351,35 @@ class consultas {
 			echo ("Categoría creada exitosamente");
 		}
 	}
+	//------Editar categoria
+	public function updateCategoria(){
+		include 'conexion.php';
+		$id_ctgr = trim($conexion->real_escape_string($_POST['id_ctgr']));
+		$nombre_ctgr = strtoupper(trim($conexion->real_escape_string($_POST['nombre_ctgr'])));
+		$consulta = "SELECT * FROM categoria WHERE nombre_ctgr ='$nombre_ctgr'";
+		$resultado = $conexion->query($consulta);
+		$categorias = $resultado->fetch_assoc();
+		$numeroCategorias = $resultado->num_rows;
+		if ($numeroCategorias > 0){
+			$id_ctgr2 = $categorias['id_ctgr'];
+			if ($id_ctgr == $id_ctgr2){
+				$consulta = "UPDATE categoria set nombre_ctgr='$nombre_ctgr' WHERE id_ctgr='$id_ctgr'";
+				$resultado = $conexion->query($consulta);
+				if ($resultado){
+					echo ("Categoría modificada exitosamente");
+				}
+			}else{
+				echo ("La categoria ya existe");
+			}
+		}else{
+			$consulta = "UPDATE categoria set nombre_ctgr='$nombre_ctgr' WHERE id_ctgr='$id_ctgr'";
+			$resultado = $conexion->query($consulta);
+			if ($resultado){
+				echo ("Categoría modificada exitosamente");
+			}
+		}
+	}
+	//------Eliminar categoria
 	public function deleteCategoria($id_ctgr){
 		include 'conexion.php';
 		$id_mrc = trim($conexion->real_escape_string($_POST['id_mrc']));

@@ -197,6 +197,14 @@ if ($_POST['pdf'] == 'prof') {
     $_tipo_cambio = $prof_mprof_ne['tipo_cambio_oc'];
     $_email_usua = $usuario['email_usua'];
     $_celular_usua = $usuario['celular_usua'];
+} else if ($_POST['pdf'] == 'cmp'){
+    $_prof_mprof_ne = strtoupper($prof_mprof_ne['numero_cmp']);
+    $_encargado = "Benjamín A. Aparicio García";
+    $_fecha = substr($prof_mprof_ne['fecha_cmp'],0,10);
+    $_empresa = $prof_mprof_ne['nombre_empp'];
+    $_cliente = $prof_mprof_ne['nombre_prov'].' '.$prof_mprof_ne['apellido_prov'];
+    $_tipo_cambio = $prof_mprof_ne['tipo_cambio_cmp'];
+    $_descuento = $prof_mprof_ne['descuento_cmp'];
 }
 
 ?>

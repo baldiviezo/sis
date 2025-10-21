@@ -200,6 +200,11 @@
 .main__header section.select__number {
 	cursor: pointer;
 }
+.container__page{
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
 
 .container__page select {
 	border-color: #225c74;
@@ -897,4 +902,43 @@ button:hover {
   color: #006600; 
   background-color: #7fff7f;
   border-radius: 2px;
+}
+
+.box__number {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	margin-bottom: .5rem;
+	gap: 1rem;
+}
+.box__number--mensaje {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.mensaje {
+  display: flex;
+  align-items: center;
+}
+
+.color {
+  width: 2rem;
+  height: 2rem;
+  margin: 0 .5rem;
+  border-radius: 50%;
+}
+
+.color.red {
+  background-color: red;
+}
+
+.color.verde {
+  background-color: green;
+}
+
+.color.amarillo {
+  background-color: yellow;
 }

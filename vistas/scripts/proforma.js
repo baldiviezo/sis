@@ -1988,6 +1988,7 @@ function sendEnterprise(id_emp) {
 
         chosenCustomers = customers.filter(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte !== '' && customer.apellido_clte !== '');
     }
+    chosenCustomers = chosenCustomer;
     paginacionCustomerMW(chosenCustomers.length, 1);
 }
 //----------------------------------ventana modal EnterpriseSMW-------------------------------------------
@@ -2151,11 +2152,10 @@ inputSearchClteSMW.addEventListener("keyup", searchCustomersSMW);
 const selectNumberClteSMW = document.getElementById('selectNumberClteSMW');
 selectNumberClteSMW.selectedIndex = 3;
 selectNumberClteSMW.addEventListener('change', function () {
-    paginacionCustomerMW(filterCustomers.length, 1);
+    paginacionCustomerMW(chosenCustomers.length, 1);
 });
 //------buscar por:
 function searchCustomersSMW() {
-    console.log(chosenCustomer)
     const busqueda = inputSearchClteSMW.value.toLowerCase();
     const valor = selectSearchClteSMW.value.toLowerCase().trim();
     chosenCustomers = chosenCustomer.filter(customer => {
@@ -2212,14 +2212,14 @@ function paginacionCustomerMW(allEnterprises, page) {
     tableCustomersMW(page);
 }
 //------Crear la tabla
+const tbodyClteSMW = document.getElementById('tbodyClteSMW');
 function tableCustomersMW(page) {
-    const tbody = document.getElementById('tbodyClteSMW');
+    console.log('emntro')
     const inicio = (page - 1) * Number(selectNumberClteSMW.value);
     const final = inicio + Number(selectNumberClteSMW.value);
     let i = 1;
-    tbody.innerHTML = '';
+    tbodyClteSMW.innerHTML = '';
 
-    console.log(chosenCustomers);
     const customer = chosenCustomers.slice(inicio, final);
     customer.forEach((clte, index) => {
         const tr = document.createElement('tr');
@@ -2227,6 +2227,10 @@ function tableCustomersMW(page) {
         const tdNumero = document.createElement('td');
         tdNumero.innerText = index + 1;
         tr.appendChild(tdNumero);
+
+        const tdNumeroClte = document.createElement('td');
+        tdNumeroClte.innerText = clte.numero_clte;
+        tr.appendChild(tdNumeroClte);
 
         const tdCliente = document.createElement('td');
         tdCliente.innerText = clte.nombre_clte + ' ' + clte.apellido_clte;
@@ -2247,8 +2251,14 @@ function tableCustomersMW(page) {
         const tdCelular = document.createElement('td');
         tdCelular.innerText = clte.celular_clte;
         tr.appendChild(tdCelular);
+        const tdAcciones = document.createElement('td');
+        tdAcciones.innerHTML = `
+            <img src='../imagenes/send.svg' onclick='sendCustomers(${clte.id_clte})'>
+            <img src='../imagenes/edit.svg' onclick='readCustomer(${clte.id_clte})'>
+            <img src='../imagenes/trash.svg' onclick='deleteCustomer(${clte.id_clte})'>`;
+        tr.appendChild(tdAcciones);
 
-        tbody.appendChild(tr);
+        tbodyClteSMW.appendChild(tr);
 
     });
 }
@@ -2275,16 +2285,15 @@ closeCustomerSMW.addEventListener('click', () => {
 });
 //<<-----------------------------------------CRUD CUSTOMER  ----------------------------------------->>
 //------Read a Customer
-function readCustomer(tr) {
+function readCustomer(id_clte) {
     formCustomer = 'M';
-    selectCreateCustomer();
-    let id_clte = tr.children[0].value;
     const customer = filterCustomers.find(customer => customer.id_clte == id_clte);
-    if (customer) {
-        for (const valor in customer) {
-            if (valor !== 'nombre_emp' && valor !== 'fk_id_emp_clte') {
-                document.getElementsByName(valor + 'M')[0].value = customer[valor];
-            }
+    for (const valor in customer) {
+        if (valor === 'fk_id_emp_clte') {
+            const empresa = enterprises.find(empresa => empresa.id_emp === customer[valor]);
+            formClienteM.querySelector(`[name=${valor}M]`).value = empresa.nombre_emp;
+        } else {
+            formClienteM.querySelector(`[name=${valor}M]`).value = customer[valor];
         }
     }
     customersMMW.classList.add('modal__show');
@@ -2324,7 +2333,7 @@ async function updateCustomer() {
     if (requestProf == false) {
         requestProf = true;
         customersMMW.classList.remove('modal__show');
-        let formData = new FormData(formClienteM);
+        const formData = new FormData(formClienteM);
         formData.append('updateCustomer', '');
         preloader.classList.add('modal__show');
         fetch('../controladores/clientes.php', {
@@ -2334,6 +2343,9 @@ async function updateCustomer() {
             readCustomers().then(() => {
                 requestProf = false;
                 formClienteM.reset();
+                paginacionTableClteMW(filterCustomers.length, 1);
+                console.log(fk_id_emp_clteR.value)
+                sendEnterprise(fk_id_emp_clteR.value);
                 preloader.classList.remove('modal__show');
                 mostrarAlerta(data);
             })
@@ -2367,20 +2379,6 @@ async function deleteCustomer(tr) {
             });
         }
     }
-}
-//------Empresa de cliente
-function selectCreateCustomer() {
-    const selectEmp2 = document.getElementById('fk_id_emp_clte' + formCustomer + '2');
-    selectEmp2.innerHTML = '';
-    const option2 = document.createElement('option');
-
-    const selectEnterprise = formProformas === 'R' ? fk_id_emp_clteR : fk_id_emp_clteM;
-    const valor = selectEnterprise.options[selectEnterprise.selectedIndex].text;
-
-    option2.value = selectEnterprise.value;
-    option2.innerText = valor;
-
-    selectEmp2.appendChild(option2);
 }
 //<<-------------------------------------------MODAL CLIENTE---------------------------------------->>
 const customersRMW = document.getElementById('customersRMW');
@@ -3606,6 +3604,10 @@ function tableCltesMW(page) {
         const tdNumero = document.createElement('td');
         tdNumero.innerText = index + 1;
         tr.appendChild(tdNumero);
+
+        const tdNumeroClte = document.createElement('td');
+        tdNumeroClte.innerText = clte.numero_clte;
+        tr.appendChild(tdNumeroClte);
 
         const tdEmpresa = document.createElement('td');
         const empresa = enterprises.find(enterprise => enterprise.id_emp === clte.fk_id_emp_clte);

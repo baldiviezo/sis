@@ -32,6 +32,12 @@ if (isset($_POST['createMarca'])){
 	$registrarMarca = new consultas;
 	$registrarMarca->createMarca();
 }
+//------Actualizar una marca
+if (isset($_POST['updateMarca'])){
+	$guardarMarca = new consultas;
+	$guardarMarca->updateMarca();
+}
+//------Eliminar una marca
 if (isset($_POST['deleteMarca'])){
 	$deleteMarca = new consultas;
 	$deleteMarca->deleteMarca($_POST['deleteMarca']);
@@ -45,6 +51,12 @@ if (isset($_POST['createCategoria'])){
 	$registrarCategoria = new consultas;
 	$registrarCategoria->createCategoria();
 }
+//------Actualizar una categoria
+if (isset($_POST['updateCategoria'])){
+	$guardarCategoria = new consultas;
+	$guardarCategoria->updateCategoria();
+}
+//------Eliminar una categoria
 if (isset($_POST['deleteCategoria'])){
 	$deleteCategoria = new consultas;
 	$deleteCategoria->deleteCategoria($_POST['deleteCategoria']);
