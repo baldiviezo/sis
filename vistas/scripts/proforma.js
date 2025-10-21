@@ -1953,7 +1953,6 @@ const fk_cliente_profR = document.getElementById('fk_cliente_profR');
 const fk_cliente_profM = document.getElementById('fk_cliente_profM');
 function sendEnterprise(id_emp) {
     enterpriseSMW.classList.remove('modal__show');
-
     if (formProformas === 'R') {
         const empresa = enterprises.find(enterprise => enterprise.id_emp === id_emp);
         const cliente = customers.find(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte === '' && customer.apellido_clte === '');
@@ -1970,7 +1969,7 @@ function sendEnterprise(id_emp) {
             fk_cliente_profR.value = `${clienteDefault.apellido_clte} ${clienteDefault.nombre_clte}`;
         }
 
-        chosenCustomer = customers.filter(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte !== '' && customer.apellido_clte !== '');
+        chosenCustomers = customers.filter(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte !== '' && customer.apellido_clte !== '');
     } else if (formProformas === 'M') {
         const empresa = enterprises.find(enterprise => enterprise.id_emp === id_emp);
         const cliente = customers.find(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte === '' && customer.apellido_clte === '');
@@ -1987,7 +1986,7 @@ function sendEnterprise(id_emp) {
             fk_cliente_profM.value = `${clienteDefault.apellido_clte} ${clienteDefault.nombre_clte}`;
         }
 
-        chosenCustomer = customers.filter(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte !== '' && customer.apellido_clte !== '');
+        chosenCustomers = customers.filter(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte !== '' && customer.apellido_clte !== '');
     }
     paginacionCustomerMW(chosenCustomers.length, 1);
 }
@@ -2124,8 +2123,8 @@ const fk_id_clte_profR = document.getElementById('fk_id_clte_profR');
 const fk_id_clte_profM = document.getElementById('fk_id_clte_profM');
 let customers = [];
 let filterCustomers = [];
-let chosenCustomer = [];
 let chosenCustomers = [];
+let chosenCustomer = [];
 let formCustomer;
 async function readCustomers() {
     return new Promise((resolve, reject) => {
