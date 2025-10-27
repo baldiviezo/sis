@@ -219,10 +219,10 @@ $fpdf->Cell(0,12, utf8_decode('En espera de su respuesta, saluda a Uds. muy aten
 $y2 = $fpdf->GetY();
 
 $fpdf->SetLineWidth(0.8);
-$fpdf->line(15,35,201,35);
-$fpdf->line(201,35,201,$y2);
-$fpdf->line(15,35,15,$y2);
-$fpdf->line(15,$y2,201,$y2);
+$fpdf->line(5,28,211,28);
+$fpdf->line(211,28,211,$y2);
+$fpdf->line(5,28,5,$y2);
+$fpdf->line(5,$y2,211,$y2);
 $fpdf->SetLineWidth(0.2);
 
 //Logos

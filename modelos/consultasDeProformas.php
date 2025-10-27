@@ -124,8 +124,9 @@ class consultas{
 				$fk_id_prod_pfpd = $fila['fk_id_prod_pfpd'];
 				$cantidad_pfpd = $fila['cantidad_pfpd'];
 				$cost_uni_pfpd = $fila['cost_uni_pfpd'];
+				$tipo_entrega_mpfpd = $fila['tmp_entrega_pfpd'];
 
-				$consulta2 = "INSERT INTO  mdf_prof_prod (fk_id_mprof_mpfpd, fk_id_prod_mpfpd, cantidad_mpfpd, cost_uni_mpfpd) VALUES ('$this->nProforma','$fk_id_prod_pfpd','$cantidad_pfpd','$cost_uni_pfpd')";
+				$consulta2 = "INSERT INTO  mdf_prof_prod (fk_id_mprof_mpfpd, fk_id_prod_mpfpd, cantidad_mpfpd, cost_uni_mpfpd, tmp_entrega_mpfpd) VALUES ('$this->nProforma','$fk_id_prod_pfpd','$cantidad_pfpd','$cost_uni_pfpd', '$tipo_entrega_mpfpd')";
 				$resultado2 = $conexion->query($consulta2);
 			}
 		}
@@ -139,7 +140,8 @@ class consultas{
 			$id_prod = $celda['id_prod'];
     		$cantidad = $celda['cantidad'];
     		$costoUnitario = $celda['costoUnitario'];
-    		$consulta2 = "INSERT INTO prof_prod (fk_id_prof_pfpd, fk_id_prod_pfpd, cantidad_pfpd, cost_uni_pfpd) VALUES ('$this->id_prof' , '$id_prod', '$cantidad', '$costoUnitario')";
+			$tiempoEntrega = $celda['tiempoEntrega'];
+    		$consulta2 = "INSERT INTO prof_prod (fk_id_prof_pfpd, fk_id_prod_pfpd, cantidad_pfpd, cost_uni_pfpd, tmp_entrega_pfpd) VALUES ('$this->id_prof' , '$id_prod', '$cantidad', '$costoUnitario', '$tiempoEntrega')";
 			$resultado2 = $conexion->query($consulta2);
 		}
 		echo 'Proforma modificada exitosamente!';
@@ -254,10 +256,10 @@ class consultas{
 		$consulta = "SELECT * FROM lista_precios";
 		$resultado = $conexion->query($consulta);
 		$prices = array();
-		while ($fila = $resultado->fetch_assoc()){
+		while ($fila = $resultado->fetch_array(MYSQLI_ASSOC)){
 			$prices[] = $fila;
 		}
-		echo json_encode($prices, JSON_UNESCAPED_UNICODE);
+		echo json_encode($prices, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 	}
 }
 ?>

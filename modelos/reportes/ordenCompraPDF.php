@@ -17,11 +17,11 @@ $fpdf->SetLineWidth(0.2);
 
 $fpdf->SetFont('arial','b',20);
 //datos del usuario
-$fpdf->Cell(0,14, utf8_decode('ORDEN DE COMPRA'),'B',1,'C',false);
+$fpdf->Cell(0,14, utf8_decode('PEDIDO'),'B',1,'C',false);
 $fpdf->ln(2);
 $fpdf->SetFont('arial','b',10);
 $fpdf->SetTextColor(0,0,0);
-$fpdf->Cell(100,6, utf8_decode('N° de Orden de compra: '),'LTB',0,'l',false);
+$fpdf->Cell(100,6, utf8_decode('N° de pedido: '),'LTB',0,'l',false);
 $fpdf->Cell(82,6, utf8_decode('Aprobado por: '),'TRB',1,'l',false);
 $fpdf->ln(2);
 $fpdf->SetFont('arial','b',9);
@@ -45,8 +45,8 @@ $fpdf->Cell(24,6, utf8_decode('Total'),1,1,'C',true);
 
 $fpdf->SetTextColor(0,0,0);
 $fpdf->SetFont('arial','',10);
-$fpdf->SetXY(58,52);
-$fpdf->Cell(84,6, utf8_decode($_prof_mprof_ne),0,0,'l',false);
+$fpdf->SetXY(41,52);
+$fpdf->Cell(102,6, utf8_decode($_prof_mprof_ne),0,0,'l',false);
 $fpdf->Cell(100,6, utf8_decode($_encargado),0,1,'l',false);
 
 $fpdf->SetXY(120,60);

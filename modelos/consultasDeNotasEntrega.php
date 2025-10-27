@@ -8,7 +8,7 @@ class consultas{
 		$resultado = $conexion->query($consulta);
 		$ordenCompra = array();
 		while ($fila = $resultado->fetch_array(MYSQLI_ASSOC)) {
-			$fila['numero_oc'] = strtoupper('OC-SMS' . substr($fila['fecha_oc'], 2, 2) . '-' . $this->addZerosGo($fila['numero_oc']));
+			$fila['numero_oc'] = strtoupper('P-SMS' . substr($fila['fecha_oc'], 2, 2) . '-' . $this->addZerosGo($fila['numero_oc']));
 			$ordenCompra[] = $fila;
 		}
 		echo json_encode($ordenCompra, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
@@ -45,7 +45,7 @@ class consultas{
 		$notasEntrega = array();
 		while ($fila = $resultado->fetch_array(MYSQLI_ASSOC)) {
 			$fila['numero_ne'] = strtoupper('NE-SMS' . substr($fila['fecha_ne'], 2, 2) . '-' . $this->addZerosGo($fila['numero_ne']));
-			$fila['numero_oc'] = strtoupper('OC-SMS' . substr($fila['fecha_oc'], 2, 2) . '-' . $this->addZerosGo($fila['fk_id_oc_ne']));
+			$fila['numero_oc'] = strtoupper('P-SMS' . substr($fila['fecha_oc'], 2, 2) . '-' . $this->addZerosGo($fila['fk_id_oc_ne']));
 			$notasEntrega[] = $fila;
 		}
 		echo json_encode($notasEntrega, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);

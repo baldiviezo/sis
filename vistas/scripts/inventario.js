@@ -71,7 +71,7 @@ async function readInventories() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            inventories = data.filter(objeto => objeto.cantidad_inv !== 0);
+            inventories = data;
             filterInventories = inventories;
             resolve();
         }).catch(err => console.log(err));
@@ -100,7 +100,7 @@ function searchInventories() {
             return (
                 inventory.cost_uni_inv.toString().toLowerCase().includes(busqueda) ||
                 product.codigo_prod.toString().toLowerCase().includes(busqueda) ||
-                product.nombre_prod.toLowerCase().includes(busqueda) ||
+                product.nombre_prod.toString().toLowerCase().includes(busqueda) ||
                 product.descripcion_prod.toLowerCase().includes(busqueda) ||
                 inventory.descripcion_inv.toLowerCase().includes(busqueda)
             );

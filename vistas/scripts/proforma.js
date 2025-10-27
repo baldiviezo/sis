@@ -108,7 +108,7 @@ function searchProducts() {
         if (valor === 'todas') {
             return (
                 product.codigo_prod.toString().toLowerCase().includes(busqueda) ||
-                product.nombre_prod.toLowerCase().includes(busqueda) ||
+                product.nombre_prod.toString().toLowerCase().includes(busqueda) ||
                 product.descripcion_prod.toLowerCase().includes(busqueda)
             );
         } else {
@@ -284,13 +284,16 @@ function cartProduct(id_prod, contenedor, total) {
     if (product) {
         const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === id_prod && inventory.ubi_almacen === 0);
         const inventoriesArce = inventories.filter(inventory => inventory.fk_id_prod_inv === id_prod && inventory.ubi_almacen === 1);
-
+  
         const cantidad_invAlto = inventoriesAlto.length > 0 ? inventoriesAlto[0].cantidad_inv : 0;
         const cantidad_invArce = inventoriesArce.length > 0 ? inventoriesArce[0].cantidad_inv : 0;
         const cantidad_invTotal = cantidad_invAlto + cantidad_invArce;
 
-        const cost_uni2 = prices.find(price => price.modelo.trim() === product.codigo_prod);
-        const cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio) * 1.1) : (inventoriesAlto.length > 0 ? Math.round(inventoriesAlto[0].cost_uni_inv * 1.1) : (inventoriesArce.length > 0 ? Math.round(inventoriesArce[0].cost_uni_inv * 1.1) : 0));
+        const cost_uni2 = inventoriesAlto.length > 0 ? Math.round(inventoriesAlto[0].cost_uni_inv * 1.1) : (inventoriesArce.length > 0 ? Math.round(inventoriesArce[0].cost_uni_inv * 1.1) : undefined);
+        
+        const precio = prices.find(price => price.modelo.toString().trim() === product.codigo_prod);
+
+        const cost_uni = cost_uni2 != undefined ? cost_uni2 :precio != undefined ? Math.round(precio.precio * 1.1) : 0;
 
         const card = document.createElement('div');
         card.classList.add('cart-item');
@@ -836,9 +839,6 @@ function cartProduct_pfpd(prof_prod, contenedor, total) {
         const cantidad_invArce = inventoriesArce.length > 0 ? inventoriesArce[0].cantidad_inv : 0;
         const cantidad_invTotal = cantidad_invAlto + cantidad_invArce;
 
-        const cost_uni2 = prices.find(price => price.modelo.trim() === product.codigo_prod);
-        const cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio) * 1.1) : (inventoriesAlto.length > 0 ? Math.round(inventoriesAlto[0].cost_uni_inv * 1.1) : (inventoriesArce.length > 0 ? Math.round(inventoriesArce[0].cost_uni_inv * 1.1) : 0));
-
         const card = document.createElement('div');
         card.classList.add('cart-item');
         card.setAttribute('id_prod', product.id_prod);
@@ -908,6 +908,13 @@ function cartProduct_pfpd(prof_prod, contenedor, total) {
         costTotalInput.classList.add('cart-item__costTotal');
         costTotalInput.readOnly = true;
         card.appendChild(costTotalInput);
+
+        //tiempo de entrega
+        const entregaInput = document.createElement('input');
+        entregaInput.type = 'number';
+        entregaInput.value = prof_prod.tmp_entrega_pfpd;
+        entregaInput.classList.add('cart-item__tmpEntrega');
+        card.appendChild(entregaInput);
 
         const trashImg = document.createElement('img');
         trashImg.src = '../imagenes/trash.svg';
@@ -1007,7 +1014,8 @@ async function updateProforma() {
                 productos.push({
                     id_prod: div.getAttribute('id_prod'),
                     cantidad: div.querySelector('.cart-item__cantidad').value,
-                    costoUnitario: div.querySelector('.cart-item__costUnit').value
+                    costoUnitario: div.querySelector('.cart-item__costUnit').value,
+                    tiempoEntrega: div.querySelector('.cart-item__tmpEntrega').value
                 })
             }
 
@@ -1291,7 +1299,7 @@ Transferencia / Deposito: Banco BISA
 Titular: SMS INTEGRACION Y CONTROL LTDA					
 NIT: 153578020					
 Numero de cuenta en Bs.: 1675590024`;
-    document.getElementsByName('tpo_entrega_profR')[0].innerHTML = `48 Horas después de la confirmación de su pedido.`;
+    document.getElementsByName('tpo_entrega_profR')[0].innerHTML = ``;
     document.getElementsByName('observacion_profR')[0].innerHTML = `Precios ofertados válidos sólo a la compra de la totalidad de la proforma o según seleccion previa consulta`;
 }
 function isInteger(input) {
@@ -1437,7 +1445,8 @@ function selectPDFInformation(id, pdf) {
                         'descripcion_prod': product['descripcion_prod'],
                         'cantidad_mpfpd': pf_pd['cantidad_mpfpd'],
                         'cost_uni_mpfpd': pf_pd['cost_uni_mpfpd'],
-                        'imagen_prod': product['imagen_prod']
+                        'imagen_prod': product['imagen_prod'],
+                        'tmp_entrega_pfpd': pf_pd['tmp_entrega_mpfpd']
                     };
                 });
             showPDF(proforma, objects, pdf);
@@ -1988,7 +1997,6 @@ function sendEnterprise(id_emp) {
 
         chosenCustomers = customers.filter(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte !== '' && customer.apellido_clte !== '');
     }
-    chosenCustomers = chosenCustomer;
     paginacionCustomerMW(chosenCustomers.length, 1);
 }
 //----------------------------------ventana modal EnterpriseSMW-------------------------------------------
@@ -2214,7 +2222,6 @@ function paginacionCustomerMW(allEnterprises, page) {
 //------Crear la tabla
 const tbodyClteSMW = document.getElementById('tbodyClteSMW');
 function tableCustomersMW(page) {
-    console.log('emntro')
     const inicio = (page - 1) * Number(selectNumberClteSMW.value);
     const final = inicio + Number(selectNumberClteSMW.value);
     let i = 1;
@@ -2407,7 +2414,7 @@ async function readInventories() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            inventories = data.filter(objeto => objeto.cantidad_inv !== 0);
+            inventories = data;
             filterInventoriesMW = inventories;
             resolve();
         }).catch(err => console.log(err));
@@ -2443,7 +2450,7 @@ function searchInventoriesMW() {
             return (
                 inventory.cost_uni_inv.toString().toLowerCase().includes(busqueda) ||
                 product.codigo_prod.toString().toLowerCase().includes(busqueda) ||
-                product.nombre_prod.toLowerCase().includes(busqueda) ||
+                product.nombre_prod.toString().toLowerCase().includes(busqueda) ||
                 product.descripcion_prod.toLowerCase().includes(busqueda) ||
                 inventory.descripcion_inv.toLowerCase().includes(busqueda)
             );
@@ -2631,7 +2638,7 @@ function searchProductsMW() {
         if (valor === 'todas') {
             return (
                 product.codigo_prod.toString().toLowerCase().includes(busqueda) ||
-                product.nombre_prod.toLowerCase().includes(busqueda) ||
+                product.nombre_prod.toString().toLowerCase().includes(busqueda) ||
                 product.descripcion_prod.toLowerCase().includes(busqueda)
             );
         } else {
@@ -3417,7 +3424,7 @@ function searchPriceList() {
     const busqueda = inputSearchPriceList.value.toLowerCase().trim();
     filterPrices = prices.filter(price => {
         return (
-            price.modelo.toLowerCase().includes(busqueda)
+            price.modelo.toString().toLowerCase().includes(busqueda)
         );
     });
     paginacionPriceList(filterPrices.length, 1);

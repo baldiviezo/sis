@@ -852,8 +852,8 @@ function cartCmp_prod(id_prod, contenedor, totalPrice) {
     const cantidad_invArce = inventoriesArce.length > 0 ? inventoriesArce[0].cantidad_inv : 0;
     const cantidad_invTotal = cantidad_invAlto + cantidad_invArce;
 
-    const cost_uni2 = prices.find(price => price.modelo.trim() === product.codigo_prod);
-    const cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio)) : (inventoriesAlto.length > 0 ? Math.round(inventoriesAlto[0].cost_uni_inv) : (inventoriesArce.length > 0 ? Math.round(inventoriesArce[0].cost_uni_inv) : 0));
+    const cost_uni2 = (inventoriesAlto.length > 0 ? Math.round(inventoriesAlto[0].cost_uni_inv) : (inventoriesArce.length > 0 ? Math.round(inventoriesArce[0].cost_uni_inv) : 0));
+    const cost_uni = cost_uni2 ? Math.round(Number(cost_uni2)) : prices.find(price => price.modelo.trim() === product.codigo_prod);
 
     const item = document.createElement('div');
     item.classList.add('cart__item');
@@ -937,7 +937,6 @@ function cartCmp_prod(id_prod, contenedor, totalPrice) {
     const divImg = document.createElement('div');
     divImg.classList.add('cart__item--imgCRUD');
     if (formBuy === 'M') {
-        console.log('entro a formBuy M')
         const createImg = document.createElement('img');
         createImg.src = '../imagenes/plus.svg';
         createImg.classList.add('icon__CRUD');
@@ -1646,7 +1645,7 @@ async function readInventories() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            inventories = data.filter(objeto => objeto.cantidad_inv !== 0);
+            inventories = data;
             filterInventoriesMW = inventories;
             inventoriesCopy = data;
             filterInventoriesCopy = inventoriesCopy;
@@ -2074,7 +2073,7 @@ function searchProductsMW() {
         if (valor === 'todas') {
             return (
                 product.codigo_prod.toString().toLowerCase().includes(busqueda) ||
-                product.nombre_prod.toLowerCase().includes(busqueda) ||
+                product.nombre_prod.toString().toLowerCase().includes(busqueda) ||
                 product.descripcion_prod.toLowerCase().includes(busqueda)
             );
         } else {
@@ -2242,16 +2241,6 @@ function sendProduct(id_prod) {
     } else if (formBuy === 'M') {
         const row = cartCmp_prod(id_prod, cmpProdMMW, totalPriceM);
         cmpProdMMW.appendChild(row);
-        //Drang and drop
-        const items = cmpProdMMW.querySelectorAll(".cart__item");
-        items.forEach(item => {
-            item.addEventListener("dragstart", () => {
-                setTimeout(() => item.classList.add("dragging"), 0);
-            });
-            item.addEventListener("dragend", () => item.classList.remove("dragging"));
-        });
-        cmpProdMMW.addEventListener("dragover", initSortableList);
-        cmpProdMMW.addEventListener("dragenter", e => e.preventDefault());
         totalPriceM(globalId_cmp);
     }
 }

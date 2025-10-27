@@ -138,7 +138,6 @@ function searchOrdenCompra() {
 }
 function createYearOC() {
     const anios = Array.from(new Set(orderBuys.map(orderBuy => orderBuy.fecha_oc.split('-')[0])));
-
     // Crear opciones para selectYearOC
     selectYearOC.innerHTML = '';
     const optionFirst = document.createElement('option');
@@ -184,7 +183,6 @@ function selectStateOrdenCompra() {
 const orderOrdenCompra = document.querySelectorAll('.tbody__head--OC');
 orderOrdenCompra.forEach(div => {
     div.children[0].addEventListener('click', function () {
-        console.log('entro')
         filterOrderBuys.sort((a, b) => {
             let first = a[div.children[0].name].toString().toLowerCase();
             let second = b[div.children[0].name].toString().toLowerCase();
@@ -685,7 +683,6 @@ function cartProduct_ocpd(oc_prod, total) {
     if (entregados.length > 0) {
         entregadosCantidad = entregados.reduce((acc, nte_prod) => acc + nte_prod.cantidad_nepd, 0);
     }
-
     const cantidad_ocpd = oc_prod.cantidad_ocpd - entregadosCantidad;
     if (cantidad_ocpd > 0) {
         const ordenCompra = orderBuys.find(orderBuy => orderBuy.id_oc === oc_prod.fk_id_oc_ocpd);
@@ -1218,7 +1215,6 @@ function tableNotaEntrega(page) {
         } else if (notaEntrega.estado_ne == '0') {
             if (localStorage.getItem('rol_usua') == 'Administrador' || localStorage.getItem('rol_usua') == 'Gerente general') {
                 imgs = [
-                    { src: '../imagenes/receipt.svg', onclick: 'readSale(this.parentNode.parentNode)', title: 'Facturar' },
                     { src: '../imagenes/pdf.svg', onclick: `pdfNotaEntrega(${notaEntrega.id_ne})`, title: 'PDF' },
                     { src: '../imagenes/return.svg', onclick: 'openReturnMW(this.parentNode.parentNode)', title: 'Devolución de la nota de entrega' }
                 ];
@@ -1612,7 +1608,7 @@ function searchInventoriesMW() {
             return (
                 inventory.cost_uni_inv.toString().toLowerCase().includes(busqueda) ||
                 product.codigo_prod.toString().toLowerCase().includes(busqueda) ||
-                product.nombre_prod.toLowerCase().includes(busqueda) ||
+                product.nombre_prod.toString().toLowerCase().includes(busqueda) ||
                 product.descripcion_prod.toLowerCase().includes(busqueda) ||
                 inventory.descripcion_inv.toLowerCase().includes(busqueda)
             );
