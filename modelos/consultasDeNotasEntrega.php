@@ -100,13 +100,18 @@ class consultas{
 				//-----Descontar del inventario
 				if ($resultado) {
 					foreach ($arrayObjetos as $valor) {
+						$fk_id_prod_nepd2 = (int) $valor['fk_id_prod_nepd'];
+						$consulta = "SELECT * FROM $inventario WHERE fk_id_prod_inv = '$fk_id_prod_nepd2'";
+						$resultado = $conexion->query($consulta);
+						$id_inv2 = $resultado->fetch_assoc()['id_inv'];
+
 						$cantidad_nepd = $valor['cantidad_nepd'];
-						$consulta2 = "SELECT * FROM $inventario WHERE id_inv = '$id_inv'";
+						$consulta2 = "SELECT * FROM $inventario WHERE id_inv = '$id_inv2'";
 						$resultado2 = $conexion->query($consulta2);
 						$stock = $resultado2->fetch_assoc();
 						$cantidad_inv = $stock['cantidad_inv'];
 						$cantidad_inv = $cantidad_inv - $cantidad_nepd;
-						$consulta3 = "UPDATE $inventario set cantidad_inv='$cantidad_inv' WHERE id_inv='$id_inv'";
+						$consulta3 = "UPDATE $inventario set cantidad_inv='$cantidad_inv' WHERE id_inv='$id_inv2'";
 						$resultado3 = $conexion->query($consulta3);
 						//cambiar estado oc_prod
 						$consulta4 = "UPDATE oc_prod set estado_ocpd = 1 WHERE id_ocpd = '" . $valor['id_ocpd'] . "'";

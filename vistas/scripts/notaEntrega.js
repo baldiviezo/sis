@@ -981,14 +981,23 @@ async function readNotasEntrega() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
+            console.log(data)   
             const isAdmin = ['Gerente general', 'Administrador'].includes(localStorage.getItem('rol_usua'));
             notasEntrega = isAdmin ? data : data.filter(notaEntrega => notaEntrega.fk_id_usua_ne === localStorage.getItem('id_usua'));
             filterNotasEntrega = notasEntrega;
+
+            notasEntrega.forEach(notaEntrega => {
+                if (typeof notaEntrega.descuento_ne != 'number') {
+                    console.log(notaEntrega);
+                }
+            });
+
             createYearNE();
             resolve();
         }).catch(err => console.log(err));
     });
 }
+
 //------Select utilizado para buscar por columnas
 const selectSearchNe = document.getElementById('selectSearchNe');
 selectSearchNe.addEventListener('change', searchNotasEntrega);
@@ -1326,6 +1335,7 @@ function createNotaEntrega() {
     previewProducts.classList.remove('modal__show');
     prof_prodMW.classList.remove('modal__show');
     const formData = new FormData();
+    console.log(productos)
     formData.append('createNotaEntrega', JSON.stringify(productos));
     formData.append('ordenCompra', JSON.stringify(ordenCompra));
     formData.append('id_usua', localStorage.getItem('id_usua'));
@@ -1440,11 +1450,13 @@ orderNteProd.forEach(div => {
 //------paginacionNteProd
 const totalNteProd = document.getElementById('totalNteProd');
 function paginacionNteProd(allProducts, page) {
-    let total = 0;
+    let total = 0;/*
     filterNte_prods.forEach(nte_prod => {
         const notaEntrega = notasEntrega.find(notaEntrega => notaEntrega.id_ne === nte_prod.fk_id_ne_nepd);
+        
+        console.log(notaEntrega.descuento_ne);
         total += nte_prod.cantidad_nepd * nte_prod.cost_uni_nepd * (100 - notaEntrega.descuento_ne) / 100;
-    });
+    });*/
     totalNteProd.innerHTML = 'Total (Bs):' + total.toFixed(2) + ' Bs';
 
     let numberProducts = Number(selectNumberNteProd.value);
