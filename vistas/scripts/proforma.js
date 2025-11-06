@@ -2786,6 +2786,7 @@ function tableProductsMW(page) {
     });
 }
 function sendProduct(id_prod) {
+    console.log(id_prod)
     const product = filterProductsMW.find(prod => prod['id_prod'] === id_prod);
     if (product) {
         let prof_prods = modalProf_prod.querySelectorAll('.cart-item');

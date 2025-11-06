@@ -981,7 +981,7 @@ async function readNotasEntrega() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            console.log(data)   
+            console.log(data)
             const isAdmin = ['Gerente general', 'Administrador'].includes(localStorage.getItem('rol_usua'));
             notasEntrega = isAdmin ? data : data.filter(notaEntrega => notaEntrega.fk_id_usua_ne === localStorage.getItem('id_usua'));
             filterNotasEntrega = notasEntrega;
@@ -1332,23 +1332,31 @@ function createNotaEntrega() {
             cost_uni_nepd: row.children[5].innerText,
         });
     }
-    previewProducts.classList.remove('modal__show');
-    prof_prodMW.classList.remove('modal__show');
-    const formData = new FormData();
-    console.log(productos)
-    formData.append('createNotaEntrega', JSON.stringify(productos));
-    formData.append('ordenCompra', JSON.stringify(ordenCompra));
-    formData.append('id_usua', localStorage.getItem('id_usua'));
-    formData.append('total_ne', Number(totalPWNE.innerText.split(': ')[1].split(' ')[0]).toFixed(2));
-    formData.append('fecha_ne', dateActual[2] + '-' + dateActual[1] + '-' + dateActual[0]);
-    fetch('../controladores/notaEntrega.php', {
-        method: "POST",
-        body: formData
-    }).then(response => response.text()).then(data => {
-        Promise.all([readNotasEntrega(), readNte_prods(), readInventories()]).then(() => {
-            mostrarAlerta(data);
-        })
-    }).catch(err => console.log(err));
+
+    if (rqstNotaEntrega === false) {
+        rqstNotaEntrega = true;
+        preloader.classList.add('modal__show');
+        previewProducts.classList.remove('modal__show');
+        prof_prodMW.classList.remove('modal__show');
+        const formData = new FormData();
+        formData.append('createNotaEntrega', JSON.stringify(productos));
+        formData.append('ordenCompra', JSON.stringify(ordenCompra));
+        formData.append('id_usua', localStorage.getItem('id_usua'));
+        formData.append('total_ne', Number(totalPWNE.innerText.split(': ')[1].split(' ')[0]).toFixed(2));
+        formData.append('fecha_ne', dateActual[2] + '-' + dateActual[1] + '-' + dateActual[0]);
+        fetch('../controladores/notaEntrega.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            Promise.all([readNotasEntrega(), readNte_prods(), readInventories()]).then(() => {
+                paginacionNotaEntrega(filterNotasEntrega.length, 1);
+                rqstNotaEntrega = false;
+                preloader.classList.remove('modal__show');
+                mostrarAlerta(data);
+            })
+        }).catch(err => console.log(err));
+    }
+
 
 }
 //----------------------------------------------------NTE_PROD----------------------------------------------//

@@ -149,7 +149,7 @@ SET nota_entrega.fk_id_oc_ne = orden_compra.id_oc;
 
 14vo paso
 
-añadir columna de tmp_entrega_pfpd a la tabla prof_prod
+añadir columna de tmp_entrega_pfpd a la tabla prof_prod y mdf_prof_prod
 
 
 
