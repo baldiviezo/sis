@@ -185,7 +185,7 @@ class consultas{
 	//-------Read nte_inv
 	public function readNte_prods(){
     	include 'conexion.php';
-    	$consulta = "SELECT * FROM nte_prod";
+    	$consulta = "SELECT * FROM nte_prod ORDER BY id_nepd DESC";
     	$resultado = $conexion->query($consulta);
     	$nteProds =  array();
     	while ($fila = $resultado->fetch_assoc()){

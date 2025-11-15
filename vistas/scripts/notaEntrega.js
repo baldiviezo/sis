@@ -969,7 +969,6 @@ const closePreviewProducts = document.getElementById('closePreviewProducts');
 closePreviewProducts.addEventListener('click', () => {
     previewProducts.classList.remove('modal__show');
 });
-
 //----------------------------------------------TABLA DE NOTA DE ENTREGA------------------------------------------------
 let notasEntrega = [];
 let filterNotasEntrega = [];
@@ -981,7 +980,6 @@ async function readNotasEntrega() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            console.log(data)
             const isAdmin = ['Gerente general', 'Administrador'].includes(localStorage.getItem('rol_usua'));
             notasEntrega = isAdmin ? data : data.filter(notaEntrega => notaEntrega.fk_id_usua_ne === localStorage.getItem('id_usua'));
             filterNotasEntrega = notasEntrega;
@@ -997,7 +995,6 @@ async function readNotasEntrega() {
         }).catch(err => console.log(err));
     });
 }
-
 //------Select utilizado para buscar por columnas
 const selectSearchNe = document.getElementById('selectSearchNe');
 selectSearchNe.addEventListener('change', searchNotasEntrega);
@@ -1218,19 +1215,18 @@ function tableNotaEntrega(page) {
         if (notaEntrega.estado_ne == '1') {
             imgs = [
                 { src: '../imagenes/pdf.svg', onclick: `pdfNotaEntrega(${notaEntrega.id_ne})`, title: 'PDF' },
-                { src: '../imagenes/return.svg', onclick: 'openReturnMW(this.parentNode.parentNode)', title: 'Devolución de la nota de entrega' }
 
             ];
         } else if (notaEntrega.estado_ne == '0') {
             if (localStorage.getItem('rol_usua') == 'Administrador' || localStorage.getItem('rol_usua') == 'Gerente general') {
                 imgs = [
                     { src: '../imagenes/pdf.svg', onclick: `pdfNotaEntrega(${notaEntrega.id_ne})`, title: 'PDF' },
-                    { src: '../imagenes/return.svg', onclick: 'openReturnMW(this.parentNode.parentNode)', title: 'Devolución de la nota de entrega' }
+
                 ];
             } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
                 imgs = [
                     { src: '../imagenes/pdf.svg', onclick: `pdfNotaEntrega(${notaEntrega.id_ne})`, title: 'PDF' },
-                    { src: '../imagenes/return.svg', onclick: 'openReturnMW(this.parentNode.parentNode)', title: 'Devolución de la nota de entrega' }
+
                 ];
             }
         }
@@ -1371,6 +1367,7 @@ async function readNte_prods() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
+            console.log(data);
             nte_prods = data;
             filterNte_prods = nte_prods;
             resolve();
@@ -1399,8 +1396,6 @@ function searchNteProd() {
             const notaEntrega = notasEntrega.find(notaEntrega => notaEntrega.id_ne === nte_prod.fk_id_ne_nepd);
             const product = products.find(product => product.id_prod === nte_prod.fk_id_prod_nepd);
             return (
-                notaEntrega.numero_ne.toLowerCase().includes(busqueda) ||
-                notaEntrega.fecha_ne.toLowerCase().includes(busqueda) ||
                 product.codigo_prod.toString().toLowerCase().includes(busqueda)
             )
         } else {
@@ -1458,13 +1453,10 @@ orderNteProd.forEach(div => {
 //------paginacionNteProd
 const totalNteProd = document.getElementById('totalNteProd');
 function paginacionNteProd(allProducts, page) {
-    let total = 0;/*
+    let total = 0;
     filterNte_prods.forEach(nte_prod => {
-        const notaEntrega = notasEntrega.find(notaEntrega => notaEntrega.id_ne === nte_prod.fk_id_ne_nepd);
-        
-        console.log(notaEntrega.descuento_ne);
-        total += nte_prod.cantidad_nepd * nte_prod.cost_uni_nepd * (100 - notaEntrega.descuento_ne) / 100;
-    });*/
+        total += nte_prod.cost_uni_nepd * nte_prod.cantidad_nepd;
+    });
     totalNteProd.innerHTML = 'Total (Bs):' + total.toFixed(2) + ' Bs';
 
     let numberProducts = Number(selectNumberNteProd.value);

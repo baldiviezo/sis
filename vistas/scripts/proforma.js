@@ -289,11 +289,11 @@ function cartProduct(id_prod, contenedor, total) {
         const cantidad_invArce = inventoriesArce.length > 0 ? inventoriesArce[0].cantidad_inv : 0;
         const cantidad_invTotal = cantidad_invAlto + cantidad_invArce;
 
-        const cost_uni2 = inventoriesAlto.length > 0 ? Math.round(inventoriesAlto[0].cost_uni_inv * 1.1) : (inventoriesArce.length > 0 ? Math.round(inventoriesArce[0].cost_uni_inv * 1.1) : undefined);
+        const cost_uni2 = inventoriesAlto.length > 0 ? Math.round(inventoriesAlto[0].cost_uni_inv) : (inventoriesArce.length > 0 ? Math.round(inventoriesArce[0].cost_uni_inv) : undefined);
         
         const precio = prices.find(price => price.modelo.toString().trim() === product.codigo_prod);
 
-        const cost_uni = cost_uni2 != undefined ? cost_uni2 :precio != undefined ? Math.round(precio.precio * 1.1) : 0;
+        const cost_uni = cost_uni2 != undefined ? cost_uni2 :precio != undefined ? Math.round(precio.precio) : 0;
 
         const card = document.createElement('div');
         card.classList.add('cart-item');
