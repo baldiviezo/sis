@@ -467,11 +467,9 @@ async function createProduct() {
     }
 }
 //------Leer un producto
-function readProduct(div) {
+function readProduct(id_prod) {
     cleanUpProductFormM();
-    let id_prod = div.children[0].value;
     let product = filterProducts.find(product => product.id_prod == id_prod);
-
     if (product) {
         for (let valor in product) {
             if (valor == 'imagen_prod') {
@@ -502,20 +500,36 @@ async function updateProduct() {
     } else if (categoria_prodM.value == "todasLasCategorias") {
         mostrarAlerta("Debe seleccionar una categoria");
     } else {
-        productsMMW.classList.remove('modal__show');
-        let form = document.getElementById("formProductsM");
-        let formData = new FormData(form);
-        formData.append('updateProduct', '');
-        fetch('../controladores/productos.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            readProductsMW().then(() => {
-                paginacionInventory(filterInventories.length, 1);
-                paginacionProductMW(products.length, 1);
-                mostrarAlerta(data);
-            })
-        }).catch(err => console.log(err));
+        if (requestInventory == false) {
+            requestInventory = true;
+            let form = document.getElementById("formProductsM");
+            let formData = new FormData(form);
+            formData.append('updateProduct', '');
+            preloader.classList.add('modal__show');
+            productsMMW.classList.remove('modal__show');
+            fetch('../controladores/productos.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                requestInventory = false;
+                if (data == "El codigo ya existe") {
+                    mostrarAlerta(data);
+                    preloader.classList.remove('modal__show');
+                } else if (data == 'El codigo SMC ya existe') {
+                    mostrarAlerta(data);
+                    preloader.classList.remove('modal__show');
+                } else {
+                    readProductsMW().then(() => {
+                        paginacionProductMW(products.length, 1);
+                        mostrarAlerta(data);
+                        preloader.classList.remove('modal__show');
+                    })
+                }
+            }).catch(err => {
+                requestInventory = false;
+                mostrarAlerta(err);
+            });
+        }
     }
 }
 //------Delete un producto
@@ -841,6 +855,7 @@ function tableProductsMW(page) {
 
         let td = document.createElement('td');
         td.innerHTML = `
+            <img src='../imagenes/edit.svg' onclick='readProduct(${product.id_prod})' title='Editar'>
             <img src='../imagenes/send.svg' onclick='sendProduct(${product.id_prod})' title='Seleccionar'>`;
         tr.appendChild(td);
         fragment.appendChild(tr);

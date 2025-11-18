@@ -488,19 +488,14 @@ function searchProdOC() {
 //------Seleccionar el año
 const selectDateProdOC = document.getElementById('selectDateProdOC');
 selectDateProdOC.addEventListener('change', searchProdOC);
-//-------Estado de cmp_prods
-const selectStateProdOC = document.getElementById('selectStateProdOC');
-selectStateProdOC.addEventListener('change', searchProdOC);
 //------mes
 const selectMonthProdOC = document.getElementById('selectMonthProdOC');
 selectMonthProdOC.addEventListener('change', searchProdOC);
 function selectStateProductOC() {
     filterCmp_prods = filterCmp_prods.filter(cmp_prod => {
-        const ordenCompra = buys.find(buy => buy.id_cmp === cmp_prod.fk_id_cmp_cppd);
-        const fecha = selectDateProdOC.value === 'todas' ? true : ordenCompra.fecha_cmp.split('-')[0] === selectDateProdOC.value;
-        const mes = selectMonthProdOC.value === 'todas' ? true : ordenCompra.fecha_cmp.split('-')[1] === selectMonthProdOC.value;
-        const estado = selectStateProdOC.value === 'todasLasOC' ? true : cmp_prod.estado_cppd == selectStateProdOC.value;
-        return estado && fecha && mes;
+        const anio = selectDateProdOC.value === 'todas' ? true : cmp_prod.fecha_factura_cppd.split('-')[0] === selectDateProdOC.value;
+        const mes = selectMonthProdOC.value === 'todas' ? true : cmp_prod.fecha_factura_cppd.split('-')[1] === selectMonthProdOC.value;
+        return anio && mes;
     });
     paginacionProdOC(filterCmp_prods.length, 1);
 }
@@ -852,8 +847,9 @@ function cartCmp_prod(id_prod, contenedor, totalPrice) {
     const cantidad_invArce = inventoriesArce.length > 0 ? inventoriesArce[0].cantidad_inv : 0;
     const cantidad_invTotal = cantidad_invAlto + cantidad_invArce;
 
-    const cost_uni2 = (inventoriesAlto.length > 0 ? Math.round(inventoriesAlto[0].cost_uni_inv) : (inventoriesArce.length > 0 ? Math.round(inventoriesArce[0].cost_uni_inv) : 0));
-    const cost_uni = cost_uni2 ? Math.round(Number(cost_uni2)) : prices.find(price => price.modelo.trim() === product.codigo_prod);
+   
+    const cost_uni2 = prices.find(price => price.modelo.toString().trim() === product.codigo_prod);
+    const cost_uni = cost_uni2 ? Math.round(Number(cost_uni2.precio)) : (inventoriesAlto.length > 0 ? Math.round(inventoriesAlto[0].cost_uni_inv ) : (inventoriesArce.length > 0 ? Math.round(inventoriesArce[0].cost_uni_inv) : 0));
 
     const item = document.createElement('div');
     item.classList.add('cart__item');
@@ -1365,7 +1361,7 @@ inputSearchEmpMW.addEventListener("keyup", searchEnterprisesMW);
 const selectNumberEmpMW = document.getElementById('selectNumberEmpMW');
 selectNumberEmpMW.selectedIndex = 3;
 selectNumberEmpMW.addEventListener('change', function () {
-    paginacionEnterpriseMW(Object.values(filterEnterprises).length, 1);
+    paginacionEnterpriseMW(filterEnterprises.length, 1);
 });
 //------buscar por:
 function searchEnterprisesMW() {
@@ -1389,7 +1385,7 @@ function searchEnterprisesMW() {
             }
         }
     }
-    paginacionEnterpriseMW(Object.values(filterEnterprises).length, 1);
+    paginacionEnterpriseMW(filterEnterprises.length, 1);
 }
 //------PaginacionEnterpriseMW
 function paginacionEnterpriseMW(allEnterprises, page) {
@@ -2821,7 +2817,7 @@ async function readPrices() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            prices = Object.values(data);
+            prices = data;
             filterPrices = prices;
             paginacionPriceList(filterPrices.length, 1);
             resolve();
@@ -2842,7 +2838,7 @@ function searchPriceList() {
     const busqueda = inputSearchPriceList.value.toLowerCase().trim();
     filterPrices = prices.filter(price => {
         return (
-            price.modelo.toLowerCase().includes(busqueda)
+            price.modelo.toString().toLowerCase().includes(busqueda)
         );
     });
     paginacionPriceList(filterPrices.length, 1);

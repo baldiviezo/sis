@@ -284,16 +284,16 @@ function cartProduct(id_prod, contenedor, total) {
     if (product) {
         const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === id_prod && inventory.ubi_almacen === 0);
         const inventoriesArce = inventories.filter(inventory => inventory.fk_id_prod_inv === id_prod && inventory.ubi_almacen === 1);
-  
+
         const cantidad_invAlto = inventoriesAlto.length > 0 ? inventoriesAlto[0].cantidad_inv : 0;
         const cantidad_invArce = inventoriesArce.length > 0 ? inventoriesArce[0].cantidad_inv : 0;
         const cantidad_invTotal = cantidad_invAlto + cantidad_invArce;
 
         const cost_uni2 = inventoriesAlto.length > 0 ? Math.round(inventoriesAlto[0].cost_uni_inv) : (inventoriesArce.length > 0 ? Math.round(inventoriesArce[0].cost_uni_inv) : undefined);
-        
+
         const precio = prices.find(price => price.modelo.toString().trim() === product.codigo_prod);
 
-        const cost_uni = cost_uni2 != undefined ? cost_uni2 :precio != undefined ? Math.round(precio.precio) : 0;
+        const cost_uni = cost_uni2 != undefined ? cost_uni2 : precio != undefined ? Math.round(precio.precio) : 0;
 
         const card = document.createElement('div');
         card.classList.add('cart-item');
@@ -2769,7 +2769,10 @@ function tableProductsMW(page) {
         const fragment = document.createDocumentFragment();
         let imgs = [];
 
-        imgs.push({ src: '../imagenes/send.svg', onclick: `sendProduct(${product.id_prod})`, title: 'Seleccionar' });
+        imgs.push({
+            src: '../imagenes/edit.svg', onclick: `readProduct(${product.id_prod})`, title: 'Editar'
+        },
+            { src: '../imagenes/send.svg', onclick: `sendProduct(${product.id_prod})`, title: 'Seleccionar' });
 
         imgs.forEach((img) => {
             const imgElement = document.createElement('img');
@@ -2873,22 +2876,36 @@ async function createProduct() {
 //------Leer un producto
 function readProduct(id_prod) {
     cleanUpProductFormM();
-    let product = filterProducts.find(product => product.id_prod == id_prod);
-    for (let valor in product) {
+    for (let valor in filterProducts.find(product => product.id_prod === id_prod)) {
         if (valor == 'imagen_prod') {
-            document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("../modelos/imagenes/${product[valor]}"); background-size: cover;`);
+            document.querySelector('.drop__areaM').setAttribute('style', `background-image: url("../modelos/imagenes/${(filterProducts.find(product => product.id_prod == id_prod))[valor]}"); background-size: cover;`);
         } else if (valor == 'codigo_smc_prod') {
-            if (product['fk_id_mrc_prod'] == '15') {
+            if ((filterProducts.find(product => product.id_prod == id_prod))['fk_id_mrc_prod'] == '15') {
                 divCodigoSMCM.removeAttribute('hidden');
-                document.getElementsByName(valor + 'M')[0].value = product[valor];
+                document.getElementsByName(valor + 'M')[0].value = (filterProducts.find(product => product.id_prod == id_prod))[valor];
             }
         } else if (valor == 'fk_id_mrc_prod') {
-            document.getElementsByName(valor + 'M')[0].value = product[valor];
+            document.getElementsByName(valor + 'M')[0].value = (filterProducts.find(product => product.id_prod == id_prod))[valor];
         } else if (valor == 'fk_id_ctgr_prod') {
-            selectCategoriaProdM();
-            document.getElementsByName(valor + 'M')[0].value = product[valor];
+            fk_id_ctgr_prodM.innerHTML = '';
+            let option = document.createElement('option');
+            option.value = 'todasLasCategorias';
+            option.innerText = 'Todas las categorias';
+            fk_id_ctgr_prodM.appendChild(option);
+            if (fk_id_mrc_prodM.value != 'todasLasMarcas') {
+                let id_mrc = fk_id_mrc_prodM.value;
+                categorias.forEach(categoria => {
+                    if (categoria.fk_id_mrc_mccr == id_mrc) {
+                        let option = document.createElement('option');
+                        option.value = categoria.id_ctgr;
+                        option.innerText = categoria.nombre_ctgr;
+                        fk_id_ctgr_prodM.appendChild(option);
+                    }
+                });
+            }
+            document.getElementsByName(valor + 'M')[0].value = (filterProducts.find(product => product.id_prod == id_prod))[valor];
         } else {
-            document.getElementsByName(valor + 'M')[0].value = product[valor];
+            document.getElementsByName(valor + 'M')[0].value = (filterProducts.find(product => product.id_prod == id_prod))[valor];
         }
     }
     productsMMW.classList.add('modal__show');
@@ -2908,6 +2925,7 @@ async function updateProduct() {
             let formData = new FormData(form);
             formData.append('updateProduct', '');
             preloader.classList.add('modal__show');
+            productsMMW.classList.remove('modal__show');
             fetch('../controladores/productos.php', {
                 method: "POST",
                 body: formData
@@ -2921,7 +2939,9 @@ async function updateProduct() {
                     preloader.classList.remove('modal__show');
                 } else {
                     readProducts().then(() => {
-                        productsMMW.classList.remove('modal__show');
+                        paginacionProduct(products.length, 1);
+                        paginacionProductMW(products.length, 1);
+                        paginacionInventoryMW(inventories.length, 1);
                         modalCard.classList.remove('modal__show');
                         mostrarAlerta(data);
                         preloader.classList.remove('modal__show');
