@@ -68,10 +68,8 @@
 .double__list--box{
     height: 100%;
     width: 100%;
-  
 }
 .double__list--bottom{
-
     display: flex;
     justify-content: space-between;
     padding: 0 1rem;
@@ -207,4 +205,16 @@
     align-items: center;
 	width: 10rem;
     height: 3rem;
+}
+.select__almacen--container {
+	display: flex;
+	/*alinear verticalmente*/
+	align-items: start;
+	
+}
+.select__almacen{
+	padding: .5rem;
+	border-radius: .5rem;
+	border: 1px solid #225c74;
+	font-size: 1rem;
 }

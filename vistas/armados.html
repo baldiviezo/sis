@@ -69,6 +69,7 @@
 				<thead>
 					<tr>
 						<th>N°</th>
+						<th>Almacen</th>
 						<th>Numero armado</th>
 						<th>Fecha</th>
 						<th>Encargado</th>
@@ -101,10 +102,11 @@
 				</div>
 			</div>
 			<div class="double__list--bottom">
-				<div>
-					<img src="../imagenes/p.svg" onclick="openProductSMW()" title="Productos">
-					<img src="../imagenes/i.svg" onclick="openInventorySMW()" title="Inventario">
-					<select name="select" class="select" id="almacen">
+				<div class="select__almacen--container">
+					<div>
+						<img src="../imagenes/producto.svg" onclick="openInventorySMW()" title="Productos">
+					</div>
+					<select name="select" id="almacen_rmdR"  class="select__almacen">
 						<option value="0">El Alto</option>
 						<option value="1">Av. Arce</option>
 					</select>
@@ -139,57 +141,68 @@
 			<button onclick="createArmed()" class="form__submit" >Registrar</button>
 		</div>
 	</section>
-	<!--Tabla modal productos-->
-	<section id="productSMW" class="modalTable">
+	<!--Tabla modal inventario-->
+	<section id="inventorySMW" class="modalTable">
 		<div class="modalTable__container">
 			<div class="table">
 				<div class="table__title">
-					<h1><img src="../imagenes/producto.svg">Productos</h1>
-					<img src="../imagenes/salir.svg" id="closeProductSMW" class="button__close">
+					<h1><img src="../imagenes/inventario.svg">Inventario</h1>
+					<img src="../imagenes/salir.svg" id="closeInventorySMW" class="button__close">
 				</div>
 				<section class="table__header">
-					<img src="../imagenes/registrar.svg" onclick="openProductsRMW()" class="img__folder">
 					<section class="select__search">
 						<div>
+							<label>Almacen: </label>
+							<select id="selectAlmacenInventory" class="select__marca">
+								<option value="todo">Todos los alamcenes</option>
+								<option value="0">EL ALTO</option>
+								<option value="1">AV. ARCE</option>
+							</select>
+						</div>
+						<div>
 							<label>Marcas: </label>
-							<select id="selectMarcaProdMW" class="select__marca">
+							<select id="selectMarcaInvMW" class="select__marca">
 								<option value="todasLasMarcas">Todas las marcas</option>
 							</select>
 						</div>
 						<div>
 							<label>Categorias: </label>
-							<select id="selectCategoriaProdMW" class="select__categoria">
+							<select id="selectCategoriaInvMW" class="select__categoria">
 								<option value="todasLasCategorias">Todas las categorias</option>
 							</select>
 						</div>
 					</section>
+					<img src="../imagenes/trophy.svg" onclick="openTableMostProd()" title="Productos mas vendidos">
 					<div class="combo__search">
-						<div>
-							<select id="selectSearchProdMW" class="select">
-								<option value="todas">Buscar por</option>
+						<div class="filter__search">
+							<h3>Filtrar por:</h3>
+							<select id="selectSearchInvMW" class="select">
+								<option value="todas">Todo</option>
 								<option value="codigo_prod">Código</option>
 								<option value="nombre_prod">Descripcion corta</option>
 								<option value="descripcion_prod">Descripcion</option>
+								<option value="cost_uni_inv">Precio</option>
+								<option value="descripcion_inv">Ubicación</option>
 							</select>
 						</div>
 						<div class="table__search">
-							<input type="search" id="inputSearchProdMW" placeholder="Buscar...">
+							<input type="search" id="inputSearchInvMW" placeholder="Buscar...">
 							<img src="../imagenes/search.png">
 						</div>
 					</div>
 				</section>
-				<div class="showPage" id="showPageProductMW">
+				<div class="showPage" id="showPageInvMW">
 					<h2></h2>
 				</div>
 				<div class="container__page">
 					<div class="paginacion">
 						<!--Envoltura-->
-						<div class="wrapper" id="wrapperProductMW">
+						<div class="wrapper" id="wrapperInvMW">
 							<ul></ul>
 						</div>
 					</div>
 					<div>
-						<select id="selectNumberProdMW" class="select__number">
+						<select id="selectNumberInvMW" class="select__number">
 							<option value="2">2</option>
 							<option value="4">4</option>
 							<option value="6">6</option>
@@ -203,8 +216,9 @@
 						<thead>
 							<tr>
 								<th>N°</th>
+								<th>Almacen</th>
 								<th>
-									<div class="tbody__head--ProdMW">Codigo <img src="../imagenes/sortA_Z.svg"
+									<div class="tbody__head--invMW">Codigo <img src="../imagenes/sortA_Z.svg"
 											name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
 											name="codigo_prod" class="icon__CRUD">
 									</div>
@@ -213,123 +227,17 @@
 								<th>Categoria</th>
 								<th>Descripcion corta</th>
 								<th>Descripcion</th>
-								<th>Imagen</th>
+								<th>imagen</th>
 								<th>Stock</th>
 								<th>Costo unitario</th>
+								<th>Ubicacion</th>
 								<th>Acciones</th>
 							</tr>
 						</thead>
-						<tbody id="tbodyProductMW"></tbody>
+						<tbody id="tbodyInvMW"></tbody>
 					</table>
 				</section>
 			</div>
-		</div>
-	</section>
-	<!--Modal de registro y modificacion de productos-->
-	<section id="productsRMW" class="modalP">
-		<div class="modalP__container">
-			<div class="modalP__header">
-				<h2 class="modalP__title">Registrar producto<img src="../imagenes/producto.svg"></h2>
-				<img class="button__close" src="../imagenes/salir.svg" id="closeProductsRMW" title="Minimizar">
-			</div>
-			<form id="formProductsR" class="modalP__form">
-				<!--For nos ayuda a enlazarnos con otro objeto utilizando su id, por ejemplo cuando se hace foco(un click) al elemento que tiene for este nos redijira a su objeto en lazado-->
-				<div class="modalP__inputs--container">
-					<div class="modalP__inputs">
-						<div class="modalP__group">
-							<label for="codigo_prodR" class="modalP__label">Codigo:</label>
-							<input type="text" name="codigo_prodR" placeholder=" " class="modalP__input">
-						</div>
-						<div class="modalP__group" id="divCodigoSMCR" hidden="true">
-							<label for="codigo_smc_prodR" class="modalP__label">Codigo SMC:</label>
-							<input type="text" name="codigo_smc_prodR" placeholder=" " class="modalP__input">
-						</div>
-					</div>
-					<div class="modalP__group--select">
-						<label class="modalP__label">Marca:</label>
-						<select name="marca_prodR" id="marca_prodR" class="select__marca"></select>
-					</div>
-					<div class="modalP__group--select">
-						<label class="modalP__label">Categoria:</label>
-						<select name="categoria_prodR" id="categoria_prodR" class="select__categoria">
-							<option value="todasLasCategorias">Todas las categorias</option>
-						</select>
-					</div>
-					<label class="modalP__label">Descripcion corta:</label>
-					<div class="modalP__textarea">
-						<textarea name="nombre_prodR" placeholder="Escriba la descripción corta aquí..."></textarea>
-					</div>
-					<label class="modalP__label">Descripción:</label>
-					<div class="modalP__textarea">
-						<textarea name="descripcion_prodR" placeholder="Escriba la descripción aquí..."></textarea>
-					</div>
-				</div>
-				<div class="modalP__inputs">
-					<label for="catalogo_prodR" class="modalP__label">Link del catalogo:</label>
-					<input type="text" name="catalogo_prodR" placeholder=" " class="modalP__input">
-				</div>
-				<div class="drop__areaR">
-					<h2>Arrastra y suelta la imagen</h2>
-					<span>O</span>
-					<button>Selecciona una imagen</button>
-					<!--multiplece para que acepte multiples archivos-->
-					<input type="file" name="imagen_prodR" id="imagen_prodR" hidden>
-				</div>
-				<input type="submit" value="Registrar" class="modalP__submit">
-			</form>
-		</div>
-	</section>
-	<section id="productsMMW" class="modalP">
-		<div class="modalP__container">
-			<div class="modalP__header">
-				<h2 class="modalP__title">Modificar producto<img src="../imagenes/producto.svg"></h2>
-				<img class="button__close" src="../imagenes/salir.svg" id="closeProductsMMW" title="Minimizar">
-			</div>
-			<form id="formProductsM" class="modalP__form">
-				<div class="modalP__inputs--container">
-					<div class="modalP__inputs">
-						<input type="text" name="id_prodM" hidden>
-						<div class="modalP__group">
-							<label for="codigo_prodM" class="modalP__label">Codigo:</label>
-							<input type="text" name="codigo_prodM" placeholder=" " class="modalP__input">
-						</div>
-						<div class="modalP__group" id="divCodigoSMCM" hidden="true">
-							<label for="codigo_smc_prodM" class="modalP__label">Codigo SMC:</label>
-							<input type="text" name="codigo_smc_prodM" placeholder=" " class="modalP__input">
-						</div>
-					</div>
-					<div class="modalP__group--select">
-						<label class="modalP__label">Marca:</label>
-						<select name="marca_prodM" id="marca_prodM" class="select__marca"></select>
-					</div>
-					<div class="modalP__group--select">
-						<label class="modalP__label">Categoria:</label>
-						<select name="categoria_prodM" id="categoria_prodM" class="select__categoria">
-							<option value="todasLasCategorias">Todas las categorias</option>
-						</select>
-					</div>
-					<label class="modalP__label">Descripcion corta:</label>
-					<div class="modalP__textarea">
-						<textarea name="nombre_prodM" placeholder="Escriba la descripción corta aquí..."></textarea>
-					</div>
-					<label class="modalP__label">Descripción:</label>
-					<div class="modalP__textarea">
-						<textarea name="descripcion_prodM" placeholder="Escriba la descripción aquí..."></textarea>
-					</div>
-				</div>
-				<div class="modalP__inputs">
-					<label for="catalogo_prodM" class="modalP__label">Link del catalogo:</label>
-					<input type="text" name="catalogo_prodM" placeholder=" " class="modalP__input">
-				</div>
-				<div class="drop__areaM">
-					<h2>Arrastra y suelta la imagen</h2>
-					<span>O</span>
-					<button>Selecciona una imagen</button>
-					<!--multiplece para que acepte multiples archivos-->
-					<input type="file" name="imagen_prodM" id="imagen_prodM" hidden>
-				</div>
-				<input type="submit" value="Guardar" class="modalP__submit">
-			</form>
 		</div>
 	</section>
 	<!--Modal preloader-->

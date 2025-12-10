@@ -1,12 +1,34 @@
 PASO 1: crear columnas en la tabla nota_entrega (Estan en hoja)
-        cambiar fk_id_prof_ne a fk_id_oc_ne
         quitar la relacion de fk_id_oc_ne
 
+ALTER TABLE `nota_entrega` ADD `numero_ne` INT NOT NULL AFTER `id_ne`;
+LTER TABLE `nota_entrega` ADD `fk_id_oc_ne` INT NOT NULL AFTER `fk_id_prof_ne`;
+ALTER TABLE `nota_entrega` ADD `fk_id_clte_ne` INT NOT NULL AFTER `fk_id_oc_ne`;
+ALTER TABLE `nota_entrega` ADD `descuento_ne` INT NOT NULL AFTER `fecha_ne`, ADD `total_ne` DOUBLE NOT NULL AFTER `descuento_ne`, ADD `moneda_ne` VARCHAR(10) NOT NULL AFTER `total_ne`, ADD `tipo_cambio_ne` FLOAT NOT NULL AFTER `moneda_ne`;
+ALTER TABLE `nota_entrega` ADD `almacen_ne` INT NOT NULL AFTER `estado_ne`;
 
+-- Estructura de tabla para la tabla `nota_entrega`
+CREATE TABLE `nota_entrega` (
+  `id_ne` int(11) NOT NULL,
+  `numero_ne` int(11) NOT NULL,
+  `fk_id_oc_ne` int(11) NOT NULL,
+  `fk_id_clte_ne` int(11) NOT NULL,
+  `fk_id_usua_ne` int(11) NOT NULL,
+  `fecha_ne` date NOT NULL DEFAULT current_timestamp(),
+  `descuento_ne` int(11) NOT NULL,
+  `total_ne` double NOT NULL,
+  `moneda_ne` varchar(10) NOT NULL,
+  `tipo_cambio_ne` float NOT NULL,
+  `orden_ne` varchar(100) NOT NULL,
+  `observacion_ne` varchar(500) NOT NULL,
+  `estado_ne` int(11) NOT NULL,
+  `almacen_ne` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+      
 PASO 2
 ///////////////////////////////////NOTA DE ENTREGA///////////
 UPDATE nota_entrega
-INNER JOIN proforma ON nota_entrega.fk_id_prof_ne = proforma.id_prof
+INNER JOIN proforma ON nota_entrega.fk_id_oc_ne = proforma.id_prof
 SET nota_entrega.fk_id_clte_ne = proforma.fk_id_clte_prof,
     nota_entrega.descuento_ne = proforma.descuento_prof,
     nota_entrega.total_ne = proforma.total_prof,
@@ -112,53 +134,87 @@ WHERE p.estado_prof = 1;
 
 
 
-PASO 10 CREAR TABLA
+PASO 11 CREAR TABLA
 /****************************************************************/
+
 CREATE TABLE `nte_prod` (
   `id_nepd` int(11) NOT NULL AUTO_INCREMENT,
   `fk_id_ne_nepd` int(11) NOT NULL,
-  `fk_id_prod_nepd` int(11) NOT NULL,                  
+  `fk_id_prod_nepd` int(11) NOT NULL,
   `fk_id_ocpd_nepd` int(11) NOT NULL,
   `cantidad_nepd` int(11) NOT NULL,
-  `cost_uni_nepd` double NOT NULL,
+  `cost_uni_nepd` decimal(10, 2) NOT NULL,
   PRIMARY KEY (`id_nepd`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-PASO 11: 
-/***************************************************************************************************/
-INSERT INTO nte_prod (fk_id_ne_nepd, fk_id_prod_nepd, fk_id_ocpd_nepd, cantidad_nepd, cost_uni_nepd)
-SELECT oc.id_oc, pp.fk_id_prod_pfpd, 1, pp.cantidad_pfpd, pp.cost_uni_pfpd
-FROM prof_prod pp
-INNER JOIN proforma p ON pp.fk_id_prof_pfpd = p.id_prof
-INNER JOIN producto pd ON pp.fk_id_prod_pfpd = pd.id_prod
-INNER JOIN orden_compra oc ON oc.fk_id_prof_oc = p.id_prof
+
+PASO 12 fk_id_oc_ne
+/*********************************************************************/
+UPDATE nota_entrega ne
+INNER JOIN orden_compra oc ON oc.id_oc = ne.fk_id_oc_ne
+INNER JOIN proforma p ON p.id_prof = oc.fk_id_prof_oc
+SET ne.fk_id_oc_ne = oc.id_oc
 WHERE p.estado_prof = 1;
+
+
+PASO 13 ELIMINAR nota_entrega.fk_id_oc_ne
+/*****************************************************/
+
+
+
+PASO 14: 
+/***************************************************************************************************/
+INSERT INTO nte_prod (fk_id_ne_nepd, fk_id_prod_nepd, cantidad_nepd, cost_uni_nepd)
+SELECT
+    ne.id_ne, 
+    op.fk_id_prod_ocpd, 
+    op.cantidad_ocpd, 
+    op.cost_uni_ocpd 
+FROM
+    oc_prod op
+INNER JOIN
+    orden_compra oc ON oc.id_oc = op.fk_id_oc_ocpd
+INNER JOIN
+    nota_entrega ne ON oc.id_oc = ne.fk_id_oc_ne
 
 SET @numero = 0;
 UPDATE nte_prod np
 SET np.fk_id_ocpd_nepd = (@numero := @numero + 1);
 
 
-
-13vo paso
-#############################################################3
-UPDATE nota_entrega
-JOIN orden_compra ON nota_entrega.fk_id_oc_ne = orden_compra.fk_id_prof_oc
-SET nota_entrega.fk_id_oc_ne = orden_compra.id_oc;
-
-
-14vo paso
-
+PASO 15 
+/**********************************************************/
 añadir columna de tmp_entrega_pfpd a la tabla prof_prod y mdf_prof_prod
 
+ALTER TABLE `prof_prod` ADD `tmp_entrega_pfpd` INT NOT NULL AFTER `cost_uni_pfpd`;
+ALTER TABLE `mdf_prof_prod` ADD `tmp_entrega_pfpd` INT NOT NULL AFTER `cost_uni_mpfpd`;
+
+
+PASO 16 ALMACEN ARMADOS
+/********************************************************************************/
+ALTER TABLE `armado` ADD `almacen_rmd` INT NOT NULL AFTER `id_rmd`;
 
 
 
+Eliminar estado_oc = 2
+/********************************************************************************/
+DELETE FROM orden_compra
+WHERE estado_oc = 2;
+
+DELETE nte_prod 
+FROM nte_prod 
+INNER JOIN nota_entrega ON nte_prod.fk_id_ne_nepd = nota_entrega.id_ne
+WHERE estado_ne = 2;
 
 
 
+DELETE vnt_prod 
+FROM vnt_prod
+INNER JOIN venta ON vnt_prod.fk_id_vnt_vtpd = venta.id_vnt WHERE estado_vnt = 'DEVOLUCION';
 
+DELETE FROM venta WHERE estado_vnt = 'DEVOLUCION';
 
+DELETE FROM nota_entrega WHERE estado_ne = 2;
 
 
 
@@ -190,3 +246,16 @@ BEGIN
     SET NEW.numero_ne = (SELECT IFNULL(MAX(numero_ne), 0) + 1 FROM nota_entrega);
 END$$
 DELIMITER ;
+
+TABLA DEVOLUCION
+/***************************************************************************/
+ALTER TABLE `devolucion` ADD `numero_dvl` INT NOT NULL AFTER `id_dvl`;
+ALTER TABLE `devolucion` ADD `fk_id_clte_dvl` INT NOT NULL AFTER `numero_dvl`, ADD `fk_id_usua_dvl` INT NOT NULL AFTER `fk_id_clte_dvl`;  
+ALTER TABLE `devolucion` ADD `descuento_dvl` INT NOT NULL AFTER `fecha_dvl`, ADD `total_dvl` DOUBLE NOT NULL AFTER `descuento_dvl`, ADD `moneda_dvl` VARCHAR(10) NOT NULL AFTER `total_dvl`, ADD `tipo_cambio_dvl` FLOAT NOT NULL AFTER `moneda_dvl`, ADD `orden_dvl` VARCHAR(100) NOT NULL AFTER `tipo_cambio_dvl`;
+ALTER TABLE `devolucion` ADD `almacen_dvl` INT NOT NULL AFTER `motivo_dvl`;
+
+
+TABLA dvl_prod
+/****************************************************************************/
+
+

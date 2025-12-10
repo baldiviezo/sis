@@ -983,13 +983,11 @@ async function readNotasEntrega() {
             const isAdmin = ['Gerente general', 'Administrador'].includes(localStorage.getItem('rol_usua'));
             notasEntrega = isAdmin ? data : data.filter(notaEntrega => notaEntrega.fk_id_usua_ne === localStorage.getItem('id_usua'));
             filterNotasEntrega = notasEntrega;
-
             notasEntrega.forEach(notaEntrega => {
                 if (typeof notaEntrega.descuento_ne != 'number') {
                     console.log(notaEntrega);
                 }
             });
-
             createYearNE();
             resolve();
         }).catch(err => console.log(err));
@@ -1033,8 +1031,8 @@ function searchNotasEntrega() {
             return (usuario.nombre_usua + ' ' + usuario.apellido_usua).toLowerCase().includes(busqueda);
         } else if (valor == 'cliente') {
             return (cliente.nombre_clte + ' ' + cliente.apellido_clte).toLowerCase().includes(busqueda);
-        } else if (valor == 'empresa') {
-            return empresa.nombre_emp.toLowerCase().includes(busqueda);
+        } else if (valor == 'nombre_emp') {
+            return empresa.nombre_emp.toString().toLowerCase().includes(busqueda);
         } else {
             return notaEntrega[valor].toLowerCase().includes(busqueda);
         }
@@ -1175,13 +1173,13 @@ function tableNotaEntrega(page) {
         tdNumero.innerText = index + 1;
         tr.appendChild(tdNumero);
 
-        const tdNumeroNE = document.createElement('td');
-        tdNumeroNE.innerText = notaEntrega.numero_ne;
-        tr.appendChild(tdNumeroNE);
-
         const tdOrdenCompra = document.createElement('td');
         tdOrdenCompra.innerText = notaEntrega.numero_oc;
         tr.appendChild(tdOrdenCompra);
+
+        const tdNumeroNE = document.createElement('td');
+        tdNumeroNE.innerText = notaEntrega.numero_ne;
+        tr.appendChild(tdNumeroNE);
 
         const tdFechaNE = document.createElement('td');
         tdFechaNE.innerText = notaEntrega.fecha_ne;
@@ -1367,7 +1365,6 @@ async function readNte_prods() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            console.log(data);
             nte_prods = data;
             filterNte_prods = nte_prods;
             resolve();
@@ -1407,7 +1404,7 @@ function searchNteProd() {
 //------Seleccionar el año
 const selectYearNteProd = document.getElementById('selectYearNteProd');
 selectYearNteProd.addEventListener('change', searchNteProd);
-//-------Estado de nte_invs
+//-------Estado de nte_prods
 const selectStateNteProd = document.getElementById('selectStateNteProd');
 selectStateNteProd.addEventListener('change', searchNteProd);
 const selectMonthNteProd = document.getElementById('selectMonthNteProd');
@@ -1455,7 +1452,8 @@ const totalNteProd = document.getElementById('totalNteProd');
 function paginacionNteProd(allProducts, page) {
     let total = 0;
     filterNte_prods.forEach(nte_prod => {
-        total += nte_prod.cost_uni_nepd * nte_prod.cantidad_nepd;
+        const notaEntrega = filterNotasEntrega.find(notaEntrega => notaEntrega.id_ne === nte_prod.fk_id_ne_nepd);
+        total += nte_prod.cost_uni_nepd * nte_prod.cantidad_nepd * (100 - notaEntrega.descuento_ne) / 100;
     });
     totalNteProd.innerHTML = 'Total (Bs):' + total.toFixed(2) + ' Bs';
 
@@ -1491,20 +1489,20 @@ function paginacionNteProd(allProducts, page) {
     h2.innerHTML = `Pagina ${page}/${allPages}, ${allProducts} Productos`;
     tableNteProdMW(page);
 }
-//--------Tabla de nte_invs
+//--------Tabla de nte_prods
 function tableNteProdMW(page) {
     const tbody = document.getElementById('tbodyNteProd');
     const inicio = (page - 1) * Number(selectNumberNteProd.value);
     const final = inicio + Number(selectNumberNteProd.value);
-    const nte_invs = filterNte_prods.slice(inicio, final);
+    const nte_prods = filterNte_prods.slice(inicio, final);
     tbody.innerHTML = '';
-    nte_invs.forEach((nte_inv, index) => {
-        const notaEntrega = filterNotasEntrega.find(notaEntrega => notaEntrega.id_ne === nte_inv.fk_id_ne_nepd);
-        const stock = inventories.find(inventory => inventory.fk_id_prod_inv === nte_inv.fk_id_prod_nepd);
-        const producto = products.find(product => product.id_prod === stock.fk_id_prod_inv);
+    nte_prods.forEach((nte_prod, index) => {
+        const notaEntrega = filterNotasEntrega.find(notaEntrega => notaEntrega.id_ne === nte_prod.fk_id_ne_nepd);
+
+        const producto = products.find(product => product.id_prod === nte_prod.fk_id_prod_nepd);
 
         const tr = document.createElement('tr');
-        tr.setAttribute('id_nepd', nte_inv.id_nepd);
+        tr.setAttribute('id_nepd', nte_prod.id_nepd);
 
         const tdNumero = document.createElement('td');
         tdNumero.innerText = index + 1;
@@ -1523,32 +1521,32 @@ function tableNteProdMW(page) {
         tr.appendChild(tdCodigo);
 
         const tdCantidad = document.createElement('td');
-        tdCantidad.innerText = nte_inv.cantidad_nepd;
+        tdCantidad.innerText = nte_prod.cantidad_nepd;
         tr.appendChild(tdCantidad);
 
         const tdCostoUnitario = document.createElement('td');
-        tdCostoUnitario.innerText = nte_inv.cost_uni_nepd.toFixed(2) + ' Bs';
+        tdCostoUnitario.innerText = nte_prod.cost_uni_nepd.toFixed(2) + ' Bs';
         tr.appendChild(tdCostoUnitario);
 
         const tdSubTotal = document.createElement('td');
-        const subTotal = nte_inv.cost_uni_nepd * nte_inv.cantidad_nepd;
+        const subTotal = nte_prod.cost_uni_nepd * nte_prod.cantidad_nepd;
         tdSubTotal.innerText = subTotal.toFixed(2) + ' Bs';
         tr.appendChild(tdSubTotal);
 
         const tdDescuento = document.createElement('td');
-        const desc = notaEntrega.descuento_ne * nte_inv.cost_uni_nepd * nte_inv.cantidad_nepd / 100;
+        const desc = notaEntrega.descuento_ne * nte_prod.cost_uni_nepd * nte_prod.cantidad_nepd / 100;
         tdDescuento.innerText = desc.toFixed(2) + ' Bs' + ' (' + notaEntrega.descuento_ne + '%)';
         tr.appendChild(tdDescuento);
 
         const tdTotal = document.createElement('td');
-        const total = nte_inv.cantidad_nepd * nte_inv.cost_uni_nepd * (100 - notaEntrega.descuento_ne) / 100;
+        const total = nte_prod.cantidad_nepd * nte_prod.cost_uni_nepd * (100 - notaEntrega.descuento_ne) / 100;
         tdTotal.innerText = total.toFixed(2) + ' Bs';
         tr.appendChild(tdTotal);
 
         tbody.appendChild(tr);
     });
 }
-//------open and close modal nte_inv
+//------open and close modal nte_prod
 const tableNteProd = document.querySelector('#tableNteProd');
 const openTableNteProd = document.querySelector('#openTableNteProd');
 const closeTableNteProd = document.querySelector('#closeTableNteProd');

@@ -1555,7 +1555,6 @@ function readEnterprise(rm) {
     let id_empp = selectEnterpriseRM.value;
     for (let enterprise in enterprises) {
         if (enterprises[enterprise]['id_empp'] == id_empp) {
-
             for (let valor in enterprises[enterprise]) {
                 document.getElementsByName(valor + 'M')[0].value = enterprises[enterprise][valor];
             }
@@ -1868,10 +1867,8 @@ function readMostProd() {
     }
 }
 const theadMostProd = document.getElementById('theadMostProd');
-
 const mesesAnteriores = [];
 const mesActual = date.getMonth();
-
 for (let i = 7; i >= 0; i--) {
     const mesAnterior = mesActual - i;
     const fechaMesAnterior = new Date(date.getFullYear(), mesAnterior, 1);

@@ -4,11 +4,12 @@ class consultas{
 	//------Read orden de compra
 	public function readOrderBuys(){
 		require_once 'conexion.php';
-		$consulta = "SELECT * FROM orden_compra ORDER BY id_oc DESC";
+		$consulta = "SELECT orden_compra.*, cliente.apellido_clte, empresa.id_emp, empresa.sigla_emp FROM orden_compra INNER JOIN cliente ON orden_compra.fk_id_clte_oc = cliente.id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = empresa.id_emp ORDER BY id_oc DESC";
 		$resultado = $conexion->query($consulta);
 		$ordenCompra = array();
 		while ($fila = $resultado->fetch_array(MYSQLI_ASSOC)) {
-			$fila['numero_oc'] = strtoupper('P-SMS' . substr($fila['fecha_oc'], 2, 2) . '-' . $this->addZerosGo($fila['numero_oc']));
+			$fila['numero_oc'] = strtoupper('P-SMS' . substr($fila['fecha_oc'], 2, 2) . '-' . $this->addZerosGo($fila['numero_oc']).'-' . ($fila['id_emp'] == 77 ? explode(" ", $fila['apellido_clte'])[0] : $fila['sigla_emp']));
+			unset($fila['apellido_clte'], $fila['sigla_emp'], $fila['id_emp']);
 			$ordenCompra[] = $fila;
 		}
 		echo json_encode($ordenCompra, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
@@ -40,12 +41,12 @@ class consultas{
 	//-------Leer notas de entrega
 	public function readNotasEntrega(){
 		include 'conexion.php';
-		$consulta = "SELECT nota_entrega.*, orden_compra.fecha_oc FROM nota_entrega INNER JOIN orden_compra ON nota_entrega.fk_id_oc_ne = orden_compra.id_oc ORDER BY id_ne DESC";
+		$consulta = "SELECT nota_entrega.*, orden_compra.fecha_oc, orden_compra.fk_id_prof_oc, cliente.apellido_clte, empresa.id_emp, empresa.sigla_emp FROM nota_entrega INNER JOIN orden_compra ON nota_entrega.fk_id_oc_ne = orden_compra.id_oc INNER JOIN cliente ON orden_compra.fk_id_clte_oc = cliente.id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = empresa.id_emp ORDER BY id_ne DESC";
 		$resultado = $conexion->query($consulta);
 		$notasEntrega = array();
 		while ($fila = $resultado->fetch_array(MYSQLI_ASSOC)) {
-			$fila['numero_ne'] = strtoupper('NE-SMS' . substr($fila['fecha_ne'], 2, 2) . '-' . $this->addZerosGo($fila['numero_ne']));
-			$fila['numero_oc'] = strtoupper('P-SMS' . substr($fila['fecha_oc'], 2, 2) . '-' . $this->addZerosGo($fila['fk_id_oc_ne']));
+			$fila['numero_ne'] = strtoupper('NE-SMS' . substr($fila['fecha_ne'], 2, 2) . '-' . $this->addZerosGo($fila['numero_ne']) . '-' . ($fila['id_emp'] == 77 ? explode(" ", $fila['apellido_clte'])[0] : $fila['sigla_emp']));
+			$fila['numero_oc'] = strtoupper('P-SMS' . substr($fila['fecha_oc'], 2, 2) . '-' . $this->addZerosGo($fila['fk_id_prof_oc']) . '-' . ($fila['id_emp'] == 77 ? explode(" ", $fila['apellido_clte'])[0] : $fila['sigla_emp']));
 			$notasEntrega[] = $fila;
 		}
 		echo json_encode($notasEntrega, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);

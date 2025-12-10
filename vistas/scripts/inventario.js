@@ -232,6 +232,8 @@ function tableInventories(page) {
                     td.innerText = Number(inventory[columna]).toFixed(2);
                 } else if (columna == 'ubi_almacen') {
                     td.innerText = inventory[columna] == 0 ? 'El Alto' : 'La Paz';
+                } else if (columna == 'cantidad_inv') {
+                    td.innerText = inventory[columna] == 0 ? 'Sin stock' : inventory[columna];               
                 } else {
                     td.innerText = inventory[columna];
                 }
