@@ -121,6 +121,8 @@ WHERE estado_prof = 'devolucion';
 ALTER TABLE proforma
 CHANGE estado_prof estado_prof BOOLEAN NOT NULL;
 
+ALTER TABLE `prof_prod` ADD `tmp_entrega_pfpd` INT NOT NULL AFTER `cost_uni_pfpd`;
+
 
 PASO 10:
 /********************************************************************************************************/
@@ -194,6 +196,15 @@ PASO 16 ALMACEN ARMADOS
 /********************************************************************************/
 ALTER TABLE `armado` ADD `almacen_rmd` INT NOT NULL AFTER `id_rmd`;
 
+UPDATE rmd_prod
+SET estado_rdpd = 1
+WHERE estado_rdpd = 'agregado';
+
+UPDATE rmd_prod
+SET estado_rdpd = 0
+WHERE estado_rdpd = 'baja';
+
+ALTER TABLE `rmd_prod` CHANGE `estado_rdpd` `estado_rdpd` INT NOT NULL;
 
 
 Eliminar estado_oc = 2

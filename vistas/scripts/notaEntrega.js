@@ -26,7 +26,7 @@ async function init() {
     if (!rqstNotaEntrega) {
         rqstNotaEntrega = true;
         preloader.classList.add('modal__show');
-        try {
+        try {   
             await Promise.all([
                 readAllMarcas(),
                 readAllCategorias(),
@@ -319,7 +319,8 @@ function tableOrdenCompra(page) {
             if (['Administrador', 'Gerente general'].includes(localStorage.getItem('rol_usua'))) {
                 imgs = [
                     { src: '../imagenes/notaEntrega.svg', onclick: `openNotaEntregaRMW(${orderBuy.id_oc})`, title: 'Generar Nota de Entrega' },
-                    { src: '../imagenes/pdf.svg', onclick: `pdfOrdenCompra(${orderBuy.id_oc})`, title: 'PDF' }
+                    { src: '../imagenes/pdf.svg', onclick: `pdfOrdenCompra(${orderBuy.id_oc})`, title: 'PDF' },
+                    { src: '../imagenes/trash.svg', onclick: `deleteOrderBuy(${orderBuy.id_oc})`, title: 'Eliminar' }
                 ];
             } else if (['Ingeniero', 'Gerente De Inventario'].includes(localStorage.getItem('rol_usua'))) {
                 imgs = [
@@ -423,6 +424,10 @@ finalizarOC.addEventListener('click', () => {
         }).catch(err => console.log(err));
     }
 })
+//------Delete orden de compra
+function deleteOrderBuy(id_oc) {
+    console.log(id_oc)
+}
 //-----------------------------------------------TABLE OC_PROD---------------------------------------------------------
 //-----------------------------------------READ OC_PROD
 let oc_prods = [];

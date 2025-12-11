@@ -208,7 +208,7 @@ function tableArmed(page) {
         tr.appendChild(tdCantidad);
 
         const tdEstado = document.createElement('td');
-        tdEstado.innerText = armed.estado_rdpd;
+        tdEstado.innerText = armed.estado_rdpd == 0 ? 'Baja' : 'Agregado';
         tr.appendChild(tdEstado);
 
         const tdObservacion = document.createElement('td');
