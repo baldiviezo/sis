@@ -315,7 +315,7 @@ function tableOrdenCompra(page) {
             imgs = [
                 { src: '../imagenes/pdf.svg', onclick: `pdfOrdenCompra(${orderBuy.id_oc})`, title: 'PDF' }
             ];
-        } else if (orderBuy.estado_oc === 0) {
+        } else if (orderBuy.estado_oc === 0 || orderBuy.estado_oc === 2) {
             if (['Administrador', 'Gerente general'].includes(localStorage.getItem('rol_usua'))) {
                 imgs = [
                     { src: '../imagenes/notaEntrega.svg', onclick: `openNotaEntregaRMW(${orderBuy.id_oc})`, title: 'Generar Nota de Entrega' },

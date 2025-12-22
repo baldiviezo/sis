@@ -9,6 +9,7 @@ const roles = {
     { href: 'notaEntrega.html', text: 'Pedidos' },
     { href: 'armados.html', text: 'Armados y desarmados' },
     { href: 'compras.html', text: 'Compras' },
+    { href: 'ventas.html', text: 'Facturacion' },
     { href: 'cerrar.html', text: 'Cerrar sesión' }
   ],
   'Administrador': [
@@ -18,6 +19,7 @@ const roles = {
     { href: 'proforma.html', text: 'Proforma' },
     { href: 'notaEntrega.html', text: 'Pedidos' },
     { href: 'compras.html', text: 'Compras' },
+    { href: 'ventas.html', text: 'Facturacion' },
     { href: 'cerrar.html', text: 'Cerrar sesión' }
   ],
   'Ingeniero': [
