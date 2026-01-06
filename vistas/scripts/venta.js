@@ -245,6 +245,753 @@ function tableSales(page) {
     })
 
 }
+/********************************************CRUD SALES****************************************************/
+//<------------------------------------------MODAL CRUD SALES--------------------------------------------
+const saleRMW = document.getElementById('saleRMW');
+const closeSaleRMW = document.getElementById('closeSaleRMW');
+closeSaleRMW.addEventListener('click', () => {
+    saleRMW.classList.remove('modal__show');
+});
+const fecha_vntR = document.getElementById('fecha_vntR');
+function openSaleRMW() {
+    fecha_vntR.value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
+    saleRMW.classList.add('modal__show');
+}
+//-------------------------------------------------------CHANGE QUANTITY-------------------------------------------------
+const tipo_pago_vnt = document.getElementById('tipo_pago_vnt');
+tipo_pago_vnt.addEventListener('change', () => {
+    if (tipo_pago_vnt.value == 'CR') {
+        document.getElementById('tiempo_credito_vnt').removeAttribute('hidden');
+    } else {
+        document.getElementById('tiempo_credito_vnt').setAttribute('hidden', '');
+    }
+});
+const estado_factura_vnt = document.getElementById('estado_factura_vnt');
+estado_factura_vnt.addEventListener('change', () => {
+    if (estado_factura_vnt.value == '1') {
+        document.getElementById('fecha_factura_vnt').removeAttribute('hidden');
+        document.getElementById('factura_vnt').removeAttribute('hidden');
+    } else {
+        document.getElementById('fecha_factura_vnt').setAttribute('hidden', '');
+        document.getElementById('factura_vnt').setAttribute('hidden', '');
+    }
+});
+
+//---------------------------------------------------------------CLIENTES----------------------------------------------
+const fk_id_clte_profR = document.getElementById('fk_id_clte_profR');
+const fk_id_clte_profM = document.getElementById('fk_id_clte_profM');
+let customers = [];
+let filterCustomers = [];
+let chosenCustomers = [];
+let chosenCustomer = [];
+let formCustomer;
+async function readCustomers() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readCustomers', '');
+        fetch('../controladores/clientes.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            customers = data;
+            filterCustomers = customers;
+            resolve();
+        }).catch(err => console.log(err));
+    })
+}
+//---------------------------------------------TABLA MODAL CUSTOMER---------------------------------
+//------Select utilizado para buscar por columnas
+const selectSearchClteSMW = document.getElementById('selectSearchClteSMW');
+selectSearchClteSMW.addEventListener('change', searchCustomersSMW);
+//------buscar por input
+const inputSearchClteSMW = document.getElementById("inputSearchClteSMW");
+inputSearchClteSMW.addEventListener("keyup", searchCustomersSMW);
+//------Clientes por pagina
+const selectNumberClteSMW = document.getElementById('selectNumberClteSMW');
+selectNumberClteSMW.selectedIndex = 3;
+selectNumberClteSMW.addEventListener('change', function () {
+    paginacionCustomerMW(chosenCustomers.length, 1);
+});
+//------buscar por:
+function searchCustomersSMW() {
+    const busqueda = inputSearchClteSMW.value.toLowerCase();
+    const valor = selectSearchClteSMW.value.toLowerCase().trim();
+    chosenCustomer = chosenCustomers.filter(customer => {
+        const empresa = enterprises.find(enterprise => enterprise.id_emp === customer.fk_id_emp_clte);
+        if (valor === 'todas') {
+            return (
+                customer.nit_clte.toString().toLowerCase().includes(busqueda) ||
+                empresa.nombre_emp.toLowerCase().includes(busqueda) ||
+                customer.email_clte.toLowerCase().includes(busqueda) ||
+                customer.direccion_clte.toString().toLowerCase().includes(busqueda) ||
+                customer.celular_clte.toString().toLowerCase().includes(busqueda) ||
+                (customer.apellido_clte + ' ' + customer.nombre_clte).toLowerCase().includes(busqueda)
+            );
+        } else if (valor === 'cliente') {
+            return (customer.apellido_clte + ' ' + customer.nombre_clte).toLowerCase().includes(busqueda);
+        } else {
+            return customer[valor].toString().toLowerCase().includes(busqueda);
+        }
+    });
+    paginacionCustomerMW(chosenCustomer.length, 1);
+}
+//------PaginacionCustomer
+function paginacionCustomerMW(allEnterprises, page) {
+    let numberEnterprises = Number(selectNumberClteSMW.value);
+    let allPages = Math.ceil(allEnterprises / numberEnterprises);
+    let ul = document.querySelector('#wrapperClteSMW ul');
+    let li = '';
+    let beforePages = page - 1;
+    let afterPages = page + 1;
+    let liActive;
+    if (page > 1) {
+        li += `<li class="btn" onclick="paginacionCustomerMW(${allEnterprises}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
+    }
+    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
+        if (pageLength > allPages) {
+            continue;
+        }
+        if (pageLength == 0) {
+            pageLength = pageLength + 1;
+        }
+        if (page == pageLength) {
+            liActive = 'active';
+        } else {
+            liActive = '';
+        }
+        li += `<li class="numb ${liActive}" onclick="paginacionCustomerMW(${allEnterprises}, ${pageLength})"><span>${pageLength}</span></li>`;
+    }
+    if (page < allPages) {
+        li += `<li class="btn" onclick="paginacionCustomerMW(${allEnterprises}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
+    }
+    ul.innerHTML = li;
+    let h2 = document.querySelector('#showPageClteSMW h2');
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${allEnterprises} Clientes`;
+    tableCustomersMW(page);
+}
+//------Crear la tabla
+const tbodyClteSMW = document.getElementById('tbodyClteSMW');
+function tableCustomersMW(page) {
+    const inicio = (page - 1) * Number(selectNumberClteSMW.value);
+    const final = inicio + Number(selectNumberClteSMW.value);
+    let i = 1;
+    tbodyClteSMW.innerHTML = '';
+
+    const customer = chosenCustomer.slice(inicio, final);
+    customer.forEach((clte, index) => {
+        const tr = document.createElement('tr');
+
+        const tdNumero = document.createElement('td');
+        tdNumero.innerText = index + 1;
+        tr.appendChild(tdNumero);
+
+        const tdNumeroClte = document.createElement('td');
+        tdNumeroClte.innerText = clte.numero_clte;
+        tr.appendChild(tdNumeroClte);
+
+        const tdCliente = document.createElement('td');
+        tdCliente.innerText = clte.nombre_clte + ' ' + clte.apellido_clte;
+        tr.appendChild(tdCliente);
+
+        const tdNit = document.createElement('td');
+        tdNit.innerText = clte.nit_clte;
+        tr.appendChild(tdNit);
+
+        const tdEmail = document.createElement('td');
+        tdEmail.innerText = clte.email_clte;
+        tr.appendChild(tdEmail);
+
+        const tdDirecion = document.createElement('td');
+        tdDirecion.innerText = clte.direccion_clte;
+        tr.appendChild(tdDirecion);
+
+        const tdCelular = document.createElement('td');
+        tdCelular.innerText = clte.celular_clte;
+        tr.appendChild(tdCelular);
+        const tdAcciones = document.createElement('td');
+        tdAcciones.innerHTML = `
+            <img src='../imagenes/send.svg' onclick='sendCustomers(${clte.id_clte})'>
+            <img src='../imagenes/edit.svg' onclick='readCustomer(${clte.id_clte})'>
+            <img src='../imagenes/trash.svg' onclick='deleteCustomer(${clte.id_clte})'>`;
+        tr.appendChild(tdAcciones);
+
+        tbodyClteSMW.appendChild(tr);
+
+    });
+}
+const fk_id_clte_vntR = document.getElementById('fk_id_clte_vntR');
+function sendCustomers(id_clte) {
+    customerSMW.classList.remove('modal__show');
+    const cliente = filterCustomers.find(customer => customer.id_clte == id_clte);
+    fk_cliente_vntR.value = cliente.apellido_clte + ' ' + cliente.nombre_clte;
+    fk_id_clte_vntR.value = id_clte;
+}
+//----------------------------------VENTANA MODAL CUSTOMERSMW-------------------------------------------
+const customerSMW = document.getElementById('customerSMW');
+const closeCustomerSMW = document.getElementById('closeCustomerSMW');
+function openCustomersSMW() {
+    inputSearchClteSMW.focus();
+    customerSMW.classList.add('modal__show');
+}
+closeCustomerSMW.addEventListener('click', () => {
+    customerSMW.classList.remove('modal__show');
+});
+//<<-----------------------------------------CRUD CUSTOMER  ----------------------------------------->>
+//------Read a Customer
+function readCustomer(id_clte) {
+    const customer = filterCustomers.find(customer => customer.id_clte == id_clte);
+    for (const valor in customer) {
+        if (valor === 'fk_id_emp_clte') {
+            const empresa = enterprises.find(empresa => empresa.id_emp === customer[valor]);
+            formClienteM.querySelector(`[name=${valor}M]`).value = empresa.nombre_emp;
+        } else {
+            formClienteM.querySelector(`[name=${valor}M]`).value = customer[valor];
+        }
+    }
+    customersMMW.classList.add('modal__show');
+}
+//------Create a customer
+const formClienteR = document.getElementById('formClienteR');
+formClienteR.addEventListener('submit', createCustomer);
+async function createCustomer() {
+    event.preventDefault();
+    if (requestSale == false) {
+        requestSale = true;
+        customersRMW.classList.remove('modal__show');
+        let formData = new FormData(formClienteR);
+        formData.append('createCustomer', '');
+        preloader.classList.add('modal__show');
+        fetch('../controladores/clientes.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            readCustomers().then(() => {
+                sendEnterprise(Number(fk_id_emp_clteR.value));
+                paginacionTableClteMW(filterCustomers.length, 1);
+                requestSale = false;
+                formClienteR.reset();
+                preloader.classList.remove('modal__show');
+                mostrarAlerta(data);
+            });
+        }).catch(err => {
+            requestSale = false;
+            mostrarAlerta(err);
+        });
+    }
+}
+//------Update a Customer
+const formClienteM = document.getElementById('formClienteM');
+formClienteM.addEventListener('submit', updateCustomer);
+async function updateCustomer() {
+    event.preventDefault();
+    if (requestSale == false) {
+        requestSale = true;
+        customersMMW.classList.remove('modal__show');
+        const formData = new FormData(formClienteM);
+        formData.append('updateCustomer', '');
+        preloader.classList.add('modal__show');
+        fetch('../controladores/clientes.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            readCustomers().then(() => {
+                sendEnterprise(Number(fk_id_emp_clteR.value));
+                paginacionTableClteMW(filterCustomers.length, 1);
+                requestSale = false;
+                formClienteM.reset();
+                preloader.classList.remove('modal__show');
+                mostrarAlerta(data);
+            })
+        }).catch(err => {
+            requestSale = false;
+            mostrarAlerta(err);
+        });
+    }
+}
+//------Delete a Customer
+async function deleteCustomer(id_clte) {
+    if (confirm('¿Esta usted seguro?')) {
+        if (requestSale == false) {
+            requestSale = true;
+            let formData = new FormData();
+            formData.append('deleteCustomer', id_clte);
+            preloader.classList.add('modal__show');
+            fetch('../controladores/clientes.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                readCustomers().then(() => {
+                    paginacionTableClteMW(filterCustomers.length, 1);
+                    requestSale = false;
+                    preloader.classList.remove('modal__show');
+                    mostrarAlerta(data);
+                });
+            }).catch(err => {
+                requestSale = false;
+                mostrarAlerta(err)
+            });
+        }
+    }
+}
+//------Select para crear cliente
+const fk_id_emp_clteR2 = document.getElementById('fk_id_emp_clteR2');
+function selectCreateCustomer() {
+    fk_id_emp_clteR2.innerHTML = '';
+    const id_clte = fk_id_emp_clteR.value;
+    let option = document.createElement('option');
+    option.value = id_clte;
+    const empresa = enterprises.find(enterprise => enterprise.id_emp == id_clte);
+    option.innerText = empresa.nombre_emp;
+    fk_id_emp_clteR2.appendChild(option);
+}
+//<<-------------------------------------------MODAL CLIENTE---------------------------------------->>
+const customersRMW = document.getElementById('customersRMW');
+const customersMMW = document.getElementById('customersMMW');
+const closeCustomersRMW = document.getElementById('closeCustomersRMW');
+const closeCustomersMMW = document.getElementById('closeCustomersMMW');
+function openCustomersRMW() {
+    customersRMW.classList.add('modal__show');
+    formCustomer = 'R';
+    selectCreateCustomer();
+}
+closeCustomersRMW.addEventListener('click', () => {
+    customersRMW.classList.remove('modal__show');
+});
+closeCustomersMMW.addEventListener('click', () => {
+    customersMMW.classList.remove('modal__show');
+});
+//<<---------------------------------------------EMPRESA---------------------------------------------->>
+const fk_id_emp_clteR = document.getElementById('fk_id_emp_clteR');
+const fk_id_emp_clteM = document.getElementById('fk_id_emp_clteM');
+let enterprises = [];
+let filterEnterprises = [];
+let indexEnterprise = 0;
+async function readEnterprises() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readEnterprises', '');
+        fetch('../controladores/clientes.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            enterprises = data;
+            filterEnterprises = enterprises;
+            resolve();
+        }).catch(err => console.log(err));
+    })
+}
+//<<---------------------------------------TABLA MODAL EMPRESA--------------------------------------->>
+//------Select utilizado para buscar por columnas
+const selectSearchEmpMW = document.getElementById('selectSearchEmpMW');
+selectSearchEmpMW.addEventListener('change', searchEnterprisesMW);
+//------buscar por input
+const inputSearchEmpMW = document.getElementById("inputSearchEmpMW");
+inputSearchEmpMW.addEventListener("keyup", searchEnterprisesMW);
+//------Clientes por pagina
+const selectNumberEmpMW = document.getElementById('selectNumberEmpMW');
+selectNumberEmpMW.selectedIndex = 3;
+selectNumberEmpMW.addEventListener('change', function () {
+    paginacionEnterpriseMW(filterEnterprises.length, 1);
+});
+//------buscar por:
+function searchEnterprisesMW() {
+    const valor = selectSearchEmpMW.value;
+    const busqueda = inputSearchEmpMW.value.toLowerCase().trim();
+    filterEnterprises = enterprises.filter(enterprise => {
+        if (valor === 'todas') {
+            return (
+                enterprise.nombre_emp.toLowerCase().includes(busqueda) ||
+                enterprise.sigla_emp.toString().toLowerCase().includes(busqueda) ||
+                enterprise.nit_emp.toString().toLowerCase().includes(busqueda)
+            );
+        } else {
+            return enterprise[valor].toString().toLowerCase().includes(busqueda);
+        }
+    });
+    paginacionEnterpriseMW(filterEnterprises.length, 1);
+}
+//------Ordenar tabla descendente ascendente
+const orderEnterprises = document.querySelectorAll('.tbody__head--empMW');
+orderEnterprises.forEach(div => {
+    div.children[0].addEventListener('click', function () {
+        const valor = div.children[0].name;
+        filterEnterprises.sort((a, b) => a[valor].localeCompare(b[valor]));
+        paginacionEnterpriseMW(filterEnterprises.length, 1);
+    });
+    div.children[1].addEventListener('click', function () {
+        const valor = div.children[0].name;
+        filterEnterprises.sort((a, b) => b[valor].localeCompare(a[valor]));
+        paginacionEnterpriseMW(filterEnterprises.length, 1);
+    });
+})
+//------PaginacionEnterpriseMW
+function paginacionEnterpriseMW(allEnterprises, page) {
+    let numberEnterprises = Number(selectNumberEmpMW.value);
+    let allPages = Math.ceil(allEnterprises / numberEnterprises);
+    let ul = document.querySelector('#wrapperEmpMW ul');
+    let li = '';
+    let beforePages = page - 1;
+    let afterPages = page + 1;
+    let liActive;
+    if (page > 1) {
+        li += `<li class="btn" onclick="paginacionEnterpriseMW(${allEnterprises}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
+    }
+    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
+        if (pageLength > allPages) {
+            continue;
+        }
+        if (pageLength == 0) {
+            pageLength = pageLength + 1;
+        }
+        if (page == pageLength) {
+            liActive = 'active';
+        } else {
+            liActive = '';
+        }
+        li += `<li class="numb ${liActive}" onclick="paginacionEnterpriseMW(${allEnterprises}, ${pageLength})"><span>${pageLength}</span></li>`;
+    }
+    if (page < allPages) {
+        li += `<li class="btn" onclick="paginacionEnterpriseMW(${allEnterprises}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
+    }
+    ul.innerHTML = li;
+    let h2 = document.querySelector('#showPageEmpMW h2');
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${allEnterprises} Empresas`;
+    tableEnterprisesMW(page);
+}
+//------Crear la tabla
+function tableEnterprisesMW(page) {
+    const tbody = document.getElementById('tbodyEmpMW');
+    inicio = (page - 1) * Number(selectNumberEmpMW.value);
+    final = inicio + Number(selectNumberEmpMW.value);
+    i = 1;
+    tbody.innerHTML = '';
+    for (let enterprise in filterEnterprises) {
+        if (i > inicio && i <= final) {
+            let tr = document.createElement('tr');
+            tr.setAttribute('id', `${filterEnterprises[enterprise].id_emp}`);
+            for (let valor in filterEnterprises[enterprise]) {
+                let td = document.createElement('td');
+                if (valor == 'id_emp') {
+                    td.innerText = i;
+                    tr.appendChild(td);
+                    i++;
+                } else if (valor == 'nit_emp') {
+                    if (filterEnterprises[enterprise][valor] == '0') {
+                        td.innerText = '';
+                    } else {
+                        td.innerText = filterEnterprises[enterprise][valor];
+                    }
+                    tr.appendChild(td);
+                } else if (valor == 'telefono_emp') {
+                    if (filterEnterprises[enterprise][valor] == '0') {
+                        td.innerText = '';
+                    } else {
+                        td.innerText = filterEnterprises[enterprise][valor];
+                    }
+                    tr.appendChild(td);
+                } else {
+                    td.innerText = filterEnterprises[enterprise][valor];
+                    tr.appendChild(td);
+                }
+            }
+            let td = document.createElement('td');
+            td.innerHTML = `
+                <img src='../imagenes/send.svg' onclick='sendEnterprise(${filterEnterprises[enterprise].id_emp})'>
+                <img src='../imagenes/edit.svg' onclick='readEnterprise(${filterEnterprises[enterprise].id_emp})'>
+                <img src='../imagenes/trash.svg' onclick='deleteEnterprise(${filterEnterprises[enterprise].id_emp})'>`;
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+        } else {
+            i++;
+        }
+    }
+}
+const fk_nombre_emp_profR = document.getElementById('fk_nombre_emp_profR');
+const fk_cliente_vntR = document.getElementById('fk_cliente_vntR');
+function sendEnterprise(id_emp) {
+    fk_id_emp_clteR.value = id_emp;
+    const empresa = filterEnterprises.find(enterprise => enterprise.id_emp == id_emp);
+    fk_nombre_emp_profR.value = empresa.nombre_emp;
+    fk_cliente_vntR.value = '';
+    enterpriseSMW.classList.remove('modal__show');
+    chosenCustomers = customers.filter(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte !== '' && customer.apellido_clte !== '');
+    chosenCustomer = chosenCustomers;
+    paginacionCustomerMW(chosenCustomer.length, 1);   
+}
+//----------------------------------ventana modal EnterpriseSMW-------------------------------------------
+const enterpriseSMW = document.getElementById('enterpriseSMW');
+//enterpriseSMW.addEventListener('click', ()=>enterpriseSMW.classList.remove('modal__show'));
+const closeEnterpriseSMW = document.getElementById('closeEnterpriseSMW');
+function openEnterpriseSMW() {
+    enterpriseSMW.classList.add('modal__show');
+    //Al mostrar la tabla de cliente que el puntero se encuentre en el input de busqueda
+    inputSearchEmpMW.focus();
+}
+closeEnterpriseSMW.addEventListener('click', () => {
+    enterpriseSMW.classList.remove('modal__show');
+});
+//<<---------------------------CRUD EMPRESA------------------------------->>
+//------Leer una empresa
+function readEnterprise(id_emp) {
+    const empresa = enterprises.find(enterprise => enterprise['id_emp'] === id_emp);
+    for (const key in empresa) {
+        document.getElementsByName(`${key}M`)[0].value = empresa[key];
+    }
+    enterprisesMMW.classList.add('modal__show');
+}
+//------Craer una empresa
+const formEmpresaR = document.getElementById('formEmpresaR');
+formEmpresaR.addEventListener('submit', createEnterprise);
+async function createEnterprise() {
+    event.preventDefault();
+    if (requestSale == false) {
+        requestSale = true;
+        enterprisesRMW.classList.remove('modal__show');
+        const formData = new FormData(formEmpresaR);
+        formData.append('createEnterprise', '');
+        preloader.classList.add('modal__show');
+        fetch('../controladores/clientes.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            readCustomers().then(() => {
+                return readEnterprises();
+            }).then(() => {
+                requestSale = false;
+                formEmpresaR.reset();
+                mostrarAlerta(data);
+                paginacionEnterpriseMW(filterEnterprises.length, 1);
+                paginacionTableClteMW(filterCustomers.length, 1);
+                preloader.classList.remove('modal__show');
+            })
+        }).catch(err => {
+            requestSale = false;
+            mostrarAlerta(err);
+        });
+    }
+}
+//------Actualizar una empresa
+const formEmpresaM = document.getElementById('formEmpresaM');
+formEmpresaM.addEventListener('submit', updateEnterprise);
+async function updateEnterprise() {
+    event.preventDefault();
+    if (requestSale == false) {
+        requestSale = true;
+        indexEnterprise = fk_id_emp_clteR.value;
+        enterprisesMMW.classList.remove('modal__show');
+        let formData = new FormData(formEmpresaM);
+        formData.append('updateEnterprise', '');
+        preloader.classList.add('modal__show');
+        fetch('../controladores/clientes.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            readCustomers().then(() => {
+                return readEnterprises();
+            }).then(() => {
+                requestSale = false;
+                mostrarAlerta(data);
+                paginacionEnterpriseMW(filterEnterprises.length, 1);
+                paginacionTableClteMW(filterCustomers.length, 1);
+                fk_id_emp_clteR.value = indexEnterprise;
+                preloader.classList.remove('modal__show');
+            })
+        }).catch(err => {
+            requestSale = false;
+            mostrarAlerta(err);
+        });
+    }
+}
+//------Borrar una empresa
+async function deleteEnterprise(id_emp) {
+    if (confirm('¿Esta usted seguro?')) {
+        if (requestSale == false) {
+            requestSale = true;
+            let formData = new FormData();
+            formData.append('deleteEnterprise', id_emp);
+            preloader.classList.add('modal__show');
+            fetch('../controladores/clientes.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                readCustomers().then(() => {
+                    return readEnterprises();
+                }).then(() => {
+                    requestSale = false;
+                    mostrarAlerta(data);
+                    paginacionEnterpriseMW(filterEnterprises.length, 1);
+                    paginacionTableClteMW(filterCustomers.length, 1);
+                    indexEnterprise = 0;
+                    preloader.classList.remove('modal__show');
+                })
+            }).catch(err => {
+                requestSale = false;
+                mostrarAlerta(err);
+            });
+        }
+    }
+}
+//<<----------------------------------------ABRIR Y CERRAR VENTANAS MODALES--------------------------------->>
+//-----------------------------------Ventana modal para empresa---------------------------------//
+const enterprisesRMW = document.getElementById('enterprisesRMW');
+const enterprisesMMW = document.getElementById('enterprisesMMW');
+const closeEnterprisesRMW = document.getElementById('closeEnterprisesRMW');
+const closeEnterprisesMMW = document.getElementById('closeEnterprisesMMW');
+function openEnterprisesRMW() {
+    enterprisesRMW.classList.add('modal__show');
+}
+closeEnterprisesRMW.addEventListener('click', () => {
+    enterprisesRMW.classList.remove('modal__show');
+});
+closeEnterprisesMMW.addEventListener('click', () => {
+    enterprisesMMW.classList.remove('modal__show');
+});
+//--------------------------------------------TABLA MODAL CUSTOMER---------------------------------
+//------Select utilizado para buscar por columnas
+const selectSearchClteMW = document.getElementById('selectSearchClteMW');
+selectSearchClteMW.addEventListener('change', searchCustomersMW);
+//------buscar por input
+const inputSearchClteMW = document.getElementById("inputSearchClteMW");
+inputSearchClteMW.addEventListener("keyup", searchCustomersMW);
+//------Clientes por pagina
+const selectNumberClteMW = document.getElementById('selectNumberClteMW');
+selectNumberClteMW.selectedIndex = 3;
+selectNumberClteMW.addEventListener('change', function () {
+    paginacionTableClteMW(filterCustomers.length, 1);
+});
+//------buscar por:
+function searchCustomersMW() {
+    const busqueda = inputSearchClteMW.value.toLowerCase();
+    const valor = selectSearchClteMW.value.toLowerCase().trim();
+    filterCustomers = customers.filter(customer => {
+        const empresa = enterprises.find(enterprise => enterprise.id_emp === customer.fk_id_emp_clte);
+        if (valor === 'todas') {
+            return (
+                (customer.nombre_clte + ' ' + customer.apellido_clte).toLowerCase().includes(busqueda) ||
+                customer.nit_clte.toString().toLowerCase().includes(busqueda) ||
+                customer.email_clte.toLowerCase().includes(busqueda) ||
+                empresa.nombre_emp.toLowerCase().includes(busqueda) ||
+                empresa.sigla_emp.toString().toLowerCase().includes(busqueda) ||
+                empresa.nit_emp.toString().toLowerCase().includes(busqueda)
+            );
+        } else if (valor === 'cliente') {
+            return (customer.nombre_clte + ' ' + customer.apellido_clte).toLowerCase().includes(busqueda);
+        } else if (valor === 'nombre_emp') {
+            return empresa.nombre_emp.toLowerCase().includes(busqueda);
+        }
+    });
+    paginacionTableClteMW(filterCustomers.length, 1);
+}
+//------PaginacionCustomer
+function paginacionTableClteMW(allProducts, page) {
+    let numberEnterprises = Number(selectNumberClteMW.value);
+    let allPages = Math.ceil(allProducts / numberEnterprises);
+    let ul = document.querySelector('#wrapperClteMW ul');
+    let li = '';
+    let beforePages = page - 1;
+    let afterPages = page + 1;
+    let liActive;
+    if (page > 1) {
+        li += `<li class="btn" onclick="paginacionTableClteMW(${allProducts}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
+    }
+    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
+        if (pageLength > allPages) {
+            continue;
+        }
+        if (pageLength == 0) {
+            pageLength = pageLength + 1;
+        }
+        if (page == pageLength) {
+            liActive = 'active';
+        } else {
+            liActive = '';
+        }
+        li += `<li class="numb ${liActive}" onclick="paginacionTableClteMW(${allProducts}, ${pageLength})"><span>${pageLength}</span></li>`;
+    }
+    if (page < allPages) {
+        li += `<li class="btn" onclick="paginacionTableClteMW(${allProducts}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
+    }
+    ul.innerHTML = li;
+    let h2 = document.querySelector('#showPageClteMW h2');
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${allProducts} Clientes`;
+    tableCltesMW(page);
+}
+//------Crear la tabla de clientes
+function tableCltesMW(page) {
+    const tbody = document.getElementById('tbodyClteMW');
+    const inicio = (page - 1) * Number(selectNumberClteMW.value);
+    const final = inicio + Number(selectNumberClteMW.value);
+    let i = 1;
+    tbody.innerHTML = '';
+
+    const customer = filterCustomers.slice(inicio, final);
+    customer.forEach((clte, index) => {
+        const tr = document.createElement('tr');
+
+        const tdNumero = document.createElement('td');
+        tdNumero.innerText = index + 1;
+        tr.appendChild(tdNumero);
+
+        const tdNumeroClte = document.createElement('td');
+        tdNumeroClte.innerText = clte.numero_clte;
+        tr.appendChild(tdNumeroClte);
+
+        const tdEmpresa = document.createElement('td');
+        const empresa = enterprises.find(enterprise => enterprise.id_emp === clte.fk_id_emp_clte);
+        tdEmpresa.innerText = empresa ? empresa.nombre_emp : 'N/A';
+        tr.appendChild(tdEmpresa);
+
+        const tdSigla = document.createElement('td');
+        tdSigla.innerText = empresa ? empresa.sigla_emp : 'N/A';
+        tr.appendChild(tdSigla);
+
+        const tdCliente = document.createElement('td');
+        tdCliente.innerText = clte.nombre_clte + ' ' + clte.apellido_clte;
+        tr.appendChild(tdCliente);
+
+        const tdNit = document.createElement('td');
+        tdNit.innerText = empresa.id_emp === 77 ? clte.nit_clte : empresa.nit_emp;
+        tr.appendChild(tdNit);
+
+        const tdEmail = document.createElement('td');
+        tdEmail.innerText = clte.email_clte;
+        tr.appendChild(tdEmail);
+
+        const tdDirecion = document.createElement('td');
+        tdDirecion.innerText = clte.direccion_clte;
+        tr.appendChild(tdDirecion);
+
+        const tdCelular = document.createElement('td');
+        tdCelular.innerText = (empresa.id_emp === 77 ? clte.celular_clte : empresa.telefono_emp) || '';
+        tr.appendChild(tdCelular);
+
+        tbody.appendChild(tr);
+    });
+}
+/****************************TABLA CLIENTES****************************************/
+//-------Abrir Tabla
+const tableClteMW = document.getElementById('tableClteMW');
+const closetableClteMW = document.getElementById('closetableClteMW');
+function openTableClteMW() {
+    tableClteMW.classList.add('modal__show');
+}
+closetableClteMW.addEventListener('click', () => {
+    tableClteMW.classList.remove('modal__show');
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /***********************************************PRODUCT FILTER VNT_PRODS*********************************************/
 //--------read vnt_prods
 let vnt_prods = [];
@@ -740,592 +1487,7 @@ excelVnt.addEventListener('click', () => {
     downloadAsExcel(reporte);
 });
 
-//---------------------------------------------------CLIENTES----------------------------------------------
-let customers = [];
-let filterCustomers = [];
-let chosenCustomers = [];
-let chosenCustomer = [];
-async function readCustomers() {
-    return new Promise((resolve, reject) => {
-        let formData = new FormData();
-        formData.append('readCustomers', '');
-        fetch('../controladores/clientes.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.json()).then(data => {
-            customers = data;
-            filterCustomers = customers;
-            resolve();
-        }).catch(err => console.log(err));
-    })
-}
-//--------------------------------------------TABLA MODAL CUSTOMER---------------------------------
-//------Select utilizado para buscar por columnas
-const selectSearchClteMW = document.getElementById('selectSearchClteMW');
-selectSearchClteMW.addEventListener('change', searchCustomersMW);
-//------buscar por input
-const inputSearchClteMW = document.getElementById("inputSearchClteMW");
-inputSearchClteMW.addEventListener("keyup", searchCustomersMW);
-//------Clientes por pagina
-const selectNumberClteMW = document.getElementById('selectNumberClteMW');
-selectNumberClteMW.selectedIndex = 3;
-selectNumberClteMW.addEventListener('change', function () {
-    paginacionTableClteMW(filterCustomers.length, 1);
-});
-//------buscar por:
-function searchCustomersMW() {
-    const busqueda = inputSearchClteMW.value.toLowerCase();
-    const valor = selectSearchClteMW.value.toLowerCase().trim();
-    filterCustomers = customers.filter(customer => {
-        const empresa = enterprises.find(enterprise => enterprise.id_emp === customer.fk_id_emp_clte);
-        if (valor === 'todas') {
-            return (
-                (customer.nombre_clte + ' ' + customer.apellido_clte).toLowerCase().includes(busqueda) ||
-                customer.nit_clte.toString().toLowerCase().includes(busqueda) ||
-                customer.email_clte.toLowerCase().includes(busqueda) ||
-                empresa.nombre_emp.toLowerCase().includes(busqueda) ||
-                empresa.sigla_emp.toString().toLowerCase().includes(busqueda) ||
-                empresa.nit_emp.toString().toLowerCase().includes(busqueda)
-            );
-        } else if (valor === 'cliente') {
-            return (customer.nombre_clte + ' ' + customer.apellido_clte).toLowerCase().includes(busqueda);
-        } else if (valor === 'nombre_emp') {
-            return empresa.nombre_emp.toLowerCase().includes(busqueda);
-        }
-    });
-    paginacionTableClteMW(filterCustomers.length, 1);
-}
-//------PaginacionCustomer
-function paginacionTableClteMW(allProducts, page) {
-    let numberEnterprises = Number(selectNumberClteMW.value);
-    let allPages = Math.ceil(allProducts / numberEnterprises);
-    let ul = document.querySelector('#wrapperClteMW ul');
-    let li = '';
-    let beforePages = page - 1;
-    let afterPages = page + 1;
-    let liActive;
-    if (page > 1) {
-        li += `<li class="btn" onclick="paginacionTableClteMW(${allProducts}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
-    }
-    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
-        if (pageLength > allPages) {
-            continue;
-        }
-        if (pageLength == 0) {
-            pageLength = pageLength + 1;
-        }
-        if (page == pageLength) {
-            liActive = 'active';
-        } else {
-            liActive = '';
-        }
-        li += `<li class="numb ${liActive}" onclick="paginacionTableClteMW(${allProducts}, ${pageLength})"><span>${pageLength}</span></li>`;
-    }
-    if (page < allPages) {
-        li += `<li class="btn" onclick="paginacionTableClteMW(${allProducts}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
-    }
-    ul.innerHTML = li;
-    let h2 = document.querySelector('#showPageClteMW h2');
-    h2.innerHTML = `Pagina ${page}/${allPages}, ${allProducts} Clientes`;
-    tableCltesMW(page);
-}
-//------Crear la tabla de clientes
-function tableCltesMW(page) {
-    const tbody = document.getElementById('tbodyClteMW');
-    const inicio = (page - 1) * Number(selectNumberClteMW.value);
-    const final = inicio + Number(selectNumberClteMW.value);
-    let i = 1;
-    tbody.innerHTML = '';
 
-    const customer = filterCustomers.slice(inicio, final);
-    customer.forEach((clte, index) => {
-        const tr = document.createElement('tr');
-
-        const tdNumero = document.createElement('td');
-        tdNumero.innerText = index + 1;
-        tr.appendChild(tdNumero);
-
-        const tdNumeroClte = document.createElement('td');
-        tdNumeroClte.innerText = clte.numero_clte;
-        tr.appendChild(tdNumeroClte);
-
-        const tdEmpresa = document.createElement('td');
-        const empresa = enterprises.find(enterprise => enterprise.id_emp === clte.fk_id_emp_clte);
-        tdEmpresa.innerText = empresa ? empresa.nombre_emp : 'N/A';
-        tr.appendChild(tdEmpresa);
-
-        const tdSigla = document.createElement('td');
-        tdSigla.innerText = empresa ? empresa.sigla_emp : 'N/A';
-        tr.appendChild(tdSigla);
-
-        const tdCliente = document.createElement('td');
-        tdCliente.innerText = clte.nombre_clte + ' ' + clte.apellido_clte;
-        tr.appendChild(tdCliente);
-
-        const tdNit = document.createElement('td');
-        tdNit.innerText = empresa.id_emp === 77 ? clte.nit_clte : empresa.nit_emp;
-        tr.appendChild(tdNit);
-        
-        const tdEmail = document.createElement('td');
-        tdEmail.innerText = clte.email_clte;
-        tr.appendChild(tdEmail);
-
-        const tdDirecion = document.createElement('td');
-        tdDirecion.innerText = clte.direccion_clte;
-        tr.appendChild(tdDirecion);
-
-        const tdCelular = document.createElement('td');
-        tdCelular.innerText = (empresa.id_emp === 77 ?  empresa.telefono_emp : clte.celular_clte) || '';
-        tr.appendChild(tdCelular);
-
-        const tdAcciones = document.createElement('td');
-        const fragment = document.createDocumentFragment();
-        imgs = [
-            { src: '../imagenes/send.svg', onclick: `sendCustomer(${clte.id_clte})`, title: 'Seleccionar' },
-            { src: '../imagenes/edit.svg', onclick: `readCustomer(${clte.id_clte})`, title: 'Editar' },
-            { src: '../imagenes/trash.svg', onclick: `deleteCustomer(${clte.id_clte})`, title: 'Eliminar' }
-        ];
-        imgs.forEach((img) => {
-            const imgElement = document.createElement('img');
-            imgElement.src = img.src;
-            imgElement.onclick = new Function(img.onclick);
-            imgElement.title = img.title;
-            fragment.appendChild(imgElement);
-        });
-
-        tdAcciones.appendChild(fragment);
-        tr.appendChild(tdAcciones);
-
-        tbody.appendChild(tr);
-    });
-}
-//------Seleccionar cliente
-const fk_cliente_vntR = document.getElementById('fk_cliente_vntR');
-const fk_id_clte_vntR = document.getElementById('fk_id_clte_vntR');
-function sendCustomer(id_clte){
-    const customer = filterCustomers.find(customer => customer.id_clte == id_clte);
-    fk_cliente_vntR.value = customer.nombre_clte + ' ' + customer.apellido_clte;
-    fk_id_clte_vntR.value = customer.id_clte;
-    tableClteMW.classList.remove('modal__show');
-}
-/****************************TABLA CLIENTES****************************************/
-//-------Abrir Tabla
-const tableClteMW = document.getElementById('tableClteMW');
-const closetableClteMW = document.getElementById('closetableClteMW');
-function openTableClteMW() {
-    tableClteMW.classList.add('modal__show');
-}
-closetableClteMW.addEventListener('click', () => {
-    tableClteMW.classList.remove('modal__show');
-});
-//------Select para crear cliente
-const fk_id_emp_clteR2 = document.getElementById('fk_id_emp_clteR2'); 
-function selectCreateCustomer() {
-    fk_id_emp_clteR2.innerHTML = '';
-    enterprises.forEach(enterprise => {
-        const option = document.createElement('option');
-        option.value = enterprise.id_emp;
-        option.text = enterprise.nombre_emp;
-        fk_id_emp_clteR2.appendChild(option);
-    });
-}
-//<<-----------------------------------------CRUD CUSTOMER  ----------------------------------------->>
-//------Read a Customer
-function readCustomer(id_clte) {
-    const customer = filterCustomers.find(customer => customer.id_clte == id_clte);
-    for (const valor in customer) {
-        if (valor === 'fk_id_emp_clte') {
-            const empresa = enterprises.find(empresa => empresa.id_emp === customer[valor]);
-            formClienteM.querySelector(`[name=${valor}M]`).value = empresa.nombre_emp;
-        } else {
-            formClienteM.querySelector(`[name=${valor}M]`).value = customer[valor];
-        }
-    }
-    customersMMW.classList.add('modal__show');
-}
-//------Create a customer
-const formClienteR = document.getElementById('formClienteR');
-formClienteR.addEventListener('submit', createCustomer);
-async function createCustomer() {
-    event.preventDefault();
-    if (requestSale == false) {
-        requestSale = true;
-        customersRMW.classList.remove('modal__show');
-        let formData = new FormData(formClienteR);
-        formData.append('createCustomer', '');
-        preloader.classList.add('modal__show');
-        fetch('../controladores/clientes.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            readCustomers().then(() => {
-                paginacionTableClteMW(filterCustomers.length, 1);
-                requestSale = false;
-                formClienteR.reset();
-                preloader.classList.remove('modal__show');
-                mostrarAlerta(data);
-            });
-        }).catch(err => {
-            requestSale = false;
-            mostrarAlerta(err);
-        });
-    }
-}
-//------Update a Customer
-const formClienteM = document.getElementById('formClienteM');
-formClienteM.addEventListener('submit', updateCustomer);
-async function updateCustomer() {
-    event.preventDefault();
-    if (requestSale == false) {
-        requestSale = true;
-        customersMMW.classList.remove('modal__show');
-        const formData = new FormData(formClienteM);
-        formData.append('updateCustomer', '');
-        preloader.classList.add('modal__show');
-        fetch('../controladores/clientes.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            readCustomers().then(() => {
-                requestSale = false;
-                formClienteM.reset();
-                paginacionTableClteMW(filterCustomers.length, 1);
-                console.log(fk_id_emp_clteR.value)
-                sendEnterprise(fk_id_emp_clteR.value);
-                preloader.classList.remove('modal__show');
-                mostrarAlerta(data);
-            })
-        }).catch(err => {
-            requestSale = false;
-            mostrarAlerta(err);
-        });
-    }
-}
-//------Delete a Customer
-async function deleteCustomer(id_clte) {
-    if (confirm('¿Esta usted seguro?')) {
-        if (requestSale == false) {
-            requestSale = true;
-            let formData = new FormData();
-            formData.append('deleteCustomer', id_clte);
-            preloader.classList.add('modal__show');
-            fetch('../controladores/clientes.php', {
-                method: "POST",
-                body: formData
-            }).then(response => response.text()).then(data => {
-                readCustomers().then(() => {
-                    paginacionTableClteMW(filterCustomers.length, 1);
-                    requestSale = false;
-                    preloader.classList.remove('modal__show');
-                    mostrarAlerta(data);
-                });
-            }).catch(err => {
-                requestSale = false;
-                mostrarAlerta(err)
-            });
-        }
-    }
-}
-//<<-------------------------------------------MODAL CLIENTE---------------------------------------->>
-const customersRMW = document.getElementById('customersRMW');
-const customersMMW = document.getElementById('customersMMW');
-const closeCustomersRMW = document.getElementById('closeCustomersRMW');
-const closeCustomersMMW = document.getElementById('closeCustomersMMW');
-function openCustomersRMW() {
-    customersRMW.classList.add('modal__show');
-    selectCreateCustomer();
-}
-closeCustomersRMW.addEventListener('click', () => {
-    customersRMW.classList.remove('modal__show');
-});
-closeCustomersMMW.addEventListener('click', () => {
-    customersMMW.classList.remove('modal__show');
-});
-
-
-
-//<<---------------------------------------------EMPRESA---------------------------------------------->>
-const fk_id_emp_clteR = document.getElementById('fk_id_emp_clteR');
-const fk_id_emp_clteM = document.getElementById('fk_id_emp_clteM');
-let enterprises = [];
-let filterEnterprises = [];
-let indexEnterprise = 0;
-async function readEnterprises() {
-    return new Promise((resolve, reject) => {
-        let formData = new FormData();
-        formData.append('readEnterprises', '');
-        fetch('../controladores/clientes.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.json()).then(data => {
-            enterprises = data;
-            filterEnterprises = enterprises;
-            resolve();
-        }).catch(err => console.log(err));
-    })
-}
-//<<---------------------------------------TABLA MODAL EMPRESA--------------------------------------->>
-//------Select utilizado para buscar por columnas
-const selectSearchEmpMW = document.getElementById('selectSearchEmpMW');
-selectSearchEmpMW.addEventListener('change', searchEnterprisesMW);
-//------buscar por input
-const inputSearchEmpMW = document.getElementById("inputSearchEmpMW");
-inputSearchEmpMW.addEventListener("keyup", searchEnterprisesMW);
-//------Clientes por pagina
-const selectNumberEmpMW = document.getElementById('selectNumberEmpMW');
-selectNumberEmpMW.selectedIndex = 3;
-selectNumberEmpMW.addEventListener('change', function () {
-    paginacionEnterpriseMW(filterEnterprises.length, 1);
-});
-//------buscar por:
-function searchEnterprisesMW() {
-    const valor = selectSearchEmpMW.value;
-    const busqueda = inputSearchEmpMW.value.toLowerCase().trim();
-    filterEnterprises = enterprises.filter(enterprise => {
-        if (valor === 'todas') {
-            return (
-                enterprise.nombre_emp.toLowerCase().includes(busqueda) ||
-                enterprise.sigla_emp.toString().toLowerCase().includes(busqueda) ||
-                enterprise.nit_emp.toString().toLowerCase().includes(busqueda)
-            );
-        } else {
-            return enterprise[valor].toString().toLowerCase().includes(busqueda);
-        }
-    });
-    paginacionEnterpriseMW(filterEnterprises.length, 1);
-}
-//------Ordenar tabla descendente ascendente
-const orderEnterprises = document.querySelectorAll('.tbody__head--empMW');
-orderEnterprises.forEach(div => {
-    div.children[0].addEventListener('click', function () {
-        const valor = div.children[0].name;
-        filterEnterprises.sort((a, b) => a[valor].localeCompare(b[valor]));
-        paginacionEnterpriseMW(filterEnterprises.length, 1);
-    });
-    div.children[1].addEventListener('click', function () {
-        const valor = div.children[0].name;
-        filterEnterprises.sort((a, b) => b[valor].localeCompare(a[valor]));
-        paginacionEnterpriseMW(filterEnterprises.length, 1);
-    });
-})
-//------PaginacionEnterpriseMW
-function paginacionEnterpriseMW(allEnterprises, page) {
-    let numberEnterprises = Number(selectNumberEmpMW.value);
-    let allPages = Math.ceil(allEnterprises / numberEnterprises);
-    let ul = document.querySelector('#wrapperEmpMW ul');
-    let li = '';
-    let beforePages = page - 1;
-    let afterPages = page + 1;
-    let liActive;
-    if (page > 1) {
-        li += `<li class="btn" onclick="paginacionEnterpriseMW(${allEnterprises}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
-    }
-    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
-        if (pageLength > allPages) {
-            continue;
-        }
-        if (pageLength == 0) {
-            pageLength = pageLength + 1;
-        }
-        if (page == pageLength) {
-            liActive = 'active';
-        } else {
-            liActive = '';
-        }
-        li += `<li class="numb ${liActive}" onclick="paginacionEnterpriseMW(${allEnterprises}, ${pageLength})"><span>${pageLength}</span></li>`;
-    }
-    if (page < allPages) {
-        li += `<li class="btn" onclick="paginacionEnterpriseMW(${allEnterprises}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
-    }
-    ul.innerHTML = li;
-    let h2 = document.querySelector('#showPageEmpMW h2');
-    h2.innerHTML = `Pagina ${page}/${allPages}, ${allEnterprises} Empresas`;
-    tableEnterprisesMW(page);
-}
-//------Crear la tabla
-function tableEnterprisesMW(page) {
-    const tbody = document.getElementById('tbodyEmpMW');
-    inicio = (page - 1) * Number(selectNumberEmpMW.value);
-    final = inicio + Number(selectNumberEmpMW.value);
-    i = 1;
-    tbody.innerHTML = '';
-    for (let enterprise in filterEnterprises) {
-        if (i > inicio && i <= final) {
-            let tr = document.createElement('tr');
-            tr.setAttribute('id', `${filterEnterprises[enterprise].id_emp}`);
-            for (let valor in filterEnterprises[enterprise]) {
-                let td = document.createElement('td');
-                if (valor == 'id_emp') {
-                    td.innerText = i;
-                    tr.appendChild(td);
-                    i++;
-                } else if (valor == 'nit_emp') {
-                    if (filterEnterprises[enterprise][valor] == '0') {
-                        td.innerText = '';
-                    } else {
-                        td.innerText = filterEnterprises[enterprise][valor];
-                    }
-                    tr.appendChild(td);
-                } else if (valor == 'telefono_emp') {
-                    if (filterEnterprises[enterprise][valor] == '0') {
-                        td.innerText = '';
-                    } else {
-                        td.innerText = filterEnterprises[enterprise][valor];
-                    }
-                    tr.appendChild(td);
-                } else {
-                    td.innerText = filterEnterprises[enterprise][valor];
-                    tr.appendChild(td);
-                }
-            }
-            let td = document.createElement('td');
-            td.innerHTML = `
-                <img src='../imagenes/send.svg' onclick='sendEnterprise(${filterEnterprises[enterprise].id_emp})'>
-                <img src='../imagenes/edit.svg' onclick='readEnterprise(${filterEnterprises[enterprise].id_emp})'>
-                <img src='../imagenes/trash.svg' onclick='deleteEnterprise(${filterEnterprises[enterprise].id_emp})'>`;
-            tr.appendChild(td);
-            tbody.appendChild(tr);
-        } else {
-            i++;
-        }
-    }
-}
-const fk_nombre_emp_profR = document.getElementById('fk_nombre_emp_profR');
-const fk_nombre_emp_profM = document.getElementById('fk_nombre_emp_profM');
-const fk_cliente_profR = document.getElementById('fk_cliente_profR');
-const fk_cliente_profM = document.getElementById('fk_cliente_profM');
-function sendEnterprise(id_emp) {
-    enterpriseSMW.classList.remove('modal__show');
-    fk_id_emp_clteR2.value = id_emp;       
-}
-//----------------------------------ventana modal EnterpriseSMW-------------------------------------------
-const enterpriseSMW = document.getElementById('enterpriseSMW');
-//enterpriseSMW.addEventListener('click', ()=>enterpriseSMW.classList.remove('modal__show'));
-const closeEnterpriseSMW = document.getElementById('closeEnterpriseSMW');
-function openEnterpriseSMW() {
-    enterpriseSMW.classList.add('modal__show');
-    //Al mostrar la tabla de cliente que el puntero se encuentre en el input de busqueda
-    inputSearchEmpMW.focus();
-}
-closeEnterpriseSMW.addEventListener('click', () => {
-    enterpriseSMW.classList.remove('modal__show');
-});
-//<<---------------------------CRUD EMPRESA------------------------------->>
-//------Leer una empresa
-function readEnterprise(id_emp) {
-    const empresa = enterprises.find(enterprise => enterprise['id_emp'] === id_emp);
-    for (const key in empresa) {
-        document.getElementsByName(`${key}M`)[0].value = empresa[key];
-    }
-    enterprisesMMW.classList.add('modal__show');
-}
-//------Craer una empresa
-const formEmpresaR = document.getElementById('formEmpresaR');
-formEmpresaR.addEventListener('submit', createEnterprise);
-async function createEnterprise() {
-    event.preventDefault();
-    if (requestSale == false) {
-        requestSale = true;
-        enterprisesRMW.classList.remove('modal__show');
-        const formData = new FormData(formEmpresaR);
-        formData.append('createEnterprise', '');
-        preloader.classList.add('modal__show');
-        fetch('../controladores/clientes.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            readCustomers().then(() => {
-                return readEnterprises();
-            }).then(() => {
-                requestSale = false;
-                formEmpresaR.reset();
-                mostrarAlerta(data);
-                paginacionEnterpriseMW(filterEnterprises.length, 1);
-                paginacionTableClteMW(filterCustomers.length, 1);
-                preloader.classList.remove('modal__show');
-            })
-        }).catch(err => {
-            requestSale = false;
-            mostrarAlerta(err);
-        });
-    }
-}
-//------Actualizar una empresa
-const formEmpresaM = document.getElementById('formEmpresaM');
-formEmpresaM.addEventListener('submit', updateEnterprise);
-async function updateEnterprise() {
-    event.preventDefault();
-    if (requestSale == false) {
-        requestSale = true;
-        indexEnterprise = fk_id_emp_clteR.value;
-        enterprisesMMW.classList.remove('modal__show');
-        let formData = new FormData(formEmpresaM);
-        formData.append('updateEnterprise', '');
-        preloader.classList.add('modal__show');
-        fetch('../controladores/clientes.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.text()).then(data => {
-            readCustomers().then(() => {
-                return readEnterprises();
-            }).then(() => {
-                requestSale = false;
-                mostrarAlerta(data);
-                paginacionEnterpriseMW(filterEnterprises.length, 1);
-                paginacionTableClteMW(filterCustomers.length, 1);
-                fk_id_emp_clteR.value = indexEnterprise;
-                preloader.classList.remove('modal__show');
-            })
-        }).catch(err => {
-            requestSale = false;
-            mostrarAlerta(err);
-        });
-    }
-}
-//------Borrar una empresa
-async function deleteEnterprise(id_emp) {
-    if (confirm('¿Esta usted seguro?')) {
-        if (requestSale == false) {
-            requestSale = true;
-            let formData = new FormData();
-            formData.append('deleteEnterprise', id_emp);
-            preloader.classList.add('modal__show');
-            fetch('../controladores/clientes.php', {
-                method: "POST",
-                body: formData
-            }).then(response => response.text()).then(data => {
-                readCustomers().then(() => {
-                    return readEnterprises();
-                }).then(() => {
-                    requestSale = false;
-                    mostrarAlerta(data);
-                    paginacionEnterpriseMW(filterEnterprises.length, 1);
-                    paginacionTableClteMW(filterCustomers.length, 1);
-                    indexEnterprise = 0;
-                    preloader.classList.remove('modal__show');
-                })
-            }).catch(err => {
-                requestSale = false;
-                mostrarAlerta(err);
-            });
-        }
-    }
-}
-//<<----------------------------------------ABRIR Y CERRAR VENTANAS MODALES--------------------------------->>
-//-----------------------------------Ventana modal para empresa---------------------------------//
-const enterprisesRMW = document.getElementById('enterprisesRMW');
-const enterprisesMMW = document.getElementById('enterprisesMMW');
-const closeEnterprisesRMW = document.getElementById('closeEnterprisesRMW');
-const closeEnterprisesMMW = document.getElementById('closeEnterprisesMMW');
-function openEnterprisesRMW() {
-    enterprisesRMW.classList.add('modal__show');
-}
-closeEnterprisesRMW.addEventListener('click', () => {
-    enterprisesRMW.classList.remove('modal__show');
-});
-closeEnterprisesMMW.addEventListener('click', () => {
-    enterprisesMMW.classList.remove('modal__show');
-});
 
 //----------------------------------------------USUARIO --------------------------------------------------/
 //------Leer tabla de usuarios
@@ -1346,12 +1508,4 @@ async function readUsers() {
     });
 }
 
-//<------------------------------------------MODAL PROFORMA--------------------------------------------
-const saleRMW = document.getElementById('saleRMW');
-const closeSaleRMW = document.getElementById('closeSaleRMW');
-closeSaleRMW.addEventListener('click', () => {
-    saleRMW.classList.remove('modal__show');
-});
-function openSaleRMW() {
-    saleRMW.classList.add('modal__show');
-}
+

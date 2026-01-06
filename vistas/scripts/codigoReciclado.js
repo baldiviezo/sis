@@ -137,7 +137,7 @@ closeNotaEntregaRMW.addEventListener('click', (e) => {
                     tr.appendChild(td);
                 }*/
 
-                    function sendInventory(id_inv) {
+function sendInventory(id_inv) {
     const inventory = filterInventoriesMW.find(inv => inv['id_inv'] === id_inv);
     const prof_prods = modalProf_prod.querySelectorAll('.cart-item');
     if (inventory) {

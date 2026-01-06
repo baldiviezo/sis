@@ -33,8 +33,8 @@
 					<img src="../imagenes/folder.svg" onclick="openTableProfMW()" class="img__folder" title="Proformas">
 					<img src="../imagenes/registrar.svg" onclick="openProductsRMW()" class="img__folder"
 						title="Registrar producto">
-					<!--<img src="../imagenes/dollarCircle.svg" onclick="openPriceList()" class="img__folder"
-						title="Lista de precios">-->
+					<img src="../imagenes/dollarCircle.svg" onclick="openPriceList()" class="img__folder"
+						title="Lista de precios">
 					<img src="../imagenes/producto.svg" onclick="openInventorySMW()" class="icon__CRUD"
 						title="Inventario">
 					<img src="../imagenes/user.svg" onclick="openTableClteMW()" class="icon__CRUD" title="Clientes">
@@ -1068,10 +1068,6 @@
 					<!--Para guadar el id del cliente a modificar-->
 					<input type="text" name="id_clteM" placeholder=" " class="form__input" hidden>
 					<div class="form__group">
-						<input type="text" name="fk_id_emp_clteM" placeholder=" " class="form__input" readonly>
-						<label for="fk_id_emp_clteM" class="form__label">Empresa:</label>
-					</div>
-					<div class="form__group">
 						<input type="number" name="numero_clteM" placeholder=" " class="form__input">
 						<label for="numero_clteM" class="form__label">Numero de cliente:</label>
 					</div>
@@ -1082,6 +1078,10 @@
 					<div class="form__group">
 						<input type="text" name="apellido_clteM" placeholder=" " class="form__input" required>
 						<label for="apellido_clteM" class="form__label">Apellidos:</label>
+					</div>
+					<div class="form__group">
+						<input type="text" name="fk_id_emp_clteM" placeholder=" " class="form__input" readonly>
+						<label for="fk_id_emp_clteM" class="form__label">Empresa:</label>
 					</div>
 					<div class="form__group">
 						<input type="text" name="nit_clteM" placeholder=" " class="form__input">

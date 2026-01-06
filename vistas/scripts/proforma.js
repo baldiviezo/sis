@@ -1965,7 +1965,6 @@ function sendEnterprise(id_emp) {
     if (formProformas === 'R') {
         const empresa = enterprises.find(enterprise => enterprise.id_emp === id_emp);
         const cliente = customers.find(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte === '' && customer.apellido_clte === '');
-
         fk_id_emp_clteR.value = id_emp;
         fk_nombre_emp_profR.value = empresa.nombre_emp;
 
@@ -1979,6 +1978,7 @@ function sendEnterprise(id_emp) {
         }
 
         chosenCustomers = customers.filter(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte !== '' && customer.apellido_clte !== '');
+        chosenCustomer = chosenCustomers;
     } else if (formProformas === 'M') {
         const empresa = enterprises.find(enterprise => enterprise.id_emp === id_emp);
         const cliente = customers.find(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte === '' && customer.apellido_clte === '');
@@ -1996,6 +1996,7 @@ function sendEnterprise(id_emp) {
         }
 
         chosenCustomers = customers.filter(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte !== '' && customer.apellido_clte !== '');
+        chosenCustomer = chosenCustomers;
     }
     paginacionCustomerMW(chosenCustomers.length, 1);
 }
@@ -2166,24 +2167,24 @@ selectNumberClteSMW.addEventListener('change', function () {
 function searchCustomersSMW() {
     const busqueda = inputSearchClteSMW.value.toLowerCase();
     const valor = selectSearchClteSMW.value.toLowerCase().trim();
-    chosenCustomers = chosenCustomer.filter(customer => {
+    chosenCustomer = chosenCustomers.filter(customer => {
         const empresa = enterprises.find(enterprise => enterprise.id_emp === customer.fk_id_emp_clte);
         if (valor === 'todas') {
             return (
                 customer.nit_clte.toString().toLowerCase().includes(busqueda) ||
                 empresa.nombre_emp.toLowerCase().includes(busqueda) ||
                 customer.email_clte.toLowerCase().includes(busqueda) ||
-                customer.direccion_clte.toLowerCase().includes(busqueda) ||
+                customer.direccion_clte.toString().toLowerCase().includes(busqueda) ||
                 customer.celular_clte.toString().toLowerCase().includes(busqueda) ||
                 (customer.apellido_clte + ' ' + customer.nombre_clte).toLowerCase().includes(busqueda)
             );
         } else if (valor === 'cliente') {
             return (customer.apellido_clte + ' ' + customer.nombre_clte).toLowerCase().includes(busqueda);
         } else {
-            return customer[valor].toLowerCase().includes(busqueda);
+            return customer[valor].toString().toLowerCase().includes(busqueda);
         }
     });
-    paginacionCustomerMW(chosenCustomers.length, 1);
+    paginacionCustomerMW(chosenCustomer.length, 1);
 }
 //------PaginacionCustomer
 function paginacionCustomerMW(allEnterprises, page) {
@@ -2227,7 +2228,7 @@ function tableCustomersMW(page) {
     let i = 1;
     tbodyClteSMW.innerHTML = '';
 
-    const customer = chosenCustomers.slice(inicio, final);
+    const customer = chosenCustomer.slice(inicio, final);
     customer.forEach((clte, index) => {
         const tr = document.createElement('tr');
 
@@ -2350,11 +2351,10 @@ async function updateCustomer() {
             body: formData
         }).then(response => response.text()).then(data => {
             readCustomers().then(() => {
+                paginacionTableClteMW(filterCustomers.length, 1);
+                sendEnterprise(Number(fk_id_emp_clteR.value));
                 requestProf = false;
                 formClienteM.reset();
-                paginacionTableClteMW(filterCustomers.length, 1);
-                console.log(fk_id_emp_clteR.value)
-                sendEnterprise(fk_id_emp_clteR.value);
                 preloader.classList.remove('modal__show');
                 mostrarAlerta(data);
             })
@@ -2365,11 +2365,10 @@ async function updateCustomer() {
     }
 }
 //------Delete a Customer
-async function deleteCustomer(tr) {
+async function deleteCustomer(id_clte) {
     if (confirm('¿Esta usted seguro?')) {
         if (requestProf == false) {
             requestProf = true;
-            let id_clte = tr.children[0].value;
             let formData = new FormData();
             formData.append('deleteCustomer', id_clte);
             preloader.classList.add('modal__show');
@@ -2378,6 +2377,8 @@ async function deleteCustomer(tr) {
                 body: formData
             }).then(response => response.text()).then(data => {
                 readCustomers().then(() => {
+                    paginacionTableClteMW(filterCustomers.length, 1);
+                    sendEnterprise(Number(fk_id_emp_clteR.value));
                     requestProf = false;
                     preloader.classList.remove('modal__show');
                     mostrarAlerta(data);
