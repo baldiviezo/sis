@@ -5,7 +5,8 @@ class consultas {
 		//protegemos al servidor de los valores que el usuario esta introduciendo
 		include 'conexion.php';
 		//Primero vovlemos toda la palabra en minusculas y despues la primera letra en mayuscula
-		$this->nombreCliente = ucwords(strtolower(trim($conexion->real_escape_string($_POST['nombre_clteR']))));
+		$this->numero_clte = $conexion->real_escape_string($_POST['numero_clteR']);
+		$this->nombre_clte = ucwords(strtolower(trim($conexion->real_escape_string($_POST['nombre_clteR']))));
 		$this->apellidoCliente = ucwords(strtolower(trim($conexion->real_escape_string($_POST['apellido_clteR']))));
 		$this->nit_clte = $conexion->real_escape_string($_POST['nit_clteR']);
 		$this->email_clte = trim($conexion->real_escape_string($_POST['email_clteR']));
@@ -18,8 +19,9 @@ class consultas {
 		include 'conexion.php';
 		//Primero vovlemos toda la palabra en minusculas y despues la primera letra en mayuscula
 		$this->id = $conexion->real_escape_string($_POST['id_clteM']);
+		$this->numero_clte = $conexion->real_escape_string($_POST['numero_clteM']);
 		$this->numeroCliente = $conexion->real_escape_string($_POST['numero_clteM']);
-		$this->nombreCliente = ucwords(strtolower(trim($conexion->real_escape_string($_POST['nombre_clteM']))));
+		$this->nombre_clte = ucwords(strtolower(trim($conexion->real_escape_string($_POST['nombre_clteM']))));
 		$this->apellidoCliente = ucwords(strtolower(trim($conexion->real_escape_string($_POST['apellido_clteM']))));
 		$this->nit_clte = $conexion->real_escape_string($_POST['nit_clteM']);
 		$this->email_clte = trim($conexion->real_escape_string($_POST['email_clteM']));
@@ -111,14 +113,14 @@ class consultas {
 	//------Registrar un cliente
 	public function createCustomer(){
 		include 'conexion.php';
-		$consulta = "INSERT INTO cliente (nombre_clte, apellido_clte, nit_clte, email_clte, direccion_clte, celular_clte, fk_id_emp_clte) VALUES ('$this->nombreCliente', '$this->apellidoCliente', '$this->nit_clte', '$this->email_clte', '$this->direccion_clte' , '$this->celularCliente', '$this->empresaCliente')";
+		$consulta = "INSERT INTO cliente (numero_clte, nombre_clte, apellido_clte, nit_clte, email_clte, direccion_clte, celular_clte, fk_id_emp_clte) VALUES ( '$this->numero_clte', '$this->nombre_clte', '$this->apellidoCliente', '$this->nit_clte', '$this->email_clte', '$this->direccion_clte' , '$this->celularCliente', '$this->empresaCliente')";
 		$resultado = $conexion->query($consulta);
 		echo ("Cliente creado con éxito");
 	}
 	//------Actualizar un cliente
 	public function updateCustomer(){
 		include 'conexion.php';
-		$consulta = "UPDATE cliente set numero_clte='$this->numeroCliente', nombre_clte='$this->nombreCliente', apellido_clte='$this->apellidoCliente', nit_clte='$this->nit_clte', email_clte='$this->email_clte', direccion_clte='$this->direccion_clte', celular_clte='$this->celularCliente' WHERE id_clte='$this->id'";
+		$consulta = "UPDATE cliente set numero_clte='$this->numeroCliente', nombre_clte='$this->nombre_clte', apellido_clte='$this->apellidoCliente', nit_clte='$this->nit_clte', email_clte='$this->email_clte', direccion_clte='$this->direccion_clte', celular_clte='$this->celularCliente' WHERE id_clte='$this->id'";
 		$resultado = $conexion->query($consulta);
 		echo ("Cliente modificado con éxito");
 	}

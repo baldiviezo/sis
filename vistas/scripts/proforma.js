@@ -2321,6 +2321,8 @@ async function createCustomer() {
             body: formData
         }).then(response => response.text()).then(data => {
             readCustomers().then(() => {
+                sendEnterprise(Number(fk_id_emp_clteR.value));
+                paginacionTableClteMW(filterCustomers.length, 1);
                 requestProf = false;
                 formClienteR.reset();
                 preloader.classList.remove('modal__show');
@@ -2386,6 +2388,17 @@ async function deleteCustomer(tr) {
             });
         }
     }
+}
+//------Select para crear cliente
+const fk_id_emp_clteR2 = document.getElementById('fk_id_emp_clteR2');
+function selectCreateCustomer() {
+    fk_id_emp_clteR2.innerHTML = '';
+    const id_clte = fk_id_emp_clteR.value;
+    let option = document.createElement('option');
+    option.value = id_clte;
+    const empresa = enterprises.find(enterprise => enterprise.id_emp == id_clte);
+    option.innerText = empresa.nombre_emp;
+    fk_id_emp_clteR2.appendChild(option);
 }
 //<<-------------------------------------------MODAL CLIENTE---------------------------------------->>
 const customersRMW = document.getElementById('customersRMW');
@@ -3534,9 +3547,6 @@ async function readUsers() {
         });
     });
 }
-
-
-
 /****************************TABLA CLIENTES****************************************/
 //-------Abrir Tabla
 const tableClteMW = document.getElementById('tableClteMW');
@@ -3547,9 +3557,7 @@ function openTableClteMW() {
 closetableClteMW.addEventListener('click', () => {
     tableClteMW.classList.remove('modal__show');
 });
-
-
-//---------------------------------------------TABLA MODAL CUSTOMER---------------------------------
+//--------------------------------------------TABLA MODAL CUSTOMER---------------------------------
 //------Select utilizado para buscar por columnas
 const selectSearchClteMW = document.getElementById('selectSearchClteMW');
 selectSearchClteMW.addEventListener('change', searchCustomersMW);

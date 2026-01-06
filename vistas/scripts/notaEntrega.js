@@ -1828,7 +1828,7 @@ async function readUsers() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            users = Object.values(data);
+            users = data;
             resolve();
         }).catch(err => {
             mostrarAlerta('Ocurrio un error al cargar la tabla de usuarios, cargue nuevamente la pagina');

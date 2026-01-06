@@ -242,3 +242,24 @@ ALTER TABLE `nte_prod` ADD `estado_nepd` INT NOT NULL AFTER `cost_uni_nepd`;
 
 UPDATE nte_prod np INNER JOIN nota_entrega ne ON ne.id_ne = np.fk_id_ne_nepd INNER JOIN venta v ON v.fk_id_ne_vnt = ne.id_ne INNER JOIN vnt_prod vp ON vp.fk_id_vnt_vtpd = v.id_vnt
 SET np.estado_nepd = 1
+
+ventas
+/***/////////
+Eliminar fecha_vnt
+ALTER TABLE `venta` ADD `descuento_vnt` INT NOT NULL AFTER `fk_id_usua_vnt`, ADD `total_vnt` DOUBLE NOT NULL AFTER `descuento_vnt`;
+
+UPDATE venta v INNER JOIN nota_entrega n ON n.id_ne = v.fk_id_ne_vnt SET v.descuento_vnt = n.descuento_ne;
+
+UPDATE venta v INNER JOIN nota_entrega n ON n.id_ne = v.fk_id_ne_vnt SET v.total_vnt = n.total_ne;
+
+ALTER TABLE `venta` ADD `fk_id_clte_vnt` INT NOT NULL AFTER `fk_id_usua_vnt`;
+
+UPDATE venta v
+INNER JOIN nota_entrega n ON v.fk_id_ne_vnt = n.id_ne
+INNER JOIN cliente c ON c.id_clte = n.fk_id_clte_ne
+SET v.fk_id_clte_vnt = c.id_clte
+
+
+/*************************************************************/
+UPDATE venta v SET v.factura_vnt = 0 WHERE v.factura_vnt = 'S/F' 
+ALTER TABLE `venta` CHANGE `factura_vnt` `factura_vnt` INT NOT NULL;

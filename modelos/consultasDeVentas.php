@@ -28,17 +28,15 @@ class Consultas{
 	//-----read ventas
 	public function readSales(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM venta INNER JOIN nota_entrega ON venta.fk_id_ne_vnt = id_ne INNER JOIN proforma ON nota_entrega.fk_id_oc_ne = id_prof INNER JOIN cliente ON proforma.fk_id_clte_prof = id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = id_emp INNER JOIN usuario ON venta.fk_id_usua_vnt = id_usua WHERE venta.estado_vnt = 'FACTURADO' ORDER BY id_vnt DESC";
+		$consulta = "SELECT * FROM venta ORDER BY id_vnt DESC";
 		$resultado = $conexion->query($consulta);
-		$numeroClientes = $resultado->num_rows;
-		$clientes =  array();
-		if($numeroClientes > 0){
-			while ($fila = $resultado->fetch_assoc()){
-				$datos = array ('id_vnt'=>intval($fila['id_vnt']), 'numero_prof'=>'NE-SMS'.substr($fila['fecha_ne'],2,2).'-'.$this->addZerosGo($fila['numero_prof']), 'nombre_emp'=>$fila['nombre_emp'], 'numero_clte'=>$fila['numero_clte'], 'cliente_clte'=>$fila['nombre_clte'].' '.$fila['apellido_clte'], 'fecha_ne'=>$fila['fecha_ne'], 'fecha_vnt'=>$fila['fecha_vnt'], 'orden_ne'=>$fila['orden_ne'], 'total_prof'=>$fila['total_prof'], 'encargado'=>$fila['nombre_usua'].' '.$fila['apellido_usua'], 'ciudad_vnt'=>$fila['ciudad_vnt'], 'tipo_pago_vnt'=>$fila['tipo_pago_vnt'], 'estado_factura_vnt'=>$fila['estado_factura_vnt'], 'fecha_factura_vnt'=>$fila['fecha_factura_vnt'], 'factura_vnt'=>intval($fila['factura_vnt']), 'observacion_vnt'=>$fila['observacion_vnt']);
-				$clientes[$fila['id_vnt'].'_id_vnt'] = $datos;
+		$numeroVentas = $resultado->num_rows;
+		$ventas =  array();
+		if($numeroVentas > 0){
+			while ($fila = $resultado->fetch_array(MYSQLI_ASSOC)){
+				$ventas[] = $fila;
 			}
-			$json = json_encode($clientes, JSON_UNESCAPED_UNICODE);
-			echo $json;
+			echo json_encode($ventas, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 		}
 	}
 	//-----Create venta
@@ -89,17 +87,15 @@ class Consultas{
 	//------Read vnt-prods
 	public function readVnt_prods(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM vnt_prod INNER JOIN producto ON vnt_prod.fk_id_prod_vtpd = id_prod INNER JOIN inventario ON producto.id_prod = inventario.fk_id_prod_inv INNER JOIN venta ON vnt_prod.fk_id_vnt_vtpd = id_vnt INNER JOIN marca ON producto.fk_id_mrc_prod = marca.id_mrc INNER JOIN categoria ON producto.fk_id_ctgr_prod = categoria.id_ctgr INNER JOIN usuario ON venta.fk_id_usua_vnt = usuario.id_usua INNER JOIN nota_entrega ON venta.fk_id_ne_vnt = id_ne INNER JOIN proforma ON nota_entrega.fk_id_oc_ne = id_prof INNER JOIN cliente ON proforma.fk_id_clte_prof = id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = id_emp WHERE venta.estado_vnt = 'FACTURADO' ORDER BY id_vnt DESC";
+		$consulta = "SELECT * FROM vnt_prod ORDER BY id_vtpd DESC";
 		$resultado = $conexion->query($consulta);
-		$numeroClientes = $resultado->num_rows;
-		$clientes =  array(); 
-		if($numeroClientes > 0){
-			while ($fila = $resultado->fetch_assoc()){
-				$datos = array ('id_vtpd'=>$fila['id_vtpd'], 'numero_prof'=>'SMS'.substr($fila['fecha_vnt'],2,2).'-'.$this->addZerosGo($fila['numero_prof']), 'fecha_ne'=>$fila['fecha_ne'], 'fecha_vnt'=>$fila['fecha_vnt'], 'nombre_usua'=>$fila['nombre_usua'], 'apellido_usua'=>$fila['apellido_usua'], 'nombre_emp'=>$fila['nombre_emp'] , 'numero_clte'=>$fila['numero_clte'], 'nombre_clte'=>$fila['nombre_clte'], 'apellido_clte'=>$fila['apellido_clte'], 'nombre_mrc'=>$fila['nombre_mrc'], 'nombre_ctgr'=>$fila['nombre_ctgr'], 'fk_id_prod_vtpd'=>$fila['fk_id_prod_vtpd'], 'codigo_smc_prod'=>$fila['codigo_smc_prod'], 'cost_uni_inv'=>$fila['cost_uni_inv'], 'codigo_vtpd'=>$fila['codigo_vtpd'], 'imagen_prod'=>$fila['imagen_prod'], 'nombre_prod'=>$fila['nombre_prod'], 'factura_vnt'=>$fila['factura_vnt'], 'estado_factura_vnt'=>$fila['estado_factura_vnt'], 'cantidad_vtpd'=>intval($fila['cantidad_vtpd']), 'cost_uni_vtpd'=>doubleval($fila['cost_uni_vtpd']), 'descuento_prof'=>floatval($fila['descuento_prof']), 'estado_ne'=>$fila['estado_ne']);
-				$clientes['id_vtpd_'.$fila['id_vtpd']] = $datos;
+		$numeroVntProd = $resultado->num_rows;
+		$vntProd =  array(); 
+		if($numeroVntProd > 0){
+			while ($fila = $resultado->fetch_array(MYSQLI_ASSOC)){
+				$vntProd[] = $fila;
 			}
-			$json = json_encode($clientes, JSON_UNESCAPED_UNICODE);
-			echo $json;
+			echo json_encode($vntProd, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 		}else{
 			echo json_encode('');
 		}

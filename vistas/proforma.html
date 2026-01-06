@@ -284,7 +284,8 @@
 					<img src="../imagenes/salir.svg" id="closetableClteMW" class="button__close">
 				</div>
 				<section class="table__header">
-					<div></div>
+					<div>
+					</div>
 					<div class="combo__search">
 						<div class="filter__search">
 							<h3>Filtrar por:</h3>
@@ -950,7 +951,9 @@
 					<img src="../imagenes/salir.svg" id="closeCustomerSMW" class="button__close">
 				</div>
 				<section class="table__header">
-					<div></div>
+					<div>
+						<img src="../imagenes/registrar.svg" onclick="openCustomersRMW()" class="icon__CRUD" title="Registrar cliente">
+					</div>
 					<div class="combo__search">
 						<div class="filter__search">
 							<h3>Filtrar por:</h3>
@@ -1016,6 +1019,10 @@
 			<form id="formClienteR" class="form">
 				<div class="form__container">
 					<div class="form__group">
+						<input type="number" name="numero_clteR" placeholder=" " class="form__input">
+						<label for="numero_clteR" class="form__label">Numero cliente:</label>
+					</div>
+					<div class="form__group">
 						<input type="text" name="nombre_clteR" placeholder=" " class="form__input" required>
 						<label for="nombre_clteR" class="form__label">Nombres:</label>
 					</div>
@@ -1028,11 +1035,11 @@
 						<select name="fk_id_emp_clteR" id="fk_id_emp_clteR2"></select>
 					</div>
 					<div class="form__group">
-						<input type="text" name="nit_clteR" placeholder=" " class="form__input">
+						<input type="number" name="nit_clteR" placeholder=" " class="form__input">
 						<label for="nit_clteR" class="form__label">NIT/C.I.:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="email_clteR" placeholder=" " class="form__input">
+						<input type="email" name="email_clteR" placeholder=" " class="form__input">
 						<label for="email_clteR" class="form__label">Email:</label>
 					</div>
 					<div class="form__group">
@@ -1040,7 +1047,7 @@
 						<label for="direccion_clteR" class="form__label">Direccion:</label>
 					</div>
 					<div class="form__group">
-						<input type="text" name="celular_clteR" placeholder=" " class="form__input">
+						<input type="number" name="celular_clteR" placeholder=" " class="form__input">
 						<label for="celular_clteR" class="form__label">Celular:</label>
 					</div>
 				</div>
