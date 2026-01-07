@@ -252,9 +252,9 @@ const closeSaleRMW = document.getElementById('closeSaleRMW');
 closeSaleRMW.addEventListener('click', () => {
     saleRMW.classList.remove('modal__show');
 });
-const fecha_vntR = document.getElementById('fecha_vntR');
+const fecha_factura_vnt = document.getElementById('fecha_factura_vnt');
 function openSaleRMW() {
-    fecha_vntR.value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
+    fecha_factura_vnt.value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
     saleRMW.classList.add('modal__show');
 }
 //-------------------------------------------------------CHANGE QUANTITY-------------------------------------------------
@@ -276,6 +276,9 @@ estado_factura_vnt.addEventListener('change', () => {
         document.getElementById('factura_vnt').setAttribute('hidden', '');
     }
 });
+
+
+
 
 //---------------------------------------------------------------CLIENTES----------------------------------------------
 const fk_id_clte_profR = document.getElementById('fk_id_clte_profR');
@@ -1501,11 +1504,23 @@ async function readUsers() {
             body: formData
         }).then(response => response.json()).then(data => {
             users = data;
+            selectUser();
             resolve();
         }).catch(err => {
             mostrarAlerta('Ocurrio un error al cargar la tabla de usuarios, cargue nuevamente la pagina');
         });
     });
 }
+const fk_id_usua_vnt = document.getElementById('fk_id_usua_vnt');
+function selectUser() {
+    fk_id_usua_vnt.innerHTML = '';
+    users.forEach(user => {
+        const option = document.createElement('option');
+        option.value = user.id_usua;
+        option.text = user.nombre_usua + ' ' + user.apellido_usua;
+        fk_id_usua_vnt.appendChild(option);
+    });
+}
+
 
 
