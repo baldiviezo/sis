@@ -188,7 +188,7 @@ class consultas{
 	//-------Read nte_inv
 	public function readNte_prods(){
     	include 'conexion.php';
-    	$consulta = "SELECT * FROM nte_prod ORDER BY id_nepd DESC";
+    	$consulta = "SELECT nte_prod.*, producto.codigo_prod, nota_entrega.*, empresa.*, cliente.* FROM nte_prod INNER JOIN nota_entrega ON nte_prod.fk_id_ne_nepd = nota_entrega.id_ne INNER JOIN cliente ON nota_entrega.fk_id_clte_ne = cliente.id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = empresa.id_emp INNER JOIN producto ON nte_prod.fk_id_prod_nepd = producto.id_prod WHERE estado_nepd = 0 ORDER BY id_nepd DESC";
     	$resultado = $conexion->query($consulta);
     	$nteProds =  array();
     	while ($fila = $resultado->fetch_assoc()){

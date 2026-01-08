@@ -265,3 +265,11 @@ SET v.fk_id_clte_vnt = c.id_clte
 UPDATE venta v SET v.factura_vnt = 0 WHERE v.factura_vnt = 'S/F' 
 
 ALTER TABLE `venta` CHANGE `factura_vnt` `factura_vnt` INT(11) NULL;
+
+CAMBIAR Ninguna a PARTICULAR
+/************************************************************************/
+UPDATE `empresa` SET `nombre_emp` = 'PARTICULAR' WHERE `empresa`.`id_emp` = 77;
+
+alamcen_ing
+/**********************************************************************/
+ALTER TABLE `ingreso` ADD `almacen_ing` INT NOT NULL AFTER `id_ing`;

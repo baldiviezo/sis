@@ -8,16 +8,20 @@ async function init() {
         preloader.classList.add('modal__show');
         try{
             await Promise.all([
+                readAllCategorias(),
+                readAllMarcas(),
                 readSales(),
                 readCustomers(),
                 readUsers(),
                 readEnterprises(),
-                readvnt_prods()
+                readvnt_prods(),
+                readNte_prods()
             ]);
             paginationSales(sales.length, 1);
             paginacionTableClteMW(filterCustomers.length, 1);
             paginacionProdVnt(vnt_prods.length, 1);
             paginacionEnterpriseMW(filterEnterprises.length, 1);
+            paginacionProductMW(filterProductsMW.length, 1);
             requestSale = false;
             preloader.classList.remove('modal__show');
         } catch (error) {
@@ -52,7 +56,6 @@ async function readSales() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            console.log(data)
             sales = data;
             filterSales = sales;
             selectYearVnt();
@@ -278,8 +281,232 @@ estado_factura_vnt.addEventListener('change', () => {
 });
 
 
+/******************************************TABLA NTE-PROD**********************************************/
+let products = [];
+let filterProductsMW = [];
+async function readNte_prods() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readNte_prods', '');
+        fetch('../controladores/notaEntrega.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            console.log(data)
+            products = data;
+            filterProductsMW = products;
+            resolve();
+        }).catch(err => console.log(err));
+    })
+}
+//--------------------------------------------TABLA MODAL PRODUCTS-----------------------------------------------
+//------Select utilizado para buscar por columnas
+const selectSearchProdMW = document.getElementById('selectSearchProdMW');
+selectSearchProdMW.addEventListener('change', searchProductsMW);
+//------buscar por input
+const inputSearchProdMW = document.getElementById("inputSearchProdMW");
+inputSearchProdMW.addEventListener("keyup", searchProductsMW);
+//------Clientes por pagina
+const selectNumberProdMW = document.getElementById('selectNumberProdMW');
+selectNumberProdMW.selectedIndex = 3;
+selectNumberProdMW.addEventListener('change', function () {
+    paginacionProductMW(filterProductsMW.length, 1);
+});
+//-------Marca y categoria
+const selectMarcaProdMW = document.getElementById('selectMarcaProdMW');
+selectMarcaProdMW.addEventListener('change', selectCategoriaProductMW);
+const selectCategoriaProdMW = document.getElementById('selectCategoriaProdMW');
+selectCategoriaProdMW.addEventListener('change', searchProductsMW);
+//------buscar por:
+function searchProductsMW() {
+    const valor = selectSearchProdMW.value;
+    const busqueda = inputSearchProdMW.value.toLowerCase().trim();
+    filterProductsMW = products.filter(product => {
+        if (valor === 'todas') {
+            return (
+                product.codigo_prod.toString().toLowerCase().includes(busqueda) ||
+                product.nombre_emp.toLowerCase().includes(busqueda) ||
+                (product.apellido_clte + ' ' + product.nombre_clte).toLowerCase().includes(busqueda)
+            );
+        } else {
+            return product[valor].toString().toLowerCase().includes(busqueda);
+        }
+    });
+    selectProductsMW();
+}
+//------buscar por marca y categoria:
+function selectProductsMW() {
+    filterProductsMW = filterProductsMW.filter(product => {
+        const marca = selectMarcaProdMW.value === 'todasLasMarcas' ? true : product.fk_id_mrc_prod == selectMarcaProdMW.value;
+        const categoria = selectCategoriaProdMW.value === 'todasLasCategorias' ? true : product.fk_id_ctgr_prod == selectCategoriaProdMW.value;
+        return marca && categoria;
+    });
+    paginacionProductMW(filterProductsMW.length, 1);
+}
+//------Ordenar tabla descendente ascendente
+const orderProducts = document.querySelectorAll('.tbody__head--ProdMW');
+orderProducts.forEach(div => {
+    div.children[0].addEventListener('click', function () {
+        const valor = div.children[0].name;
+        filterProductsMW.sort((a, b) => {
+            const valorA = String(a[valor]);
+            const valorB = String(b[valor]);
+            return valorA.localeCompare(valorB);
+        });
+        paginacionProductMW(filterProductsMW.length, 1);
+    });
+    div.children[1].addEventListener('click', function () {
+        const valor = div.children[0].name;
+        filterProductsMW.sort((a, b) => {
+            const valorA = String(a[valor]);
+            const valorB = String(b[valor]);
+            return valorB.localeCompare(valorA);
+        });
+        paginacionProductMW(filterProductsMW.length, 1);
+    });
+})
+//------PaginacionProductMW
+function paginacionProductMW(allProducts, page) {
+    let numberProducts = Number(selectNumberProdMW.value);
+    let allPages = Math.ceil(allProducts / numberProducts);
+    let ul = document.querySelector('#wrapperProductMW ul');
+    let li = '';
+    let beforePages = page - 1;
+    let afterPages = page + 1;
+    let liActive;
+    if (page > 1) {
+        li += `<li class="btn" onclick="paginacionProductMW(${allProducts}, ${page - 1})"><img src="../imagenes/arowLeft.svg"></li>`;
+    }
+    for (let pageLength = beforePages; pageLength <= afterPages; pageLength++) {
+        if (pageLength > allPages) {
+            continue;
+        }
+        if (pageLength == 0) {
+            pageLength = pageLength + 1;
+        }
+        if (page == pageLength) {
+            liActive = 'active';
+        } else {
+            liActive = '';
+        }
+        li += `<li class="numb ${liActive}" onclick="paginacionProductMW(${allProducts}, ${pageLength})"><span>${pageLength}</span></li>`;
+    }
+    if (page < allPages) {
+        li += `<li class="btn" onclick="paginacionProductMW(${allProducts}, ${page + 1})"><img src="../imagenes/arowRight.svg"></li>`;
+    }
+    ul.innerHTML = li;
+    let h2 = document.querySelector('#showPageProductMW h2');
+    h2.innerHTML = `Pagina ${page}/${allPages}, ${allProducts} Productos`;
+    tableProductsMW(page);
+}
+//------Crear la tabla
+function tableProductsMW(page) {
+    const tbody = document.getElementById('tbodyProductMW');
+    const inicio = (page - 1) * Number(selectNumberProdMW.value);
+    const final = inicio + Number(selectNumberProdMW.value);
+    const products = filterProductsMW.slice(inicio, final);
+    tbody.innerHTML = '';
+    products.forEach((product, index) => {
 
+        const marca = marcas.find(marca => marca.id_mrc === product.fk_id_mrc_prod);
+        const categoria = categorias.find(categoria => categoria.id_ctgr === product.fk_id_ctgr_prod);
+        const inventarioArce = inventories.find(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 1);
+        const inventarioAlto = inventories.find(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 0);
+        const stock = (inventarioArce ? inventarioArce.cantidad_inv : 0) + (inventarioAlto ? inventarioAlto.cantidad_inv : 0);
 
+        const tr = document.createElement('tr');
+        tr.setAttribute('id_prod', product.id_nepd);
+
+        const tdIndex = document.createElement('td');
+        tdIndex.innerText = inicio + index + 1;
+        tr.appendChild(tdIndex);
+
+        const tdCodigo = document.createElement('td');
+        tdCodigo.innerText = product.codigo_prod;
+        tr.appendChild(tdCodigo);
+
+        const tdMarca = document.createElement('td');
+        tdMarca.innerText = marca ? marca.nombre_mrc : '';
+        tr.appendChild(tdMarca);
+
+        const tdCategoria = document.createElement('td');
+        tdCategoria.innerText = categoria ? categoria.nombre_ctgr : '';
+        tr.appendChild(tdCategoria);
+
+        const tdCantidad = document.createElement('td');
+        tdCantidad.innerText = product.cantidad_nepd;
+        tr.appendChild(tdCantidad);
+
+        const tdEmpresa = document.createElement('td');
+        tdEmpresa.innerText = product.nombre_emp;
+        tr.appendChild(tdEmpresa);
+
+        const tdCliente = document.createElement('td');
+        tdCliente.innerText = product.apellido_clte + ' ' + product.nombre_clte;
+        tr.appendChild(tdCliente);
+
+        const tdAcciones = document.createElement('td');
+        const fragment = document.createDocumentFragment();
+        let imgs = [];
+
+        imgs.push({
+            src: '../imagenes/edit.svg', onclick: `readProduct(${product.id_prod})`, title: 'Editar'
+        },
+            { src: '../imagenes/send.svg', onclick: `sendProduct(${product.id_prod})`, title: 'Seleccionar' });
+
+        imgs.forEach((img) => {
+            const imgElement = document.createElement('img');
+            imgElement.src = img.src;
+            imgElement.onclick = new Function(img.onclick);
+            imgElement.title = img.title;
+            fragment.appendChild(imgElement);
+        });
+
+        tdAcciones.appendChild(fragment);
+        tr.appendChild(tdAcciones);
+
+        tbody.appendChild(tr);
+    });
+}
+function sendProduct(id_prod) {
+    console.log(id_prod)
+    const product = filterProductsMW.find(prod => prod['id_prod'] === id_prod);
+    if (product) {
+        let prof_prods = modalProf_prod.querySelectorAll('.cart-item');
+        const codigo = product['codigo_prod'];
+        const existe = Array.from(prof_prods).some(prod => prod.children[2].innerText === codigo);
+        if (!existe) {
+
+            const card = cartProduct(id_prod, modalProf_prod, totalPriceM);
+            modalProf_prod.appendChild(card);
+
+            //Drang and drop
+            const items = modalProf_prod.querySelectorAll(".cart-item");
+            items.forEach(item => {
+                item.addEventListener("dragstart", () => {
+                    setTimeout(() => item.classList.add("dragging"), 0);
+                });
+                item.addEventListener("dragend", () => item.classList.remove("dragging"));
+            });
+
+            modalProf_prod.addEventListener("dragover", initSortableListM);
+            modalProf_prod.addEventListener("dragenter", e => e.preventDefault());
+
+            totalPriceM();
+        } else {
+            mostrarAlerta("El producto ya se encuentra en la lista");
+        }
+    }
+}
+//---------------------------VENTANA MODAL PARA BUSCAR PRODUCTOS
+const productSMW = document.getElementById('productSMW');
+const closeProductSMW = document.getElementById('closeProductSMW');
+function openProductSMW() {
+    productSMW.classList.add('modal__show');
+}
+closeProductSMW.addEventListener('click', () => {
+    productSMW.classList.remove('modal__show');
+});
 //---------------------------------------------------------------CLIENTES----------------------------------------------
 const fk_id_clte_profR = document.getElementById('fk_id_clte_profR');
 const fk_id_clte_profM = document.getElementById('fk_id_clte_profM');
@@ -1523,4 +1750,70 @@ function selectUser() {
 }
 
 
-
+/*------------------------------------Marca y categoria producto-------------------------------------------------*/
+//-------Read all Marcas
+let marcas = [];
+async function readAllMarcas() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readMarcas', '');
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            marcas = data;
+            selectMarcaProductMW();
+            resolve();
+        }).catch(err => console.log(err));
+    })
+}
+//-------Read all categorias
+let categorias = [];
+async function readAllCategorias() {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('readCategorias', '');
+        fetch('../controladores/productos.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            categorias = data;
+            resolve();
+        }).catch(err => console.log(err));
+    })
+}
+/*----------------------------------------------Marca y categoria  modal product-------------------------------------------------*/
+//-------Select de marcas
+function selectMarcaProductMW() {
+    selectMarcaProdMW.innerHTML = '';
+    let option = document.createElement('option');
+    option.value = 'todasLasMarcas';
+    option.innerText = 'Todas las marcas';
+    selectMarcaProdMW.appendChild(option);
+    for (let clave in marcas) {
+        let option = document.createElement('option');
+        option.value = marcas[clave]['id_mrc'];
+        option.innerText = marcas[clave]['nombre_mrc'];
+        selectMarcaProdMW.appendChild(option);
+    }
+}
+//------Select categorias
+function selectCategoriaProductMW() {
+    selectCategoriaProdMW.innerHTML = '';
+    let option = document.createElement('option');
+    option.value = 'todasLasCategorias';
+    option.innerText = 'Todas las categorias';
+    selectCategoriaProdMW.appendChild(option);
+    if (selectMarcaProdMW.value != 'todasLasMarcas') {
+        let id_mrc = selectMarcaProdMW.value;
+        categorias.forEach(categoria => {
+            if (categoria.fk_id_mrc_mccr == id_mrc) {
+                let option = document.createElement('option');
+                option.value = categoria.id_ctgr;
+                option.innerText = categoria.nombre_ctgr;
+                selectCategoriaProdMW.appendChild(option);
+            }
+        });
+    }
+    searchProductsMW();
+}

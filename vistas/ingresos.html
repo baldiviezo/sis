@@ -72,6 +72,7 @@
 				<thead>
 					<tr>
 						<th>N°</th>
+						<th>Almacen</th>
 						<th>Numero</th>
 						<th>Fecha</th>
 						<th>Encargado</th>
@@ -103,9 +104,14 @@
 				</div>
 			</div>
 			<div class="double__list--bottom">
-				<div>
-					<img src="../imagenes/p.svg" onclick="openProductSMW()" title="Inventario">
-					<img src="../imagenes/i.svg" onclick="openInventorySMW()" title="Inventario">
+				<div class="select__almacen--container">
+					<div>
+						<img src="../imagenes/producto.svg" onclick="openInventorySMW()" title="Productos">
+					</div>
+					<select name="select" id="almacen_rmdR"  class="select__almacen">
+						<option value="0">El Alto</option>
+						<option value="1">Av. Arce</option>
+					</select>
 				</div>
 				<button class="button__submit" onclick="openFormArmedRMW()">Registrar</button>
 			</div>

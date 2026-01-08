@@ -10,6 +10,7 @@ const roles = {
     { href: 'armados.html', text: 'Armados y desarmados' },
     { href: 'compras.html', text: 'Compras' },
     { href: 'ventas.html', text: 'Facturacion' },
+    { href: 'ingresos.html', text: 'Ingreso y egreso' },
     { href: 'cerrar.html', text: 'Cerrar sesión' }
   ],
   'Administrador': [
@@ -20,6 +21,7 @@ const roles = {
     { href: 'notaEntrega.html', text: 'Pedidos' },
     { href: 'compras.html', text: 'Compras' },
     { href: 'ventas.html', text: 'Facturacion' },
+    { href: 'ingresos.html', text: 'Ingreso y egreso' },
     { href: 'cerrar.html', text: 'Cerrar sesión' }
   ],
   'Ingeniero': [
