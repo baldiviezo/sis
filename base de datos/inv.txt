@@ -273,3 +273,16 @@ UPDATE `empresa` SET `nombre_emp` = 'PARTICULAR' WHERE `empresa`.`id_emp` = 77;
 alamcen_ing
 /**********************************************************************/
 ALTER TABLE `ingreso` ADD `almacen_ing` INT NOT NULL AFTER `id_ing`;
+
+
+
+ingreso estado_igpd
+/************************************************************************/
+UPDATE ing_prod
+SET estado_igpd = CASE
+    WHEN estado_igpd = 'baja' THEN 0
+    WHEN estado_igpd = 'agregado' THEN 1
+    ELSE estado_igpd
+END;
+
+ALTER TABLE `ing_prod` CHANGE `estado_igpd` `estado_igpd` INT NOT NULL;

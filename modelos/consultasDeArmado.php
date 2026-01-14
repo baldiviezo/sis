@@ -28,7 +28,7 @@ class Consultas{
     	$resultado = $conexion->query($consulta);
     	$numero_rmd = $resultado->fetch_assoc();
     	$nuevo_numero_rmd = ($numero_rmd['numero_rmd_max'] == null) ? 1 : $numero_rmd['numero_rmd_max'] + 1;
-        
+
         $consulta = "INSERT INTO armado (almacen_rmd, numero_rmd, fecha_rmd, fk_id_usua_rmd, proforma_rmd, observacion_rmd) VALUES ( '$this->almacen_rmd','$nuevo_numero_rmd' ,'$this->fecha_rmd', '$this->fk_id_usua_rmd', '$this->proforma_rmd', '$this->observacion_rmd')";
         $resultado = $conexion->query($consulta);
 
@@ -38,7 +38,6 @@ class Consultas{
         } else {
             $almacen = 'inventario_arce';
         }
-
         if ($resultado) {
             $consulta = "SELECT MAX(id_rmd) as id_rmd_max FROM armado";
     	    $resultado = $conexion->query($consulta);

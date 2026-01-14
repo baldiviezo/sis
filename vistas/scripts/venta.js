@@ -279,8 +279,194 @@ estado_factura_vnt.addEventListener('change', () => {
         document.getElementById('factura_vnt').setAttribute('hidden', '');
     }
 });
+//---------------------------------MODAL DE VNT-PROD--------------------------------------------
+const closeVnt_prodMW = document.getElementById('closeVnt_prodMW');
+const vnt_prodMW = document.getElementById('vnt_prodMW');
+function openVnt_prodMW() {
+    totalPrice();
+    vnt_prodMW.classList.add('modal__show');
+}
+closeVnt_prodMW.addEventListener('click', (e) => {
+    vnt_prodMW.classList.remove('modal__show');
+});
+//--------Muestra la lista de los productos de la proforma
+function cartProduct_pfpd(prof_prod, contenedor, total) {
+    const product = products.find(product => product.id_prod === prof_prod.fk_id_prod_pfpd);
+    if (product) {
+        const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 0);
+        const inventoriesArce = inventories.filter(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 1);
 
+        const cantidad_invAlto = inventoriesAlto.length > 0 ? inventoriesAlto[0].cantidad_inv : 0;
+        const cantidad_invArce = inventoriesArce.length > 0 ? inventoriesArce[0].cantidad_inv : 0;
+        const cantidad_invTotal = cantidad_invAlto + cantidad_invArce;
 
+        const card = document.createElement('div');
+        card.classList.add('cart-item');
+        card.setAttribute('id_prod', product.id_prod);
+        card.setAttribute('draggable', 'true');
+
+        const cantidadInvParagraph = document.createElement('p');
+        cantidadInvParagraph.classList.add('cart-item__cantInv');
+
+        if (cantidad_invAlto > 0 && cantidad_invArce > 0) {
+            cantidadInvParagraph.classList.add('almacen-ambos');
+        } else if (cantidad_invAlto > 0) {
+            cantidadInvParagraph.classList.add('almacen-alto');
+        } else if (cantidad_invArce > 0) {
+            cantidadInvParagraph.classList.add('almacen-arce');
+        }
+
+        cantidadInvParagraph.textContent = cantidad_invTotal;
+        card.appendChild(cantidadInvParagraph);
+
+        const rowImgDiv = document.createElement('div');
+        rowImgDiv.classList.add('row-img');
+        const img = document.createElement('img');
+        img.src = `../modelos/imagenes/${product.imagen_prod}`;
+        img.classList.add('rowimg');
+        rowImgDiv.appendChild(img);
+        card.appendChild(rowImgDiv);
+
+        const codigoParagraph = document.createElement('p');
+        codigoParagraph.classList.add('cart-item__codigo');
+        codigoParagraph.textContent = product.codigo_prod;
+        card.appendChild(codigoParagraph);
+
+        function updateCostTotal(cantidadInput, costUnitInput, costTotalInput) {
+            const cantidad = parseInt(cantidadInput.value);
+            const costUnit = parseFloat(costUnitInput.value);
+            const costTotal = cantidad * costUnit;
+            costTotalInput.value = costTotal;
+            total();
+        }
+
+        const cantidadInput = document.createElement('input');
+        cantidadInput.type = 'number';
+        cantidadInput.value = prof_prod.cantidad_pfpd;
+        cantidadInput.min = '1';
+        cantidadInput.classList.add('cart-item__cantidad');
+        cantidadInput.addEventListener('change', (e) => {
+            const costUnitInput = e.target.parentNode.querySelector('.cart-item__costUnit');
+            const costTotalInput = e.target.parentNode.querySelector('.cart-item__costTotal');
+            updateCostTotal(e.target, costUnitInput, costTotalInput);
+        });
+        card.appendChild(cantidadInput);
+
+        const costUnitInput = document.createElement('input');
+        costUnitInput.type = 'number';
+        costUnitInput.value = prof_prod.cost_uni_pfpd;
+        costUnitInput.classList.add('cart-item__costUnit');
+        costUnitInput.addEventListener('change', (e) => {
+            const cantidadInput = e.target.parentNode.querySelector('.cart-item__cantidad');
+            const costTotalInput = e.target.parentNode.querySelector('.cart-item__costTotal');
+            updateCostTotal(cantidadInput, e.target, costTotalInput);
+        });
+        card.appendChild(costUnitInput);
+
+        const costTotalInput = document.createElement('input');
+        costTotalInput.type = 'number';
+        costTotalInput.value = prof_prod.cost_uni_pfpd * prof_prod.cantidad_pfpd;
+        costTotalInput.classList.add('cart-item__costTotal');
+        costTotalInput.readOnly = true;
+        card.appendChild(costTotalInput);
+
+        //tiempo de entrega
+        const entregaInput = document.createElement('input');
+        entregaInput.type = 'number';
+        entregaInput.value = prof_prod.tmp_entrega_pfpd;
+        entregaInput.classList.add('cart-item__tmpEntrega');
+        card.appendChild(entregaInput);
+
+        const trashImg = document.createElement('img');
+        trashImg.src = '../imagenes/trash.svg';
+        trashImg.classList.add('icon__CRUD');
+        trashImg.addEventListener('click', (e) => removeCardFromCartM(e, contenedor));
+        card.appendChild(trashImg);
+        return card;
+    }
+}
+function cartProduct(id_nepd, contenedor, total) {
+    const product = filterProductsMW.find(product => product['id_nepd'] == id_nepd);
+    if (product) {
+        const card = document.createElement('div');
+
+        card.classList.add('cart-item');
+        card.setAttribute('id_nepd', id_nepd);
+        card.setAttribute('draggable', 'true');
+
+        const rowImgDiv = document.createElement('div');
+        rowImgDiv.classList.add('row-img');
+        const img = document.createElement('img');
+        img.src = `../modelos/imagenes/${product.imagen_prod}`;
+        img.classList.add('rowimg');
+        rowImgDiv.appendChild(img);
+        card.appendChild(rowImgDiv);
+
+        const codigoParagraph = document.createElement('p');
+        codigoParagraph.classList.add('cart-item__codigo');
+        codigoParagraph.textContent = product.codigo_prod;
+        card.appendChild(codigoParagraph);
+
+        const cantidadInput = document.createElement('input');
+        cantidadInput.type = 'number';
+        cantidadInput.value = product.cantidad_nepd;
+        cantidadInput.min = '1';
+        cantidadInput.classList.add('cart-item__cantidad');
+        card.appendChild(cantidadInput);
+
+        const costUnitInput = document.createElement('input');
+        costUnitInput.type = 'number';
+        costUnitInput.value = parseFloat(product.cost_uni_nepd).toFixed(2);
+        costUnitInput.classList.add('cart-item__costUnit');
+        costUnitInput.readOnly = true;
+        card.appendChild(costUnitInput);
+
+        const subTotalInput = document.createElement('input');
+        subTotalInput.type = 'number';
+        subTotalInput.value = parseFloat(product.cost_uni_nepd * product.cantidad_nepd).toFixed(2);
+        subTotalInput.classList.add('cart-item__costUnit');
+        subTotalInput.readOnly = true;
+        card.appendChild(subTotalInput);
+
+        const descInput = document.createElement('input');
+        descInput.type = 'number';
+        descInput.value = parseFloat(product.cantidad_nepd*product.cost_uni_nepd*(product.descuento_oc/100)).toFixed(2);
+        descInput.classList.add('cart-item__costUnit');
+        card.appendChild(descInput);
+
+        const costTotalInput = document.createElement('input');
+        costTotalInput.type = 'number';
+        costTotalInput.value = parseFloat(product.cantidad_nepd*product.cost_uni_nepd - (product.cantidad_nepd*product.cost_uni_nepd*(product.descuento_oc/100))).toFixed(2);
+        costTotalInput.classList.add('cart-item__costTotal');
+        costTotalInput.readOnly = true;
+        card.appendChild(costTotalInput);
+
+        const trashImg = document.createElement('img');
+        trashImg.src = '../imagenes/trash.svg';
+        trashImg.classList.add('icon__CRUD');
+        trashImg.addEventListener('click', (e) => removeCardFromCart(e, contenedor, total));
+        card.appendChild(trashImg);
+        return card;
+    }
+}
+function removeCardFromCart(e, container) {
+    const card = e.target.parentNode;
+    container.removeChild(card);
+    totalPrice();
+}
+const subTotal_vtpd = document.getElementById('subTotal_vtpd');
+const total_vtpd = document.getElementById('total_vtpd');
+function totalPrice() {
+    const divs = document.querySelectorAll('#cartsVnt_prodMW div.cart-item');
+    let total = 0;
+    let descuento = 0;
+    divs.forEach(div => {
+        costo = Number(div.querySelector('.cart-item__costTotal').value);
+        total = total + costo;
+    })
+    total_vtpd.innerHTML = `Total(Bs): ${((total - (total * descuento) / 100)).toFixed(2)} Bs`;
+    document.getElementById('count_pfpd').innerHTML = divs.length;
+}
 /******************************************TABLA NTE-PROD**********************************************/
 let products = [];
 let filterProductsMW = [];
@@ -317,6 +503,8 @@ const selectMarcaProdMW = document.getElementById('selectMarcaProdMW');
 selectMarcaProdMW.addEventListener('change', selectCategoriaProductMW);
 const selectCategoriaProdMW = document.getElementById('selectCategoriaProdMW');
 selectCategoriaProdMW.addEventListener('change', searchProductsMW);
+const selectAlmacenProdMW = document.getElementById('selectAlmacenProdMW');
+selectAlmacenProdMW.addEventListener('change', searchProductsMW);
 //------buscar por:
 function searchProductsMW() {
     const valor = selectSearchProdMW.value;
@@ -324,6 +512,9 @@ function searchProductsMW() {
     filterProductsMW = products.filter(product => {
         if (valor === 'todas') {
             return (
+                product.numero_oc.toString().toLowerCase().includes(busqueda) ||
+                product.nombre_emp.toString().toLowerCase().includes(busqueda) ||
+                (product.apellido_clte + ' ' + product.nombre_clte).toString().toLowerCase().includes(busqueda) ||
                 product.codigo_prod.toString().toLowerCase().includes(busqueda) ||
                 product.nombre_emp.toLowerCase().includes(busqueda) ||
                 (product.apellido_clte + ' ' + product.nombre_clte).toLowerCase().includes(busqueda)
@@ -337,9 +528,10 @@ function searchProductsMW() {
 //------buscar por marca y categoria:
 function selectProductsMW() {
     filterProductsMW = filterProductsMW.filter(product => {
+        const almacen = selectAlmacenProdMW.value === 'todosLosAlmacenes' ? true : product.almacen_ne == selectAlmacenProdMW.value;
         const marca = selectMarcaProdMW.value === 'todasLasMarcas' ? true : product.fk_id_mrc_prod == selectMarcaProdMW.value;
         const categoria = selectCategoriaProdMW.value === 'todasLasCategorias' ? true : product.fk_id_ctgr_prod == selectCategoriaProdMW.value;
-        return marca && categoria;
+        return almacen && marca && categoria;
     });
     paginacionProductMW(filterProductsMW.length, 1);
 }
@@ -400,12 +592,12 @@ function paginacionProductMW(allProducts, page) {
     tableProductsMW(page);
 }
 //------Crear la tabla
+const tbodyNteProdMW = document.getElementById('tbodyNteProdMW');
 function tableProductsMW(page) {
-    const tbody = document.getElementById('tbodyProductMW');
     const inicio = (page - 1) * Number(selectNumberProdMW.value);
     const final = inicio + Number(selectNumberProdMW.value);
     const products = filterProductsMW.slice(inicio, final);
-    tbody.innerHTML = '';
+    tbodyNteProdMW.innerHTML = '';
     products.forEach((product, index) => {
 
         const marca = marcas.find(marca => marca.id_mrc === product.fk_id_mrc_prod);
@@ -421,21 +613,17 @@ function tableProductsMW(page) {
         tdIndex.innerText = inicio + index + 1;
         tr.appendChild(tdIndex);
 
-        const tdCodigo = document.createElement('td');
-        tdCodigo.innerText = product.codigo_prod;
-        tr.appendChild(tdCodigo);
+        const tdAlmacen = document.createElement('td');
+        tdAlmacen.innerText = product.almacen_ne === 0 ? 'Alto' : 'Arce';
+        tr.appendChild(tdAlmacen);
 
-        const tdMarca = document.createElement('td');
-        tdMarca.innerText = marca ? marca.nombre_mrc : '';
-        tr.appendChild(tdMarca);
+        const tdNumero = document.createElement('td');
+        tdNumero.innerText = product.numero_oc;
+        tr.appendChild(tdNumero);
 
-        const tdCategoria = document.createElement('td');
-        tdCategoria.innerText = categoria ? categoria.nombre_ctgr : '';
-        tr.appendChild(tdCategoria);
-
-        const tdCantidad = document.createElement('td');
-        tdCantidad.innerText = product.cantidad_nepd;
-        tr.appendChild(tdCantidad);
+        const tdFecha = document.createElement('td');
+        tdFecha.innerText = product.fecha_oc;
+        tr.appendChild(tdFecha);
 
         const tdEmpresa = document.createElement('td');
         tdEmpresa.innerText = product.nombre_emp;
@@ -445,14 +633,48 @@ function tableProductsMW(page) {
         tdCliente.innerText = product.apellido_clte + ' ' + product.nombre_clte;
         tr.appendChild(tdCliente);
 
+        const tdCodigo = document.createElement('td');
+        tdCodigo.innerText = product.codigo_prod;
+        tr.appendChild(tdCodigo);
+
+        const tdMarca = document.createElement('td');
+        tdMarca.innerText = marca.nombre_mrc;
+        tr.appendChild(tdMarca);
+
+        const tdCategoria = document.createElement('td');
+        tdCategoria.innerText = categoria.nombre_ctgr;
+        tr.appendChild(tdCategoria);
+
+        const tdNombre = document.createElement('td');
+        tdNombre.innerText = product.nombre_prod;
+        tr.appendChild(tdNombre);
+
+        const tdCantidad = document.createElement('td');
+        tdCantidad.innerText = product.cantidad_nepd;
+        tr.appendChild(tdCantidad);
+
+        const tdCostoUnit = document.createElement('td');
+        tdCostoUnit.innerText = `${parseFloat(product.cost_uni_nepd).toFixed(2)} ${product.moneda_oc}`;
+        tr.appendChild(tdCostoUnit);
+
+        const tdSubTotal = document.createElement('td');
+        tdSubTotal.innerText = `${parseFloat(product.cantidad_nepd*product.cost_uni_nepd).toFixed(2)} ${product.moneda_oc}`;
+        tr.appendChild(tdSubTotal);
+
+        const tdDescuento = document.createElement('td');
+        tdDescuento.innerText = `${parseFloat(product.cantidad_nepd*product.cost_uni_nepd*(product.descuento_oc/100)).toFixed(2)} ${product.moneda_oc} (${product.descuento_oc}%)`;
+        tr.appendChild(tdDescuento);
+
+        const tdCostoTotal = document.createElement('td');
+        tdCostoTotal.innerText = `${parseFloat(product.cantidad_nepd*product.cost_uni_nepd - (product.cantidad_nepd*product.cost_uni_nepd*(product.descuento_oc/100))).toFixed(2)} ${product.moneda_oc}`;
+        tr.appendChild(tdCostoTotal);
+
         const tdAcciones = document.createElement('td');
         const fragment = document.createDocumentFragment();
         let imgs = [];
 
-        imgs.push({
-            src: '../imagenes/edit.svg', onclick: `readProduct(${product.id_prod})`, title: 'Editar'
-        },
-            { src: '../imagenes/send.svg', onclick: `sendProduct(${product.id_prod})`, title: 'Seleccionar' });
+        imgs.push(
+            { src: '../imagenes/send.svg', onclick: `sendProduct(${product.id_nepd})`, title: 'Seleccionar' });
 
         imgs.forEach((img) => {
             const imgElement = document.createElement('img');
@@ -465,38 +687,41 @@ function tableProductsMW(page) {
         tdAcciones.appendChild(fragment);
         tr.appendChild(tdAcciones);
 
-        tbody.appendChild(tr);
+        tbodyNteProdMW.appendChild(tr);
     });
 }
+//------Agregar producto al carrito
+const cartsVnt_prodMW = document.querySelector('#cartsVnt_prodMW');
+
 function sendProduct(id_prod) {
-    console.log(id_prod)
-    const product = filterProductsMW.find(prod => prod['id_prod'] === id_prod);
-    if (product) {
-        let prof_prods = modalProf_prod.querySelectorAll('.cart-item');
-        const codigo = product['codigo_prod'];
-        const existe = Array.from(prof_prods).some(prod => prod.children[2].innerText === codigo);
-        if (!existe) {
-
-            const card = cartProduct(id_prod, modalProf_prod, totalPriceM);
-            modalProf_prod.appendChild(card);
-
-            //Drang and drop
-            const items = modalProf_prod.querySelectorAll(".cart-item");
-            items.forEach(item => {
-                item.addEventListener("dragstart", () => {
-                    setTimeout(() => item.classList.add("dragging"), 0);
-                });
-                item.addEventListener("dragend", () => item.classList.remove("dragging"));
-            });
-
-            modalProf_prod.addEventListener("dragover", initSortableListM);
-            modalProf_prod.addEventListener("dragenter", e => e.preventDefault());
-
-            totalPriceM();
-        } else {
-            mostrarAlerta("El producto ya se encuentra en la lista");
-        }
+    //Verificar si el producto ya está en el carrito
+    const existingCard = cartsVnt_prodMW.querySelector(`.cart-item[id_nepd='${id_prod}']`);
+    if (existingCard) {
+        return;
     }
+    const card = cartProduct(id_prod, cartsVnt_prodMW, totalPrice);
+    cartsVnt_prodMW.appendChild(card);
+    totalPrice();
+    //Drang and drop
+    const items = cartsVnt_prodMW.querySelectorAll(".cart-item");
+    items.forEach(item => {
+        item.addEventListener("dragstart", () => {
+            setTimeout(() => item.classList.add("dragging"), 0);
+        });
+        item.addEventListener("dragend", () => item.classList.remove("dragging"));
+    })
+    cartsVnt_prodMW.addEventListener("dragover", initSortableListM);
+    cartsVnt_prodMW.addEventListener("dragenter", e => e.preventDefault());
+}
+const initSortableListM = (e) => {
+    e.preventDefault();
+    const draggingItem = document.querySelector(".dragging");
+    let siblings = [...cartsVnt_prodMW.querySelectorAll(".cart-item:not(.dragging)")];
+    let nextSibling = siblings.find(sibling => {
+        const rect = sibling.getBoundingClientRect();
+        return e.clientY <= rect.top + rect.height / 2;
+    });
+    cartsVnt_prodMW.insertBefore(draggingItem, nextSibling);
 }
 //---------------------------VENTANA MODAL PARA BUSCAR PRODUCTOS
 const productSMW = document.getElementById('productSMW');
@@ -1222,6 +1447,28 @@ closetableClteMW.addEventListener('click', () => {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /***********************************************PRODUCT FILTER VNT_PRODS*********************************************/
 //--------read vnt_prods
 let vnt_prods = [];
@@ -1817,3 +2064,8 @@ function selectCategoriaProductMW() {
     }
     searchProductsMW();
 }
+
+
+
+
+

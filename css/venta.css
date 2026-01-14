@@ -172,3 +172,280 @@
     left: 56.5rem;
     top: .7rem;
 }
+
+/*************************************Modal Producto-Proforma ***********************************/
+.modalPdpf__container {
+	margin: auto;
+	background-color: #fff;
+	width: 32rem;
+	height: 90%;
+	border-radius: .5rem;
+	display: grid;
+	grid-template-rows: 3rem 3rem 1fr 8rem;
+	overflow: hidden;
+}
+
+.modalPdpf__header {
+	display: flex;
+	justify-content: space-between;
+	padding: .5rem 1rem;
+}
+
+.modalPdpf__header .button__close {
+	height: 2.2rem;
+	width: 2.2rem;
+}
+
+.modalPdpf__body {
+	display: flex;
+	align-items: center;
+	background-color: #225c74;
+	color: #fff;
+	font-weight: bold;
+	width: 100%;
+	font-size: .9rem;
+	padding: .5rem;
+}
+
+.modalPdpf__body table thead tr td:nth-of-type(1) {
+	padding: 0;
+	width: 3rem;
+}
+
+.modalPdpf__body table thead tr td:nth-of-type(2) {
+	padding: 0;
+	width: 3rem;
+}
+
+.modalPdpf__body table thead tr td:nth-of-type(3) {
+	padding: 0;
+	width: 9rem;
+	text-align: center;
+}
+
+.modalPdpf__container .container--modal__body {
+	overflow: auto;
+}
+
+.modalPdpf__container .container--modal__body::-webkit-scrollbar {
+	width: 0.5rem;
+	height: 0.5rem;
+}
+
+.modalPdpf__container .container--modal__body::-webkit-scrollbar-thumb {
+	border-radius: .5rem;
+	background-color: #0004;
+	visibility: hidden;
+}
+
+.modalPdpf__container .container--modal__body:hover::-webkit-scrollbar-thumb {
+	visibility: visible;
+}
+
+.button--sell {
+	background: var(--color-egeo-blue);
+	color: #fff;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 300;
+	font-size: 1rem;
+	padding: .5rem 0;
+	border: none;
+	cursor: pointer;
+	border-radius: .5rem;
+	display: flex;
+	justify-content: center;
+	margin: .5rem auto;
+	width: 10rem;
+}
+
+.foot {
+	display: flex;
+	justify-content: space-between;
+	padding: .5rem;
+	border-top: 1px solid #333;
+}
+
+.foot__right {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.foot__left {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.foot__left p {
+	font-weight: bold;
+	font-size: 1.3rem;
+    color: black;
+}
+
+.cart {
+	display: flex;
+	background-color: #fff;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0px 10px;
+	width: 80px;
+}
+
+.cart p {
+	height: 22px;
+	width: 22px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 22px;
+	background-color: #225c74;
+	color: white;
+}
+
+/*******************************cart-item vnt_prod***********************/
+.cart-item {
+	font-size: 1rem;
+	display: flex;
+	align-items: center;
+	background-color: #fff;
+	border-radius: .5rem;
+	width: 100%;
+	margin: .5rem 0;
+	padding: .5rem .5rem;
+	cursor: move;
+}
+
+.cart-item.dragging {
+	opacity: 0.6;
+}
+
+.cart-item.dragging :where(.details, i) {
+	opacity: 0;
+}
+
+.cart-item .cart-item__cantInv {
+	width: 2rem;
+	/*color: #225c74;*/
+	text-align: left;
+}
+
+/*Para compra*/
+.cart-item .cart-item__cantInv2 {
+	width: 3.5rem;
+	color: #225c74;
+	text-align: left;
+}
+
+/*----------*/
+.cart-item .row-img {
+	width: 4rem;
+	height: 4rem;
+	border-radius: 50%;
+	border: 1px solid #225c74;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.cart-item .rowimg {
+	width: 3rem;
+	height: 3rem;
+	border-radius: 50%;
+
+}
+
+.cart-item img:hover {
+	color: #333;
+	/*nO FUNCIONA POR Q ES IMAGEN*/
+}
+
+.cart-item .cart-item__codigo {
+	width: 10rem;
+	padding: 0 .5rem;
+	color: #225c74;
+}
+
+/*Para compra*/
+.cart-item .cart-item__codigo2 {
+	width: 16rem;
+	padding: 0 .5rem;
+	color: #225c74;
+}
+
+/*------------*/
+.cart-item .cart-item__cantidad {
+	width: 2.5rem;
+	border: none;
+	font-size: .8rem;
+}
+
+.cart-item .cart-item__cantidad:focus {
+	outline: none;
+}
+
+.cart-item .cart-item__cantidad::-webkit-outer-spin-button,
+.cart-item .cart-item__cantidad::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+.cart-item .cart-item__costUnit {
+	width: 3.5rem;
+	border: none;
+	font-size: .8rem;
+}
+
+.cart-item .cart-item__costUnit:focus {
+	outline: none;
+}
+
+#productsSold .cart-item .cart-item__cantidad {
+	width: 3.5rem;
+	border: none;
+	font-size: .8rem;
+}
+
+#productsSold .cart-item .cart-item__costUnit {
+	width: 4.5rem;
+	border: none;
+	font-size: .8rem;
+}
+
+.cart-item .cart-item__costUnit::-webkit-outer-spin-button,
+.cart-item .cart-item__costUnit::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+.cart-item .cart-item__costTotal {
+	width: 4rem;
+	border: none;
+	font-weight: bold;
+	font-size: .8rem;
+}
+
+.cart-item .cart-item__costTotal:focus {
+	outline: none;
+}
+
+.cart-item .cart-item__costTotal::-webkit-outer-spin-button,
+.cart-item .cart-item__costTotal::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+.cart-item__tmpEntrega{
+	width: 2rem;
+	border: none;
+	font-weight: bold;
+	font-size: .8rem;
+}
+.cart-item .cart-item__tmpEntrega:focus {
+	outline: none;
+}
+
+.cart-item .cart-item__tmpEntrega::-webkit-outer-spin-button,
+.cart-item .cart-item__tmpEntrega::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}

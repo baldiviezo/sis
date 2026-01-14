@@ -1,0 +1,35 @@
+**INGRESO Y EGRESO**
+--Tabla ingreso y egreso        --LISTO
+--Tabla inventario              --LISTO
+--SEND Y REMOVE PRODUCTS        --LISTO
+--REGISTRAR INGRESO Y EGRESO    --LISTO
+--Exportar Excel                --LISTO
+
+**FACTURACION**
+--TABLA FACTURACION
+--REGISTRAR FACTURA
+--TABLA PRODUCTOS               --LISTO
+--ENVIAR PRODUCTOS              --LISTO
+--VISTA PREVIS DE FACTURA       --    
+
+
+
+
+
+
+
+
+
+
+
+**REVISION GENERAL**
+--USUARIOS
+--inventario
+--PROFORMA
+--PEDIDOS
+--ARMADOS Y DESARMADOS
+--COMPRAS
+--FACTURACION
+**COLOCAR LAS RELACIONES QUE FALTAN EN LA ESTRUCTURA DE BASE DE DATOS**
+
+

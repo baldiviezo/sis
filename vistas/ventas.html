@@ -30,8 +30,8 @@
 			<div>
 				<img src="../imagenes/registrar.svg" onclick="openSaleRMW()" class="icon__CRUD" title="Registrar Factura">
 				<img src="../imagenes/inventario.svg" id="openProdVnt" title="Productos comprados">
-				<img src="../imagenes/excel.svg" id="excelVnt" title="Imprimir a excel">
 				<img src="../imagenes/user.svg" onclick="openTableClteMW()" class="icon__CRUD" title="Clientes">
+				<img src="../imagenes/excel.svg" id="excelVnt" title="Imprimir a excel">
 			</div>
 			<section class="select__search">
 				<div>
@@ -297,7 +297,84 @@
                     </div>
 					</div>
 				</form>
-				<button class="form__submit" onclick="openProductSMW()">Productos</button>
+				<button class="form__submit" onclick="openVnt_prodMW()">Productos</button>
+			</div>
+		</div>
+	</section>
+	<!--Modal of product of a proforma-->
+	<section id="vnt_prodMW" class="modal">
+		<div class="modalPdpf__container">
+			<div class="modalPdpf__header">
+				<div>
+					<img src="../imagenes/producto.svg" onclick="openProductSMW()" class="icon__CRUD"
+						title="Buscar producto">
+				</div>
+				<h2 class="modal__title">Productos</h2>
+				<img src="../imagenes/salir.svg" id="closeVnt_prodMW" class="button__close">
+			</div>
+			<div class="modalPdpf__body">
+				<table>
+					<thead>
+						<tr>
+							<td>Img.</td>
+							<td>Codigo</td>
+							<td>Cant.</td>
+							<td>Cost Uni.</td>
+							<td>Sub total</td>
+							<td>Desc.</td>
+							<td>Cost Total</td>
+							<td>Elim.</td>
+						</tr>
+					</thead>
+				</table>
+			</div>
+			<div class="container--modal__body">
+				<div id="cartsVnt_prodMW" class="modal__body--pfpd"></div>
+			</div>
+			<div class="foot">
+				<div class="foot__left table__subTitle">
+					<p id="total_vtpd">Total (Bs):</p>
+				</div>
+				<div class="foot__right">
+					<div class="cart">
+						<img src="../imagenes/carrito.svg">
+						<p id="count_pfpd">0</p>
+					</div>
+					<button class="button--sell" id="button__vnt_prodMW"
+						onclick="openPreviwProducts()">Registrar factura</button>
+				</div>
+			</div>
+
+		</div>
+	</section>
+	<!--Vista previa de los productos de la proforma-->
+	<section id="previewProducts" class="modalTable">
+		<div class="container--previewProducts">
+			<div class="table">
+				<div class="table__title--Preview">
+					<div>
+						<h1 id="titleEnterprise"></h1>
+						<h1 id="titleCustomer"></h1>
+					</div>
+					<img src="../imagenes/salir.svg" id="closePreviewProducts" class="button__close" title="Minimizar">
+				</div>
+				<section class="table__body">
+					<table>
+						<thead>
+							<tr>
+								<th>N°</th>
+								<th>Codigo</th>
+								<th>Descripcion</th>
+								<th>Imagen</th>
+								<th>Cantidad</th>
+								<th>Costo U.</th>
+								<th>Costo T.</th>
+								<th>Tiempo de entrega</th>
+							</tr>
+						</thead>
+						<tbody id="tbodyPreviewProd"></tbody>
+					</table>
+				</section>
 			</div>
 		</div>
 	</section>
@@ -306,12 +383,20 @@
 		<div class="modalTable__container">
 			<div class="table">
 				<div class="table__title">
-					<h1><img src="../imagenes/producto.svg">Productos</h1>
+					<h1><img src="../imagenes/producto.svg">Productos de nota de entrega</h1>
 					<img src="../imagenes/salir.svg" id="closeProductSMW" class="button__close">
 				</div>
 				<section class="table__header">
 					<div></div>
 					<section class="select__search">
+						<div>
+							<label>Almacen: </label>
+							<select id="selectAlmacenProdMW" class="select__almacen">
+								<option value="todosLosAlmacenes">Todos los almacenes</option>
+								<option value="0">El Alto</option>
+								<option value="1">Av. Arce</option>
+							</select>
+						</div>
 						<div>
 							<label>Marcas: </label>
 							<select id="selectMarcaProdMW" class="select__marca">
@@ -331,7 +416,6 @@
 								<option value="todas">Buscar por</option>
 								<option value="codigo_prod">Código</option>
 								<option value="nombre_prod">Descripcion corta</option>
-								<option value="descripcion_prod">Descripcion</option>
 							</select>
 						</div>
 						<div class="table__search">
@@ -365,6 +449,11 @@
 						<thead>
 							<tr>
 								<th>N°</th>
+								<th>Almacen</th>
+								<th>Numero de pedido</th>
+								<th>Fecha</th>
+								<th>Empresa</th>
+								<th>Cliente</th>
 								<th>
 									<div class="tbody__head--ProdMW">Codigo <img src="../imagenes/sortA_Z.svg"
 											name="codigo_prod" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
@@ -374,13 +463,15 @@
 								<th>Marca</th>
 								<th>Categoria</th>
 								<th>Descripcion corta</th>
-								<th>Descripcion</th>
-								<th>Imagen</th>
 								<th>Stock</th>
+								<th>Costo uni.</th>
+								<th>Sub total</th>
+								<th>Descuento</th>
+								<th>Total</th>
 								<th>Acciones</th>
 							</tr>
 						</thead>
-						<tbody id="tbodyProductMW"></tbody>
+						<tbody id="tbodyNteProdMW"></tbody>
 					</table>
 				</section>
 			</div>

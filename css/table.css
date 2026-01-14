@@ -330,9 +330,6 @@ tbody tr:hover{
 	min-width: 30rem;
 }
 /*-------------------------espacios de tabla product modal---------------------------------------*/
-/*#tbodyProduct td:nth-of-type(2){
-	min-width: 1rem;
-}*/
 #tbodyProductMW td:nth-of-type(5){
 	min-width: 12rem;
 } 
@@ -351,7 +348,6 @@ tbody tr:hover{
 	font-size: 1.2rem;
 	font-weight: bold;
 }
-
 #previewProducts td:nth-of-type(1){
 	min-width: 2rem;
 }
@@ -380,10 +376,7 @@ tbody tr:hover{
 	font-size: 1rem;
 }
 .textarea__preview::-webkit-scrollbar{
-	/*Vuelve el scrrol invisible*/
-	/*No se nota el cambio del ancho*/
 	width: 0.5rem;
-	/*Alto del scroll*/
 	height: 0.5rem;
 }
 .textarea__preview::-webkit-scrollbar-thumb{
@@ -412,8 +405,6 @@ tbody tr:hover{
 #ttbodymProforma td:nth-of-type(12){
 	min-width: 10rem;
 }
-
-
 /*----------------------------Para que header sea responsive------------------------------*/
 @media (max-width:800px){
 	.table__header{

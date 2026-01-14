@@ -221,7 +221,6 @@ function tableArmed(page) {
 //---------------------------------------------CRUD ARMADO------------------------------------//
 const columnOne = document.querySelectorAll('.double__list--box')[0];
 const columnTwo = document.querySelectorAll('.double__list--box')[1];
-const almacen_rmdR = document.getElementById('almacen_rmdR');
 //------Create armed
 function createArmed() {
     if (columnOne.querySelectorAll('.cart-item').length > 0 && columnTwo.querySelectorAll('.cart-item').length > 0) {
@@ -528,8 +527,6 @@ function openInventorySMW() {
 closeInventorySMW.addEventListener('click', () => {
     inventorySMW.classList.remove('modal__show');
 });
-
-
 //----------------------------------------------ARMADO Y DESARMADO-------------------------------------------------
 //-------Agragar producto
 function addProduct(id_prod) {
@@ -602,6 +599,7 @@ function removeProduct(box, item) {
     box.removeChild(item);
 }
 //-------Select almacen_rmdR cambia el texto de la cantidad en inventario
+const almacen_rmdR = document.getElementById('almacen_rmdR');
 almacen_rmdR.addEventListener('change', changeAlmacen);
 function changeAlmacen() {
     const carts = armedRMW.querySelectorAll('.cart-item');
@@ -666,9 +664,7 @@ async function readProducts() {
         }).catch(err => mostrarAlerta('Ocurrio un error al cargar los productos, cargue nuevamente la pagina.'));
     })
 }
-
 /*----------------------------------------------Marca y categoria  modal product-------------------------------------------------*/
-/*-----------------------------------------Marca y categoria producto-------------------------------------------------*/
 //-------Read all Marcas
 let marcas = [];
 async function readAllMarcas() {

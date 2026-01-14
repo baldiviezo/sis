@@ -188,10 +188,12 @@ class consultas{
 	//-------Read nte_inv
 	public function readNte_prods(){
     	include 'conexion.php';
-    	$consulta = "SELECT nte_prod.*, producto.codigo_prod, nota_entrega.*, empresa.*, cliente.* FROM nte_prod INNER JOIN nota_entrega ON nte_prod.fk_id_ne_nepd = nota_entrega.id_ne INNER JOIN cliente ON nota_entrega.fk_id_clte_ne = cliente.id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = empresa.id_emp INNER JOIN producto ON nte_prod.fk_id_prod_nepd = producto.id_prod WHERE estado_nepd = 0 ORDER BY id_nepd DESC";
+    	$consulta = "SELECT orden_compra.numero_oc, orden_compra.fecha_oc, orden_compra.descuento_oc, orden_compra.moneda_oc, nte_prod.*, producto.codigo_prod, producto.nombre_prod, producto.fk_id_mrc_prod, producto.fk_id_ctgr_prod, producto.imagen_prod, empresa.id_emp, empresa.nombre_emp, empresa.sigla_emp, cliente.nombre_clte, cliente.apellido_clte FROM nte_prod INNER JOIN nota_entrega ON nte_prod.fk_id_ne_nepd = nota_entrega.id_ne INNER JOIN orden_compra ON nota_entrega.fk_id_oc_ne = orden_compra.id_oc INNER JOIN cliente ON nota_entrega.fk_id_clte_ne = cliente.id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = empresa.id_emp INNER JOIN producto ON nte_prod.fk_id_prod_nepd = producto.id_prod WHERE estado_nepd = 0 ORDER BY id_nepd DESC";
     	$resultado = $conexion->query($consulta);
     	$nteProds =  array();
     	while ($fila = $resultado->fetch_assoc()){
+			$fila['numero_oc'] = strtoupper('P-SMS' . substr($fila['fecha_oc'], 2, 2) . '-' . $this->addZerosGo($fila['numero_oc']).'-' . ($fila['id_emp'] == 77 ? explode(" ", $fila['apellido_clte'])[0] : $fila['sigla_emp']));
+			unset($fila['sigla_emp'], $fila['id_emp']);
         	$nteProds[] = $fila;
     	}
     	echo json_encode($nteProds, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
