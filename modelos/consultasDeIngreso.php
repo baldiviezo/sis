@@ -10,15 +10,15 @@ class Consultas{
     //-------read armeds
     public function readIngresos(){
         include 'conexion.php';
-        $consulta = "SELECT * FROM ing_prod INNER JOIN ingreso ON ing_prod.fk_id_ing_igpd = ingreso.id_ing INNER JOIN usuario ON ingreso.fk_id_usua_ing = usuario.id_usua ORDER BY id_igpd DESC";
+        $consulta = "SELECT * FROM ing_prod INNER JOIN ingreso ON ing_prod.fk_id_ing_igpd = ingreso.id_ing ORDER BY id_igpd DESC";
         $resultado = $conexion->query($consulta);
         $array = array();
         if ($resultado->num_rows > 0) {
-            while($row = $resultado->fetch_assoc()) {
-                $filas = array('id_ing'=>$row['id_ing'], 'numero_ing'=>'I&E-SMS'.substr($row['fecha_ing'],2,2).'-'.$this->addZerosGo($row['numero_ing']), 'fecha_ing'=>$row['fecha_ing'], 'nombre_usua'=>$row['nombre_usua'], 'apellido_usua'=>$row['apellido_usua'], 'codigo_igpd'=>$row['codigo_igpd'], 'cantidad_igpd'=>$row['cantidad_igpd'], 'estado_igpd'=>$row['estado_igpd'], 'observacion_ing'=>$row['observacion_ing']);
-                $array[$row['id_igpd'].'_igpd'] = $filas;
+            while ($fila = $resultado->fetch_array(MYSQLI_ASSOC)) {
+                $fila['numero_ing'] = strtoupper('I&E-SMS'.substr($fila['fecha_ing'],2,2).'-'.$this->addZerosGo($fila['numero_ing']));
+                $array[] = $fila;
             }
-            echo json_encode($array, JSON_UNESCAPED_UNICODE);
+            echo json_encode($array, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
         } else {
             echo json_encode('No hay registros', JSON_UNESCAPED_UNICODE);
         }

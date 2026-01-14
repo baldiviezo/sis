@@ -21,16 +21,27 @@ async function init() {
     if (!rqstArmed) {
         rqstArmed = true;
         preloader.classList.add('modal__show');
-        Promise.all([readArmeds(), readInventories(), readProducts(), readAllMarcas(), readAllCategorias(), readPrices()]).then(() => {
+        try {
+            await Promise.all([
+                readArmeds(), 
+                readInventories(), 
+                readProducts(),
+                readAllMarcas(),
+                readAllCategorias(),
+                readPrices()
+            ]);
+            paginacionArmed(filterArmeds.length, 1);
             rqstArmed = false;
             preloader.classList.remove('modal__show');
-        });
+        } catch (error) {
+            console.log(error);
+        }
     }
 }
 //--------------------------------------------TABLE ARMED------------------------------------
 //------read armed
-let armeds = {};
-let filterArmeds = {};
+let armeds = [];
+let filterArmeds = [];
 async function readArmeds() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
@@ -39,9 +50,9 @@ async function readArmeds() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            armeds = Object.values(data);
+            console.log(data)
+            armeds = data;
             filterArmeds = armeds;
-            paginacionArmed(filterArmeds.length, 1);
             resolve();
         }).catch(err => console.log(err));
     });
@@ -97,7 +108,7 @@ function searchArmeds() {
     paginacionArmed(Object.values(filterArmeds).length, 1);
 }
 //------Ordenar tabla descendente ascendente
-let orderCustomers = document.querySelectorAll('.tbody__head--customer');
+const orderCustomers = document.querySelectorAll('.tbody__head--customer');
 orderCustomers.forEach(div => {
     div.children[0].addEventListener('click', function () {
         let array = Object.entries(filterArmeds).sort((a, b) => {
