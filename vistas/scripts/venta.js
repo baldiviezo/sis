@@ -478,7 +478,6 @@ async function readNte_prods() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            console.log(data)
             products = data;
             filterProductsMW = products;
             resolve();
@@ -732,9 +731,125 @@ function openProductSMW() {
 closeProductSMW.addEventListener('click', () => {
     productSMW.classList.remove('modal__show');
 });
+//------------------------------------MOSTRAR LOS PRODUCTOS PREVIAMENTE--------------------------------------------
+const tbodyPreviewProd = document.getElementById('tbodyPreviewProd');
+function openPreviwProducts() {
+    let cart;
+
+    cart = document.querySelectorAll('#cartsVnt_prodMW .cart-item');
+    /*
+    if (fk_id_emp_clteR.value == '' && formProformas == 'R') {
+        mostrarAlerta('Selecciona una empresa');
+        return;
+    }
+    */
+    if (cart.length > 0) {
+        const productos = getProducts();
+        const total = calculateTotal(productos);
+        createTable(tbodyPreviewProd, productos);
+        updateTotales(total);
+        createButton(tbodyPreviewProd);
+        previewProducts.classList.add('modal__show');
+    } else {
+        mostrarAlerta('No a seleccionado ningun producto');
+    }
+}
+const titleEnterprise = document.getElementById('titleEnterprise');
+const titleCustomer = document.getElementById('titleCustomer');
+function getProducts() {
+    console.log(fk_id_emp_clteR.value)
+    const empresa = enterprises.find(enterprise => enterprise.id_emp == fk_id_emp_clteR.value);
+    const cliente = customers.find(customer => customer.id_clte == fk_id_clte_vntR.value);
+    titleEnterprise.innerText = `EMPRESA: ${empresa.nombre_emp}`;
+    titleCustomer.innerText = `CLIENTE: ${cliente.apellido_clte + ' ' + cliente.nombre_clte}`;
+    return document.querySelectorAll('#cartItem .cart-item');
+}
+function calculateTotal(productos) {
+    let total = 0;
+    productos.forEach(producto => {
+        total += Number(producto.querySelector('.cart-item__costTotal').value);
+    });
+    return total;
+}
+function createTable(tbody, productos) {
+    const fragment = document.createDocumentFragment();
+    productos.forEach((producto, index) => {
+        const row = products.find(product => product.id_prod == producto.getAttribute('id_prod'));
+        const tr = document.createElement('tr');
+        tr.setAttribute('id_prod', producto.getAttribute('id_prod'));
+        const tdIndex = document.createElement('td');
+        tdIndex.innerText = index + 1;
+        tr.appendChild(tdIndex);
+        const tdCodigo = document.createElement('td');
+        tdCodigo.innerText = row.codigo_prod;
+        tr.appendChild(tdCodigo);
+        const tdDescripcion = document.createElement('td');
+        tdDescripcion.innerText = row.descripcion_prod;
+        tr.appendChild(tdDescripcion);
+        const tdImagen = document.createElement('td');
+        const img = document.createElement('img');
+        img.classList.add('tbody__img');
+        img.setAttribute('src', `../modelos/imagenes/${row.imagen_prod}`);
+        tdImagen.appendChild(img);
+        tr.appendChild(tdImagen);
+        const tdCantidad = document.createElement('td');
+        tdCantidad.innerText = producto.querySelector('.cart-item__cantidad').value;
+        tr.appendChild(tdCantidad);
+        const tdPrecio = document.createElement('td');
+        tdPrecio.innerHTML = `${producto.querySelector('.cart-item__costUnit').value}`;
+        tr.appendChild(tdPrecio);
+        const tdTotal = document.createElement('td');
+        tdTotal.innerHTML = `${producto.querySelector('.cart-item__costTotal').value}`;
+        tr.appendChild(tdTotal);
+        const tdTiempoEntrega = document.createElement('td');
+        tdTiempoEntrega.innerText = producto.querySelector('.cart-item__tmpEntrega').value == 0 ? 'Inmediato' : `${producto.querySelector('.cart-item__tmpEntrega').value} dias`;
+        tr.appendChild(tdTiempoEntrega);
+        fragment.appendChild(tr);
+    });
+    tbody.innerHTML = '';
+    tbody.appendChild(fragment);
+}
+function updateTotales(total) {
+    const footerData = [
+        { value: `Sub-Total: ${total.toFixed(2)}` }
+    ];
+
+    footerData.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        const tdLabel = document.createElement('td');
+        tdLabel.setAttribute('colspan', '6');
+        const tdValue = document.createElement('td');
+        tdValue.setAttribute('colspan', '2');
+        tdValue.classList.add('footer__tbody');
+        tdValue.innerText = `${item.value}`;
+        tr.appendChild(tdLabel);
+        tr.appendChild(tdValue);
+        tbodyPreviewProd.appendChild(tr);
+    });
+}
+function createButton(tbody) {
+    const tr = document.createElement('tr');
+    const tdLabel = document.createElement('td');
+    const tdValue = document.createElement('td');
+    const button = document.createElement('button');
+    button.classList.add('button__sell--previw');
+
+        button.innerText = 'REGISTRAR';
+        button.setAttribute('onclick', 'createProforma();');
+
+    tdLabel.setAttribute('colspan', '7');
+    tdValue.appendChild(button);
+    tr.appendChild(tdLabel);
+    tr.appendChild(tdValue);
+    tbody.appendChild(tr);
+}
+//-----------------------------MODAL VISTA PREVIA DE LOS PRODUCTOS DE LA PROFORMA
+const previewProducts = document.getElementById('previewProducts');
+const closePreviewProducts = document.getElementById('closePreviewProducts');
+closePreviewProducts.addEventListener('click', () => {
+    previewProducts.classList.remove('modal__show');
+});
 //---------------------------------------------------------------CLIENTES----------------------------------------------
-const fk_id_clte_profR = document.getElementById('fk_id_clte_profR');
-const fk_id_clte_profM = document.getElementById('fk_id_clte_profM');
 let customers = [];
 let filterCustomers = [];
 let chosenCustomers = [];
