@@ -87,7 +87,7 @@ class Consultas{
 	//------Read vnt-prods
 	public function readVnt_prods(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM vnt_prod ORDER BY id_vtpd DESC";
+		$consulta = "SELECT vnt_prod.* , producto.nombre_prod, marca.nombre_mrc, categoria.nombre_ctgr FROM vnt_prod INNER JOIN producto ON vnt_prod.fk_id_prod_vtpd = producto.id_prod INNER JOIN marca ON producto.fk_id_mrc_prod = marca.id_mrc INNER JOIN categoria ON producto.fk_id_ctgr_prod = categoria.id_ctgr ORDER BY id_vtpd DESC";
 		$resultado = $conexion->query($consulta);
 		$numeroVntProd = $resultado->num_rows;
 		$vntProd =  array(); 

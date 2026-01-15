@@ -8,20 +8,20 @@ async function init() {
         preloader.classList.add('modal__show');
         try{
             await Promise.all([
+                readvnt_prods(),
                 readAllCategorias(),
                 readAllMarcas(),
                 readSales(),
                 readCustomers(),
                 readUsers(),
                 readEnterprises(),
-                readvnt_prods(),
                 readNte_prods()
             ]);
             paginationSales(sales.length, 1);
             paginacionTableClteMW(filterCustomers.length, 1);
-            paginacionProdVnt(vnt_prods.length, 1);
             paginacionEnterpriseMW(filterEnterprises.length, 1);
             paginacionProductMW(filterProductsMW.length, 1);
+            paginacionProdVnt(vnt_prods.length, 1);
             requestSale = false;
             preloader.classList.remove('modal__show');
         } catch (error) {
@@ -30,7 +30,7 @@ async function init() {
         }
     }
 }
-//----------------------------------------------------------FECHA----------------------------------------------------
+//-----------------------------------------------FECHA----------------------------------------------------
 const date = new Date();
 const dateFormat = new Intl.DateTimeFormat('es-ES', {
     timeZone: 'America/La_Paz',
@@ -45,7 +45,7 @@ const dateFormat = new Intl.DateTimeFormat('es-ES', {
 const formattedDate = dateFormat.format(date);
 const datePart = formattedDate.split(', ');
 const dateActual = datePart[0].split('/');
-//--------------------------------------------------------TABLE SALES--------------------------------------------
+//--------------------------------------------TABLE SALES--------------------------------------------
 let sales = [];
 let filterSales = [];
 async function readSales() {
@@ -134,7 +134,7 @@ function selectYearVnt() {
 }
 function selectchangeYear() {
     filterSales = filterSales.filter(buy => {
-        const estado = stateFactured.value === 'todas' ? true : buy.estado_factura_vnt === stateFactured.value;
+        const estado = stateFactured.value === 'todas' ? true : buy.estado_factura_vnt == stateFactured.value;
         const fecha = selectDateVnt.value === 'todas' ? true : buy.fecha_factura_vnt.split('-')[0] === selectDateVnt.value;
         const mes = selectMonthVnt.value === 'todas' ? true : buy.fecha_factura_vnt.split('-')[1] === selectMonthVnt.value;
         return estado && fecha && mes;
@@ -172,7 +172,14 @@ orderSales.forEach(div => {
     });
 })
 //------PaginationSales
+const totalVentas = document.getElementById('totalVentas');
 function paginationSales(allVentas, page) {
+    let total = 0;
+    filterSales.forEach(sale => {
+        total += sale.total_vnt;
+    });
+    totalVentas.innerHTML = `Total: ${total.toFixed(2)} Bs`;
+
     let numberVentas = Number(selectNumberVnt.value);
     let allPages = Math.ceil(allVentas / numberVentas);
     let ul = document.querySelector('#wrapperVenta ul');
@@ -206,15 +213,8 @@ function paginationSales(allVentas, page) {
     tableSales(page);
 }
 //------Crear la tabla
-const totalVentas = document.getElementById('totalVentas');
 const tbodyVenta = document.getElementById('tbodyVenta');
 function tableSales(page) {
-    let total = 0;
-    sales.forEach(sale => {
-        total += sale.total_vnt;
-    });
-    totalVentas.innerHTML = `Total: ${total.toFixed(2)} Bs`;
-    
     const inicio = (page - 1) * Number(selectNumberVnt.value);
     const final = inicio + Number(selectNumberVnt.value);
     const filas = filterSales.slice(inicio, final)
@@ -232,7 +232,7 @@ function tableSales(page) {
         tr.appendChild(tdNumero);
 
         const tdFactura = document.createElement('td');
-        tdFactura.innerText = venta.factura_vnt;
+        tdFactura.innerText = venta.estado_factura_vnt === 1 ? venta.factura_vnt : 'S/F';
         tr.appendChild(tdFactura);
 
         const tdFecha = document.createElement('td');
@@ -240,9 +240,28 @@ function tableSales(page) {
         tr.appendChild(tdFecha);
 
         const tdCliente = document.createElement('td');
-        tdCliente.innerText = (cliente.nombre_clte === '' && cliente.apellido_clte === '') ? empresa.nombre_emp : (cliente.nombre_clte + ' ' + cliente.apellido_clte);
+        tdCliente.innerText = empresa.id_emp === 77 ? `${cliente.apellido_clte} ${cliente.nombre_clte}` : empresa.nombre_emp;
         tr.appendChild(tdCliente);
 
+        const tdTotal = document.createElement('td');
+        tdTotal.innerText = `${parseFloat(venta.total_vnt).toFixed(2)} Bs`;
+        tr.appendChild(tdTotal);
+
+        const tdUsuario = document.createElement('td');
+        tdUsuario.innerText = `${usuario.apellido_usua} ${usuario.nombre_usua}`;
+        tr.appendChild(tdUsuario);
+
+        const tdCiudad = document.createElement('td');
+        tdCiudad.innerText = venta.ciudad_vnt;
+        tr.appendChild(tdCiudad);
+        
+        const tdMetodoPago = document.createElement('td');
+        tdMetodoPago.innerText = venta.tipo_pago_vnt === 'CR' ? `CREDITO` : `CONTADO`;
+        tr.appendChild(tdMetodoPago);
+
+        const tdObservaciones = document.createElement('td');
+        tdObservaciones.innerText = venta.observacion_vnt;
+        tr.appendChild(tdObservaciones);
 
         tbodyVenta.appendChild(tr);
     })
@@ -256,11 +275,12 @@ closeSaleRMW.addEventListener('click', () => {
     saleRMW.classList.remove('modal__show');
 });
 const fecha_factura_vnt = document.getElementById('fecha_factura_vnt');
+const factura_vnt = document.getElementById('factura_vnt');
 function openSaleRMW() {
     fecha_factura_vnt.value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
     saleRMW.classList.add('modal__show');
 }
-//-------------------------------------------------------CHANGE QUANTITY-------------------------------------------------
+//----------------------------------------------CHANGE QUANTITY-------------------------------------------------
 const tipo_pago_vnt = document.getElementById('tipo_pago_vnt');
 tipo_pago_vnt.addEventListener('change', () => {
     if (tipo_pago_vnt.value == 'CR') {
@@ -270,13 +290,15 @@ tipo_pago_vnt.addEventListener('change', () => {
     }
 });
 const estado_factura_vnt = document.getElementById('estado_factura_vnt');
+const div_fecha_factura_vnt = document.getElementById('div_fecha_factura_vnt');
+const div_factura_vnt = document.getElementById('div_factura_vnt');
 estado_factura_vnt.addEventListener('change', () => {
     if (estado_factura_vnt.value == '1') {
-        document.getElementById('fecha_factura_vnt').removeAttribute('hidden');
-        document.getElementById('factura_vnt').removeAttribute('hidden');
+        div_fecha_factura_vnt.removeAttribute('hidden');
+        div_factura_vnt.removeAttribute('hidden');
     } else {
-        document.getElementById('fecha_factura_vnt').setAttribute('hidden', '');
-        document.getElementById('factura_vnt').setAttribute('hidden', '');
+        div_fecha_factura_vnt.setAttribute('hidden', '');
+        div_factura_vnt.setAttribute('hidden', '');
     }
 });
 //---------------------------------MODAL DE VNT-PROD--------------------------------------------
@@ -691,7 +713,6 @@ function tableProductsMW(page) {
 }
 //------Agregar producto al carrito
 const cartsVnt_prodMW = document.querySelector('#cartsVnt_prodMW');
-
 function sendProduct(id_prod) {
     //Verificar si el producto ya está en el carrito
     const existingCard = cartsVnt_prodMW.querySelector(`.cart-item[id_nepd='${id_prod}']`);
@@ -734,15 +755,11 @@ closeProductSMW.addEventListener('click', () => {
 //------------------------------------MOSTRAR LOS PRODUCTOS PREVIAMENTE--------------------------------------------
 const tbodyPreviewProd = document.getElementById('tbodyPreviewProd');
 function openPreviwProducts() {
-    let cart;
-
-    cart = document.querySelectorAll('#cartsVnt_prodMW .cart-item');
-    /*
-    if (fk_id_emp_clteR.value == '' && formProformas == 'R') {
+    if (fk_id_emp_clteR.value == '') {
         mostrarAlerta('Selecciona una empresa');
         return;
     }
-    */
+    const cart = cartsVnt_prodMW.querySelectorAll('.cart-item');
     if (cart.length > 0) {
         const productos = getProducts();
         const total = calculateTotal(productos);
@@ -756,13 +773,23 @@ function openPreviwProducts() {
 }
 const titleEnterprise = document.getElementById('titleEnterprise');
 const titleCustomer = document.getElementById('titleCustomer');
+const facturaPreview = document.getElementById('facturaPreview');
+const fechaPreview = document.getElementById('fechaPreview');
 function getProducts() {
-    console.log(fk_id_emp_clteR.value)
     const empresa = enterprises.find(enterprise => enterprise.id_emp == fk_id_emp_clteR.value);
     const cliente = customers.find(customer => customer.id_clte == fk_id_clte_vntR.value);
     titleEnterprise.innerText = `EMPRESA: ${empresa.nombre_emp}`;
     titleCustomer.innerText = `CLIENTE: ${cliente.apellido_clte + ' ' + cliente.nombre_clte}`;
-    return document.querySelectorAll('#cartItem .cart-item');
+    if (estado_factura_vnt.value == '1') {
+        facturaPreview.innerText = `N° FACTURA: ${factura_vnt.value}`;
+        fechaPreview.innerText = `FECHA: ${fecha_factura_vnt.value}`;
+    } else {
+        facturaPreview.innerText = `N° FACTURA: SIN FACTURA`;
+        fechaPreview.innerText = ``;
+    }
+    
+
+    return cartsVnt_prodMW.querySelectorAll('.cart-item');
 }
 function calculateTotal(productos) {
     let total = 0;
@@ -774,36 +801,41 @@ function calculateTotal(productos) {
 function createTable(tbody, productos) {
     const fragment = document.createDocumentFragment();
     productos.forEach((producto, index) => {
-        const row = products.find(product => product.id_prod == producto.getAttribute('id_prod'));
+        const row = products.find(product => product.id_nepd == producto.getAttribute('id_nepd'));
         const tr = document.createElement('tr');
-        tr.setAttribute('id_prod', producto.getAttribute('id_prod'));
+
+        tr.setAttribute('id_nepd', producto.getAttribute('id_nepd'));
         const tdIndex = document.createElement('td');
         tdIndex.innerText = index + 1;
         tr.appendChild(tdIndex);
+
         const tdCodigo = document.createElement('td');
         tdCodigo.innerText = row.codigo_prod;
         tr.appendChild(tdCodigo);
+
         const tdDescripcion = document.createElement('td');
-        tdDescripcion.innerText = row.descripcion_prod;
+        tdDescripcion.innerText = row.nombre_prod;
         tr.appendChild(tdDescripcion);
+
         const tdImagen = document.createElement('td');
         const img = document.createElement('img');
         img.classList.add('tbody__img');
         img.setAttribute('src', `../modelos/imagenes/${row.imagen_prod}`);
         tdImagen.appendChild(img);
         tr.appendChild(tdImagen);
+
         const tdCantidad = document.createElement('td');
         tdCantidad.innerText = producto.querySelector('.cart-item__cantidad').value;
         tr.appendChild(tdCantidad);
+
         const tdPrecio = document.createElement('td');
         tdPrecio.innerHTML = `${producto.querySelector('.cart-item__costUnit').value}`;
         tr.appendChild(tdPrecio);
+
         const tdTotal = document.createElement('td');
         tdTotal.innerHTML = `${producto.querySelector('.cart-item__costTotal').value}`;
         tr.appendChild(tdTotal);
-        const tdTiempoEntrega = document.createElement('td');
-        tdTiempoEntrega.innerText = producto.querySelector('.cart-item__tmpEntrega').value == 0 ? 'Inmediato' : `${producto.querySelector('.cart-item__tmpEntrega').value} dias`;
-        tr.appendChild(tdTiempoEntrega);
+
         fragment.appendChild(tr);
     });
     tbody.innerHTML = '';
@@ -811,13 +843,12 @@ function createTable(tbody, productos) {
 }
 function updateTotales(total) {
     const footerData = [
-        { value: `Sub-Total: ${total.toFixed(2)}` }
+        { value: `Sub-Total: ${total.toFixed(2)} Bs` }
     ];
-
     footerData.forEach((item, index) => {
         const tr = document.createElement('tr');
         const tdLabel = document.createElement('td');
-        tdLabel.setAttribute('colspan', '6');
+        tdLabel.setAttribute('colspan', '5');
         const tdValue = document.createElement('td');
         tdValue.setAttribute('colspan', '2');
         tdValue.classList.add('footer__tbody');
@@ -834,10 +865,10 @@ function createButton(tbody) {
     const button = document.createElement('button');
     button.classList.add('button__sell--previw');
 
-        button.innerText = 'REGISTRAR';
-        button.setAttribute('onclick', 'createProforma();');
+    button.innerText = 'REGISTRAR FACTURA';
+    button.setAttribute('onclick', 'createProforma();');
 
-    tdLabel.setAttribute('colspan', '7');
+    tdLabel.setAttribute('colspan', '5');
     tdValue.appendChild(button);
     tr.appendChild(tdLabel);
     tr.appendChild(tdValue);
@@ -849,7 +880,7 @@ const closePreviewProducts = document.getElementById('closePreviewProducts');
 closePreviewProducts.addEventListener('click', () => {
     previewProducts.classList.remove('modal__show');
 });
-//---------------------------------------------------------------CLIENTES----------------------------------------------
+//------------------------------------------------------CLIENTES----------------------------------------------
 let customers = [];
 let filterCustomers = [];
 let chosenCustomers = [];
@@ -1276,14 +1307,24 @@ function tableEnterprisesMW(page) {
         }
     }
 }
-const fk_nombre_emp_profR = document.getElementById('fk_nombre_emp_profR');
+const fk_nombre_emp_vntR = document.getElementById('fk_nombre_emp_vntR');
 const fk_cliente_vntR = document.getElementById('fk_cliente_vntR');
 function sendEnterprise(id_emp) {
-    fk_id_emp_clteR.value = id_emp;
-    const empresa = filterEnterprises.find(enterprise => enterprise.id_emp == id_emp);
-    fk_nombre_emp_profR.value = empresa.nombre_emp;
-    fk_cliente_vntR.value = '';
     enterpriseSMW.classList.remove('modal__show');
+    const empresa = filterEnterprises.find(enterprise => enterprise.id_emp == id_emp);
+    const cliente = customers.find(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte === '' && customer.apellido_clte === '');
+    fk_id_emp_clteR.value = id_emp;
+    fk_nombre_emp_vntR.value = empresa.nombre_emp;
+
+    if (cliente) {
+        fk_id_clte_vntR.value = cliente.id_clte;
+        fk_cliente_vntR.value = `${cliente.apellido_clte} ${cliente.nombre_clte}`;
+    } else {
+        const clienteDefault = customers.find(customer => customer.fk_id_emp_clte === id_emp);
+        fk_id_clte_vntR.value = clienteDefault.id_clte;
+        fk_cliente_vntR.value = `${clienteDefault.apellido_clte} ${clienteDefault.nombre_clte}`;
+    }
+
     chosenCustomers = customers.filter(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte !== '' && customer.apellido_clte !== '');
     chosenCustomer = chosenCustomers;
     paginacionCustomerMW(chosenCustomer.length, 1);   
@@ -1548,48 +1589,12 @@ function openTableClteMW() {
 closetableClteMW.addEventListener('click', () => {
     tableClteMW.classList.remove('modal__show');
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /***********************************************PRODUCT FILTER VNT_PRODS*********************************************/
 //--------read vnt_prods
 let vnt_prods = [];
 let filterVnt_prods = [];
-function readvnt_prods() {
-    new Promise((resolve, reject) => {
+async function readvnt_prods() {
+    return new Promise((resolve, reject) => {
         const formData = new FormData();
         formData.append('readVnt_prods', '');
         fetch('../controladores/ventas.php', {
@@ -1658,15 +1663,15 @@ selectMonthVnPd.addEventListener('change', searchProdVnt);
 function selectchangeYearProd() {
     filterVnt_prods = filterVnt_prods.filter(buy => {
         const estado = stateFacturedProd.value === 'todas' ? true : buy.estado_factura_vnt === stateFacturedProd.value;
-        const fecha = selectDateVntProd.value === 'todas' ? true : buy.fecha_vnt.split('-')[0] === selectDateVntProd.value;
-        const mes = selectMonthVnPd.value === 'todas' ? true : buy.fecha_vnt.split('-')[1] === selectMonthVnPd.value;
+        const fecha = selectDateVntProd.value === 'todas' ? true : buy.fecha_factura_vnt.split('-')[0] === selectDateVntProd.value;
+        const mes = selectMonthVnPd.value === 'todas' ? true : buy.fecha_factura_vnt.split('-')[1] === selectMonthVnPd.value;
         return estado && fecha && mes;
     });
     paginacionProdVnt(filterVnt_prods.length, 1);
 }
 //------Ordenar tabla descendente ascendente
-const orderProforma = document.querySelectorAll('.tbody__head--proforma');
-orderProforma.forEach(div => {
+const orderVntProd = document.querySelectorAll('.tbody__head--vntProd');
+orderVntProd.forEach(div => {
     div.children[0].addEventListener('click', function () {
         filterVnt_prods.sort((a, b) => {
             let first = a[1][div.children[0].name];
@@ -1693,12 +1698,13 @@ orderProforma.forEach(div => {
     });
 });
 //------PaginacionProdVnt
-function paginacionProdVnt(allProducts, page) {
-    let totalProdVnt = document.getElementById('totalProdVnt');
+const totalProdVnt = document.getElementById('totalProdVnt');
+function paginacionProdVnt(allProducts, page) { 
     let total = 0;
+    /*
     for (let vnt_prods in filterVnt_prods) {
         total += filterVnt_prods[vnt_prods]['cantidad_vtpd'] * filterVnt_prods[vnt_prods]['cost_uni_vtpd'] * (100 - filterVnt_prods[vnt_prods]['descuento_prof']) / 100;
-    }
+    } */
     totalProdVnt.innerHTML = total.toFixed(2) + ' Bs';
     let numberProducts = Number(selectNumberProdVnt.value);
     let allPages = Math.ceil(allProducts / numberProducts);
@@ -1733,55 +1739,67 @@ function paginacionProdVnt(allProducts, page) {
     tableVntProds(page);
 }
 //--------Tabla de vnt_prods
+const tbodyProdVnt = document.getElementById('tbodyProdVnt');
 function tableVntProds(page) {
-    let tbody = document.getElementById('tbodyProdVnt');
+    console.log('entro')
     inicio = (page - 1) * Number(selectNumberProdVnt.value);
     final = inicio + Number(selectNumberProdVnt.value);
-    i = 1;
-    tbody.innerHTML = '';
-    for (let proforma in filterVnt_prods) {
-        if (i > inicio && i <= final) {
-            let tr = document.createElement('tr');
-            for (let valor in filterVnt_prods[proforma]) {
-                let td = document.createElement('td');
-                if (valor == 'id_vtpd') {
-                    td = document.createElement('td');
-                    td.innerText = i;
-                    tr.appendChild(td);
-                    i++;
-                } else if (valor == 'nombre_usua') {
-                    td.innerText = filterVnt_prods[proforma][valor] + ' ' + filterVnt_prods[proforma]['apellido_usua'];
-                    tr.appendChild(td);
-                } else if (valor == 'nombre_clte') {
-                    td.innerText = filterVnt_prods[proforma]['apellido_clte'] + ' ' + filterVnt_prods[proforma][valor];
-                    tr.appendChild(td);
-                } else if (valor == 'cost_uni_vtpd') {
-                    td.innerText = filterVnt_prods[proforma][valor].toFixed(2) + ' Bs';
-                    tr.appendChild(td);
-                    let td2 = document.createElement('td');
-                    let subTotal = filterVnt_prods[proforma]['cost_uni_vtpd'] * filterVnt_prods[proforma]['cantidad_vtpd'];
-                    td2.innerText = subTotal.toFixed(2) + ' Bs';
-                    tr.appendChild(td2);
+    const filas = filterVnt_prods.slice(inicio, final);
+    tbodyProdVnt.innerHTML = '';
+    filas.forEach((prodVnt, index) => {
+        const venta = sales.find(sale => sale.id_vnt === prodVnt.fk_id_vnt_vtpd);
+        const cliente = customers.find(cust => cust.id_clte === venta.fk_id_clte_vnt);
+        const empresa = enterprises.find(ent => ent.id_emp === cliente.fk_id_emp_clte);
 
-                } else if (valor == 'descuento_prof') {
-                    let desc = filterVnt_prods[proforma][valor] * filterVnt_prods[proforma]['cost_uni_vtpd'] * filterVnt_prods[proforma]['cantidad_vtpd'] / 100;
-                    td.innerText = desc.toFixed(2) + ' Bs' + ' (' + filterVnt_prods[proforma][valor] + '%)';
-                    tr.appendChild(td);
-                    let td2 = document.createElement('td');
-                    let total = filterVnt_prods[proforma]['cantidad_vtpd'] * filterVnt_prods[proforma]['cost_uni_vtpd'] * (100 - filterVnt_prods[proforma]['descuento_prof']) / 100;
-                    td2.innerText = total.toFixed(2) + ' Bs';
-                    tr.appendChild(td2);
-                } else if (valor == 'apellido_usua' || valor == 'apellido_clte' || valor == 'fk_id_prod_vtpd' || valor == 'imagen_prod' || valor == 'estado_ne' || valor == 'codigo_smc_prod' || valor == 'cost_uni_inv' || valor == 'estado_factura_vnt') {
-                } else {
-                    td.innerText = filterVnt_prods[proforma][valor];
-                    tr.appendChild(td);
-                }
-            }
-            tbody.appendChild(tr);
-        } else {
-            i++;
-        }
-    }
+        const tr = document.createElement('tr');
+        const tdIndex = document.createElement('td');
+        tdIndex.innerHTML = index + 1;
+        tr.appendChild(tdIndex);
+
+        const tdFactura = document.createElement('td');
+        tdFactura.innerHTML = venta.estado_factura_vnt === 1 ? venta.factura_vnt : 'S/F';
+        tr.appendChild(tdFactura);
+
+        const tdFecha = document.createElement('td');
+        tdFecha.innerHTML = venta.fecha_factura_vnt;
+        tr.appendChild(tdFecha);
+
+        const tdCliente = document.createElement('td');
+        tdCliente.innerHTML = empresa.id_emp === 77 ? `${cliente.nombre_clte} ${cliente.apellido_clte}` : empresa.nombre_emp;
+        tr.appendChild(tdCliente);
+
+        const tdMarca = document.createElement('td');
+        tdMarca.innerHTML = prodVnt.nombre_mrc;
+        tr.appendChild(tdMarca);
+
+        const tdCategoria = document.createElement('td');
+        tdCategoria.innerHTML = prodVnt.nombre_ctgr;
+        tr.appendChild(tdCategoria);
+
+        const tdCodigo = document.createElement('td');
+        tdCodigo.innerHTML = prodVnt.codigo_vtpd;
+        tr.appendChild(tdCodigo);
+
+        const tdDescripcion = document.createElement('td');
+        tdDescripcion.innerHTML = prodVnt.nombre_prod;
+        tr.appendChild(tdDescripcion);
+
+        const tdCantidad = document.createElement('td');
+        tdCantidad.innerHTML = prodVnt.cantidad_vtpd;
+        tr.appendChild(tdCantidad);
+
+        const tdCostUni = document.createElement('td');
+        tdCostUni.innerHTML = `${prodVnt.cost_uni_vtpd.toFixed(2)} Bs`;
+        tr.appendChild(tdCostUni);
+
+        const tdSubTotal = document.createElement('td');
+        tdSubTotal.innerHTML = `${(prodVnt.cantidad_vtpd * prodVnt.cost_uni_vtpd).toFixed(2)} Bs`;
+        tr.appendChild(tdSubTotal);
+
+    
+
+        tbodyProdVnt.appendChild(tr);
+    });
 }
 //---------------------------------VENTANA MODAL PARA FILTRAR PRODUCTOS COMPRADOS ------------------------------>>
 const openProdVnt = document.getElementById('openProdVnt');

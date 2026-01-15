@@ -28,7 +28,8 @@
 		<section class="table__header">
 			<h1 id="totalVentas">Total:</h1>
 			<div>
-				<img src="../imagenes/registrar.svg" onclick="openSaleRMW()" class="icon__CRUD" title="Registrar Factura">
+				<img src="../imagenes/registrar.svg" onclick="openVnt_prodMW()" class="icon__CRUD"
+					title="Registrar Factura">
 				<img src="../imagenes/inventario.svg" id="openProdVnt" title="Productos comprados">
 				<img src="../imagenes/user.svg" onclick="openTableClteMW()" class="icon__CRUD" title="Clientes">
 				<img src="../imagenes/excel.svg" id="excelVnt" title="Imprimir a excel">
@@ -55,7 +56,7 @@
 						<option value="11">Noviembre</option>
 						<option value="12">Diciembre</option>
 					</select>
-				</div>	
+				</div>
 				<div>
 					<label>Estado venta:</label>
 					<select id="stateFactured" class="select__number">
@@ -70,17 +71,11 @@
 					<h3>Filtrar por:</h3>
 					<select id="selectSearchVnt" class="select">
 						<option value="todas">Todo</option>
-						<option value="numero_prof">Proforma</option>
-						<option value="fecha_ne">Fecha de NE</option>
-						<option value="fecha_vnt">Fecha de venta</option>
 						<option value="fecha_factura_vnt">Fecha de factura</option>
-						<option value="nombre_emp">Empresa</option>
-						<option value="cliente_clte">Cliente</option>
 						<option value="factura_vnt">N° Factura</option>
 						<option value="ciudad_vnt">Ciudad</option>
 						<option value="tipo_pago_vnt">Metodo de pago</option>
 						<option value="encargado">Encargado</option>
-						<option value="orden_ne">Orden compra</option>
 					</select>
 				</div>
 				<div class="table__search">
@@ -114,47 +109,187 @@
 				<thead>
 					<tr>
 						<th>N°</th>
-						<th><div class="tbody__head--venta">N° Factura<img src="../imagenes/sortA_Z.svg" name="factura_vnt" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="factura_vnt" class="icon__CRUD"></div></th>
 						<th>
-							<div class="tbody__head--venta">Fecha<img src="../imagenes/sortA_Z.svg"
-									name="fecha_factura_vnt" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-									name="fecha_factura_vnt" class="icon__CRUD"></div>
+							<div class="tbody__head--venta">N° Factura<img src="../imagenes/sortA_Z.svg"
+									name="factura_vnt" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+									name="factura_vnt" class="icon__CRUD"></div>
 						</th>
-						<th>Cliente</th>
-						<th>
-							<div class="tbody__head--venta">Fecha NE<img src="../imagenes/sortA_Z.svg" name="fecha_ne"
-									class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="fecha_ne"
-									class="icon__CRUD"></div>
-						</th>
-						<th>
-							<div class="tbody__head--venta">Fecha Venta <img src="../imagenes/sortA_Z.svg"
-									name="fecha_vnt" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
-									name="fecha_vnt" class="icon__CRUD"></div>
-						</th>
-						<th>Orden compra</th>
-						<th>Total</th>
-						<th>Encargado</th>
-						<th>Ciudad</th>
-						<th>Metodo pago</th>
 						<th>
 							<div class="tbody__head--venta">Fecha factura<img src="../imagenes/sortA_Z.svg"
 									name="fecha_factura_vnt" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
 									name="fecha_factura_vnt" class="icon__CRUD"></div>
 						</th>
-						<th>
-							<div class="tbody__head--venta">Factura<img src="../imagenes/sortA_Z.svg" name="factura_vnt"
-									class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="factura_vnt"
-									class="icon__CRUD"></div>
-						</th>
+						<th>Cliente</th>
+						<th>Total</th>
+						<th>Encargado</th>
+						<th>Ciudad</th>
+						<th>Metodo pago</th>
 						<th>Observaciones</th>
-
-						<!--<th>Acciones</th>-->
 					</tr>
 				</thead>
 				<tbody id="tbodyVenta"></tbody>
 			</table>
 		</section>
 	</main>
+	<!--Modal of product of a proforma-->
+	<section id="vnt_prodMW" class="modal">
+		<div class="modalPdpf__container">
+			<div class="modalPdpf__header">
+				<div>
+					<img src="../imagenes/producto.svg" onclick="openProductSMW()" class="icon__CRUD"
+						title="Buscar producto">
+				</div>
+				<h2 class="modal__title">Productos</h2>
+				<img src="../imagenes/salir.svg" id="closeVnt_prodMW" class="button__close">
+			</div>
+			<div class="modalPdpf__body">
+				<table>
+					<thead>
+						<tr>
+							<td>Img.</td>
+							<td>Codigo</td>
+							<td>Cant.</td>
+							<td>Cost Uni.</td>
+							<td>Sub total</td>
+							<td>Desc.</td>
+							<td>Cost Total</td>
+							<td>Elim.</td>
+						</tr>
+					</thead>
+				</table>
+			</div>
+			<div class="container--modal__body">
+				<div id="cartsVnt_prodMW" class="modal__body--pfpd"></div>
+			</div>
+			<div class="foot">
+				<div class="foot__left table__subTitle">
+					<p id="total_vtpd">Total (Bs):</p>
+				</div>
+				<div class="foot__right">
+					<div class="cart">
+						<img src="../imagenes/carrito.svg">
+						<p id="count_pfpd">0</p>
+					</div>
+					<button class="button--sell" id="button__vnt_prodMW" onclick="openSaleRMW()">Registrar
+						factura</button>
+				</div>
+			</div>
+
+		</div>
+	</section>
+	<!--Registar venta-->
+	<section id="saleRMW" class="modalProf">
+		<div class="modalProf__container">
+			<div class="modal__header">
+				<h2 class="modal__title">Registrar Factura</h2>
+				<img src="../imagenes/salir.svg" id="closeSaleRMW" class="button__close" title="Minimizar">
+			</div>
+			<div class="form">
+				<form id="formSaleR">
+					<div class="form__container">
+						<input type="text" name="fk_id_emp_clteR" id="fk_id_emp_clteR" class="form__input" hidden>
+						<input type="text" name="fk_id_clte_vntR" id="fk_id_clte_vntR" class="form__input" hidden>
+						<div class="form__group--img">
+							<div class="form__group">
+								<input type="text" name="fk_nombre_emp_vntR" id="fk_nombre_emp_vntR" class="form__input"
+									readonly>
+								<label for="fk_nombre_emp_vntR" class="form__label">Empresa:</label>
+							</div>
+							<img src="../imagenes/search.svg" onclick="openEnterpriseSMW()" class="icon__CRUD"
+								title="Buscar empresa">
+						</div>
+						<div class="form__group--img">
+							<div class="form__group">
+								<input type="text" name="fk_cliente_vntR" id="fk_cliente_vntR" class="form__input"
+									readonly>
+								<label for="fk_cliente_vntR" class="form__label">Cliente:</label>
+							</div>
+							<img src="../imagenes/search.svg" onclick="openCustomersSMW('R')" class="icon__CRUD"
+								title="Buscar cliente">
+						</div>
+						<label class="form__label--only">Factura:</label>
+						<select name="estado_factura_vnt" id="estado_factura_vnt" class="form__Select">
+							<option value="1">Con factura</option>
+							<option value="0">Sin factura</option>
+						</select>
+						<div class="form__group" id="div_factura_vnt">
+							<input type="number" name="factura_vnt" id="factura_vnt" placeholder=" "
+								class="form__input">
+							<label for="factura_vnt" class="form__label">Numero de factura:</label>
+						</div>
+						<div class="form__group" id="div_fecha_factura_vnt">
+							<input type="date" name="fecha_factura_vnt" id="fecha_factura_vnt" placeholder=" "
+								class="form__input">
+							<label for="fecha_factura_vnt" class="form__label">Fecha de factura:</label>
+						</div>
+						<label class="form__label--only">Venta realizada por:</label>
+						<select name="fk_id_usua_vnt" id="fk_id_usua_vnt" class="form__Select"></select>
+						<label class="form__label--only">Ciuda de venta:</label>
+						<select name="ciudad_vnt" class="form__Select">
+							<option value="La Paz">La Paz</option>
+							<option value="Oruro">Oruro</option>
+							<option value="Potosi">Potosi</option>
+							<option value="Cochabamba">Cochabamba</option>
+							<option value="Santa Cruz">Santa Cruz</option>
+							<option value="Beni">Beni</option>
+							<option value="Pando">Pando</option>
+							<option value="Tarija">Tarija</option>
+							<option value="Chuquisaca">Chuquisaca</option>
+						</select>
+						<label class="form__label--only">Tipo de Pago:</label>
+						<select name="tipo_pago_vnt" id="tipo_pago_vnt" class="form__Select">
+							<option value="QR">QR</option>
+							<option value="EF">EFECTIVO</option>
+							<option value="TR">TRANSFERENCIA</option>
+							<option value="CR">CREDITO</option>
+							<option value="DE">DEPOSITO</option>
+						</select>
+						<div class="form__group" id="tiempo_credito_vnt" hidden>
+							<input type="number" name="tiempo_credito_vnt" placeholder=" " class="form__input">
+							<label for="tiempo_credito_vnt" class="form__label">Tiempo del credito en dias:</label>
+						</div>
+						<div class="form__group">
+							<input type="text" name="observacion_vnt" placeholder=" " class="form__input">
+							<label for="observacion_vnt" class="form__label">observacion:</label>
+						</div>
+					</div>
+				</form>
+				<button class="form__submit" onclick="openPreviwProducts()">Productos</button>
+			</div>
+		</div>
+	</section>
+	<!--Vista previa de los productos de la proforma-->
+	<section id="previewProducts" class="modalTable">
+		<div class="container--previewProducts">
+			<div class="table">
+				<div class="table__title--Preview">
+					<div>
+						<h1 id="titleEnterprise"></h1>
+						<h1 id="titleCustomer"></h1>
+						<h1 id="facturaPreview"></h1>
+						<h1 id="fechaPreview"></h1>
+					</div>
+					<img src="../imagenes/salir.svg" id="closePreviewProducts" class="button__close" title="Minimizar">
+				</div>
+				<section class="table__body">
+					<table>
+						<thead>
+							<tr>
+								<th>N°</th>
+								<th>Codigo</th>
+								<th>Descripcion</th>
+								<th>Imagen</th>
+								<th>Cantidad</th>
+								<th>Costo U.</th>
+								<th>Costo T.</th>
+							</tr>
+						</thead>
+						<tbody id="tbodyPreviewProd"></tbody>
+					</table>
+				</section>
+			</div>
+		</div>
+	</section>
 	<!--Tabla Modal Customer-->
 	<section id="tableClteMW" class="modalTable">
 		<div class="modalTable__container">
@@ -217,162 +352,6 @@
 							</tr>
 						</thead>
 						<tbody id="tbodyClteMW"></tbody>
-					</table>
-				</section>
-			</div>
-		</div>
-	</section>
-	<!--Registar venta-->
-	<section id="saleRMW" class="modalProf">
-		<div class="modalProf__container">
-			<div class="modal__header">
-				<h2 class="modal__title">Registrar Factura</h2>
-				<img src="../imagenes/salir.svg" id="closeSaleRMW" class="button__close" title="Minimizar">
-			</div>
-			<div class="form">
-				<form id="formSaleR">
-					<div class="form__container">
-						<input type="text" name="fk_id_emp_clteR" id="fk_id_emp_clteR" class="form__input" hidden>
-						<input type="text" name="fk_id_clte_vntR" id="fk_id_clte_vntR" class="form__input" hidden>
-						<div class="form__group--img">
-							<div class="form__group">
-								<input type="text" name="fk_nombre_emp_profR" id="fk_nombre_emp_profR"
-									class="form__input" readonly>
-								<label for="fk_nombre_emp_profR" class="form__label">Empresa:</label>
-							</div>
-							<img src="../imagenes/search.svg" onclick="openEnterpriseSMW()" class="icon__CRUD"
-								title="Buscar empresa">
-						</div>
-						<div class="form__group--img">
-							<div class="form__group">
-								<input type="text" name="fk_cliente_vntR" id="fk_cliente_vntR" class="form__input"
-									readonly>
-								<label for="fk_cliente_vntR" class="form__label">Cliente:</label>
-							</div>
-							<img src="../imagenes/search.svg" onclick="openCustomersSMW('R')" class="icon__CRUD"
-								title="Buscar cliente">
-						</div>
-						<label class="form__label--only">Venta realizada por:</label>
-                    	<select name="fk_id_usua_vnt" id="fk_id_usua_vnt" class="form__Select"></select>
-                    <label class="form__label--only">Ciuda de venta:</label>
-                    <select name="ciudad_vnt" class="form__Select">
-                        <option value="La Paz">La Paz</option>
-                        <option value="Oruro">Oruro</option>
-                        <option value="Potosi">Potosi</option>
-                        <option value="Cochabamba">Cochabamba</option>
-                        <option value="Santa Cruz">Santa Cruz</option>
-                        <option value="Beni">Beni</option>
-                        <option value="Pando">Pando</option>
-                        <option value="Tarija">Tarija</option>
-                        <option value="Chuquisaca">Chuquisaca</option>
-                    </select>
-                    <label class="form__label--only">Tipo de Pago:</label>
-                    <select name="tipo_pago_vnt" id="tipo_pago_vnt" class="form__Select">
-                        <option value="QR">QR</option>
-                        <option value="EF">EFECTIVO</option>
-                        <option value="TR">TRANSFERENCIA</option>
-                        <option value="CR">CREDITO</option>
-                        <option value="DE">DEPOSITO</option>
-                    </select>
-                    <div class="form__group" id="tiempo_credito_vnt" hidden>
-                        <input type="number" name="tiempo_credito_vnt" placeholder=" " class="form__input">
-                        <label for="tiempo_credito_vnt" class="form__label">Tiempo del credito en dias:</label>
-                    </div>
-                    <label class="form__label--only">Factura:</label>
-                    <select name="estado_factura_vnt" id="estado_factura_vnt" class="form__Select">
-                        <option value="1">Con factura</option>
-                        <option value="0">Sin factura</option>
-                    </select>
-                    <div class="form__group" id="fecha_factura_vnt">
-                        <input type="date" name="fecha_factura_vnt" placeholder=" " class="form__input">
-                        <label for="fecha_factura_vnt" class="form__label">Fecha de factura:</label>
-                    </div>
-                    <div class="form__group" id="factura_vnt">
-                        <input type="number" name="factura_vnt" placeholder=" " class="form__input">
-                        <label for="factura_vnt" class="form__label">Numero de factura:</label>
-                    </div>
-                    <div class="form__group">
-                        <input type="text" name="observacion_vnt" placeholder=" " class="form__input">
-                        <label for="observacion_vnt" class="form__label">observacion:</label>
-                    </div>
-					</div>
-				</form>
-				<button class="form__submit" onclick="openVnt_prodMW()">Productos</button>
-			</div>
-		</div>
-	</section>
-	<!--Modal of product of a proforma-->
-	<section id="vnt_prodMW" class="modal">
-		<div class="modalPdpf__container">
-			<div class="modalPdpf__header">
-				<div>
-					<img src="../imagenes/producto.svg" onclick="openProductSMW()" class="icon__CRUD"
-						title="Buscar producto">
-				</div>
-				<h2 class="modal__title">Productos</h2>
-				<img src="../imagenes/salir.svg" id="closeVnt_prodMW" class="button__close">
-			</div>
-			<div class="modalPdpf__body">
-				<table>
-					<thead>
-						<tr>
-							<td>Img.</td>
-							<td>Codigo</td>
-							<td>Cant.</td>
-							<td>Cost Uni.</td>
-							<td>Sub total</td>
-							<td>Desc.</td>
-							<td>Cost Total</td>
-							<td>Elim.</td>
-						</tr>
-					</thead>
-				</table>
-			</div>
-			<div class="container--modal__body">
-				<div id="cartsVnt_prodMW" class="modal__body--pfpd"></div>
-			</div>
-			<div class="foot">
-				<div class="foot__left table__subTitle">
-					<p id="total_vtpd">Total (Bs):</p>
-				</div>
-				<div class="foot__right">
-					<div class="cart">
-						<img src="../imagenes/carrito.svg">
-						<p id="count_pfpd">0</p>
-					</div>
-					<button class="button--sell" id="button__vnt_prodMW"
-						onclick="openPreviwProducts()">Registrar factura</button>
-				</div>
-			</div>
-
-		</div>
-	</section>
-	<!--Vista previa de los productos de la proforma-->
-	<section id="previewProducts" class="modalTable">
-		<div class="container--previewProducts">
-			<div class="table">
-				<div class="table__title--Preview">
-					<div>
-						<h1 id="titleEnterprise"></h1>
-						<h1 id="titleCustomer"></h1>
-					</div>
-					<img src="../imagenes/salir.svg" id="closePreviewProducts" class="button__close" title="Minimizar">
-				</div>
-				<section class="table__body">
-					<table>
-						<thead>
-							<tr>
-								<th>N°</th>
-								<th>Codigo</th>
-								<th>Descripcion</th>
-								<th>Imagen</th>
-								<th>Cantidad</th>
-								<th>Costo U.</th>
-								<th>Costo T.</th>
-								<th>Tiempo de entrega</th>
-							</tr>
-						</thead>
-						<tbody id="tbodyPreviewProd"></tbody>
 					</table>
 				</section>
 			</div>
@@ -513,7 +492,7 @@
 								<option value="11">Noviembre</option>
 								<option value="12">Diciembre</option>
 							</select>
-						</div>	
+						</div>
 						<div>
 							<label>Estado venta:</label>
 							<select id="stateFacturedProd" class="select__number">
@@ -528,16 +507,11 @@
 							<h3>Filtrar por:</h3>
 							<select id="selectSearchProdVnt" class="select">
 								<option value="todas">Todo</option>
-								<option value="numero_prof">N° Proforma</option>
-								<option value="fecha_ne">Fecha Nota entrega</option>
-								<option value="fecha_vnt">Fecha de facturacion</option>
-								<option value="encargado">Encargado</option>
-								<option value="nombre_emp">Empresa</option>
-								<option value="cliente">Cliente</option>
+								<option value="factura_vnt">N° Factura</option>
 								<option value="codigo_vtpd">Codigo producto</option>
 								<option value="nombre_prod">Descripción</option>
 								<option value="cantidad_vtpd">Cantidad producto</option>
-								<option value="factura_vnt">N° Factura</option>
+								<option value="encargado">Encargado</option>
 							</select>
 						</div>
 						<div class="table__search">
@@ -570,17 +544,22 @@
 						<thead>
 							<tr>
 								<th>N°</th>
-								<th>Proforma</th>
-								<th>Fecha NE</th>
-								<th>Fecha factura</th>
-								<th>Encargado</th>
-								<th>Empresa</th>
+								<th>
+									<div class="tbody__head--vntProd">N° Factura<img src="../imagenes/sortA_Z.svg"
+											name="factura_vnt" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
+											name="factura_vnt" class="icon__CRUD"></div>
+								</th>
+								<th>
+									<div class="tbody__head--vntProd">Fecha factura<img src="../imagenes/sortA_Z.svg"
+											name="fecha_factura_vnt" class="icon__CRUD"><img
+											src="../imagenes/sortZ_A.svg" name="fecha_factura_vnt" class="icon__CRUD">
+									</div>
+								</th>
 								<th>Cliente</th>
 								<th>Marca</th>
 								<th>Categoria</th>
 								<th>Codigo</th>
 								<th>Descripcion</th>
-								<th>N° Factura</th>
 								<th>cantidad</th>
 								<th>Cost uni.</th>
 								<th>Subtotal</th>
@@ -704,7 +683,8 @@
 				</div>
 				<section class="table__header">
 					<div>
-						<img src="../imagenes/registrar.svg" onclick="openCustomersRMW()" class="icon__CRUD" title="Registrar cliente">
+						<img src="../imagenes/registrar.svg" onclick="openCustomersRMW()" class="icon__CRUD"
+							title="Registrar cliente">
 					</div>
 					<div class="combo__search">
 						<div class="filter__search">

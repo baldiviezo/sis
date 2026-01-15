@@ -6,11 +6,12 @@
 --Exportar Excel                --LISTO
 
 **FACTURACION**
---TABLA FACTURACION
---REGISTRAR FACTURA
+--TABLA FACTURACION             --LISTO
+--TABLA VNT PRODUCTOS           --
+--REGISTRAR FACTURA             
 --TABLA PRODUCTOS               --LISTO
 --ENVIAR PRODUCTOS              --LISTO
---VISTA PREVIS DE FACTURA       --    
+--VISTA PREVIS DE FACTURA       --LISTO
 
 
 
