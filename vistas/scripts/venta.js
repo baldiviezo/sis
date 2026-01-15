@@ -6,7 +6,7 @@ async function init() {
     if (requestSale == false) {
         requestSale = true;
         preloader.classList.add('modal__show');
-        try{
+        try {
             await Promise.all([
                 readvnt_prods(),
                 readAllCategorias(),
@@ -254,7 +254,7 @@ function tableSales(page) {
         const tdCiudad = document.createElement('td');
         tdCiudad.innerText = venta.ciudad_vnt;
         tr.appendChild(tdCiudad);
-        
+
         const tdMetodoPago = document.createElement('td');
         tdMetodoPago.innerText = venta.tipo_pago_vnt === 'CR' ? `CREDITO` : `CONTADO`;
         tr.appendChild(tdMetodoPago);
@@ -452,13 +452,13 @@ function cartProduct(id_nepd, contenedor, total) {
 
         const descInput = document.createElement('input');
         descInput.type = 'number';
-        descInput.value = parseFloat(product.cantidad_nepd*product.cost_uni_nepd*(product.descuento_oc/100)).toFixed(2);
+        descInput.value = parseFloat(product.cantidad_nepd * product.cost_uni_nepd * (product.descuento_oc / 100)).toFixed(2);
         descInput.classList.add('cart-item__costUnit');
         card.appendChild(descInput);
 
         const costTotalInput = document.createElement('input');
         costTotalInput.type = 'number';
-        costTotalInput.value = parseFloat(product.cantidad_nepd*product.cost_uni_nepd - (product.cantidad_nepd*product.cost_uni_nepd*(product.descuento_oc/100))).toFixed(2);
+        costTotalInput.value = parseFloat(product.cantidad_nepd * product.cost_uni_nepd - (product.cantidad_nepd * product.cost_uni_nepd * (product.descuento_oc / 100))).toFixed(2);
         costTotalInput.classList.add('cart-item__costTotal');
         costTotalInput.readOnly = true;
         card.appendChild(costTotalInput);
@@ -679,15 +679,15 @@ function tableProductsMW(page) {
         tr.appendChild(tdCostoUnit);
 
         const tdSubTotal = document.createElement('td');
-        tdSubTotal.innerText = `${parseFloat(product.cantidad_nepd*product.cost_uni_nepd).toFixed(2)} ${product.moneda_oc}`;
+        tdSubTotal.innerText = `${parseFloat(product.cantidad_nepd * product.cost_uni_nepd).toFixed(2)} ${product.moneda_oc}`;
         tr.appendChild(tdSubTotal);
 
         const tdDescuento = document.createElement('td');
-        tdDescuento.innerText = `${parseFloat(product.cantidad_nepd*product.cost_uni_nepd*(product.descuento_oc/100)).toFixed(2)} ${product.moneda_oc} (${product.descuento_oc}%)`;
+        tdDescuento.innerText = `${parseFloat(product.cantidad_nepd * product.cost_uni_nepd * (product.descuento_oc / 100)).toFixed(2)} ${product.moneda_oc} (${product.descuento_oc}%)`;
         tr.appendChild(tdDescuento);
 
         const tdCostoTotal = document.createElement('td');
-        tdCostoTotal.innerText = `${parseFloat(product.cantidad_nepd*product.cost_uni_nepd - (product.cantidad_nepd*product.cost_uni_nepd*(product.descuento_oc/100))).toFixed(2)} ${product.moneda_oc}`;
+        tdCostoTotal.innerText = `${parseFloat(product.cantidad_nepd * product.cost_uni_nepd - (product.cantidad_nepd * product.cost_uni_nepd * (product.descuento_oc / 100))).toFixed(2)} ${product.moneda_oc}`;
         tr.appendChild(tdCostoTotal);
 
         const tdAcciones = document.createElement('td');
@@ -787,7 +787,7 @@ function getProducts() {
         facturaPreview.innerText = `N° FACTURA: SIN FACTURA`;
         fechaPreview.innerText = ``;
     }
-    
+
 
     return cartsVnt_prodMW.querySelectorAll('.cart-item');
 }
@@ -866,7 +866,7 @@ function createButton(tbody) {
     button.classList.add('button__sell--previw');
 
     button.innerText = 'REGISTRAR FACTURA';
-    button.setAttribute('onclick', 'createProforma();');
+    button.setAttribute('onclick', 'createSale();');
 
     tdLabel.setAttribute('colspan', '5');
     tdValue.appendChild(button);
@@ -880,7 +880,47 @@ const closePreviewProducts = document.getElementById('closePreviewProducts');
 closePreviewProducts.addEventListener('click', () => {
     previewProducts.classList.remove('modal__show');
 });
-//------------------------------------------------------CLIENTES----------------------------------------------
+//---------------------------------------CRUD SALES-------------------------------------------------------
+//------Create sale
+function createSale(){
+    if (confirm('¿Esta usted seguro?')) {
+        if (rqstNotaEntrega == false) {
+            rqstNotaEntrega = true;
+            const formsaleR = document.getElementById('formsaleR');
+            let formData = new FormData(formsaleR);
+            formData.append('createSale', '');
+            formData.append('prodCart', JSON.stringify(prodCart));
+            preloader.classList.add('modal__show');
+            fetch('../controladores/ventas.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                if (data == 'La factura ya existe') {
+                    rqstNotaEntrega = false;
+                    preloader.classList.remove('modal__show');
+                    vnt_prodRMW.classList.remove('modal__show');
+                    mostrarAlerta(data);
+                } else {
+                    readNotasEntrega().then(() => {
+                        formsaleR.reset();
+                        tiempo_credito_vnt.setAttribute('hidden', '');
+                        fecha_factura_vnt.removeAttribute('hidden');
+                        factura_vnt.removeAttribute('hidden');
+                        vnt_prodRMW.classList.remove('modal__show');
+                        saleRMW.classList.remove('modal__show');
+                        rqstNotaEntrega = false;
+                        preloader.classList.remove('modal__show');
+                        mostrarAlerta(data);
+                    });
+                }
+            }).catch(err => {
+                rqstNotaEntrega = false;
+                mostrarAlerta(err);
+            });
+        }
+    }
+}
+//---------------------------------------------------CLIENTES----------------------------------------------
 let customers = [];
 let filterCustomers = [];
 let chosenCustomers = [];
@@ -1327,7 +1367,7 @@ function sendEnterprise(id_emp) {
 
     chosenCustomers = customers.filter(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte !== '' && customer.apellido_clte !== '');
     chosenCustomer = chosenCustomers;
-    paginacionCustomerMW(chosenCustomer.length, 1);   
+    paginacionCustomerMW(chosenCustomer.length, 1);
 }
 //----------------------------------ventana modal EnterpriseSMW-------------------------------------------
 const enterpriseSMW = document.getElementById('enterpriseSMW');
@@ -1335,7 +1375,6 @@ const enterpriseSMW = document.getElementById('enterpriseSMW');
 const closeEnterpriseSMW = document.getElementById('closeEnterpriseSMW');
 function openEnterpriseSMW() {
     enterpriseSMW.classList.add('modal__show');
-    //Al mostrar la tabla de cliente que el puntero se encuentre en el input de busqueda
     inputSearchEmpMW.focus();
 }
 closeEnterpriseSMW.addEventListener('click', () => {
@@ -1624,30 +1663,28 @@ selectNumberProdVnt.addEventListener('change', function () {
 function searchProdVnt() {
     const valor = selectSearchProdVnt.value;
     const busqueda = inputSearchProdVnt.value.toLowerCase().trim();
-    filterVnt_prods = vnt_prods.filter(proforma => {
+    filterVnt_prods = vnt_prods.filter(vnt_prod => {
         if (valor === 'todas') {
+            const venta = sales.find(sale => sale.id_vnt === vnt_prod.fk_id_vnt_vtpd);
+            const cliente = customers.find(customer => customer.id_clte === venta.fk_id_clte_vnt);
+            const empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
             return (
-                proforma.numero_prof.toString().toLowerCase().includes(busqueda) ||
-                (proforma.nombre_usua + ' ' + proforma.apellido_usua).toLowerCase().includes(busqueda) ||
-                (proforma.apellido_clte + ' ' + proforma.nombre_clte).toLowerCase().includes(busqueda) ||
-                proforma.nombre_emp.toLowerCase().includes(busqueda) ||
-                proforma.nombre_mrc.toLowerCase().includes(busqueda) ||
-                proforma.nombre_ctgr.toLowerCase().includes(busqueda) ||
-                proforma.codigo_vtpd.toLowerCase().includes(busqueda) ||
-                proforma.nombre_prod.toLowerCase().includes(busqueda) ||
-                proforma.factura_vnt.toLowerCase().includes(busqueda) ||
-                proforma.cantidad_vtpd.toString().toLowerCase().includes(busqueda) ||
-                proforma.cost_uni_vtpd.toString().toLowerCase().includes(busqueda) ||
-                proforma.descuento_prof.toString().toLowerCase().includes(busqueda) ||
-                proforma.fecha_ne.toLowerCase().includes(busqueda) ||
-                proforma.fecha_vnt.toLowerCase().includes(busqueda)
+                empresa.nombre_emp.toLowerCase().includes(busqueda) ||
+                (cliente.nombre_clte + ' ' + cliente.apellido_clte).toLowerCase().includes(busqueda) ||
+                vnt_prod.codigo_vtpd.toLowerCase().includes(busqueda) ||
+                vnt_prod.nombre_prod.toLowerCase().includes(busqueda) ||
+                venta.factura_vnt.toString().toLowerCase().includes(busqueda) ||
+                venta.fecha_factura_vnt.toLowerCase().includes(busqueda)
             );
         } else if (valor === 'encargado') {
-            return (proforma.nombre_usua + ' ' + proforma.apellido_usua).toLowerCase().includes(busqueda);
+            return (vnt_prod.nombre_usua + ' ' + vnt_prod.apellido_usua).toLowerCase().includes(busqueda);
         } else if (valor === 'cliente') {
-            return (proforma.apellido_clte + ' ' + proforma.nombre_clte).toLowerCase().includes(busqueda);
+            return (vnt_prod.apellido_clte + ' ' + vnt_prod.nombre_clte).toLowerCase().includes(busqueda);
+        } else if (valor === 'factura_vnt') {
+            const venta = sales.find(sale => sale.id_vnt === vnt_prod.fk_id_vnt_vtpd);
+            return venta.factura_vnt.toString().toLowerCase().includes(busqueda);
         } else {
-            return proforma[valor].toString().toLowerCase().includes(busqueda);
+            return vnt_prod[valor].toString().toLowerCase().includes(busqueda);
         }
     });
     selectchangeYearProd();
@@ -1661,51 +1698,61 @@ const selectMonthVnPd = document.getElementById('selectMonthVnPd');
 selectMonthVnPd.addEventListener('change', searchProdVnt);
 
 function selectchangeYearProd() {
-    filterVnt_prods = filterVnt_prods.filter(buy => {
-        const estado = stateFacturedProd.value === 'todas' ? true : buy.estado_factura_vnt === stateFacturedProd.value;
-        const fecha = selectDateVntProd.value === 'todas' ? true : buy.fecha_factura_vnt.split('-')[0] === selectDateVntProd.value;
-        const mes = selectMonthVnPd.value === 'todas' ? true : buy.fecha_factura_vnt.split('-')[1] === selectMonthVnPd.value;
+    filterVnt_prods = filterVnt_prods.filter(vnt_prod => {
+        const venta = sales.find(sale => sale.id_vnt === vnt_prod.fk_id_vnt_vtpd);
+        const estado = stateFacturedProd.value === 'todas' ? true : venta.estado_factura_vnt == stateFacturedProd.value;
+        const fecha = selectDateVntProd.value === 'todas' ? true : venta.fecha_factura_vnt.split('-')[0] === selectDateVntProd.value;
+        const mes = selectMonthVnPd.value === 'todas' ? true : venta.fecha_factura_vnt.split('-')[1] === selectMonthVnPd.value;
         return estado && fecha && mes;
     });
     paginacionProdVnt(filterVnt_prods.length, 1);
 }
 //------Ordenar tabla descendente ascendente
 const orderVntProd = document.querySelectorAll('.tbody__head--vntProd');
+function compareValues(a, b, valor) {
+    const ventaA = sales.find(sale => sale.id_vnt === a.fk_id_vnt_vtpd);
+    const ventaB = sales.find(sale => sale.id_vnt === b.fk_id_vnt_vtpd);
+
+    if (valor === 'factura_vnt') {
+        return ventaA.factura_vnt - ventaB.factura_vnt;
+    } else if (valor === 'fecha_factura_vnt') {
+        return ventaA.fecha_factura_vnt.localeCompare(ventaB.fecha_factura_vnt);
+    } else {
+        let first = a[valor];
+        let second = b[valor];
+        if (typeof first === 'number' && typeof second === 'number') {
+            return first - second;
+        } else {
+            return first.localeCompare(second);
+        }
+    }
+}
 orderVntProd.forEach(div => {
     div.children[0].addEventListener('click', function () {
-        filterVnt_prods.sort((a, b) => {
-            let first = a[1][div.children[0].name];
-            let second = b[1][div.children[0].name];
-            if (typeof first === 'number' && typeof second === 'number') {
-                return first - second;
-            } else {
-                return String(first).localeCompare(String(second));
-            }
-        });
+        const valor = div.children[0].name;
+        filterVnt_prods.sort((a, b) => compareValues(a, b, valor));
         paginacionProdVnt(filterVnt_prods.length, 1);
     });
+
     div.children[1].addEventListener('click', function () {
-        filterVnt_prods.sort((a, b) => {
-            let first = a[1][div.children[0].name];
-            let second = b[1][div.children[0].name];
-            if (typeof first === 'number' && typeof second === 'number') {
-                return second - first;
-            } else {
-                return String(second).localeCompare(String(first));
-            }
-        });
+        const valor = div.children[0].name;
+        filterVnt_prods.sort((a, b) => compareValues(b, a, valor));
         paginacionProdVnt(filterVnt_prods.length, 1);
     });
 });
 //------PaginacionProdVnt
 const totalProdVnt = document.getElementById('totalProdVnt');
-function paginacionProdVnt(allProducts, page) { 
+function paginacionProdVnt(allProducts, page) {
     let total = 0;
-    /*
-    for (let vnt_prods in filterVnt_prods) {
-        total += filterVnt_prods[vnt_prods]['cantidad_vtpd'] * filterVnt_prods[vnt_prods]['cost_uni_vtpd'] * (100 - filterVnt_prods[vnt_prods]['descuento_prof']) / 100;
-    } */
+
+    filterVnt_prods.forEach(prodVnt => {
+        const venta = sales.find(sale => sale.id_vnt === prodVnt.fk_id_vnt_vtpd);
+        const subTotal = prodVnt.cantidad_vtpd * prodVnt.cost_uni_vtpd;
+        const descuento = subTotal * (venta.descuento_vnt / 100);
+        total += subTotal - descuento;
+    });
     totalProdVnt.innerHTML = total.toFixed(2) + ' Bs';
+
     let numberProducts = Number(selectNumberProdVnt.value);
     let allPages = Math.ceil(allProducts / numberProducts);
     let ul = document.querySelector('#wrapperProf ul');
@@ -1741,7 +1788,6 @@ function paginacionProdVnt(allProducts, page) {
 //--------Tabla de vnt_prods
 const tbodyProdVnt = document.getElementById('tbodyProdVnt');
 function tableVntProds(page) {
-    console.log('entro')
     inicio = (page - 1) * Number(selectNumberProdVnt.value);
     final = inicio + Number(selectNumberProdVnt.value);
     const filas = filterVnt_prods.slice(inicio, final);
@@ -1796,7 +1842,13 @@ function tableVntProds(page) {
         tdSubTotal.innerHTML = `${(prodVnt.cantidad_vtpd * prodVnt.cost_uni_vtpd).toFixed(2)} Bs`;
         tr.appendChild(tdSubTotal);
 
-    
+        const tdDescuento = document.createElement('td');
+        tdDescuento.innerHTML = `${(prodVnt.cantidad_vtpd * prodVnt.cost_uni_vtpd * venta.descuento_vnt / 100).toFixed(2)} Bs`;
+        tr.appendChild(tdDescuento);
+
+        const tdTotal = document.createElement('td');
+        tdTotal.innerHTML = `${(prodVnt.cantidad_vtpd * prodVnt.cost_uni_vtpd * (1 - venta.descuento_vnt / 100)).toFixed(2)} Bs`;
+        tr.appendChild(tdTotal);
 
         tbodyProdVnt.appendChild(tr);
     });
@@ -1811,7 +1863,85 @@ openProdVnt.addEventListener('click', () => {
 closeTableProdVnt.addEventListener('click', () => {
     tableProdVnt.classList.remove('modal__show');
 })
-/*********************************************Reporte en Excel****************************************************/
+//***************************reporte de ventas mestros*****************************************************/
+const excelVnt = document.getElementById('excelVnt');
+excelVnt.addEventListener('click', () => {
+    const sortedSales = filterSales.sort((a, b) => {
+        if (a.factura_vnt === 0 && b.factura_vnt !== 0) {
+            return 1;
+        } else if (a.factura_vnt !== 0 && b.factura_vnt === 0) {
+            return -1;
+        } else {
+            return a.factura_vnt - b.factura_vnt;
+        }
+    });
+    const nuevaVariable = sortedSales.map((sale) => {
+        const cliente = customers.find(cust => cust.id_clte === sale.fk_id_clte_vnt);
+        const empresa = enterprises.find(ent => ent.id_emp === cliente.fk_id_emp_clte);
+        const usuario = users.find(user => user.id_usua === sale.fk_id_usua_vnt);
+
+        return {
+            ITEM: sale.factura_vnt,
+            CLIENTE: sale.id_emp === 77 ? `${cliente.nombre_clte} ${cliente.apellido_clte}` : empresa.nombre_emp,
+            FECHA: sale.fecha_factura_vnt,
+            OC: '',
+            MONTO: Number(sale.total_vnt),
+            VENTA: `${usuario.nombre_usua} ${usuario.apellido_usua}`,
+            CIUDAD: sale.ciudad_vnt,
+            PAGO: sale.tipo_pago_vnt,
+            OBSERVACIONES: sale.observacion_vnt,
+        };
+    });
+    // Crear un nuevo array que este el total vendido por un ecargado de todos los encargados
+    const totalVendido = sortedSales.reduce((acc, sale) => {
+        if (acc[sale.encargado]) {
+            acc[sale.encargado] += Number(sale.total_vnt);
+        } else {
+            acc[sale.encargado] = Number(sale.total_vnt);
+        }
+        return acc;
+    }, []);
+    // Crear un nuevo array que este el total vendido por un encargado de todos los encargados
+    const totalVendidoPorEncargado = Object.entries(totalVendido).map(([key, value]) => ({
+        ENCARGADO: key,
+        TOTAL: value
+    }));
+    //El array totalVendidoPorEncargado añadirlo al final del array nuevaVariable
+    const reporte = [...nuevaVariable, ...totalVendidoPorEncargado];
+    downloadAsExcel(reporte);
+});
+/*******************************Reporte en Excel VNT_PROD*****************************************/
+const excelProdVnt = document.getElementById('excelProdVnt');
+excelProdVnt.addEventListener('click', () => {
+    const reporte = filterVnt_prods.map((obj, index) => {
+        const venta = sales.find(sale => sale.id_vnt === obj.fk_id_vnt_vtpd);
+        const cliente = customers.find(cust => cust.id_clte === venta.fk_id_clte_vnt);
+        const empresa = enterprises.find(ent => ent.id_emp === cliente.fk_id_emp_clte);
+
+        return {
+            'Item': index + 1,
+            'Numero cliente': cliente.numero_clte,
+            'Nombre cliente': empresa.id_emp === 77 ? `${cliente.nombre_clte} ${cliente.apellido_clte}` : empresa.nombre_emp,
+            'Codigo producto': obj.codigo_vtpd,
+            'Codigo Japón': obj.codigo_smc_prod,
+            'Descripcion del producto': obj.nombre_prod,
+            'Cantidad': obj.cantidad_vtpd,
+            'Precio Lista': obj.cost_uni_vtpd,
+            'Total a precio de lista': obj.cost_uni_vtpd * obj.cantidad_vtpd,
+            'Precio venta sin IVA': obj.cost_uni_vtpd * obj.cantidad_vtpd * (1 - venta.descuento_vnt / 100) * 0.87,
+            'Total a precio venta': obj.cost_uni_vtpd * obj.cantidad_vtpd * (1 - venta.descuento_vnt / 100),
+            'Fecha venta': venta.fecha_factura_vnt.toString().split(' ')[0],
+            'Factura': venta.factura_vnt
+        };
+    });
+    downloadAsExcel(reporte);
+});
+/*******************************importa en excel**************************************************/
+const excelProdReponer = document.getElementById('excelProdReponer');
+excelProdReponer.addEventListener('click', () => {
+    downloadAsExcel(productsSold);
+});
+/***********************************Reporte en Excel*********************************************/
 const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
 const EXCEL_EXTENSION = '.xlsx';
 function downloadAsExcel(data) {
@@ -1823,35 +1953,13 @@ function downloadAsExcel(data) {
         SheetNames: ['data']
     };
     const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-
     saveAsExcel(excelBuffer, 'Ventas');
 }
 function saveAsExcel(buffer, filename) {
     const data = new Blob([buffer], { type: EXCEL_TYPE });
     saveAs(data, filename + EXCEL_EXTENSION);
 }
-const excelProdVnt = document.getElementById('excelProdVnt');
-excelProdVnt.addEventListener('click', () => {
-    const reporte = filterVnt_prods.map((obj, index) => ({
-        'Item': index + 1,
-        'Numero cliente': obj.numero_clte,
-        'Nombre cliente': obj.nombre_emp === 'Ninguna' ? obj.nombre_clte + ' ' + obj.apellido_clte : obj.nombre_emp,
-        'Codigo producto': obj.codigo_smc_prod,
-        'Codigo Japón': obj.codigo_vtpd,
-        'Descripcion del producto': obj.nombre_prod,
-        'Cantidad': obj.cantidad_vtpd,
-        'Precio Lista': obj.cost_uni_inv,
-        'Total a precio de lista': obj.cost_uni_inv * obj.cantidad_vtpd,
-        'Precio venta sin IVA': obj.cost_uni_vtpd * obj.cantidad_vtpd * (1- obj.descuento_prof/100)  * 0.87,
-        'Total a precio venta': obj.cost_uni_vtpd * obj.cantidad_vtpd * (1- obj.descuento_prof/100),
-        'Fecha venta': obj.fecha_vnt.toString().split(' ')[0],
-        'Factura': obj.factura_vnt
-    }));
-    downloadAsExcel(reporte);
-});
-//*******************************************BEST SELLER PRODUCT**************************************************/
-//----------------------------------------------TABLE MODAL MOST VENDIDOS----------------------------------------->
-//-----------------------------------------------OPEN AND CLOSE MODAL---------------------------------------- -
+//-------------------------TABLE MODAL MOST VENDIDOS----------------------------------------->
 //--------------------------------------------fechas
 const formDates = document.getElementById('formDates');
 const startingDateInput = document.getElementById('startingDate');
@@ -2026,6 +2134,7 @@ function tableMostVnt(page) {
         }
     }
 }
+/******************************************Read inventories*******************************/
 let inventories = [];
 let filterInventories = [];
 readInventories();
@@ -2040,96 +2149,6 @@ function readInventories() {
         filterInventories = inventories;
     }).catch(err => console.log(err));
 }
-//------Alert
-const modalAlerta = document.getElementById('alerta');
-const botonAceptar = document.getElementById('botonAceptar');
-function mostrarAlerta(message) {
-    modalAlerta.classList.add('modal__show');
-    document.getElementById('mensaje-alerta').innerText = message;
-}
-botonAceptar.addEventListener('click', (e) => {
-    modalAlerta.classList.remove('modal__show');
-});
-/*******************************************importa en excel**************************************************/
-const excelProdReponer = document.getElementById('excelProdReponer');
-excelProdReponer.addEventListener('click', () => {
-    downloadAsExcel(productsSold);
-});
-//***************************reporte de ventas mestros*****************************************************/
-const excelVnt = document.getElementById('excelVnt');
-excelVnt.addEventListener('click', () => {
-    const sortedSales = filterSales.sort((a, b) => {
-        if (a.factura_vnt === 0 && b.factura_vnt !== 0) {
-            return 1;
-        } else if (a.factura_vnt !== 0 && b.factura_vnt === 0) {
-            return -1;
-        } else {
-            return a.factura_vnt - b.factura_vnt;
-        }
-    });
-    const nuevaVariable = sortedSales.map((sale) => ({
-        ITEM: sale.factura_vnt,
-        CLIENTE: sale.nombre_emp === 'Ninguna' ? sale.cliente_clte : sale.nombre_emp,
-        FECHA: sale.fecha_vnt,
-        OC: sale.orden_ne,
-        MONTO: Number(sale.total_prof),
-        VENTA: sale.encargado,
-        CIUDAD: sale.ciudad_vnt,
-        PAGO: sale.tipo_pago_vnt,
-        OBSERVACIONES: sale.observacion_vnt
-    }));
-    // Crear un nuevo arrar que este el total vendido por un ecargado de todos los encargados
-    const totalVendido = sortedSales.reduce((acc, sale) => {
-        if (acc[sale.encargado]) {
-            acc[sale.encargado] += Number(sale.total_prof);
-        } else {
-            acc[sale.encargado] = Number(sale.total_prof);
-        }
-        return acc;
-    }, []);
-    // Crear un nuevo array que este el total vendido por un encargado de todos los encargados
-    const totalVendidoPorEncargado = Object.entries(totalVendido).map(([key, value]) => ({
-        ENCARGADO: key,
-        TOTAL: value
-    }));
-    //El array totalVendidoPorEncargado añadirlo al final del array nuevaVariable
-    const reporte = [...nuevaVariable, ...totalVendidoPorEncargado];
-    downloadAsExcel(reporte);
-});
-
-
-
-//----------------------------------------------USUARIO --------------------------------------------------/
-//------Leer tabla de usuarios
-let users = [];
-async function readUsers() {
-    return new Promise((resolve) => {
-        let formData = new FormData();
-        formData.append('readUsers', '');
-        fetch('../controladores/usuarios.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.json()).then(data => {
-            users = data;
-            selectUser();
-            resolve();
-        }).catch(err => {
-            mostrarAlerta('Ocurrio un error al cargar la tabla de usuarios, cargue nuevamente la pagina');
-        });
-    });
-}
-const fk_id_usua_vnt = document.getElementById('fk_id_usua_vnt');
-function selectUser() {
-    fk_id_usua_vnt.innerHTML = '';
-    users.forEach(user => {
-        const option = document.createElement('option');
-        option.value = user.id_usua;
-        option.text = user.nombre_usua + ' ' + user.apellido_usua;
-        fk_id_usua_vnt.appendChild(option);
-    });
-}
-
-
 /*------------------------------------Marca y categoria producto-------------------------------------------------*/
 //-------Read all Marcas
 let marcas = [];
@@ -2197,7 +2216,45 @@ function selectCategoriaProductMW() {
     }
     searchProductsMW();
 }
-
+//--------------------------------------USUARIO --------------------------------------------------/
+//------Leer tabla de usuarios
+let users = [];
+async function readUsers() {
+    return new Promise((resolve) => {
+        let formData = new FormData();
+        formData.append('readUsers', '');
+        fetch('../controladores/usuarios.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then(data => {
+            users = data;
+            selectUser();
+            resolve();
+        }).catch(err => {
+            mostrarAlerta('Ocurrio un error al cargar la tabla de usuarios, cargue nuevamente la pagina');
+        });
+    });
+}
+const fk_id_usua_vnt = document.getElementById('fk_id_usua_vnt');
+function selectUser() {
+    fk_id_usua_vnt.innerHTML = '';
+    users.forEach(user => {
+        const option = document.createElement('option');
+        option.value = user.id_usua;
+        option.text = user.nombre_usua + ' ' + user.apellido_usua;
+        fk_id_usua_vnt.appendChild(option);
+    });
+}
+//-------------------------------------Alert-----------------------------------------------
+const modalAlerta = document.getElementById('alerta');
+const botonAceptar = document.getElementById('botonAceptar');
+function mostrarAlerta(message) {
+    modalAlerta.classList.add('modal__show');
+    document.getElementById('mensaje-alerta').innerText = message;
+}
+botonAceptar.addEventListener('click', (e) => {
+    modalAlerta.classList.remove('modal__show');
+});
 
 
 

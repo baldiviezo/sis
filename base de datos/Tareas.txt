@@ -7,11 +7,14 @@
 
 **FACTURACION**
 --TABLA FACTURACION             --LISTO
---TABLA VNT PRODUCTOS           --
---REGISTRAR FACTURA             
+--TABLA VNT PRODUCTOS           --LISTO
+--REGISTRAR FACTURA             --
 --TABLA PRODUCTOS               --LISTO
 --ENVIAR PRODUCTOS              --LISTO
 --VISTA PREVIS DE FACTURA       --LISTO
+--REPORTE DE VENTAS             --LISTO
+--REPORTE DE VENTAS-PROD        --LISTO
+--añadir almacen_vnt
 
 
 

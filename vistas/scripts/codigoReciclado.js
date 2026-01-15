@@ -397,43 +397,7 @@ function createSale() {
         }
     }
 }
-//-----------------------------------MODAL CREATE SALE-------------------------------------------------//
-const saleRMW = document.getElementById('saleRMW');
-const closeSaleRMW = document.getElementById('closeSaleRMW');
-closeSaleRMW.addEventListener('click', () => {
-    saleRMW.classList.remove('modal__show');
-});
-//-------------------------------------MODAL PREVIEW PRODUCTS SOLD----------------------------------------------->>
-const closeVnt_prodRMW = document.getElementById('closeVnt_prodRMW');
-const vnt_prodRMW = document.getElementById('vnt_prodRMW');
-closeVnt_prodRMW.addEventListener('click', (e) => {
-    vnt_prodRMW.classList.remove('modal__show');
-});
-//-------------------------------------------------------INVENTARIO---------------------------------------------------
-let inventories = [];
-function readInventories() {
-    return new Promise((resolve, reject) => {
-        let formData = new FormData();
-        formData.append('readInventories', '');
-        fetch('../controladores/inventario.php', {
-            method: "POST",
-            body: formData
-        }).then(response => response.json()).then(data => {
-            inventories = data;
-            resolve();
-        }).catch(err => console.log(err));
-    })
-}
-//------Alert
-const modalAlerta = document.getElementById('alerta');
-const botonAceptar = document.getElementById('botonAceptar');
-function mostrarAlerta(message) {
-    modalAlerta.classList.add('modal__show');
-    document.getElementById('mensaje-alerta').innerText = message;
-}
-botonAceptar.addEventListener('click', (e) => {
-    modalAlerta.classList.remove('modal__show');
-});
+
 //-------------------------------------------------------DEVOLUCION---------------------------------------------------
 const returnMW = document.getElementById('returnMW');
 const closeReturnMW = document.getElementById('closeReturnMW');
