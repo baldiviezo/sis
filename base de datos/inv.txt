@@ -292,3 +292,8 @@ SET estado_igpd = CASE
 END;
 
 ALTER TABLE `ing_prod` CHANGE `estado_igpd` `estado_igpd` INT NOT NULL;
+
+
+añadir almacen_vnt a venta
+/************************************************************************/
+ALTER TABLE `venta` ADD `almacen_vnt` INT NOT NULL AFTER `id_vnt`;

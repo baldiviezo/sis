@@ -109,6 +109,7 @@
 				<thead>
 					<tr>
 						<th>N°</th>
+						<th>Almacen</th>
 						<th>
 							<div class="tbody__head--venta">N° Factura<img src="../imagenes/sortA_Z.svg"
 									name="factura_vnt" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg"
@@ -131,7 +132,7 @@
 			</table>
 		</section>
 	</main>
-	<!--Modal of product of a proforma-->
+	<!--Modal of product of a sale-->
 	<section id="vnt_prodMW" class="modal">
 		<div class="modalPdpf__container">
 			<div class="modalPdpf__header">
@@ -189,6 +190,12 @@
 					<div class="form__container">
 						<input type="text" name="fk_id_emp_clteR" id="fk_id_emp_clteR" class="form__input" hidden>
 						<input type="text" name="fk_id_clte_vntR" id="fk_id_clte_vntR" class="form__input" hidden>
+						<!--almacen_vntR-->
+						<label class="form__label--only">Sucursal de venta:</label>
+						<select name="almacen_vnt" id="almacen_vntR" class="form__Select">
+							<option value="0">El Alto</option>
+							<option value="1">Av. Arce</option>
+						</select>
 						<div class="form__group--img">
 							<div class="form__group">
 								<input type="text" name="fk_nombre_emp_vntR" id="fk_nombre_emp_vntR" class="form__input"

@@ -18,10 +18,10 @@ async function init() {
                 readNte_prods()
             ]);
             paginationSales(sales.length, 1);
-            paginacionTableClteMW(filterCustomers.length, 1);
-            paginacionEnterpriseMW(filterEnterprises.length, 1);
             paginacionProductMW(filterProductsMW.length, 1);
             paginacionProdVnt(vnt_prods.length, 1);
+            paginacionTableClteMW(filterCustomers.length, 1);
+            paginacionEnterpriseMW(filterEnterprises.length, 1);
             requestSale = false;
             preloader.classList.remove('modal__show');
         } catch (error) {
@@ -231,6 +231,10 @@ function tableSales(page) {
         tdNumero.innerText = inicio + index + 1;
         tr.appendChild(tdNumero);
 
+        const tdAlmacen = document.createElement('td');
+        tdAlmacen.innerText = venta.almacen_vnt === 0 ? 'El Alto' : 'Av. Arce';
+        tr.appendChild(tdAlmacen);
+
         const tdFactura = document.createElement('td');
         tdFactura.innerText = venta.estado_factura_vnt === 1 ? venta.factura_vnt : 'S/F';
         tr.appendChild(tdFactura);
@@ -311,102 +315,7 @@ function openVnt_prodMW() {
 closeVnt_prodMW.addEventListener('click', (e) => {
     vnt_prodMW.classList.remove('modal__show');
 });
-//--------Muestra la lista de los productos de la proforma
-function cartProduct_pfpd(prof_prod, contenedor, total) {
-    const product = products.find(product => product.id_prod === prof_prod.fk_id_prod_pfpd);
-    if (product) {
-        const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 0);
-        const inventoriesArce = inventories.filter(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 1);
 
-        const cantidad_invAlto = inventoriesAlto.length > 0 ? inventoriesAlto[0].cantidad_inv : 0;
-        const cantidad_invArce = inventoriesArce.length > 0 ? inventoriesArce[0].cantidad_inv : 0;
-        const cantidad_invTotal = cantidad_invAlto + cantidad_invArce;
-
-        const card = document.createElement('div');
-        card.classList.add('cart-item');
-        card.setAttribute('id_prod', product.id_prod);
-        card.setAttribute('draggable', 'true');
-
-        const cantidadInvParagraph = document.createElement('p');
-        cantidadInvParagraph.classList.add('cart-item__cantInv');
-
-        if (cantidad_invAlto > 0 && cantidad_invArce > 0) {
-            cantidadInvParagraph.classList.add('almacen-ambos');
-        } else if (cantidad_invAlto > 0) {
-            cantidadInvParagraph.classList.add('almacen-alto');
-        } else if (cantidad_invArce > 0) {
-            cantidadInvParagraph.classList.add('almacen-arce');
-        }
-
-        cantidadInvParagraph.textContent = cantidad_invTotal;
-        card.appendChild(cantidadInvParagraph);
-
-        const rowImgDiv = document.createElement('div');
-        rowImgDiv.classList.add('row-img');
-        const img = document.createElement('img');
-        img.src = `../modelos/imagenes/${product.imagen_prod}`;
-        img.classList.add('rowimg');
-        rowImgDiv.appendChild(img);
-        card.appendChild(rowImgDiv);
-
-        const codigoParagraph = document.createElement('p');
-        codigoParagraph.classList.add('cart-item__codigo');
-        codigoParagraph.textContent = product.codigo_prod;
-        card.appendChild(codigoParagraph);
-
-        function updateCostTotal(cantidadInput, costUnitInput, costTotalInput) {
-            const cantidad = parseInt(cantidadInput.value);
-            const costUnit = parseFloat(costUnitInput.value);
-            const costTotal = cantidad * costUnit;
-            costTotalInput.value = costTotal;
-            total();
-        }
-
-        const cantidadInput = document.createElement('input');
-        cantidadInput.type = 'number';
-        cantidadInput.value = prof_prod.cantidad_pfpd;
-        cantidadInput.min = '1';
-        cantidadInput.classList.add('cart-item__cantidad');
-        cantidadInput.addEventListener('change', (e) => {
-            const costUnitInput = e.target.parentNode.querySelector('.cart-item__costUnit');
-            const costTotalInput = e.target.parentNode.querySelector('.cart-item__costTotal');
-            updateCostTotal(e.target, costUnitInput, costTotalInput);
-        });
-        card.appendChild(cantidadInput);
-
-        const costUnitInput = document.createElement('input');
-        costUnitInput.type = 'number';
-        costUnitInput.value = prof_prod.cost_uni_pfpd;
-        costUnitInput.classList.add('cart-item__costUnit');
-        costUnitInput.addEventListener('change', (e) => {
-            const cantidadInput = e.target.parentNode.querySelector('.cart-item__cantidad');
-            const costTotalInput = e.target.parentNode.querySelector('.cart-item__costTotal');
-            updateCostTotal(cantidadInput, e.target, costTotalInput);
-        });
-        card.appendChild(costUnitInput);
-
-        const costTotalInput = document.createElement('input');
-        costTotalInput.type = 'number';
-        costTotalInput.value = prof_prod.cost_uni_pfpd * prof_prod.cantidad_pfpd;
-        costTotalInput.classList.add('cart-item__costTotal');
-        costTotalInput.readOnly = true;
-        card.appendChild(costTotalInput);
-
-        //tiempo de entrega
-        const entregaInput = document.createElement('input');
-        entregaInput.type = 'number';
-        entregaInput.value = prof_prod.tmp_entrega_pfpd;
-        entregaInput.classList.add('cart-item__tmpEntrega');
-        card.appendChild(entregaInput);
-
-        const trashImg = document.createElement('img');
-        trashImg.src = '../imagenes/trash.svg';
-        trashImg.classList.add('icon__CRUD');
-        trashImg.addEventListener('click', (e) => removeCardFromCartM(e, contenedor));
-        card.appendChild(trashImg);
-        return card;
-    }
-}
 function cartProduct(id_nepd, contenedor, total) {
     const product = filterProductsMW.find(product => product['id_nepd'] == id_nepd);
     if (product) {
@@ -414,6 +323,7 @@ function cartProduct(id_nepd, contenedor, total) {
 
         card.classList.add('cart-item');
         card.setAttribute('id_nepd', id_nepd);
+        card.setAttribute('id_prod', product.fk_id_prod_nepd);
         card.setAttribute('draggable', 'true');
 
         const rowImgDiv = document.createElement('div');
@@ -454,6 +364,7 @@ function cartProduct(id_nepd, contenedor, total) {
         descInput.type = 'number';
         descInput.value = parseFloat(product.cantidad_nepd * product.cost_uni_nepd * (product.descuento_oc / 100)).toFixed(2);
         descInput.classList.add('cart-item__costUnit');
+        descInput.readOnly = true;
         card.appendChild(descInput);
 
         const costTotalInput = document.createElement('input');
@@ -881,40 +792,54 @@ closePreviewProducts.addEventListener('click', () => {
     previewProducts.classList.remove('modal__show');
 });
 //---------------------------------------CRUD SALES-------------------------------------------------------
+const formSaleR = document.getElementById('formSaleR');
 //------Create sale
-function createSale(){
+function createSale() {
     if (confirm('¿Esta usted seguro?')) {
-        if (rqstNotaEntrega == false) {
-            rqstNotaEntrega = true;
-            const formsaleR = document.getElementById('formsaleR');
-            let formData = new FormData(formsaleR);
-            formData.append('createSale', '');
-            formData.append('prodCart', JSON.stringify(prodCart));
+        if (requestSale == false) {
+            requestSale = true;
             preloader.classList.add('modal__show');
+            saleRMW.classList.add('modal__show');
+            previewProducts.classList.remove('modal__show');
+            const prodCart = [];
+            const cartItems = cartsVnt_prodMW.querySelectorAll('.cart-item');
+            cartItems.forEach(item => {
+                prodCart.push({
+                    id_nepd: item.getAttribute('id_nepd'),
+                    fk_id_prod_vtpd: item.getAttribute('id_prod'),
+                    codigo_vtpd: item.children[1].innerText,
+                    cantidad_vtpd: item.children[2].value,
+                    cost_uni_vtpd: item.children[3].value
+                });
+            });
+            let formData = new FormData(formSaleR);
+            formData.append('total_vnt', Number(total_vtpd.innerHTML.split(' ')[1]));
+            formData.append('createSale', JSON.stringify(prodCart));
             fetch('../controladores/ventas.php', {
                 method: "POST",
                 body: formData
             }).then(response => response.text()).then(data => {
                 if (data == 'La factura ya existe') {
-                    rqstNotaEntrega = false;
+                    requestSale = false;
                     preloader.classList.remove('modal__show');
-                    vnt_prodRMW.classList.remove('modal__show');
                     mostrarAlerta(data);
                 } else {
-                    readNotasEntrega().then(() => {
-                        formsaleR.reset();
-                        tiempo_credito_vnt.setAttribute('hidden', '');
-                        fecha_factura_vnt.removeAttribute('hidden');
-                        factura_vnt.removeAttribute('hidden');
-                        vnt_prodRMW.classList.remove('modal__show');
-                        saleRMW.classList.remove('modal__show');
-                        rqstNotaEntrega = false;
+                    Promise.all([readSales(), readNte_prods(), readvnt_prods()]).then(() => {
+                        paginationSales(sales.length, 1);
+                        paginacionProductMW(filterProductsMW.length, 1);
+                        paginacionProdVnt(vnt_prods.length, 1);
+                        formSaleR.reset();
+                        vnt_prodMW.classList.remove('modal__show');
+                        cartsVnt_prodMW.innerHTML = '';
+                        total_vtpd.innerHTML = `Total(Bs): 0.00 Bs`;
                         preloader.classList.remove('modal__show');
+                        saleRMW.classList.remove('modal__show');
+                        requestSale = false;
                         mostrarAlerta(data);
-                    });
+                    })
                 }
             }).catch(err => {
-                rqstNotaEntrega = false;
+                requestSale = false;
                 mostrarAlerta(err);
             });
         }
