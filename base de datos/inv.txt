@@ -280,6 +280,7 @@ ALTER TABLE `venta` CHANGE `factura_vnt` `factura_vnt` INT(11) NULL;
 ------añadir almacen_vnt a venta
 ALTER TABLE `venta` ADD `almacen_vnt` INT NOT NULL AFTER `id_vnt`;
 
+------Eliminar fk_id_ne_vnt
 
 PASO 12: TABLA INGRESO
 /**********************************************************************/
@@ -300,5 +301,5 @@ ALTER TABLE `ing_prod` CHANGE `estado_igpd` `estado_igpd` INT NOT NULL;
 
 PASO: 14 TABLA EMPRESA
 /************************************************************************/
-------
+------cambiar el nombre de ninguna a PARTICULAR
 UPDATE `empresa` SET `nombre_emp` = 'PARTICULAR' WHERE `empresa`.`id_emp` = 77;

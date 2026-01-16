@@ -100,6 +100,8 @@ function searchSales() {
     selectchangeYear()
 }
 //-----Seleccionar el Año
+const selectAlmacenVnt = document.getElementById('selectAlmacenVnt');
+selectAlmacenVnt.addEventListener('change', searchSales);
 const selectDateVnt = document.getElementById('selectDateVnt');
 selectDateVnt.addEventListener('change', searchSales);
 const stateFactured = document.getElementById('stateFactured');
@@ -133,11 +135,12 @@ function selectYearVnt() {
     }
 }
 function selectchangeYear() {
-    filterSales = filterSales.filter(buy => {
-        const estado = stateFactured.value === 'todas' ? true : buy.estado_factura_vnt == stateFactured.value;
-        const fecha = selectDateVnt.value === 'todas' ? true : buy.fecha_factura_vnt.split('-')[0] === selectDateVnt.value;
-        const mes = selectMonthVnt.value === 'todas' ? true : buy.fecha_factura_vnt.split('-')[1] === selectMonthVnt.value;
-        return estado && fecha && mes;
+    filterSales = filterSales.filter(sale => {
+        const almacen = selectAlmacenVnt.value === 'todas' ? true : sale.almacen_vnt == selectAlmacenVnt.value;
+        const estado = stateFactured.value === 'todas' ? true : sale.estado_factura_vnt == stateFactured.value;
+        const fecha = selectDateVnt.value === 'todas' ? true : sale.fecha_factura_vnt.split('-')[0] === selectDateVnt.value;
+        const mes = selectMonthVnt.value === 'todas' ? true : sale.fecha_factura_vnt.split('-')[1] === selectMonthVnt.value;
+        return almacen && estado && fecha && mes;
     });
     paginationSales(filterSales.length, 1);
 }

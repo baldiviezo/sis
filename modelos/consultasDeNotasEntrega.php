@@ -89,9 +89,6 @@ class consultas{
 				$consulta = "SELECT MAX(numero_ne) AS maximo FROM nota_entrega";
 				$resultado = $conexion->query($consulta);
 				$max_id_ne = $resultado->fetch_assoc()['maximo'] + 1;
-				//------cambiar estado de la orden de compra para que no se pueda modificar
-				$consulta = "UPDATE orden_compra set estado_oc = 2 WHERE id_oc = '" . $ordenCompra['id_oc'] . "'";
-				$resultado = $conexion->query($consulta);
 				//-----Crear nota de entrega y que me devuelva el id_ne
 				$consulta = "INSERT INTO nota_entrega (numero_ne, fk_id_oc_ne, fk_id_clte_ne, fk_id_usua_ne, fecha_ne, descuento_ne, total_ne, moneda_ne, tipo_cambio_ne, orden_ne, estado_ne, almacen_ne) VALUES ('$max_id_ne','" . $ordenCompra['id_oc'] . "', '" . $ordenCompra['fk_id_clte_oc'] . "', ' $id_usua', '" . $_POST['fecha_ne'] . "', '" . $ordenCompra['descuento_oc'] . "', '" . $_POST['total_ne'] . "', '" . $ordenCompra['moneda_oc'] . "', '" . $ordenCompra['tipo_cambio_oc'] . "', '" . $ordenCompra['orden_oc'] . "', '0', '" . $ordenCompra['almacen_oc'] . "')";
 				$resultado = $conexion->query($consulta);
