@@ -411,7 +411,7 @@ async function readNte_prods() {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            products = data;
+            products = data.filter(objeto => objeto.estado_nepd === 0);
             filterProductsMW = products;
             resolve();
         }).catch(err => console.log(err));

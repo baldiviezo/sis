@@ -1,16 +1,38 @@
-PASO 1: crear columnas en la tabla nota_entrega (Estan en hoja)
-        quitar la relacion de fk_id_oc_ne
+PASO 1: TABLA PROFORMA
+/********************************************************************/
+------cambiar estado_prof
 
+UPDATE proforma
+SET estado_prof = 1
+WHERE estado_prof = 'vendido';
+
+UPDATE proforma
+SET estado_prof = 0
+WHERE estado_prof = 'pendiente';
+
+UPDATE proforma
+SET estado_prof = 0
+WHERE estado_prof = 'devolucion';
+
+ALTER TABLE proforma
+CHANGE estado_prof estado_prof BOOLEAN NOT NULL;
+
+PASO 2: TABLA NOTA_ENTREGA
+/**********************************************************************************/ 
+------Quitar la relacion de fk_id_prof_ne
+------crear columnas en la tabla nota_entrega
+        
 ALTER TABLE `nota_entrega` ADD `numero_ne` INT NOT NULL AFTER `id_ne`;
-LTER TABLE `nota_entrega` ADD `fk_id_oc_ne` INT NOT NULL AFTER `fk_id_prof_ne`;
+ALTER TABLE `nota_entrega` ADD `fk_id_oc_ne` INT NOT NULL AFTER `fk_id_prof_ne`;
 ALTER TABLE `nota_entrega` ADD `fk_id_clte_ne` INT NOT NULL AFTER `fk_id_oc_ne`;
 ALTER TABLE `nota_entrega` ADD `descuento_ne` INT NOT NULL AFTER `fecha_ne`, ADD `total_ne` DOUBLE NOT NULL AFTER `descuento_ne`, ADD `moneda_ne` VARCHAR(10) NOT NULL AFTER `total_ne`, ADD `tipo_cambio_ne` FLOAT NOT NULL AFTER `moneda_ne`;
 ALTER TABLE `nota_entrega` ADD `almacen_ne` INT NOT NULL AFTER `estado_ne`;
 
--- Estructura de tabla para la tabla `nota_entrega`
+--La tabla `nota_entrega` debe tener la siguiente estructura
 CREATE TABLE `nota_entrega` (
   `id_ne` int(11) NOT NULL,
   `numero_ne` int(11) NOT NULL,
+  `fk_id_prof_ne` int(11) NOT NULL,
   `fk_id_oc_ne` int(11) NOT NULL,
   `fk_id_clte_ne` int(11) NOT NULL,
   `fk_id_usua_ne` int(11) NOT NULL,
@@ -25,10 +47,10 @@ CREATE TABLE `nota_entrega` (
   `almacen_ne` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
       
-PASO 2: Nota de entrega 
-/********************************************************************************/
+-------Llenar las columnas nuevas de la tabla nota de entrega
+
 UPDATE nota_entrega
-INNER JOIN proforma ON nota_entrega.fk_id_oc_ne = proforma.id_prof
+INNER JOIN proforma ON nota_entrega.fk_id_prof_ne = proforma.id_prof
 SET nota_entrega.fk_id_clte_ne = proforma.fk_id_clte_prof,
     nota_entrega.descuento_ne = proforma.descuento_prof,
     nota_entrega.total_ne = proforma.total_prof,
@@ -36,15 +58,14 @@ SET nota_entrega.fk_id_clte_ne = proforma.fk_id_clte_prof,
     nota_entrega.tipo_cambio_ne = proforma.tipo_cambio_prof;
 
 
-PASO 3: columna numero_ne
-/******************************************************************************/
+------columna numero_ne
+
 SET @numero = 0;
 UPDATE nota_entrega
 SET numero_ne = (@numero := @numero + 1);
 
+------Cambiar la columna estado_ne
 
-PASO 4
-/********************************************/
 UPDATE nota_entrega
 SET estado_ne = 1
 WHERE estado_ne = 'vendido';
@@ -57,15 +78,16 @@ UPDATE nota_entrega
 SET estado_ne = 2
 WHERE estado_ne = 'devolucion';
 
+------- Cambiar tipo de variable de la colmna estado_ne
 
-PASO 5: Cambiar estado nota de entrega
-/********************************************************/
 ALTER TABLE nota_entrega
 CHANGE estado_ne estado_ne INT NOT NULL;
 
 
-PASO 6:
+PASO 3: TABLA ORDEN_COPRA
 /**************************************/
+-------Crear tabla orden_compra
+
 CREATE TABLE `orden_compra` (
   `id_oc` int(11) NOT NULL AUTO_INCREMENT,
   `numero_oc` int(11) NOT NULL,
@@ -84,9 +106,17 @@ CREATE TABLE `orden_compra` (
   PRIMARY KEY (`id_oc`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+------insertar valores a esta tabla
 
-PASO 7:
+INSERT INTO orden_compra ( numero_oc, fk_id_prof_oc, fk_id_clte_oc, fk_id_usua_oc, fecha_oc, descuento_oc, total_oc, moneda_oc, tipo_cambio_oc, orden_oc, observacion_oc, estado_oc, almacen_oc)
+SELECT  ROW_NUMBER() OVER (ORDER BY id_ne) AS numero_oc, fk_id_prof_ne, fk_id_clte_ne, fk_id_usua_ne, fecha_ne, descuento_ne, total_ne, moneda_ne, tipo_cambio_ne, orden_ne, observacion_ne, estado_ne, 0
+FROM nota_entrega;
+
+
+PASO 4: TABLA OC_PROD
 /*****************************************************************/
+------Crear tabla oc_prod
+
 CREATE TABLE `oc_prod` (
   `id_ocpd` int(11) NOT NULL AUTO_INCREMENT,
   `fk_id_oc_ocpd` int(11) NOT NULL,
@@ -98,35 +128,8 @@ CREATE TABLE `oc_prod` (
   PRIMARY KEY (`id_ocpd`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+------Insertar valortes a oc_prod
 
-PASO 8:
-/*******************************************************************/
-INSERT INTO orden_compra ( numero_oc, fk_id_prof_oc, fk_id_clte_oc, fk_id_usua_oc, fecha_oc, descuento_oc, total_oc, moneda_oc, tipo_cambio_oc, orden_oc, observacion_oc, estado_oc, almacen_oc)
-SELECT  ROW_NUMBER() OVER (ORDER BY id_ne) AS numero_oc, fk_id_oc_ne, fk_id_clte_ne, fk_id_usua_ne, fecha_ne, descuento_ne, total_ne, moneda_ne, tipo_cambio_ne, orden_ne, observacion_ne, estado_ne, 0
-FROM nota_entrega;
-
-PASO 9:
-/********************************************************************/
-UPDATE proforma
-SET estado_prof = 1
-WHERE estado_prof = 'vendido';
-
-UPDATE proforma
-SET estado_prof = 0
-WHERE estado_prof = 'pendiente';
-
-UPDATE proforma
-SET estado_prof = 0
-WHERE estado_prof = 'devolucion';
-
-ALTER TABLE proforma
-CHANGE estado_prof estado_prof BOOLEAN NOT NULL;
-
-ALTER TABLE `prof_prod` ADD `tmp_entrega_pfpd` INT NOT NULL AFTER `cost_uni_pfpd`;
-
-
-PASO 10:
-/********************************************************************************************************/
 INSERT INTO oc_prod (fk_id_oc_ocpd, fk_id_prod_ocpd, codigo_ocpd, cantidad_ocpd, cost_uni_ocpd, estado_ocpd)
 SELECT oc.id_oc, pp.fk_id_prod_pfpd, pd.codigo_prod, pp.cantidad_pfpd, pp.cost_uni_pfpd, p.estado_prof
 FROM prof_prod pp
@@ -136,9 +139,9 @@ INNER JOIN orden_compra oc ON oc.fk_id_prof_oc = p.id_prof
 WHERE p.estado_prof = 1;
 
 
-
-PASO 11 CREAR TABLA
+PASO 5: TABLA NTE_PROD
 /****************************************************************/
+------Crear tabla nte_prod
 
 CREATE TABLE `nte_prod` (
   `id_nepd` int(11) NOT NULL AUTO_INCREMENT,
@@ -151,8 +154,10 @@ CREATE TABLE `nte_prod` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
-PASO 12 fk_id_oc_ne
+PASO 6: TABLA NOTA_ENTREGA
 /*********************************************************************/
+------ fk_id_oc_ne
+
 UPDATE nota_entrega ne
 INNER JOIN orden_compra oc ON oc.id_oc = ne.fk_id_oc_ne
 INNER JOIN proforma p ON p.id_prof = oc.fk_id_prof_oc
@@ -160,8 +165,10 @@ SET ne.fk_id_oc_ne = oc.id_oc
 WHERE p.estado_prof = 1;
 
 
-PASO 13: 
+PASO 7: TABLA NTE_PROD
 /***************************************************************************************************/
+------Insertar la tabla nte_prod
+
 INSERT INTO nte_prod (fk_id_ne_nepd, fk_id_prod_nepd, cantidad_nepd, cost_uni_nepd)
 SELECT
     ne.id_ne, 
@@ -175,20 +182,36 @@ INNER JOIN
 INNER JOIN
     nota_entrega ne ON oc.id_oc = ne.fk_id_oc_ne
 
+------fk_id_ocpd_nepd
+
 SET @numero = 0;
 UPDATE nte_prod np
 SET np.fk_id_ocpd_nepd = (@numero := @numero + 1);
 
+------ estado_nepd
 
-PASO 14
-/**********************************************************/
-añadir columna de tmp_entrega_pfpd a la tabla prof_prod y mdf_prof_prod
+ALTER TABLE `nte_prod` ADD `estado_nepd` INT NOT NULL AFTER `cost_uni_nepd`;
 
-ALTER TABLE `prof_prod` ADD `tmp_entrega_pfpd` INT NOT NULL AFTER `cost_uni_pfpd`;
-ALTER TABLE `mdf_prof_prod` ADD `tmp_entrega_pfpd` INT NOT NULL AFTER `cost_uni_mpfpd`;
+------cambiar estado
+
+UPDATE nte_prod np INNER JOIN nota_entrega ne ON ne.id_ne = np.fk_id_ne_nepd INNER JOIN venta v ON v.fk_id_ne_vnt = ne.id_ne INNER JOIN vnt_prod vp ON vp.fk_id_vnt_vtpd = v.id_vnt
+SET np.estado_nepd = 1
+
+PASO 8: TABLA orden_compra
+/*******************************************************************************/
+
+------Eliminar las devoluciones
+DELETE FROM orden_compra
+WHERE estado_oc = 2;
+
+------Eliminar las devoluciones
+DELETE nte_prod 
+FROM nte_prod 
+INNER JOIN nota_entrega ON nte_prod.fk_id_ne_nepd = nota_entrega.id_ne
+WHERE estado_ne = 2;
 
 
-PASO 15 ALMACEN ARMADOS
+PASO 9: ALMACEN ARMADOS
 /********************************************************************************/
 ALTER TABLE `armado` ADD `almacen_rmd` INT NOT NULL AFTER `id_rmd`;
 
@@ -203,34 +226,7 @@ WHERE estado_rdpd = 'baja';
 ALTER TABLE `rmd_prod` CHANGE `estado_rdpd` `estado_rdpd` INT NOT NULL;
 
 
-Eliminar estado_oc = 2
-/********************************************************************************/
-DELETE FROM orden_compra
-WHERE estado_oc = 2;
-
-DELETE nte_prod 
-FROM nte_prod 
-INNER JOIN nota_entrega ON nte_prod.fk_id_ne_nepd = nota_entrega.id_ne
-WHERE estado_ne = 2;
-
-
-fecha_factura_vnt = fecha_vnt
-/*******************************************************************/
-UPDATE venta
-SET fecha_factura_vnt = fecha_vnt
-WHERE fecha_factura_vnt = '0000-00-00';
-
-
-DELETE vnt_prod 
-FROM vnt_prod
-INNER JOIN venta ON vnt_prod.fk_id_vnt_vtpd = venta.id_vnt WHERE estado_vnt = 'DEVOLUCION';
-
-DELETE FROM venta WHERE estado_vnt = 'DEVOLUCION';
-
-DELETE FROM nota_entrega WHERE estado_ne = 2;
-
-
-TABLA DEVOLUCION
+PASO 10: TABLA DEVOLUCION
 /***************************************************************************/
 ALTER TABLE `devolucion` ADD `numero_dvl` INT NOT NULL AFTER `id_dvl`;
 ALTER TABLE `devolucion` ADD `fk_id_clte_dvl` INT NOT NULL AFTER `numero_dvl`, ADD `fk_id_usua_dvl` INT NOT NULL AFTER `fk_id_clte_dvl`;  
@@ -238,21 +234,30 @@ ALTER TABLE `devolucion` ADD `descuento_dvl` INT NOT NULL AFTER `fecha_dvl`, ADD
 ALTER TABLE `devolucion` ADD `almacen_dvl` INT NOT NULL AFTER `motivo_dvl`;
 
 
-TABLA dvl_prod
-/****************************************************************************/
+PASO 11: TABLA VENTA
+/*******************************************************************/
+-------fecha_factura_vnt = fecha_vnt
 
+UPDATE venta
+SET fecha_factura_vnt = fecha_vnt
+WHERE fecha_factura_vnt = '0000-00-00';
 
-ESTADO NOTA ENTREGA, estado_nepd
-/*******************************************************************************/
-ALTER TABLE `nte_prod` ADD `estado_nepd` INT NOT NULL AFTER `cost_uni_nepd`;
+------Eliminar la devolucion
 
-UPDATE nte_prod np INNER JOIN nota_entrega ne ON ne.id_ne = np.fk_id_ne_nepd INNER JOIN venta v ON v.fk_id_ne_vnt = ne.id_ne INNER JOIN vnt_prod vp ON vp.fk_id_vnt_vtpd = v.id_vnt
-SET np.estado_nepd = 1
+DELETE vnt_prod 
+FROM vnt_prod
+INNER JOIN venta ON vnt_prod.fk_id_vnt_vtpd = venta.id_vnt WHERE estado_vnt = 'DEVOLUCION';
 
-ventas
-/***/////////
-Eliminar fecha_vnt
+DELETE FROM venta WHERE estado_vnt = 'DEVOLUCION';
 
+------Eliminar la tabla nte_inv
+------ELiminar los productos de devolucion
+
+DELETE FROM nota_entrega WHERE estado_ne = 2;
+
+------Eliminar fecha_vnt
+
+------Añadir columna y actualizarlos
 ALTER TABLE `venta` ADD `descuento_vnt` INT NOT NULL AFTER `fk_id_usua_vnt`, ADD `total_vnt` DOUBLE NOT NULL AFTER `descuento_vnt`;
 
 UPDATE venta v INNER JOIN nota_entrega n ON n.id_ne = v.fk_id_ne_vnt SET v.descuento_vnt = n.descuento_ne;
@@ -266,24 +271,24 @@ INNER JOIN nota_entrega n ON v.fk_id_ne_vnt = n.id_ne
 INNER JOIN cliente c ON c.id_clte = n.fk_id_clte_ne
 SET v.fk_id_clte_vnt = c.id_clte
 
-
-/*************************************************************/
+------Cambiar factura_vnt
 UPDATE venta v SET v.factura_vnt = 0 WHERE v.factura_vnt = 'S/F' 
 
+------Cambiar el tipo de variable factura_vnt
 ALTER TABLE `venta` CHANGE `factura_vnt` `factura_vnt` INT(11) NULL;
 
-CAMBIAR Ninguna a PARTICULAR
-/************************************************************************/
-UPDATE `empresa` SET `nombre_emp` = 'PARTICULAR' WHERE `empresa`.`id_emp` = 77;
+------añadir almacen_vnt a venta
+ALTER TABLE `venta` ADD `almacen_vnt` INT NOT NULL AFTER `id_vnt`;
 
-alamcen_ing
+
+PASO 12: TABLA INGRESO
 /**********************************************************************/
+------alamcen_ing
 ALTER TABLE `ingreso` ADD `almacen_ing` INT NOT NULL AFTER `id_ing`;
 
-
-
-ingreso estado_igpd
-/************************************************************************/
+PASO13: TABLA ING_PROD 
+/*******************************************************************/
+-------ingreso estado_igpd
 UPDATE ing_prod
 SET estado_igpd = CASE
     WHEN estado_igpd = 'baja' THEN 0
@@ -293,7 +298,7 @@ END;
 
 ALTER TABLE `ing_prod` CHANGE `estado_igpd` `estado_igpd` INT NOT NULL;
 
-
-añadir almacen_vnt a venta
+PASO: 14 TABLA EMPRESA
 /************************************************************************/
-ALTER TABLE `venta` ADD `almacen_vnt` INT NOT NULL AFTER `id_vnt`;
+------
+UPDATE `empresa` SET `nombre_emp` = 'PARTICULAR' WHERE `empresa`.`id_emp` = 77;
