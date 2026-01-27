@@ -1178,10 +1178,6 @@ function tableNotaEntrega(page) {
         tdNumero.innerText = index + 1;
         tr.appendChild(tdNumero);
 
-        const tdOrdenCompra = document.createElement('td');
-        tdOrdenCompra.innerText = notaEntrega.numero_oc;
-        tr.appendChild(tdOrdenCompra);
-
         const tdNumeroNE = document.createElement('td');
         tdNumeroNE.innerText = notaEntrega.numero_ne;
         tr.appendChild(tdNumeroNE);
@@ -1189,6 +1185,10 @@ function tableNotaEntrega(page) {
         const tdFechaNE = document.createElement('td');
         tdFechaNE.innerText = notaEntrega.fecha_ne;
         tr.appendChild(tdFechaNE);
+
+        const tdOrdenCompra = document.createElement('td');
+        tdOrdenCompra.innerText = notaEntrega.numero_oc;
+        tr.appendChild(tdOrdenCompra);
 
         const tdEncargado = document.createElement('td');
         tdEncargado.innerText = usuario.nombre_usua + ' ' + usuario.apellido_usua;

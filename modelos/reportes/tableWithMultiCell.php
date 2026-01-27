@@ -75,12 +75,15 @@ function Row($data,$imagen){
             $h=37;
         }
         $this->Rect($x,$y,$w,$h);
-        if($i==5){
+        if($i==6){
             $this->SetXY($x, $y +1);
-            $this->Image($imagen,$x-12,$y+($h-29)/2,29,29);
-        } else if ($i==2 || $i==3 || $i==4) {
+            $this->Image($imagen,$x - 14,$y+($h-29)/2,29,29);
+            
+        } else if ( $i==2 || $i==4 || $i==5){
             $this->SetXY($x, $y +1); // Centra el texto verticalmente
-        } else {
+        } else if ($i==3) {
+            $this->SetXY($x, $y + ($h - 14) / 2); // Centra el texto verticalmente
+        }   else {
             //Print the text
             $this->SetXY($x, $y + ($h - 3) / 2); // Centra el texto verticalmente
         }
@@ -92,7 +95,7 @@ function Row($data,$imagen){
     //Go to the next line
     $this->Ln($h);
     //salto de linea
-    if($this->GetY()>0){ // no entiendo pero funciona
+    if($this->GetY()>233){ // no entiendo pero funciona
         $this->CheckPageBreak($h);
     }
 }
@@ -118,14 +121,16 @@ function CheckPageBreak($h){
         $this->Cell(8,12, utf8_decode('Item'),1,0,'C',true);
         $this->Cell(32,12, utf8_decode('Código'),1,0,'C',true);
         $this->Cell(90,12, utf8_decode('Descripción'),1,0,'C',true);
+        $this->MultiCell(20,6, utf8_decode('Tiempo de entrega '),1,'C',true);
+        $this->SetXY(155,27);
         $this->Cell(10,12, utf8_decode('Cant.'),1,0,'C',true);
         $x = $this->GetX();
         $this->Cell(46,6, utf8_decode('Costo '.$unidad3),1,1,'C',true);
         $this->SetX($x);
         $this->Cell(19,6, utf8_decode('Unitario'),1,0,'C',true);
         $this->Cell(27,6, utf8_decode('Total'),1,1,'C',true);
-        $this->SetXY(191, 27);
-        $this->MultiCell(20,6, utf8_decode('Tiempo de entrega '),1,'C',true);
+       
+        
         $this->SetTextColor(0,0,0);
         $this->SetFont('arial','',9);
 
@@ -188,5 +193,6 @@ function NbLines($w,$txt){
     return $nl;
 }
 //--------------------SALTO DE PAGINA------------------------------//
+
 }
 ?>

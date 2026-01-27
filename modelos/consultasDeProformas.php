@@ -209,10 +209,12 @@ class consultas{
 	//-------Read Prof_prods
 	public function readProf_prods(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM prof_prod";
+		$consulta = "SELECT prof_prod.*, producto.codigo_prod, proforma.numero_prof, proforma.fecha_prof, proforma.moneda_prof, proforma.descuento_prof, cliente.apellido_clte, empresa.id_emp, empresa.sigla_emp, empresa.nombre_emp FROM prof_prod INNER JOIN producto ON prof_prod.fk_id_prod_pfpd = producto.id_prod INNER JOIN proforma ON prof_prod.fk_id_prof_pfpd = proforma.id_prof INNER JOIN cliente ON proforma.fk_id_clte_prof = cliente.id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = empresa.id_emp ORDER BY prof_prod.id_pfpd ASC";
 		$resultado = $conexion->query($consulta);
 		$profProds =  array();
 		while ($fila = $resultado->fetch_assoc()){
+			$fila['numero_prof'] = strtoupper('SMS' . substr($fila['fecha_prof'], 2, 2) . '-' . $this->addZerosGo($fila['numero_prof']) . '-' . ($fila['id_emp'] == 77 ? explode(" ", $fila['apellido_clte'])[0] : $fila['sigla_emp']));
+			unset($fila['apellido_clte'], $fila['sigla_emp'], $fila['nombre_emp'], $fila['id_emp']);
 			$profProds[] = $fila;
 		}
 		echo json_encode($profProds, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);

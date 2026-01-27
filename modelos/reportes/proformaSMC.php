@@ -47,14 +47,14 @@ $fpdf->ln(2);
 $fpdf->Cell(8,12, utf8_decode('Item'),1,0,'C',true);
 $fpdf->Cell(32,12, utf8_decode('Código'),1,0,'C',true);
 $fpdf->Cell(90,12, utf8_decode('Descripción'),1,0,'C',true);
+$fpdf->MultiCell(20,6, utf8_decode('Tiempo de entrega '),1,'C',true);
+$fpdf->SetXY(155,77);
 $fpdf->Cell(10,12, utf8_decode('Cant.'),1,0,'C',true);
 $fpdf->Cell(46,6, utf8_decode('Costo '.$unidad2),1,1,'C',true);
-$fpdf->SetXY(145,83);
+$fpdf->SetXY(165,83);
 $fpdf->Cell(19,6, utf8_decode('Unitario'),1,0,'C',true);
 $fpdf->Cell(27,6, utf8_decode('Total'),1,1,'C',true);
 $fpdf->SetXY(191, 77);
-$fpdf->MultiCell(20,6, utf8_decode('Tiempo de entrega '),1,'C',true);
-
 //Agregar Informacion del cliente
 
 $fpdf->SetTextColor(0,0,0);
@@ -81,7 +81,7 @@ $fpdf->ln(14);
 $fpdf->SetTextColor(0,0,0);
 $fpdf->SetFont('arial','',9);
 
-$fpdf->SetWidths(array(8,32,90,10,19,27,20));
+$fpdf->SetWidths(array(8,32,90,20,10,19,27));
 //------
 //$productos = json_decode($_SESSION['cart'],true);
 include '../../modelos/conexion.php';
@@ -98,29 +98,35 @@ if ($pdf == 'prof'){
 
 foreach ($pf_pd as $producto) {
     $costoTotal =  $producto['cantidad_'.$referencia]*$producto['cost_uni_'.$referencia];
-    $fpdf->Row(array($i, utf8_decode($producto['codigo_prod']),utf8_decode($producto['descripcion_prod']), $producto['cantidad_'.$referencia], number_format($producto['cost_uni_'.$referencia], 2, ',', '.'), number_format($costoTotal, 2, ',', '.'), $producto['tmp_entrega_pfpd'] == 0 ? 'inmediata' : utf8_decode($producto['tmp_entrega_pfpd'].' días')),'../imagenes/'.$producto['imagen_prod']);
+    $fpdf->Row(array($i, utf8_decode($producto['codigo_prod']),utf8_decode($producto['descripcion_prod']), $producto['tmp_entrega_pfpd'] == 0 ? 'inmediata' : utf8_decode($producto['tmp_entrega_pfpd'].' días despues de la confirmacion del pedido'), $producto['cantidad_'.$referencia], number_format($producto['cost_uni_'.$referencia], 2, ',', '.'), number_format($costoTotal, 2, ',', '.')),'../imagenes/'.$producto['imagen_prod']);
     $i++;
     $total = $total + $costoTotal;
 }
 
-//------
+//---------------Añadir otra hoja si pasa sety() = 233
+if ($fpdf->GetY() > 233) {
+    $fpdf->AddPage();
+}
+
+
+
 $fpdf->SetTextColor(255,255,255);
 $fpdf->SetFont('arial','b',9);
 $fpdf->SetX(155);
 
-$fpdf->Cell(32,6, 'Sub-Total('.$unidad2.')',1,0,'R',true);
-$fpdf->MultiCell(24,6, number_format($total, 2, ',', '.').' '.$moneda.'',1,'R',true);
+$fpdf->Cell(29,6, 'Sub-Total ('.$unidad2.')',1,0,'R',true);
+$fpdf->MultiCell(27,6, number_format($total, 2, ',', '.').' '.$moneda.'',1,'R',true);
 if($_descuento!='0'){
     $fpdf->SetX(155);
-    $fpdf->Cell(32,6, 'Desc. '.($_descuento).'%('.$unidad2.')',1,0,'R',true);
+    $fpdf->Cell(29,6, 'Desc. '.($_descuento).'%('.$unidad2.')',1,0,'R',true);
     $descuento = ($total*$_descuento)/100;
-    $fpdf->MultiCell(24,6, number_format($descuento,2, ',', '.').' '.$moneda.'',1,'R',true);
+    $fpdf->MultiCell(27,6, number_format($descuento,2, ',', '.').' '.$moneda.'',1,'R',true);
 }
 $fpdf->SetX(155);
-$fpdf->Cell(32,6, 'TOTAL('.$unidad2.')',1,0,'R',true);
+$fpdf->Cell(29,6, 'TOTAL('.$unidad2.')',1,0,'R',true);
 $total = $total*(1-$_descuento/100);
 $total = round($total, 2);
-$fpdf->MultiCell(24,6, number_format($total, 2, ',', '.').' '.$moneda.'',1,'R',true);
+$fpdf->MultiCell(27,6, number_format($total, 2, ',', '.').' '.$moneda.'',1,'R',true);
 
 
 if($moneda == '$'){
@@ -139,7 +145,7 @@ if($moneda == '$'){
 
 $fpdf->SetTextColor(0,0,0);
 $fpdf->SetFont('arial','b',10);
-$fpdf->ln(12);
+$fpdf->ln(6);
 $fpdf->Cell(10,6, utf8_decode('Son: '),'',0,'',false);
 require_once "cifrasEnLetras.php";
 $modelonumero = new modelonumero();

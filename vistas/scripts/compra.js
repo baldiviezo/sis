@@ -465,7 +465,7 @@ function searchProdOC() {
                 compra.fecha_cmp.toLowerCase().includes(busqueda) ||
                 cmp_prod.fecha_factura_cppd.toLowerCase().includes(busqueda) ||
                 cmp_prod.fecha_entrega_cppd.toLowerCase().includes(busqueda) ||
-                producto.codigo_prod.toLowerCase().includes(busqueda) ||
+                producto.codigo_prod.toString().toLowerCase().includes(busqueda) ||
                 cmp_prod.factura_cppd.toString().toLowerCase().includes(busqueda) ||
                 cmp_prod.observacion_cppd.toString().toLowerCase().includes(busqueda)
             )

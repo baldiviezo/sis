@@ -280,7 +280,7 @@ const initSortableList = (e) => {
     cartItem.insertBefore(draggingItem, nextSibling);
 }
 function cartProduct(id_prod, contenedor, total) {
-    const product = filterProducts.find(product => product['id_prod'] == id_prod);
+    const product = products.find(product => product['id_prod'] == id_prod);
     if (product) {
         const inventoriesAlto = inventories.filter(inventory => inventory.fk_id_prod_inv === id_prod && inventory.ubi_almacen === 0);
         const inventoriesArce = inventories.filter(inventory => inventory.fk_id_prod_inv === id_prod && inventory.ubi_almacen === 1);
@@ -1623,18 +1623,16 @@ function searchPfPd() {
     const busqueda = inputSearchPfPd.value.toLowerCase().trim();
     const valor = selectSearchPfPd.value.toLowerCase().trim();
     filterProf_prods = prof_prods.filter(prof_prod => {
-        const proforma = proformas.find(proforma => proforma.id_prof === prof_prod.fk_id_prof_pfpd);
-        const producto = products.find(product => product.id_prod === prof_prod.fk_id_prod_pfpd);
         if (valor == 'todas') {
             return (
-                proforma.numero_prof.toLowerCase().includes(busqueda) ||
-                proforma.fecha_prof.toLowerCase().includes(busqueda) ||
-                producto.codigo_prod.toString().toLowerCase().includes(busqueda)
+                prof_prod.numero_prof.toString().toLowerCase().includes(busqueda) ||
+                prof_prod.fecha_prof.toLowerCase().includes(busqueda) ||
+                prof_prod.codigo_prod.toString().toLowerCase().includes(busqueda)
             )
         } else if (valor == 'codigo_prod') {
-            return producto.codigo_prod.toString().toLowerCase().includes(busqueda);
+            return prof_prod.codigo_prod.toString().toLowerCase().includes(busqueda);
         } else {
-            return proforma[valor].toLowerCase().includes(busqueda);
+            return prof_prod[valor].toLowerCase().includes(busqueda);
         }
     });
     selectStateProductOC();
@@ -1663,10 +1661,8 @@ orderPfPd.forEach(div => {
     div.children[0].addEventListener('click', function () {
         const valor = div.children[0].name;
         filterProf_prods.sort((a, b) => {
-            const proformaA = proformas.find(proforma => proforma.id_prof == a.fk_id_prof_pfpd);
-            const proformaB = proformas.find(proforma => proforma.id_prof == b.fk_id_prof_pfpd);
-            const valorA = String(proformaA[valor]);
-            const valorB = String(proformaB[valor]);
+            const valorA = a[valor].toLowerCase();
+            const valorB = b[valor].toLowerCase();
             return valorA.localeCompare(valorB);
         });
         paginacionPfPd(filterProf_prods.length, 1);
@@ -1674,10 +1670,8 @@ orderPfPd.forEach(div => {
     div.children[1].addEventListener('click', function () {
         const valor = div.children[0].name;
         filterProf_prods.sort((a, b) => {
-            const proformaA = proformas.find(proforma => proforma.id_prof == a.fk_id_prof_pfpd);
-            const proformaB = proformas.find(proforma => proforma.id_prof == b.fk_id_prof_pfpd);
-            const valorA = String(proformaA[valor]);
-            const valorB = String(proformaB[valor]);
+            const valorA = a[valor].toLowerCase();
+            const valorB = b[valor].toLowerCase();
             return valorB.localeCompare(valorA);
         });
         paginacionPfPd(filterProf_prods.length, 1);
@@ -1732,8 +1726,6 @@ function tablePdPf(page) {
     const prods = filterProf_prods.slice(inicio, final);
     tbody.innerHTML = '';
     prods.forEach((prod, index) => {
-        const proforma = proformas.find(proforma => proforma.id_prof == prod.fk_id_prof_pfpd);
-        const producto = products.find(product => product.id_prod == prod.fk_id_prod_pfpd);
 
         const tr = document.createElement('tr');
         tr.setAttribute('id_pfpd', prod.id_pfpd);
@@ -1743,15 +1735,15 @@ function tablePdPf(page) {
         tr.appendChild(tdNumero);
 
         const tdNumeroProforma = document.createElement('td');
-        tdNumeroProforma.innerText = proforma.numero_prof;
+        tdNumeroProforma.innerText = prod.numero_prof;
         tr.appendChild(tdNumeroProforma);
 
         const tdFechaProforma = document.createElement('td');
-        tdFechaProforma.innerText = proforma.fecha_prof;
+        tdFechaProforma.innerText = prod.fecha_prof;
         tr.appendChild(tdFechaProforma);
 
         const tdCodigo = document.createElement('td');
-        tdCodigo.innerText = producto.codigo_prod;
+        tdCodigo.innerText = prod.codigo_prod;
         tr.appendChild(tdCodigo);
 
         const tdCantidad = document.createElement('td');
@@ -1759,22 +1751,22 @@ function tablePdPf(page) {
         tr.appendChild(tdCantidad);
 
         const tdCostoUnitario = document.createElement('td');
-        tdCostoUnitario.innerText = `${prod.cost_uni_pfpd} ${proforma.moneda_prof}`;
+        tdCostoUnitario.innerText = `${prod.cost_uni_pfpd} ${prod.moneda_prof}`;
         tr.appendChild(tdCostoUnitario);
 
         const tdSubTotal = document.createElement('td');
         const subTotal = prod.cost_uni_pfpd * prod.cantidad_pfpd;
-        tdSubTotal.innerText = `${subTotal.toFixed(2)} ${proforma.moneda_prof}`;
+        tdSubTotal.innerText = `${subTotal.toFixed(2)} ${prod.moneda_prof}`;
         tr.appendChild(tdSubTotal);
 
         const tdDescuento = document.createElement('td');
-        const desc = proforma.descuento_prof * prod.cost_uni_pfpd * prod.cantidad_pfpd / 100;
-        tdDescuento.innerText = `-${desc.toFixed(2)} ${proforma.moneda_prof} (${proforma.descuento_prof}%)`;
+        const desc = prod.descuento_prof * prod.cost_uni_pfpd * prod.cantidad_pfpd / 100;
+        tdDescuento.innerText = `-${desc.toFixed(2)} ${prod.moneda_prof} (${prod.descuento_prof}%)`;
         tr.appendChild(tdDescuento);
 
         const tdTotal = document.createElement('td');
-        const total = prod.cantidad_pfpd * prod.cost_uni_pfpd * (100 - proforma.descuento_prof) / 100;
-        tdTotal.innerText = `${total.toFixed(2)} ${proforma.moneda_prof}`;
+        const total = prod.cantidad_pfpd * prod.cost_uni_pfpd * (100 - prod.descuento_prof) / 100;
+        tdTotal.innerText = `${total.toFixed(2)} ${prod.moneda_prof}`;
         tr.appendChild(tdTotal);
 
         tbody.appendChild(tr);
@@ -2805,14 +2797,12 @@ function tableProductsMW(page) {
     });
 }
 function sendProduct(id_prod) {
-    console.log(id_prod)
     const product = filterProductsMW.find(prod => prod['id_prod'] === id_prod);
     if (product) {
         let prof_prods = modalProf_prod.querySelectorAll('.cart-item');
         const codigo = product['codigo_prod'];
         const existe = Array.from(prof_prods).some(prod => prod.children[2].innerText === codigo);
         if (!existe) {
-
             const card = cartProduct(id_prod, modalProf_prod, totalPriceM);
             modalProf_prod.appendChild(card);
 

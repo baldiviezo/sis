@@ -80,8 +80,8 @@ function searchSales() {
     const busqueda = inputSerchVnt.value.toLowerCase();
     const valor = selectSearchVnt.value.toLowerCase().trim();
     filterSales = sales.filter(sale => {
-        cliente = customers.find(customer => customer.id_clte === sale.fk_id_clte_vnt);
         usuario = users.find(user => user.id_usua === sale.fk_id_usua_vnt);
+        cliente = customers.find(customer => customer.id_clte === sale.fk_id_clte_vnt);
         empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
         if (valor === 'todas') {
             return (
@@ -812,7 +812,7 @@ function createSale() {
                     fk_id_prod_vtpd: item.getAttribute('id_prod'),
                     codigo_vtpd: item.children[1].innerText,
                     cantidad_vtpd: item.children[2].value,
-                    cost_uni_vtpd: item.children[3].value
+                    cost_uni_vtpd: (Number(item.children[4].value)-Number(item.children[5].value))/Number(item.children[2].value), 
                 });
             });
             let formData = new FormData(formSaleR);
