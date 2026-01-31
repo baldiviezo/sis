@@ -500,12 +500,12 @@ function searchProforma() {
                 proforma.fecha_prof.toLowerCase().includes(busqueda) ||
                 empresa.nombre_emp.toLowerCase().includes(busqueda) ||
                 (usuario.nombre_usua + ' ' + usuario.apellido_usua).toLowerCase().includes(busqueda) ||
-                (cliente.apellido_clte + ' ' + cliente.nombre_clte).toLowerCase().includes(busqueda)
+                (cliente.nombre_clte + ' ' + cliente.apellido_clte).toLowerCase().includes(busqueda)
             );
         } else if (valor === 'encargado') {
             return (usuario.nombre_usua + ' ' + usuario.apellido_usua).toLowerCase().includes(busqueda);
         } else if (valor === 'cliente') {
-            return (cliente.apellido_clte + ' ' + cliente.nombre_clte).toLowerCase().includes(busqueda);
+            return (cliente.nombre_clte + ' ' + cliente.apellido_clte).toLowerCase().includes(busqueda);
         } else if (valor === 'nombre_emp') {
             return empresa.nombre_emp.toLowerCase().includes(busqueda);
         } else {
@@ -657,7 +657,7 @@ function tableProformas(page) {
         tr.appendChild(tdEmpresa);
 
         const tdCliente = document.createElement('td');
-        tdCliente.innerText = cliente.apellido_clte + ' ' + cliente.nombre_clte;
+        tdCliente.innerText = cliente.nombre_clte + ' ' + cliente.apellido_clte;
         tr.appendChild(tdCliente);
 
         const tdTotal = document.createElement('td');
@@ -787,7 +787,7 @@ function readProforma(id_prof) {
     fk_id_clte_profM.value = proforma.fk_id_clte_prof;
     fk_id_emp_clteM.value = empresa.id_emp;
     fk_nombre_emp_profM.value = empresa.nombre_emp;
-    fk_cliente_profM.value = cliente.apellido_clte + ' ' + cliente.nombre_clte;
+    fk_cliente_profM.value = cliente.nombre_clte + ' ' + cliente.apellido_clte;
 
     proformaMMW.classList.add('modal__show');
     readProf_prod(id_prof);
@@ -1105,7 +1105,7 @@ function getProducts() {
         const cliente = customers.find(customer => customer.id_clte == fk_id_clte_profR.value);
 
         titleEnterprise.innerText = `EMPRESA: ${empresa.nombre_emp}`;
-        titleCustomer.innerText = `CLIENTE: ${cliente.apellido_clte + ' ' + cliente.nombre_clte}`;
+        titleCustomer.innerText = `CLIENTE: ${cliente.nombre_clte + ' ' + cliente.apellido_clte}`;
 
         return document.querySelectorAll('#cartItem .cart-item');
     } else if (formProformas === 'M') {
@@ -1113,14 +1113,14 @@ function getProducts() {
         const cliente = customers.find(customer => customer.id_clte == fk_id_clte_profM.value);
 
         titleEnterprise.innerText = `EMPRESA: ${empresa.nombre_emp}`;
-        titleCustomer.innerText = `CLIENTE: ${cliente.apellido_clte + ' ' + cliente.nombre_clte}`;
+        titleCustomer.innerText = `CLIENTE: ${cliente.nombre_clte + ' ' + cliente.apellido_clte}`;
         return document.querySelectorAll('#cartsProf_prodMW .cart-item');
     } else if (formProformas === 'OC') {
         const cliente = customers.find(customer => customer.id_clte == fk_id_clte_oc.value);
         const empresa = enterprises.find(enterprise => enterprise.id_emp == cliente.fk_id_emp_clte);
 
         titleEnterprise.innerText = `EMPRESA: ${empresa.nombre_emp}`;
-        titleCustomer.innerText = `CLIENTE: ${cliente.apellido_clte + ' ' + cliente.nombre_clte}`;
+        titleCustomer.innerText = `CLIENTE: ${cliente.nombre_clte + ' ' + cliente.apellido_clte}`;
         return document.querySelectorAll('#cartsProf_prodMW .cart-item');
     }
 }
@@ -1173,18 +1173,23 @@ function createTable(tbody, productos, moneda) {
         img.setAttribute('src', `../modelos/imagenes/${row.imagen_prod}`);
         tdImagen.appendChild(img);
         tr.appendChild(tdImagen);
+
         const tdCantidad = document.createElement('td');
         tdCantidad.innerText = producto.querySelector('.cart-item__cantidad').value;
         tr.appendChild(tdCantidad);
+
+        const tdTiempoEntrega = document.createElement('td');
+        tdTiempoEntrega.innerText = producto.querySelector('.cart-item__tmpEntrega').value == 0 ? 'Inmediato' : `${producto.querySelector('.cart-item__tmpEntrega').value} dias despues de la confirmacion`;
+        tr.appendChild(tdTiempoEntrega);
+
         const tdPrecio = document.createElement('td');
         tdPrecio.innerHTML = `${producto.querySelector('.cart-item__costUnit').value} ${monedaSymbol}`;
         tr.appendChild(tdPrecio);
+
         const tdTotal = document.createElement('td');
         tdTotal.innerHTML = `${producto.querySelector('.cart-item__costTotal').value} ${monedaSymbol}`;
         tr.appendChild(tdTotal);
-        const tdTiempoEntrega = document.createElement('td');
-        tdTiempoEntrega.innerText = producto.querySelector('.cart-item__tmpEntrega').value == 0 ? 'Inmediato' : `${producto.querySelector('.cart-item__tmpEntrega').value} dias`;
-        tr.appendChild(tdTiempoEntrega);
+        
         fragment.appendChild(tr);
     });
     tbody.innerHTML = '';
@@ -1350,7 +1355,7 @@ function showMdfProforma(id_prof) {
             tdEmpresa.innerText = empresa.nombre_emp;
             tr.appendChild(tdEmpresa);
             const tdCliente = document.createElement('td');
-            tdCliente.innerText = cliente.apellido_clte + ' ' + cliente.nombre_clte;
+            tdCliente.innerText = cliente.nombre_clte + ' ' + cliente.apellido_clte;
             tr.appendChild(tdCliente);
             const tdTotal = document.createElement('td');
             tdTotal.innerText = proforma.total_mprof + ' ' + proforma.moneda_mprof;
@@ -1541,7 +1546,7 @@ function openOrdenBuy(id_prof) {
     document.getElementById('numero_prof_oc').value = proforma.numero_prof;
     document.getElementById('fecha_oc').value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
     document.getElementById('empresa_oc').value = empresa.nombre_emp;
-    document.getElementById('cliente_oc').value = cliente.apellido_clte + ' ' + cliente.nombre_clte;
+    document.getElementById('cliente_oc').value = cliente.nombre_clte + ' ' + cliente.apellido_clte;
     document.getElementById('moneda_oc').value = proforma.moneda_prof;
     document.getElementById('descuento_oc').value = proforma.descuento_prof;
     document.getElementById('tipo_cambio_oc').value = proforma.tipo_cambio_prof;
@@ -2266,10 +2271,10 @@ function sendCustomers(id_clte) {
     customerSMW.classList.remove('modal__show');
     const cliente = filterCustomers.find(customer => customer.id_clte == id_clte);
     if (formProformas === 'R') {
-        fk_cliente_profR.value = cliente.apellido_clte + ' ' + cliente.nombre_clte;
+        fk_cliente_profR.value = cliente.nombre_clte + ' ' + cliente.apellido_clte;
         fk_id_clte_profR.value = id_clte;
     } else if (formProformas === 'M') {
-        fk_cliente_profM.value = cliente.apellido_clte + ' ' + cliente.nombre_clte;
+        fk_cliente_profM.value = cliente.nombre_clte + ' ' + cliente.apellido_clte;
         fk_id_clte_profM.value = id_clte;
     }
 }

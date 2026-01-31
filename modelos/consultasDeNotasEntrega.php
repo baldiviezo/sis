@@ -4,11 +4,12 @@ class consultas{
 	//------Read orden de compra
 	public function readOrderBuys(){
 		require_once 'conexion.php';
-		$consulta = "SELECT orden_compra.*, cliente.apellido_clte, empresa.id_emp, empresa.sigla_emp FROM orden_compra INNER JOIN cliente ON orden_compra.fk_id_clte_oc = cliente.id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = empresa.id_emp ORDER BY id_oc DESC";
+		$consulta = "SELECT orden_compra.*, proforma.numero_prof, proforma.fecha_prof, cliente.apellido_clte, empresa.id_emp, empresa.sigla_emp FROM orden_compra INNER JOIN cliente ON orden_compra.fk_id_clte_oc = cliente.id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = empresa.id_emp INNER JOIN proforma ON orden_compra.fk_id_prof_oc = proforma.id_prof ORDER BY id_oc DESC";
 		$resultado = $conexion->query($consulta);
 		$ordenCompra = array();
 		while ($fila = $resultado->fetch_array(MYSQLI_ASSOC)) {
 			$fila['numero_oc'] = strtoupper('P-SMS' . substr($fila['fecha_oc'], 2, 2) . '-' . $this->addZerosGo($fila['numero_oc']).'-' . ($fila['id_emp'] == 77 ? explode(" ", $fila['apellido_clte'])[0] : $fila['sigla_emp']));
+			$fila['numero_prof'] = strtoupper('SMS' . substr($fila['fecha_prof'], 2, 2) . '-' . $this->addZerosGo($fila['numero_prof']).'-' . ($fila['id_emp'] == 77 ? explode(" ", $fila['apellido_clte'])[0] : $fila['sigla_emp']));
 			unset($fila['apellido_clte'], $fila['sigla_emp'], $fila['id_emp']);
 			$ordenCompra[] = $fila;
 		}
@@ -17,10 +18,12 @@ class consultas{
 	//------Read OC_PROD
 	public function readOcProd(){
 		require_once 'conexion.php';
-		$consulta = "SELECT * FROM oc_prod ORDER BY id_ocpd DESC";
+		$consulta = "SELECT oc_prod.*, orden_compra.numero_oc, orden_compra.fecha_oc, cliente.apellido_clte, empresa.id_emp, empresa.sigla_emp FROM oc_prod INNER JOIN orden_compra ON oc_prod.fk_id_oc_ocpd = orden_compra.id_oc INNER JOIN cliente ON orden_compra.fk_id_clte_oc = cliente.id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = empresa.id_emp ORDER BY id_ocpd DESC";
 		$resultado = $conexion->query($consulta);
 		$oc_prods = array();
 		while ($fila = $resultado->fetch_array(MYSQLI_ASSOC)) {
+			$fila['numero_oc'] = strtoupper('P-SMS' . substr($fila['fecha_oc'], 2, 2) . '-' . $this->addZerosGo($fila['numero_oc']) . '-' . ($fila['id_emp'] == 77 ? explode(" ", $fila['apellido_clte'])[0] : $fila['sigla_emp']));
+			unset($fila['apellido_clte'], $fila['sigla_emp'], $fila['id_emp']);
 			$oc_prods[] = $fila;
 		}
 		echo json_encode($oc_prods, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);

@@ -303,3 +303,15 @@ PASO: 14 TABLA EMPRESA
 /************************************************************************/
 ------cambiar el nombre de ninguna a PARTICULAR
 UPDATE `empresa` SET `nombre_emp` = 'PARTICULAR' WHERE `empresa`.`id_emp` = 77;
+
+
+PASO EXTRA: 
+/************************************************************************/
+CREATE TABLE `dvl_prod` (
+  `id_dlpd` int(11) NOT NULL,
+  `fk_id_dvl_dlpd` int(11) NOT NULL,
+  `fk_id_prod_dlpd` int(11) NOT NULL,
+  `codigo_dlpd` varchar(100) NOT NULL,
+  `cantidad_dlpd` int(11) NOT NULL,
+  `cost_uni_dlpd` double NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

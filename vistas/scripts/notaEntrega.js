@@ -108,26 +108,27 @@ function searchOrdenCompra() {
     const busqueda = inputSearchOC.value.toLowerCase().trim();
 
     filterOrderBuys = orderBuys.filter(ordenBuy => {
-        const proforma = proformas.find(proforma => proforma.id_prof === ordenBuy.fk_id_prof_oc);
         const cliente = customers.find(customer => customer.id_clte === ordenBuy.fk_id_clte_oc);
         const empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
         const usuario = users.find(user => user.id_usua === ordenBuy.fk_id_usua_oc);
 
         if (valor === 'todas') {
             return (
-                proforma.numero_prof.toLowerCase().includes(busqueda) ||
+                ordenBuy.numero_prof.toLowerCase().includes(busqueda) ||
                 ordenBuy.numero_oc.toLowerCase().includes(busqueda) ||
                 ordenBuy.fecha_oc.toLowerCase().includes(busqueda) ||
                 empresa.nombre_emp.toLowerCase().includes(busqueda) ||
                 (usuario.nombre_usua + ' ' + usuario.apellido_usua).toLowerCase().includes(busqueda) ||
-                (cliente.apellido_clte + ' ' + cliente.nombre_clte).toLowerCase().includes(busqueda)
+                (cliente.nombre_clte + ' ' + cliente.apellido_clte).toLowerCase().includes(busqueda) ||
+                ordenBuy.orden_oc.toString().toLowerCase().includes(busqueda) ||
+                ordenBuy.observacion_oc.toString().toLowerCase().includes(busqueda)
             );
         } else if (valor === 'numero_prof') {
-            return proforma.numero_prof.toLowerCase().includes(busqueda);
+            return ordenBuy.numero_prof.toLowerCase().includes(busqueda);
         } else if (valor === 'encargado') {
             return (usuario.nombre_usua + ' ' + usuario.apellido_usua).toLowerCase().includes(busqueda);
         } else if (valor === 'cliente') {
-            return (cliente.apellido_clte + ' ' + cliente.nombre_clte).toLowerCase().includes(busqueda);
+            return (cliente.nombre_clte + ' ' + cliente.apellido_clte).toLowerCase().includes(busqueda);
         } else if (valor === 'nombre_emp') {
             return empresa.nombre_emp.toLowerCase().includes(busqueda);
         } else {
@@ -253,8 +254,6 @@ function tableOrdenCompra(page) {
     tbodyOC.innerHTML = '';
 
     orderBuys.forEach((orderBuy, index) => {
-
-        const proforma = proformas.find(proforma => proforma.id_prof === orderBuy.fk_id_prof_oc);
         const cliente = customers.find(customer => customer.id_clte === orderBuy.fk_id_clte_oc);
         const usuario = users.find(user => user.id_usua === orderBuy.fk_id_usua_oc);
         const empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
@@ -279,7 +278,7 @@ function tableOrdenCompra(page) {
         tr.appendChild(tdFecha);
 
         const tdNumeroProforma = document.createElement('td');
-        tdNumeroProforma.innerText = proforma.numero_prof;
+        tdNumeroProforma.innerText = orderBuy.numero_prof;
         tr.appendChild(tdNumeroProforma);
 
         const tdEncargado = document.createElement('td');
@@ -291,7 +290,7 @@ function tableOrdenCompra(page) {
         tr.appendChild(tdEmpresa);
 
         const tdCliente = document.createElement('td');
-        tdCliente.innerText = cliente.apellido_clte + ' ' + cliente.nombre_clte;
+        tdCliente.innerText = cliente.nombre_clte + ' ' + cliente.apellido_clte;
         tr.appendChild(tdCliente);
 
         const tdTotal = document.createElement('td');
@@ -729,8 +728,8 @@ function cartProduct_ocpd(oc_prod, total) {
 
             function updateCostTotal(cantidadInput, costUnitInput, costTotalInput) {
                 const cantidad = parseInt(cantidadInput.value);
-                const costUnit = parseFloat(costUnitInput.value);
-                const costTotal = cantidad * costUnit;
+                const costUnit = parseFloat(costUnitInput.value).toFixed(2);
+                const costTotal = (cantidad * costUnit).toFixed(2);
                 costTotalInput.value = costTotal;
                 total();
             }
@@ -837,7 +836,7 @@ function getProducts() {
     const cliente = customers.find(customer => customer.id_clte === ordenCompra.fk_id_clte_oc);
     const empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
     titleEnterprise.innerText = `EMPRESA: ${empresa.nombre_emp}`;
-    titleCustomer.innerText = `CLIENTE: ${cliente.apellido_clte + ' ' + cliente.nombre_clte}`;
+    titleCustomer.innerText = `CLIENTE: ${cliente.nombre_clte + ' ' + cliente.apellido_clte}`;
     // Obtener todos los productos seleccionados en la proforma que checkbox.checked = true
     return Array.from(cartsProf_prodMW.querySelectorAll('.cart-item')).filter(item => item.querySelector('.icon__checkbox').checked);
 }
@@ -1328,7 +1327,7 @@ function createNotaEntrega() {
             fk_id_prod_nepd: row.getAttribute('id_prod'),
             codigo_nepd: row.children[1].innerText,
             cantidad_nepd: row.children[4].innerText,
-            cost_uni_nepd: row.children[5].innerText,
+            cost_uni_nepd: Number(row.children[5].innerText).toFixed(2),
         });
     }
 
