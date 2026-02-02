@@ -14,10 +14,19 @@
 --VISTA PREVIS DE FACTURA       --LISTO
 --REPORTE DE VENTAS             --LISTO
 --REPORTE DE VENTAS-PROD        --LISTO
---añadir almacen_vnt            --LISTO
+--AÑADIR ALMACEN VENTA          --LISTO
+--QUITAR EL DESCUENTO
 
+**PROFORMAS**
+--PDF PROFORMAS
+--TABLA PROF_PROD
 
-
+**PEDIDOS**
+--BUSCAR OBSERVACION                        --LISTO
+--2 DECIMALES    
+--MOSTRAR LOS PRODUCTOS ENTREGADOS   
+--TABLA PEDIDOS                             --LISTO
+--TABLA PEDIDO_PROD                     
 
 
 
