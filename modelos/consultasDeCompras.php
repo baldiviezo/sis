@@ -110,7 +110,7 @@ class Consultas{
 	//------read cpm_prod
 	public function readCmp_prods(){
 		include 'conexion.php';
-		$consulta = "SELECT * FROM cmp_prod ORDER BY id_cppd ASC";
+		$consulta = "SELECT cmp_prod.*, compra.almacen_cmp FROM cmp_prod INNER JOIN compra ON cmp_prod.fk_id_cmp_cppd = compra.id_cmp ORDER BY id_cppd ASC";
 		$resultado = $conexion->query($consulta);
 		$filas = array();
 		while ($fila = $resultado->fetch_assoc()){

@@ -1618,6 +1618,8 @@ function searchProdVnt() {
     selectchangeYearProd();
 }
 //------select
+const selectAlmVntProd = document.getElementById('selectAlmVntProd');
+selectAlmVntProd.addEventListener('change', searchProdVnt);
 const selectDateVntProd = document.getElementById('selectDateVntProd');
 selectDateVntProd.addEventListener('change', searchProdVnt);
 const stateFacturedProd = document.getElementById('stateFacturedProd');
@@ -1628,10 +1630,11 @@ selectMonthVnPd.addEventListener('change', searchProdVnt);
 function selectchangeYearProd() {
     filterVnt_prods = filterVnt_prods.filter(vnt_prod => {
         const venta = sales.find(sale => sale.id_vnt === vnt_prod.fk_id_vnt_vtpd);
+        const almacen = selectAlmVntProd.value === 'todas' ? true : venta.almacen_vnt == selectAlmVntProd.value;
         const estado = stateFacturedProd.value === 'todas' ? true : venta.estado_factura_vnt == stateFacturedProd.value;
         const fecha = selectDateVntProd.value === 'todas' ? true : venta.fecha_factura_vnt.split('-')[0] === selectDateVntProd.value;
         const mes = selectMonthVnPd.value === 'todas' ? true : venta.fecha_factura_vnt.split('-')[1] === selectMonthVnPd.value;
-        return estado && fecha && mes;
+        return almacen && estado && fecha && mes;
     });
     paginacionProdVnt(filterVnt_prods.length, 1);
 }

@@ -71,40 +71,23 @@ selectNumberRmd.addEventListener('change', function () {
 });
 //------buscar por:
 function searchArmeds() {
-    filterArmeds = [];
-    for (let customer in armeds) {
-        for (let valor in armeds[customer]) {
-            if (selectSearchRmd.value == 'todas') {
-                if (valor == 'numero_rmd' || valor == 'fecha_rmd' || valor == 'proforma_rmd' || valor == 'nombre_usua' || valor == 'codigo_rdpd' || valor == 'estado_rdpd' || valor == 'observacion_rmd') {
-                    if (valor == 'nombre_usua') {
-                        if ((armeds[customer][valor] + ' ' + armeds[customer]['apellido_usua']).toLowerCase().indexOf(inputSerchRmd.value.toLowerCase()) >= 0) {
-                            filterArmeds[customer] = armeds[customer];
-                            break;
-                        }
-                    } else {
-                        if (armeds[customer][valor].toLowerCase().indexOf(inputSerchRmd.value.toLowerCase()) >= 0) {
-                            filterArmeds[customer] = armeds[customer];
-                            break;
-                        }
-                    }
-                }
-            } else if (selectSearchRmd.value == 'encargado') {
-                if (valor == 'nombre_usua') {
-                    if ((armeds[customer][valor] + ' ' + armeds[customer]['apellido_usua']).toLowerCase().indexOf(inputSerchRmd.value.toLowerCase()) >= 0) {
-                        filterArmeds[customer] = armeds[customer];
-                        break;
-                    }
-                }
-            } else {
-                if (valor == selectSearchRmd.value) {
-                    if (armeds[customer][valor].toLowerCase().indexOf(inputSerchRmd.value.toLowerCase()) >= 0) {
-                        filterArmeds[customer] = armeds[customer];
-                        break;
-                    }
-                }
-            }
+    const valor = selectSearchRmd.value;
+    const busqueda = inputSerchRmd.value.toLowerCase().trim();
+    filterArmeds = armeds.filter(armed => {
+        if (valor === 'todas') {
+            return (
+                armed.numero_rmd.toString().toLowerCase().includes(busqueda) ||
+                armed.fecha_rmd.toString().toLowerCase().includes(busqueda) ||
+                armed.nombre_usua.toLowerCase().includes(busqueda) ||
+                armed.apellido_usua.toLowerCase().includes(busqueda) ||
+                armed.proforma_rmd.toString().toLowerCase().includes(busqueda) ||
+                armed.observacion_rmd.toLowerCase().includes(busqueda) ||
+                armed.codigo_rdpd.toString().toLowerCase().includes(busqueda) 
+            );
+        } else if (valor in armed) {
+            return armed[valor].toString().toLowerCase().includes(busqueda);
         }
-    }
+    });
     paginacionArmed(filterArmeds.length, 1);
 }
 //------Ordenar tabla descendente ascendente
@@ -267,6 +250,8 @@ function createArmed() {
                         body: formData
                     }).then(response => response.text()).then(data => {
                         Promise.all([readArmeds(), readInventories()]).then(() => {
+                            paginacionArmed(armeds.length, 1);
+                            paginacionInventoryMW(filterInventoriesMW.length, 1);
                             preloader.classList.remove('modal__show');
                             rqstArmed = false;
                             mostrarAlerta(data);

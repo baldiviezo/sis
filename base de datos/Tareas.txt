@@ -15,24 +15,39 @@
 --REPORTE DE VENTAS             --LISTO
 --REPORTE DE VENTAS-PROD        --LISTO
 --AÑADIR ALMACEN VENTA          --LISTO
---QUITAR EL DESCUENTO
+--QUITAR EL DESCUENTO           --LISTO
+--ALMACEN TABLA VNT_PROD        --LISTO
 
 **PROFORMAS**
---PDF PROFORMAS
---TABLA PROF_PROD
+--PDF PROFORMAS                             --LISTO
+--TABLA PROF_PROD                           --LISTO
+--crear cliente al modificar proforma
 
 **PEDIDOS**
 --BUSCAR OBSERVACION                        --LISTO
 --2 DECIMALES    
 --MOSTRAR LOS PRODUCTOS ENTREGADOS   
 --TABLA PEDIDOS                             --LISTO
---TABLA PEDIDO_PROD                     
+--TABLA PEDIDO_PROD        
+--TERMINAR PEDIDO
+--DEVOLER PROFORMA 960             
+--devolucion 1791
+--ELIMINAR PEDIDO
+--TENER TODAS LAS FECHAS EN UN SOLO FORMATO
+--nobres y apellidos de clientes
+--ALMACEN EN TABLA PEDIDO                   --LISTO
+--ALMACEN EN TABLA OC_PROD                  --LISTO
+--FACTURACION DIRECTA                       
 
 
+**COMPRAS**
+--SELECT ALMACEN                            --LISTO
+--MOSTRAR FACTURA                           --NO             
 
 
-
-
+**ARMADO DESARMADO**
+--create ARMADO                             --LISTO
+--BUSCAR                                    --LISTO
 
 
 **REVISION GENERAL**

@@ -165,6 +165,9 @@ function createYearOC() {
         selectYearOCProd.appendChild(option);
     }
 }
+//------almacen
+const selectAlmacenOC = document.getElementById('selectAlmacenOC');
+selectAlmacenOC.addEventListener('change', searchOrdenCompra);
 //------seleccionar el año
 const selectYearOC = document.getElementById('selectYearOC');
 selectYearOC.addEventListener('change', searchOrdenCompra);
@@ -173,10 +176,11 @@ selectMonthOC.addEventListener('change', searchOrdenCompra);
 //------buscar por marca y categoria:
 function selectStateOrdenCompra() {
     filterOrderBuys = filterOrderBuys.filter(orderBuy => {
+        const almacen = selectAlmacenOC.value === 'todas' ? true : orderBuy.almacen_oc == selectAlmacenOC.value;
         const estado = selectStateOC.value === 'todasLasOC' ? true : orderBuy.estado_oc == selectStateOC.value;
         const fecha = selectYearOC.value === 'todas' ? true : orderBuy.fecha_oc.split('-')[0] === selectYearOC.value;
         const mes = selectMonthOC.value === 'todas' ? true : orderBuy.fecha_oc.split('-')[1] === selectMonthOC.value;
-        return estado && fecha && mes;
+        return almacen && estado && fecha && mes;
     });
     paginacionOrdenCompra(filterOrderBuys.length, 1);
 }
@@ -479,6 +483,9 @@ function searchOCProd() {
     });
     selectStateProductOC();
 }
+//------Almacen
+const selectAlmOCProd = document.getElementById('selectAlmOCProd');
+selectAlmOCProd.addEventListener('change', searchOCProd);
 //------Seleccionar el año
 const selectYearOCProd = document.getElementById('selectYearOCProd');
 selectYearOCProd.addEventListener('change', searchOCProd);
@@ -489,11 +496,13 @@ const selectMonthOCProd = document.getElementById('selectMonthOCProd');
 selectMonthOCProd.addEventListener('change', searchOCProd);
 function selectStateProductOC() {
     filterOCProds = filterOCProds.filter(OCProd => {
+        
         const ordenCompra = orderBuys.find(ordenCompra => ordenCompra.id_oc === OCProd.fk_id_oc_ocpd);
+        const almacen = selectAlmOCProd.value === 'todas' ? true : ordenCompra.almacen_oc == selectAlmOCProd.value;
         const estado = selectStateOCProd.value === 'todas' ? true : ordenCompra.estado_oc == selectStateOCProd.value;
         const fecha = selectYearOCProd.value === 'todas' ? true : ordenCompra.fecha_oc.split('-')[0] === selectYearOCProd.value;
         const mes = selectMonthOCProd.value === 'todas' ? true : ordenCompra.fecha_oc.split('-')[1] === selectMonthOCProd.value;
-        return estado && fecha && mes;
+        return almacen && estado && fecha && mes;
     });
     paginacionOCPd(filterOCProds.length, 1);
 }

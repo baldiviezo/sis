@@ -374,7 +374,7 @@ SELECT
 
 
 
-      /*frecuencia de nota de entrega con estado vendido de proforma para 8 meses**/
+/*frecuencia de nota de entrega con estado vendido de proforma para 8 meses**/
       SELECT 
     p.fk_id_mrc_prod,
     p.fk_id_ctgr_prod,

@@ -1189,7 +1189,7 @@ function createTable(tbody, productos, moneda) {
         const tdTotal = document.createElement('td');
         tdTotal.innerHTML = `${producto.querySelector('.cart-item__costTotal').value} ${monedaSymbol}`;
         tr.appendChild(tdTotal);
-        
+
         fragment.appendChild(tr);
     });
     tbody.innerHTML = '';
@@ -2281,9 +2281,15 @@ function sendCustomers(id_clte) {
 //----------------------------------VENTANA MODAL CUSTOMERSMW-------------------------------------------
 const customerSMW = document.getElementById('customerSMW');
 const closeCustomerSMW = document.getElementById('closeCustomerSMW');
-function openCustomersSMW() {
+function openCustomersSMW(form) {
+    if (form === 'R') {
     inputSearchClteSMW.focus();
     customerSMW.classList.add('modal__show');
+    } else if  (form === 'M') {
+        inputSearchClteSMW.focus();
+        customerSMW.classList.add('modal__show');
+        paginacionCustomerMW(chosenCustomers.length, 1);
+    }
 }
 closeCustomerSMW.addEventListener('click', () => {
     customerSMW.classList.remove('modal__show');
@@ -2390,13 +2396,23 @@ async function deleteCustomer(id_clte) {
 //------Select para crear cliente
 const fk_id_emp_clteR2 = document.getElementById('fk_id_emp_clteR2');
 function selectCreateCustomer() {
-    fk_id_emp_clteR2.innerHTML = '';
-    const id_clte = fk_id_emp_clteR.value;
-    let option = document.createElement('option');
-    option.value = id_clte;
-    const empresa = enterprises.find(enterprise => enterprise.id_emp == id_clte);
-    option.innerText = empresa.nombre_emp;
-    fk_id_emp_clteR2.appendChild(option);
+    if (formProformas === 'R') {
+        fk_id_emp_clteR2.innerHTML = '';
+        const id_clte = fk_id_emp_clteR.value;
+        let option = document.createElement('option');
+        option.value = id_clte;
+        const empresa = enterprises.find(enterprise => enterprise.id_emp == id_clte);
+        option.innerText = empresa.nombre_emp;
+        fk_id_emp_clteR2.appendChild(option);
+    } else if (formProformas === 'M') {
+        fk_id_emp_clteR2.innerHTML = '';
+        const id_clte = fk_id_emp_clteM.value;
+        let option = document.createElement('option');
+        option.value = id_clte;
+        const empresa = enterprises.find(enterprise => enterprise.id_emp == id_clte);
+        option.innerText = empresa.nombre_emp;
+        fk_id_emp_clteR2.appendChild(option);
+    }
 }
 //<<-------------------------------------------MODAL CLIENTE---------------------------------------->>
 const customersRMW = document.getElementById('customersRMW');
@@ -2587,7 +2603,7 @@ function tableInventoriesMW(page) {
                 } else if (columna == 'ubi_almacen') {
                     td.innerText = inventory[columna] == 0 ? 'El Alto' : 'La Paz';
                 } else if (columna == 'cantidad_inv') {
-                    td.innerText = inventory[columna] == 0 ? 'Sin stock' : inventory[columna];               
+                    td.innerText = inventory[columna] == 0 ? 'Sin stock' : inventory[columna];
                 } else {
                     td.innerText = inventory[columna];
                 }

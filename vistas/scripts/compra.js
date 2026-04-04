@@ -147,13 +147,17 @@ selectDateBuy.addEventListener('change', searchBuys);
 //------mes
 const selectMonthBuy = document.getElementById('selectMonthBuy');
 selectMonthBuy.addEventListener('change', searchBuys);
+//------store
+const selectStoreBuy = document.getElementById('selectStoreBuy');
+selectStoreBuy.addEventListener('change', searchBuys);
 //estado de la compra
 function selectStateBuys() {
     filterBuys = filterBuys.filter(buy => {
-        const estado = selectStateBuy.value === 'todasLasCompras' ? true : buy.estado_cmp == selectStateBuy.value;
         const fecha = selectDateBuy.value === 'todas' ? true : buy.fecha_cmp.split('-')[0] === selectDateBuy.value;
         const mes = selectMonthBuy.value === 'todas' ? true : buy.fecha_cmp.split('-')[1] === selectMonthBuy.value;
-        return estado && fecha && mes;
+        const store = selectStoreBuy.value === 'todasLosAlmacenes' ? true : buy.almacen_cmp.toString() === selectStoreBuy.value;
+        const estado = selectStateBuy.value === 'todasLasCompras' ? true : buy.estado_cmp == selectStateBuy.value;
+        return estado && fecha && mes && store;
     });
     paginacionBuy(filterBuys.length, 1);
 }
@@ -242,6 +246,10 @@ function tableBuys(page) {
         tdIndex.innerText = inicio + index + 1;
         tr.appendChild(tdIndex);
 
+        const tdAlmacen = document.createElement('td');
+        tdAlmacen.innerText = buy.almacen_cmp === 0 ? 'El Alto' : 'Arce';
+        tr.appendChild(tdAlmacen);
+
         const tdNumeroOC = document.createElement('td');
         tdNumeroOC.innerText = `${buy.numero_cmp}`;
         tr.appendChild(tdNumeroOC);
@@ -261,10 +269,6 @@ function tableBuys(page) {
         const tdProveedor = document.createElement('td');
         tdProveedor.innerText = proveedor.apellido_prov;
         tr.appendChild(tdProveedor);
-
-        const tdAlmacen = document.createElement('td');
-        tdAlmacen.innerText = buy.almacen_cmp === 0 ? 'El Alto' : 'Arce';
-        tr.appendChild(tdAlmacen);
 
         const tdTotal = document.createElement('td');
         tdTotal.innerText = `${buy.total_cmp.toFixed(2)} ${buy.moneda_cmp}`;
@@ -491,11 +495,15 @@ selectDateProdOC.addEventListener('change', searchProdOC);
 //------mes
 const selectMonthProdOC = document.getElementById('selectMonthProdOC');
 selectMonthProdOC.addEventListener('change', searchProdOC);
+//------Almacen
+const selectStoreProdOC = document.getElementById('selectStoreProdOC');
+selectStoreProdOC.addEventListener('change', searchProdOC);
 function selectStateProductOC() {
     filterCmp_prods = filterCmp_prods.filter(cmp_prod => {
         const anio = selectDateProdOC.value === 'todas' ? true : cmp_prod.fecha_factura_cppd.split('-')[0] === selectDateProdOC.value;
         const mes = selectMonthProdOC.value === 'todas' ? true : cmp_prod.fecha_factura_cppd.split('-')[1] === selectMonthProdOC.value;
-        return anio && mes;
+        const store = selectStoreProdOC.value === 'todasLosAlmacenes' ? true : cmp_prod.almacen_cmp.toString() === selectStoreProdOC.value;
+        return anio && mes && store;
     });
     paginacionProdOC(filterCmp_prods.length, 1);
 }
