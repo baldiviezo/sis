@@ -1974,7 +1974,7 @@ function sendEnterprise(id_emp) {
             fk_cliente_profR.value = `${clienteDefault.apellido_clte} ${clienteDefault.nombre_clte}`;
         }
 
-        chosenCustomers = customers.filter(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte !== '' && customer.apellido_clte !== '');
+        chosenCustomers = customers.filter(customer => customer.fk_id_emp_clte === id_emp);
         chosenCustomer = chosenCustomers;
     } else if (formProformas === 'M') {
         const empresa = enterprises.find(enterprise => enterprise.id_emp === id_emp);
@@ -1992,7 +1992,7 @@ function sendEnterprise(id_emp) {
             fk_cliente_profM.value = `${clienteDefault.apellido_clte} ${clienteDefault.nombre_clte}`;
         }
 
-        chosenCustomers = customers.filter(customer => customer.fk_id_emp_clte === id_emp && customer.nombre_clte !== '' && customer.apellido_clte !== '');
+        chosenCustomers = customers.filter(customer => customer.fk_id_emp_clte === id_emp);
         chosenCustomer = chosenCustomers;
     }
     paginacionCustomerMW(chosenCustomers.length, 1);
