@@ -84,6 +84,8 @@ ALTER TABLE `producto`
   ALTER TABLE nota_entrega
 ADD COLUMN activo_ne TINYINT(1) DEFAULT 1 AFTER estado_ne;
 
+DROP TABLE IF EXISTS `devolucion`;
+
 CREATE TABLE devolucion (
     id_dvl INT AUTO_INCREMENT PRIMARY KEY,
     fk_id_ne_dvl INT NOT NULL,
