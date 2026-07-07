@@ -9,8 +9,8 @@ class consultas {
 		$this->id = $conexion->real_escape_string($_POST['id_usuaM']);
 		$this->nombres = ucwords(strtolower(trim($conexion->real_escape_string($_POST['nombre_usuaM']))));
 		$this->apellidos = ucwords(strtolower(trim($conexion->real_escape_string($_POST['apellido_usuaM']))));
-		$this->contraseña = $conexion->real_escape_string($_POST['contraseña_usuaM']);
-		$this->contraseña2 = $conexion->real_escape_string($_POST['contraseña2_usuaM']);
+		$this->pass = $conexion->real_escape_string($_POST['pass_usuaM']);
+		$this->pass2 = $conexion->real_escape_string($_POST['pass2_usuaM']);
 		$this->email = $conexion->real_escape_string($_POST['email_usuaM']);
 		$this->ci = $conexion->real_escape_string($_POST['ci_usuaM']);
 		$this->direccion = $conexion->real_escape_string($_POST['direccion_usuaM']);
@@ -21,8 +21,8 @@ class consultas {
 		include 'conexion.php';
 		$this->nombres = ucwords(strtolower(trim($conexion->real_escape_string($_POST['nombre_usua_R']))));
 		$this->apellidos = ucwords(strtolower(trim($conexion->real_escape_string($_POST['apellido_usua_R']))));
-		$this->contraseña = $conexion->real_escape_string($_POST['contraseña_usua_R']);
-		$this->contraseña2 = $conexion->real_escape_string($_POST['contraseña2_usua_R']);
+		$this->pass = $conexion->real_escape_string($_POST['pass_usua_R']);
+		$this->pass2 = $conexion->real_escape_string($_POST['pass2_usua_R']);
 		$this->email = $conexion->real_escape_string($_POST['email_usua_R']);
 		$this->ci = $conexion->real_escape_string($_POST['ci_usua_R']);
 		$this->direccion = $conexion->real_escape_string($_POST['direccion_usua_R']);
@@ -52,8 +52,8 @@ class consultas {
 		if (isset($usuario['email_usua'])){
 			echo ("El email ya existe");
 		}else{
-			$passCifrado = password_hash($this->contraseña, PASSWORD_DEFAULT);
-			$consulta2 = "INSERT INTO usuario (nombre_usua, apellido_usua, contraseña_usua, email_usua, ci_usua, direccion_usua, celular_usua, rol_usua) VALUES ('$this->nombres', '$this->apellidos', '$passCifrado', '$this->email', '$this->ci', '$this->direccion', '$this->celular', '$this->rol')";
+			$passCifrado = password_hash($this->pass, PASSWORD_DEFAULT);
+			$consulta2 = "INSERT INTO usuario (nombre_usua, apellido_usua, pass_usua, email_usua, ci_usua, direccion_usua, celular_usua, rol_usua, activo_usua) VALUES ('$this->nombres', '$this->apellidos', '$passCifrado', '$this->email', '$this->ci', '$this->direccion', '$this->celular', '$this->rol', 1)";
 			$resultado2 = $conexion->query($consulta2);
 			echo ("Usuario creado correctamente");
 		}
@@ -78,60 +78,33 @@ class consultas {
 	}
 	public function consultaUpdateUser(){
 		include 'conexion.php';
-		$passCifrado = password_hash($this->contraseña, PASSWORD_DEFAULT);
-		$consulta = "UPDATE usuario set nombre_usua='$this->nombres', apellido_usua='$this->apellidos', contraseña_usua='$passCifrado', email_usua='$this->email', ci_usua='$this->ci', direccion_usua='$this->direccion', celular_usua='$this->celular', rol_usua='$this->rol' WHERE id_usua='$this->id'";
+		if (!empty($this->pass)) {
+			$passCifrado = password_hash($this->pass, PASSWORD_DEFAULT);
+			$consulta = "UPDATE usuario set nombre_usua='$this->nombres', apellido_usua='$this->apellidos', pass_usua='$passCifrado', email_usua='$this->email', ci_usua='$this->ci', direccion_usua='$this->direccion', celular_usua='$this->celular', rol_usua='$this->rol' WHERE id_usua='$this->id'";
+		} else {
+			$consulta = "UPDATE usuario set nombre_usua='$this->nombres', apellido_usua='$this->apellidos', email_usua='$this->email', ci_usua='$this->ci', direccion_usua='$this->direccion', celular_usua='$this->celular', rol_usua='$this->rol' WHERE id_usua='$this->id'";
+		}
 		$resultado = $conexion->query($consulta);
 		if ($resultado){
 			echo ('Usuario modificado exitosamente');
 		}	
 	}
-	//-------Delete user
+	//-------Soft delete user (desactivar)
 	public function deleteUser($id){
 		include 'conexion.php';
-		//------Verificar si el usuario tiene una proforma
-		$consulta = "SELECT * FROM proforma WHERE fk_id_usua_prof = '$id'";
+		$consulta = "UPDATE usuario SET activo_usua = 0 WHERE id_usua='$id'";
 		$resultado = $conexion->query($consulta);
-		$numeroProformas = $resultado->num_rows;
-		if ($numeroProformas > 0){
-			echo "No se puede eliminar, El usuario está siendo utilizado por una proforma";
-		}else{
-			//------Verificar si el usuario tiene una nota de entrega
-			$consulta2 = "SELECT * FROM nota_entrega WHERE fk_id_usua_ne = '$id'";
-			$resultado2 = $conexion->query($consulta2);
-			$numeroNotas = $resultado2->num_rows;
-			if ($numeroNotas > 0){
-				echo "No se puede eliminar, El usuario está siendo utilizado por una nota de entrega";
-			}else{
-				//------Verificar si el usuario tiene una Venta
-				$consulta3 = "SELECT * FROM venta WHERE fk_id_usua_vnt = '$id'";
-				$resultado3 = $conexion->query($consulta3);
-				$numeroVentas = $resultado3->num_rows;
-				if ($numeroVentas > 0){
-					echo "No se puede eliminar, El usuario está siendo utilizado por una venta";
-				}else{
-					//------Verificar si el usuario tiene una Compra
-					$consulta4 = "SELECT * FROM compra WHERE fk_id_usua_cmp = '$id'";
-					$resultado4 = $conexion->query($consulta4);
-					$numeroCompras = $resultado4->num_rows;
-					if ($numeroCompras > 0){
-						echo "No se puede eliminar, El usuario está siendo utilizado por una compra";
-					}else{
-						//------Verificar si el usuario tiene una Armado
-						$consulta5 = "SELECT * FROM armado WHERE fk_id_usua_rmd = '$id'";
-						$resultado5 = $conexion->query($consulta5);
-						$numeroArmados = $resultado5->num_rows;
-						if ($numeroArmados > 0){
-							echo "No se puede eliminar, El usuario está sendo utilizado por un armado";
-						}else{
-							$consulta = "DELETE FROM usuario WHERE id_usua='$id'";
-							$resultado = $conexion->query($consulta);
-							if ($resultado){
-								echo ("Usuario eliminado con éxito");
-							}
-						}						
-					}
-				}
-			}
+		if ($resultado){
+			echo ("Usuario desactivado correctamente");
+		}
+	}
+	//-------Reactivar usuario
+	public function reactivarUser($id){
+		include 'conexion.php';
+		$consulta = "UPDATE usuario SET activo_usua = 1 WHERE id_usua='$id'";
+		$resultado = $conexion->query($consulta);
+		if ($resultado){
+			echo ("Usuario reactivado correctamente");
 		}
 	}
 }

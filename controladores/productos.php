@@ -23,6 +23,11 @@ if (isset($_POST['deleteProduct'])){
 	$borrarProducto = new consultas;
 	$borrarProducto->borrar($_POST['deleteProduct']);
 }
+//------Desactiva un Producto
+if (isset($_POST['deactivateProduct'])){
+	$desactivarProducto = new consultas;
+	$desactivarProducto->desactivar($_POST['deactivateProduct']);
+}
 //-----------------------------------------Marcas--------------------------------------------------
 if (isset($_POST['readMarcas'])){
 	$readMarca = new consultas;

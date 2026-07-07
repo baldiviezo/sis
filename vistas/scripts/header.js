@@ -24,18 +24,21 @@ const roles = {
     { href: 'ingresos.html', text: 'Ingreso y egreso' },
     { href: 'cerrar.html', text: 'Cerrar sesión' }
   ],
+  // solo realiza cotizacion y genera pedidos
   'Ingeniero': [
     { href: 'inicio.html', text: 'Inicio' },
-    { href: 'usuarios.html', text: 'Usuario' },
     { href: 'inventario.html', text: 'Inventario' },
     { href: 'proforma.html', text: 'Proforma' },
+    { href: 'notaEntrega.html', text: 'Pedidos' },
     { href: 'cerrar.html', text: 'Cerrar sesión' }
   ],
   'Gerente De Inventario': [
     { href: 'inicio.html', text: 'Inicio' },
-    { href: 'usuarios.html', text: 'Usuario' },
     { href: 'inventario.html', text: 'Inventario' },
     { href: 'proforma.html', text: 'Proforma' },
+    { href: 'notaEntrega.html', text: 'Pedidos' },
+    { href: 'compras.html', text: 'Compras' },
+    { href: 'ventas.html', text: 'Facturacion' },
     { href: 'cerrar.html', text: 'Cerrar sesión' }
   ]
 };
@@ -68,7 +71,19 @@ let nombre = localStorage.getItem('nombres_usua').split(" ");
 logo.innerHTML = `<img src="../imagenes/user.png"><h2>${nombre[0]} ${apellido[0]}</h2>`;
 
 // Agrega el evento de clic al menú desplegable
-menu.addEventListener('click', () => list.classList.toggle('nav__list--show'));
+menu.addEventListener('click', () => {
+	list.classList.toggle('nav__list--show');
+	if (list.classList.contains('nav__list--show')) {
+		history.pushState({ menu: 'open' }, '');
+	}
+});
+
+// Cierra el menú con el botón de retroceso Android/ratón
+window.addEventListener('popstate', () => {
+	if (list.classList.contains('nav__list--show')) {
+		list.classList.remove('nav__list--show');
+	}
+});
 
 // Obtiene la URL actual
 const urlActual = window.location.href;

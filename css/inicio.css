@@ -1,22 +1,121 @@
 .start {
-	background-image: url('../imagenes/Industria.jpg');
-	/* reemplaza con la ruta de tu imagen */
-	background-size: cover;
-	background-position: center;
+	padding: 2rem 1rem;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	min-height: calc(100vh - 80px);
+	background: linear-gradient(135deg, #0d0d1a 0%, #1a1a2e 30%, #16213e 60%, #0f3460 100%);
 }
-
 .start__title {
-	margin-top: 6rem;
-	font-size: 5rem;
+	margin-top: 2rem;
+	font-size: 2.5rem;
 	color: #fff;
+	margin-bottom: 0.5rem;
+	text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+.start__paragraph {
+	font-size: 1.2rem;
+	color: #ccc;
 	margin-bottom: 2rem;
 }
-
-.start__paragraph {
-	font-size: 2rem;
+.dashboard {
+	width: 100%;
+	max-width: 900px;
+}
+.dashboard__filters {
+	display: flex;
+	gap: 1rem;
+	margin-bottom: 2rem;
+	justify-content: center;
+}
+.dashboard__filters select {
+	padding: 0.5rem 1rem;
+	font-size: 1rem;
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	background: #fff;
+	cursor: pointer;
+	width: auto;
+}
+.dashboard__filters .select__number {
+	padding: 0.5rem 1rem;
+	font-size: 1rem;
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	background: #fff;
+	cursor: pointer;
+}
+.dashboard__cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 2rem;
+}
+.dashboard__card {
+	padding: 1.5rem;
+	border-radius: 12px;
 	color: #fff;
 	text-align: center;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.dashboard__card--primary {
+	background: linear-gradient(135deg, #1a237e, #3949ab);
+}
+.dashboard__card--secondary {
+	background: linear-gradient(135deg, #00695c, #26a69a);
+}
+.dashboard__card-title {
+	font-size: 0.9rem;
+	font-weight: 400;
+	margin-bottom: 0.5rem;
+	opacity: 0.9;
+}
+.dashboard__card-value {
+	font-size: 2rem;
+	font-weight: 700;
+}
+.dashboard__top {
+	margin-top: 1rem;
+}
+.dashboard__top-title {
+	font-size: 1.4rem;
+	color: #fff;
+	margin-bottom: 1rem;
+	text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+@media (max-width: 480px) {
+	.start__title {
+		font-size: 1.8rem;
+	}
+	.dashboard__card-value {
+		font-size: 1.5rem;
+	}
+}
+.table__container {
+	overflow-x: auto;
+}
+.table {
+	width: 100%;
+	border-collapse: collapse;
+	background: #fff;
+	border-radius: 8px;
+	overflow: hidden;
+	box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.table th {
+	background: #1a237e;
+	color: #fff;
+	padding: 0.75rem 1rem;
+	text-align: left;
+	font-weight: 600;
+}
+.table td {
+	padding: 0.75rem 1rem;
+	border-bottom: 1px solid #eee;
+}
+.table tr:last-child td {
+	border-bottom: none;
+}
+.table tr:hover td {
+	background: #f5f5f5;
 }

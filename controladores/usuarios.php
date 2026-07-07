@@ -7,7 +7,7 @@ if (isset($_POST['readUsers'])){
 	$readUsers->readUsers();
 }
 //------Crear un usuario
-if (isset($_POST['nombre_usua_R'])&&isset($_POST['apellido_usua_R'])&&isset($_POST['contraseña_usua_R'])&&isset($_POST['contraseña2_usua_R'])&&isset($_POST['email_usua_R'])&&isset($_POST['ci_usua_R'])&&isset($_POST['direccion_usua_R'])&&isset($_POST['celular_usua_R'])&&isset($_POST['rol_usua_R'])&&isset($_POST['createUser'])){
+if (isset($_POST['nombre_usua_R'])&&isset($_POST['apellido_usua_R'])&&isset($_POST['pass_usua_R'])&&isset($_POST['pass2_usua_R'])&&isset($_POST['email_usua_R'])&&isset($_POST['ci_usua_R'])&&isset($_POST['direccion_usua_R'])&&isset($_POST['celular_usua_R'])&&isset($_POST['rol_usua_R'])&&isset($_POST['createUser'])){
 	$createUser = new Consultas;
 	$createUser->asignarValoresRegistrar();
 	$createUser->createUser();
@@ -22,5 +22,10 @@ if (isset($_POST['updateUser'])){
 if (isset($_POST['deleteUser'])){
 	$deleteUser = new Consultas;
 	$deleteUser->deleteUser($_POST['deleteUser']);
+}
+//------Reactivar un usuario
+if (isset($_POST['reactivarUser'])){
+	$reactivarUser = new Consultas;
+	$reactivarUser->reactivarUser($_POST['reactivarUser']);
 }
 ?>

@@ -95,14 +95,14 @@ function searchBuys() {
     filterBuys = buys.filter(buy => {
         const usuario = users.find(user => user.id_usua === buy.fk_id_usua_cmp);
         const proveedor = suppliers.find(supplier => supplier.id_prov === buy.fk_id_prov_cmp);
-        const empresa = enterprises.find(enterprise => enterprise.id_empp === proveedor.fk_id_empp_prov);
+        const empresa = proveedor && enterprises.find(enterprise => enterprise.id_empp === proveedor.fk_id_empp_prov);
         if (valor == 'todas') {
             return (
                 buy.numero_cmp.toLowerCase().includes(busqueda) ||
-                (usuario.nombre_usua + ' ' + usuario.apellido_usua).toLowerCase().includes(busqueda) ||
-                (proveedor.nombre_prov + ' ' + proveedor.apellido_prov).toLowerCase().includes(busqueda) ||
+                (usuario && (usuario.nombre_usua + ' ' + usuario.apellido_usua).toLowerCase().includes(busqueda)) ||
+                (proveedor && (proveedor.nombre_prov + ' ' + proveedor.apellido_prov).toLowerCase().includes(busqueda)) ||
                 buy.fecha_cmp.toLowerCase().includes(busqueda) ||
-                empresa.nombre_empp.toLowerCase().includes(busqueda) ||
+                (empresa && empresa.nombre_empp.toLowerCase().includes(busqueda)) ||
                 buy.total_cmp.toString().includes(busqueda)
             )
         } if (valor === 'total_cmp') {
@@ -237,7 +237,7 @@ function tableBuys(page) {
     compras.forEach((buy, index) => {
         const proveedor = suppliers.find(supplier => supplier.id_prov === buy.fk_id_prov_cmp);
         const usuario = users.find(user => user.id_usua === buy.fk_id_usua_cmp);
-        const empresa = enterprises.find(enterprise => enterprise.id_empp === proveedor.fk_id_empp_prov);
+        const empresa = proveedor && enterprises.find(enterprise => enterprise.id_empp === proveedor.fk_id_empp_prov);
 
         const tr = document.createElement('tr');
         tr.setAttribute('id_cmp', buy.id_cmp);
@@ -259,15 +259,15 @@ function tableBuys(page) {
         tr.appendChild(tdFecha);
 
         const tdUsuario = document.createElement('td');
-        tdUsuario.innerText = `${usuario.nombre_usua} ${usuario.apellido_usua}`;
+        tdUsuario.innerText = usuario ? `${usuario.nombre_usua} ${usuario.apellido_usua}` : '';
         tr.appendChild(tdUsuario);
 
         const tdEmpresa = document.createElement('td');
-        tdEmpresa.innerText = empresa.nombre_empp;
+        tdEmpresa.innerText = empresa ? empresa.nombre_empp : '';
         tr.appendChild(tdEmpresa);
 
         const tdProveedor = document.createElement('td');
-        tdProveedor.innerText = proveedor.apellido_prov;
+        tdProveedor.innerText = proveedor ? proveedor.apellido_prov : '';
         tr.appendChild(tdProveedor);
 
         const tdTotal = document.createElement('td');
@@ -465,19 +465,19 @@ function searchProdOC() {
         const producto = products.find(product => product.id_prod === cmp_prod.fk_id_prod_cppd);
         if (valor == 'todas') {
             return (
-                compra.numero_cmp.toLowerCase().includes(busqueda) ||
-                compra.fecha_cmp.toLowerCase().includes(busqueda) ||
+                (compra && compra.numero_cmp.toLowerCase().includes(busqueda)) ||
+                (compra && compra.fecha_cmp.toLowerCase().includes(busqueda)) ||
                 cmp_prod.fecha_factura_cppd.toLowerCase().includes(busqueda) ||
                 cmp_prod.fecha_entrega_cppd.toLowerCase().includes(busqueda) ||
-                producto.codigo_prod.toString().toLowerCase().includes(busqueda) ||
+                (producto && producto.codigo_prod.toString().toLowerCase().includes(busqueda)) ||
                 cmp_prod.factura_cppd.toString().toLowerCase().includes(busqueda) ||
                 cmp_prod.observacion_cppd.toString().toLowerCase().includes(busqueda)
             )
         } else {
             if (valor === 'numero_cmp' || valor === 'fecha_cmp') {
-                return compra[valor].toLowerCase().includes(busqueda);
+                return compra && compra[valor].toLowerCase().includes(busqueda);
             } else if (valor === 'codigo_prod') {
-                return producto[valor].toLowerCase().includes(busqueda);
+                return producto && producto[valor].toLowerCase().includes(busqueda);
             } else {
                 if (valor === 'factura_cppd' || valor === 'observacion_cppd') {
                     return cmp_prod[valor].toString().toLowerCase().includes(busqueda);

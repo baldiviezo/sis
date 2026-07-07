@@ -130,6 +130,9 @@ tbody tr:hover{
 	background-color: #fff6;
 
 }
+.inactive-row{
+	background-color: #b0b0b0 !important;
+}
 td img.tbody__img{
 	width: 5rem;
 	height: 5rem;

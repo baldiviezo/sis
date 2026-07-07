@@ -76,6 +76,8 @@ async function readOrderBuys() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
         formData.append('readOrderBuys', '');
+        formData.append('rol_usua', localStorage.getItem('rol_usua'));
+        formData.append('id_usua', localStorage.getItem('id_usua'));
         fetch('../controladores/notaEntrega.php', {
             method: "POST",
             body: formData
@@ -429,7 +431,26 @@ finalizarOC.addEventListener('click', () => {
 })
 //------Delete orden de compra
 function deleteOrderBuy(id_oc) {
-    console.log(id_oc)
+    if (!confirm('¿Está seguro de eliminar este pedido?')) return;
+    if (rqstNotaEntrega === false) {
+        rqstNotaEntrega = true;
+        const formData = new FormData();
+        formData.append('deleteOrderBuy', id_oc);
+        preloader.classList.add('modal__show');
+        fetch('../controladores/notaEntrega.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            readOrderBuys().then(() => {
+                preloader.classList.remove('modal__show');
+                rqstNotaEntrega = false;
+                mostrarAlerta(data);
+            });
+        }).catch(err => {
+            rqstNotaEntrega = false;
+            mostrarAlerta('Ocurrio un error al eliminar el pedido');
+        });
+    }
 }
 //-----------------------------------------------TABLE OC_PROD---------------------------------------------------------
 //-----------------------------------------READ OC_PROD
@@ -439,6 +460,8 @@ function readOcProd() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
         formData.append('readOcProd', '');
+        formData.append('rol_usua', localStorage.getItem('rol_usua'));
+        formData.append('id_usua', localStorage.getItem('id_usua'));
         fetch('../controladores/notaEntrega.php', {
             method: "POST",
             body: formData
@@ -469,6 +492,7 @@ function searchOCProd() {
     filterOCProds = oc_prods.filter(oc_prod => {
         const ordenCompra = orderBuys.find(ordenCompra => ordenCompra.id_oc === oc_prod.fk_id_oc_ocpd);
         const producto = products.find(product => product.id_prod === oc_prod.fk_id_prod_ocpd);
+        if (!ordenCompra || !producto) return false;
         if (valor == 'todas') {
             return (
                 ordenCompra.numero_oc.toLowerCase().includes(busqueda) ||
@@ -583,6 +607,7 @@ function tableOCProd(page) {
     prods.forEach((prod, index) => {
         const ordenCompra = orderBuys.find(ordenCompra => ordenCompra.id_oc == prod.fk_id_oc_ocpd);
         const producto = products.find(product => product.id_prod == prod.fk_id_prod_ocpd);
+        if (!ordenCompra || !producto) return;
 
         const tr = document.createElement('tr');
         tr.setAttribute('id_ocpd', prod.id_ocpd);
@@ -896,6 +921,7 @@ function createTable(tbody, productos, moneda) {
     productos.forEach((producto, index) => {
         const oc_prod = oc_prods.find(ocp => ocp.id_ocpd == producto.getAttribute('id_ocpd'));
         const product = products.find(prod => prod.id_prod === oc_prod.fk_id_prod_ocpd);
+        if (!oc_prod || !product) return;
         const monedaSymbol = `<b>${moneda}</b>`;
 
         const tr = document.createElement('tr');
@@ -989,18 +1015,14 @@ async function readNotasEntrega() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
         formData.append('readNotasEntrega', '');
+        formData.append('rol_usua', localStorage.getItem('rol_usua'));
+        formData.append('id_usua', localStorage.getItem('id_usua'));
         fetch('../controladores/notaEntrega.php', {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            const isAdmin = ['Gerente general', 'Administrador'].includes(localStorage.getItem('rol_usua'));
-            notasEntrega = isAdmin ? data : data.filter(notaEntrega => notaEntrega.fk_id_usua_ne === localStorage.getItem('id_usua'));
+            notasEntrega = data;
             filterNotasEntrega = notasEntrega;
-            notasEntrega.forEach(notaEntrega => {
-                if (typeof notaEntrega.descuento_ne != 'number') {
-                    console.log(notaEntrega);
-                }
-            });
             createYearNE();
             resolve();
         }).catch(err => console.log(err));
@@ -1172,7 +1194,7 @@ function tableNotaEntrega(page) {
     notasEntrega.forEach((notaEntrega, index) => {
         const usuario = users.find(user => user.id_usua === notaEntrega.fk_id_usua_ne);
         const cliente = customers.find(customer => customer.id_clte === notaEntrega.fk_id_clte_ne);
-        const empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
+        const empresa = cliente ? enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte) : null;
 
         const tr = document.createElement('tr');
         tr.setAttribute('id_ne', notaEntrega.id_ne);
@@ -1199,15 +1221,15 @@ function tableNotaEntrega(page) {
         tr.appendChild(tdOrdenCompra);
 
         const tdEncargado = document.createElement('td');
-        tdEncargado.innerText = usuario.nombre_usua + ' ' + usuario.apellido_usua;
+        tdEncargado.innerText = usuario ? usuario.nombre_usua + ' ' + usuario.apellido_usua : '';
         tr.appendChild(tdEncargado);
 
         const tdEmpresa = document.createElement('td');
-        tdEmpresa.innerText = empresa.nombre_emp;
+        tdEmpresa.innerText = empresa ? empresa.nombre_emp : '';
         tr.appendChild(tdEmpresa);
 
         const tdCliente = document.createElement('td');
-        tdCliente.innerText = cliente.nombre_clte + ' ' + cliente.apellido_clte;
+        tdCliente.innerText = cliente ? cliente.nombre_clte + ' ' + cliente.apellido_clte : '';
         tr.appendChild(tdCliente);
 
         const tdTotal = document.createElement('td');
@@ -1223,23 +1245,18 @@ function tableNotaEntrega(page) {
 
         let imgs = [];
 
-        if (notaEntrega.estado_ne == '1') {
+        if (notaEntrega.activo_ne == 1) {
             imgs = [
                 { src: '../imagenes/pdf.svg', onclick: `pdfNotaEntrega(${notaEntrega.id_ne})`, title: 'PDF' },
-
             ];
-        } else if (notaEntrega.estado_ne == '0') {
-            if (localStorage.getItem('rol_usua') == 'Administrador' || localStorage.getItem('rol_usua') == 'Gerente general') {
-                imgs = [
-                    { src: '../imagenes/pdf.svg', onclick: `pdfNotaEntrega(${notaEntrega.id_ne})`, title: 'PDF' },
-
-                ];
-            } else if (localStorage.getItem('rol_usua') == 'Ingeniero' || localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
-                imgs = [
-                    { src: '../imagenes/pdf.svg', onclick: `pdfNotaEntrega(${notaEntrega.id_ne})`, title: 'PDF' },
-
-                ];
+            if (['Administrador', 'Gerente general', 'Gerente De Inventario'].includes(localStorage.getItem('rol_usua'))) {
+                imgs.push({ src: '../imagenes/trash.svg', onclick: `devolverNotaEntrega(${notaEntrega.id_ne})`, title: 'Devolver' });
             }
+        } else {
+            imgs = [
+                { src: '../imagenes/pdf.svg', onclick: `pdfNotaEntrega(${notaEntrega.id_ne})`, title: 'PDF' },
+            ];
+            tr.classList.add('returned-row');
         }
         imgs.forEach((img) => {
             const imgElement = document.createElement('img');
@@ -1303,6 +1320,39 @@ function pdfNotaEntrega(id_ne) {
     // Submitir el formulario
     form.submit();
 }
+//------Devolver nota de entrega
+function devolverNotaEntrega(id_ne) {
+    const motivo = prompt('Motivo de la devolución:');
+    if (motivo === null || motivo.trim() === '') return;
+    if (!confirm('¿Está seguro de devolver esta nota de entrega?')) return;
+    if (rqstNotaEntrega == false) {
+        rqstNotaEntrega = true;
+        const formData = new FormData();
+        formData.append('devolverNotaEntrega', '');
+        formData.append('id_ne', id_ne);
+        formData.append('motivo_dvl', motivo.trim());
+        formData.append('id_usua', localStorage.getItem('id_usua'));
+        preloader.classList.add('modal__show');
+        fetch('../controladores/notaEntrega.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            Promise.all([readNotasEntrega(), readNte_prods(), readInventories(), readOrderBuys(), readNte_prods()]).then(() => {
+                paginacionOrdenCompra(orderBuys.length, 1);
+                paginacionInventoryMW(inventories.length, 1);
+                paginacionNotaEntrega(notasEntrega.length, 1);
+                paginacionNteProd(filterNte_prods.length, 1);
+                paginacionOCPd(filterOCProds.length, 1);
+                rqstNotaEntrega = false;
+                preloader.classList.remove('modal__show');
+                mostrarAlerta(data);
+            })
+        }).catch(err => {
+            rqstNotaEntrega = false;
+            mostrarAlerta('Ocurrio un error al devolver la nota de entrega');
+        });
+    }
+}
 //------------------------------------------OPEN AND CLOSE TABLA NOTA DE ENTREGA-----------------------------------
 const tableNEMW = document.getElementById('tableNEMW');
 const closeTableNEMW = document.getElementById('closeTableNEMW');
@@ -1355,8 +1405,12 @@ function createNotaEntrega() {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            Promise.all([readNotasEntrega(), readNte_prods(), readInventories()]).then(() => {
-                paginacionNotaEntrega(filterNotasEntrega.length, 1);
+            Promise.all([readNotasEntrega(), readNte_prods(), readInventories(), readOrderBuys(), readNte_prods()]).then(() => {
+                paginacionOrdenCompra(orderBuys.length, 1);
+                paginacionInventoryMW(inventories.length, 1);
+                paginacionNotaEntrega(notasEntrega.length, 1);
+                paginacionNteProd(filterNte_prods.length, 1);
+                paginacionOCPd(filterOCProds.length, 1);
                 rqstNotaEntrega = false;
                 preloader.classList.remove('modal__show');
                 mostrarAlerta(data);
@@ -1374,6 +1428,8 @@ async function readNte_prods() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
         formData.append('readNte_prods', '');
+        formData.append('rol_usua', localStorage.getItem('rol_usua'));
+        formData.append('id_usua', localStorage.getItem('id_usua'));
         fetch('../controladores/notaEntrega.php', {
             method: "POST",
             body: formData
@@ -1403,7 +1459,6 @@ function searchNteProd() {
     const valor = selectSearchNteProd.value.toLowerCase().trim();
     filterNte_prods = nte_prods.filter(nte_prod => {
         if (valor == 'todas') {
-            const notaEntrega = notasEntrega.find(notaEntrega => notaEntrega.id_ne === nte_prod.fk_id_ne_nepd);
             const product = products.find(product => product.id_prod === nte_prod.fk_id_prod_nepd);
             return (
                 product.codigo_prod.toString().toLowerCase().includes(busqueda)
@@ -1513,6 +1568,7 @@ function tableNteProdMW(page) {
         const notaEntrega = filterNotasEntrega.find(notaEntrega => notaEntrega.id_ne === nte_prod.fk_id_ne_nepd);
 
         const producto = products.find(product => product.id_prod === nte_prod.fk_id_prod_nepd);
+        if (!notaEntrega || !producto) return;
 
         const tr = document.createElement('tr');
         tr.setAttribute('id_nepd', nte_prod.id_nepd);
@@ -1575,6 +1631,8 @@ async function readProformas() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
         formData.append('readProformas', '');
+        formData.append('rol_usua', localStorage.getItem('rol_usua'));
+        formData.append('id_usua', localStorage.getItem('id_usua'));
         fetch('../controladores/proforma.php', {
             method: "POST",
             body: formData
@@ -1662,8 +1720,8 @@ orderInventoriesMW.forEach(div => {
         filterInventoriesMW.sort((a, b) => {
             const productoA = products.find(p => p.id_prod === a.fk_id_prod_inv);
             const productoB = products.find(p => p.id_prod === b.fk_id_prod_inv);
-            const valorA = String(productoA[valor]);
-            const valorB = String(productoB[valor]);
+            const valorA = productoA ? String(productoA[valor]) : '';
+            const valorB = productoB ? String(productoB[valor]) : '';
             return valorA.localeCompare(valorB);
         });
         paginacionInventoryMW(filterInventoriesMW.length, 1);
@@ -1673,8 +1731,8 @@ orderInventoriesMW.forEach(div => {
         filterInventoriesMW.sort((a, b) => {
             const productoA = products.find(p => p.id_prod === a.fk_id_prod_inv);
             const productoB = products.find(p => p.id_prod === b.fk_id_prod_inv);
-            const valorA = String(productoA[valor]);
-            const valorB = String(productoB[valor]);
+            const valorA = productoA ? String(productoA[valor]) : '';
+            const valorB = productoB ? String(productoB[valor]) : '';
             return valorB.localeCompare(valorA);
         });
         paginacionInventoryMW(filterInventoriesMW.length, 1);
@@ -1947,4 +2005,50 @@ function selectCategoriaInventoryMW() {
         })
     }
     searchInventoriesMW();
+}
+const exportPendientesProf = document.getElementById('exportPendientesProf');
+if (exportPendientesProf) {
+    exportPendientesProf.addEventListener('click', () => {
+        const pendientes = nte_prods
+            .filter(np => np.estado_nepd == 0)
+            .sort((a, b) => {
+                const nameA = a.id_emp == 77 ? (a.apellido_clte || '') + ' ' + (a.nombre_clte || '') : a.nombre_emp || '';
+                const nameB = b.id_emp == 77 ? (b.apellido_clte || '') + ' ' + (b.nombre_clte || '') : b.nombre_emp || '';
+                return nameA.localeCompare(nameB);
+            })
+            .map(np => {
+                const ne = notasEntrega.find(ne => ne.id_ne == np.fk_id_ne_nepd);
+                return {
+                'N° NE': ne ? ne.numero_ne : '',
+                'Cliente': np.id_emp == 77
+                    ? (np.apellido_clte || '') + ' ' + (np.nombre_clte || '')
+                    : np.nombre_emp || '',
+                'codigo_prod': np.codigo_prod || '',
+                'cantidad_nepd': np.cantidad_nepd,
+                'cost_uni_nepd': np.cost_uni_nepd,
+                'observacion_ne': ne ? ne.observacion_ne : ''
+            };
+        });
+        downloadAsCSV(pendientes, 'Productos_Pendientes_Facturacion');
+    });
+}
+function downloadAsCSV(data, filename) {
+    if (!data.length) return;
+    const headers = Object.keys(data[0]);
+    const csvContent = [
+        headers.join(','),
+        ...data.map(row => headers.map(h => {
+            const val = row[h];
+            const str = val != null ? String(val) : '';
+            return str.includes(',') || str.includes('"') || str.includes('\n')
+                ? '"' + str.replace(/"/g, '""') + '"'
+                : str;
+        }).join(','))
+    ].join('\n');
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename + '.csv';
+    link.click();
+    URL.revokeObjectURL(link.href);
 }

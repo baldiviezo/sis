@@ -80,15 +80,15 @@ function searchSales() {
     const busqueda = inputSerchVnt.value.toLowerCase();
     const valor = selectSearchVnt.value.toLowerCase().trim();
     filterSales = sales.filter(sale => {
-        usuario = users.find(user => user.id_usua === sale.fk_id_usua_vnt);
-        cliente = customers.find(customer => customer.id_clte === sale.fk_id_clte_vnt);
-        empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
+        usuario = users?.find(user => user.id_usua === sale.fk_id_usua_vnt);
+        cliente = customers?.find(customer => customer.id_clte === sale.fk_id_clte_vnt);
+        empresa = cliente ? enterprises?.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte) : undefined;
         if (valor === 'todas') {
             return (
-                empresa.nombre_emp.toLowerCase().includes(busqueda) ||
-                (cliente.nombre_clte + ' ' + cliente.apellido_clte).toLowerCase().includes(busqueda) ||
+                (empresa?.nombre_emp ?? '').toLowerCase().includes(busqueda) ||
+                ((cliente?.nombre_clte ?? '') + ' ' + (cliente?.apellido_clte ?? '')).toLowerCase().includes(busqueda) ||
                 sale.fecha_factura_vnt.toLowerCase().includes(busqueda) ||
-                (usuario.nombre_usua + ' ' + usuario.apellido_usua).toLowerCase().includes(busqueda) ||
+                ((usuario?.nombre_usua ?? '') + ' ' + (usuario?.apellido_usua ?? '')).toLowerCase().includes(busqueda) ||
                 sale.ciudad_vnt.toLowerCase().includes(busqueda) ||
                 sale.tipo_pago_vnt.toLowerCase().includes(busqueda) ||
                 sale.factura_vnt.toString().toLowerCase().includes(busqueda)
@@ -224,7 +224,7 @@ function tableSales(page) {
     tbodyVenta.innerHTML = '';
     filas.forEach((venta, index) => {
         const cliente = customers.find(customer => customer.id_clte === venta.fk_id_clte_vnt);
-        const empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
+        const empresa = cliente ? enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte) : null;
         const usuario = users.find(user => user.id_usua === venta.fk_id_usua_vnt);
 
         const tr = document.createElement('tr');
@@ -247,7 +247,7 @@ function tableSales(page) {
         tr.appendChild(tdFecha);
 
         const tdCliente = document.createElement('td');
-        tdCliente.innerText = empresa.id_emp === 77 ? `${cliente.apellido_clte} ${cliente.nombre_clte}` : empresa.nombre_emp;
+        tdCliente.innerText = empresa?.id_emp === 77 ? `${cliente?.nombre_clte ?? ''} ${cliente?.apellido_clte ?? ''}` : empresa?.nombre_emp ?? '';
         tr.appendChild(tdCliente);
 
         const tdTotal = document.createElement('td');
@@ -255,7 +255,7 @@ function tableSales(page) {
         tr.appendChild(tdTotal);
 
         const tdUsuario = document.createElement('td');
-        tdUsuario.innerText = `${usuario.apellido_usua} ${usuario.nombre_usua}`;
+        tdUsuario.innerText = `${usuario?.nombre_usua ?? ''} ${usuario?.apellido_usua ?? ''}`;
         tr.appendChild(tdUsuario);
 
         const tdCiudad = document.createElement('td');
@@ -269,6 +269,16 @@ function tableSales(page) {
         const tdObservaciones = document.createElement('td');
         tdObservaciones.innerText = venta.observacion_vnt;
         tr.appendChild(tdObservaciones);
+
+        const tdAcciones = document.createElement('td');
+        const imgEdit = document.createElement('img');
+        imgEdit.src = '../imagenes/edit.svg';
+        imgEdit.className = 'icon__CRUD';
+        imgEdit.title = 'Modificar venta';
+        imgEdit.style.cursor = 'pointer';
+        imgEdit.addEventListener('click', () => openSaleMMW(venta.id_vnt));
+        tdAcciones.appendChild(imgEdit);
+        tr.appendChild(tdAcciones);
 
         tbodyVenta.appendChild(tr);
     })
@@ -287,6 +297,58 @@ function openSaleRMW() {
     fecha_factura_vnt.value = `${dateActual[2]}-${dateActual[1]}-${dateActual[0]}`;
     saleRMW.classList.add('modal__show');
 }
+//<------------------------------------------MODAL MODIFICAR VENTA--------------------------------------------
+const saleMMW = document.getElementById('saleMMW');
+const closeSaleMMW = document.getElementById('closeSaleMMW');
+closeSaleMMW.addEventListener('click', () => {
+    saleMMW.classList.remove('modal__show');
+});
+const formSaleM = document.getElementById('formSaleM');
+const id_vntM = document.getElementById('id_vntM');
+const fecha_factura_vntM = document.getElementById('fecha_factura_vntM');
+const factura_vntM = document.getElementById('factura_vntM');
+const fk_id_usua_vntM = document.getElementById('fk_id_usua_vntM');
+const observacion_vntM = document.getElementById('observacion_vntM');
+function openSaleMMW(id) {
+    const venta = sales.find(s => s.id_vnt === id);
+    if (!venta) return;
+    id_vntM.value = venta.id_vnt;
+    fecha_factura_vntM.value = venta.fecha_factura_vnt;
+    factura_vntM.value = venta.factura_vnt;
+    observacion_vntM.value = venta.observacion_vnt || '';
+    // Populate users select
+    fk_id_usua_vntM.innerHTML = '';
+    users.forEach(user => {
+        const opt = document.createElement('option');
+        opt.value = user.id_usua;
+        opt.innerText = `${user.nombre_usua} ${user.apellido_usua}`;
+        if (user.id_usua === venta.fk_id_usua_vnt) opt.selected = true;
+        fk_id_usua_vntM.appendChild(opt);
+    });
+    saleMMW.classList.add('modal__show');
+}
+formSaleM.addEventListener('submit', (e) => {
+    e.preventDefault();
+    let formData = new FormData(formSaleM);
+    preloader.classList.add('modal__show');
+    formData.append('updateSale', '');
+    fetch('../controladores/ventas.php', {
+        method: "POST",
+        body: formData
+    }).then(response => response.text()).then(data => {
+        mostrarAlerta(data);
+        if (data.includes('exitosa')) {
+            formSaleM.reset();
+            saleMMW.classList.remove('modal__show');
+            // Refresh sales data
+            Promise.all([readSales()]).then(() => {
+                preloader.classList.remove('modal__show');
+                paginationSales(sales.length, 1);
+            });
+
+        }
+    }).catch(err => console.log(err));
+});
 //----------------------------------------------CHANGE QUANTITY-------------------------------------------------
 const tipo_pago_vnt = document.getElementById('tipo_pago_vnt');
 tipo_pago_vnt.addEventListener('change', () => {
@@ -1594,11 +1656,12 @@ function searchProdVnt() {
     filterVnt_prods = vnt_prods.filter(vnt_prod => {
         if (valor === 'todas') {
             const venta = sales.find(sale => sale.id_vnt === vnt_prod.fk_id_vnt_vtpd);
+            if (!venta) return false;
             const cliente = customers.find(customer => customer.id_clte === venta.fk_id_clte_vnt);
-            const empresa = enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte);
+            const empresa = cliente ? enterprises.find(enterprise => enterprise.id_emp === cliente.fk_id_emp_clte) : null;
             return (
-                empresa.nombre_emp.toLowerCase().includes(busqueda) ||
-                (cliente.nombre_clte + ' ' + cliente.apellido_clte).toLowerCase().includes(busqueda) ||
+                (empresa?.nombre_emp ?? '').toLowerCase().includes(busqueda) ||
+                ((cliente?.nombre_clte ?? '') + ' ' + (cliente?.apellido_clte ?? '')).toLowerCase().includes(busqueda) ||
                 vnt_prod.codigo_vtpd.toLowerCase().includes(busqueda) ||
                 vnt_prod.nombre_prod.toLowerCase().includes(busqueda) ||
                 venta.factura_vnt.toString().toLowerCase().includes(busqueda) ||
@@ -1725,8 +1788,8 @@ function tableVntProds(page) {
     tbodyProdVnt.innerHTML = '';
     filas.forEach((prodVnt, index) => {
         const venta = sales.find(sale => sale.id_vnt === prodVnt.fk_id_vnt_vtpd);
-        const cliente = customers.find(cust => cust.id_clte === venta.fk_id_clte_vnt);
-        const empresa = enterprises.find(ent => ent.id_emp === cliente.fk_id_emp_clte);
+        const cliente = venta ? customers.find(cust => cust.id_clte === venta.fk_id_clte_vnt) : null;
+        const empresa = cliente ? enterprises.find(ent => ent.id_emp === cliente.fk_id_emp_clte) : null;
 
         const tr = document.createElement('tr');
         const tdIndex = document.createElement('td');
@@ -1742,7 +1805,7 @@ function tableVntProds(page) {
         tr.appendChild(tdFecha);
 
         const tdCliente = document.createElement('td');
-        tdCliente.innerHTML = empresa.id_emp === 77 ? `${cliente.nombre_clte} ${cliente.apellido_clte}` : empresa.nombre_emp;
+        tdCliente.innerHTML = empresa?.id_emp === 77 ? `${cliente?.nombre_clte ?? ''} ${cliente?.apellido_clte ?? ''}` : empresa?.nombre_emp ?? '';
         tr.appendChild(tdCliente);
 
         const tdMarca = document.createElement('td');
@@ -1808,16 +1871,16 @@ excelVnt.addEventListener('click', () => {
     });
     const nuevaVariable = sortedSales.map((sale) => {
         const cliente = customers.find(cust => cust.id_clte === sale.fk_id_clte_vnt);
-        const empresa = enterprises.find(ent => ent.id_emp === cliente.fk_id_emp_clte);
+        const empresa = cliente ? enterprises.find(ent => ent.id_emp === cliente.fk_id_emp_clte) : null;
         const usuario = users.find(user => user.id_usua === sale.fk_id_usua_vnt);
 
         return {
             ITEM: sale.factura_vnt,
-            CLIENTE: sale.id_emp === 77 ? `${cliente.nombre_clte} ${cliente.apellido_clte}` : empresa.nombre_emp,
+            CLIENTE: sale.id_emp === 77 ? `${cliente?.nombre_clte ?? ''} ${cliente?.apellido_clte ?? ''}` : empresa?.nombre_emp ?? '',
             FECHA: sale.fecha_factura_vnt,
             OC: '',
             MONTO: Number(sale.total_vnt),
-            VENTA: `${usuario.nombre_usua} ${usuario.apellido_usua}`,
+            VENTA: `${usuario?.nombre_usua ?? ''} ${usuario?.apellido_usua ?? ''}`,
             CIUDAD: sale.ciudad_vnt,
             PAGO: sale.tipo_pago_vnt,
             OBSERVACIONES: sale.observacion_vnt,
@@ -1839,156 +1902,198 @@ excelVnt.addEventListener('click', () => {
     }));
     //El array totalVendidoPorEncargado añadirlo al final del array nuevaVariable
     const reporte = [...nuevaVariable, ...totalVendidoPorEncargado];
-    downloadAsExcel(reporte);
+    downloadAsCSV(reporte, 'Ventas');
 });
 /*******************************Reporte en Excel VNT_PROD*****************************************/
 const excelProdVnt = document.getElementById('excelProdVnt');
 excelProdVnt.addEventListener('click', () => {
     const reporte = filterVnt_prods.map((obj, index) => {
         const venta = sales.find(sale => sale.id_vnt === obj.fk_id_vnt_vtpd);
-        const cliente = customers.find(cust => cust.id_clte === venta.fk_id_clte_vnt);
-        const empresa = enterprises.find(ent => ent.id_emp === cliente.fk_id_emp_clte);
+        const cliente = venta ? customers.find(cust => cust.id_clte === venta.fk_id_clte_vnt) : null;
+        const empresa = cliente ? enterprises.find(ent => ent.id_emp === cliente.fk_id_emp_clte) : null;
+        const inventario = inventories.find(inv => inv.fk_id_prod_inv === obj.fk_id_prod_vtpd);
+        
 
         return {
             'Item': index + 1,
-            'Numero cliente': cliente.numero_clte,
-            'Nombre cliente': empresa.id_emp === 77 ? `${cliente.nombre_clte} ${cliente.apellido_clte}` : empresa.nombre_emp,
+            'Numero cliente': cliente?.numero_clte ?? '',
+            'Nombre cliente': empresa?.id_emp === 77 ? `${cliente?.nombre_clte ?? ''} ${cliente?.apellido_clte ?? ''}` : empresa?.nombre_emp ?? '',
             'Codigo producto': obj.codigo_vtpd,
             'Codigo Japón': obj.codigo_smc_prod,
             'Descripcion del producto': obj.nombre_prod,
             'Cantidad': obj.cantidad_vtpd,
-            'Precio Lista': obj.cost_uni_vtpd,
-            'Total a precio de lista': obj.cost_uni_vtpd * obj.cantidad_vtpd,
+            'Precio Lista': inventario.cost_uni_inv.toFixed(2),
+            'Total a precio de lista': inventario.cost_uni_inv.toFixed(2) * obj.cantidad_vtpd,
             'Precio venta sin IVA': obj.cost_uni_vtpd * obj.cantidad_vtpd * (1 - venta.descuento_vnt / 100) * 0.87,
             'Total a precio venta': obj.cost_uni_vtpd * obj.cantidad_vtpd * (1 - venta.descuento_vnt / 100),
             'Fecha venta': venta.fecha_factura_vnt.toString().split(' ')[0],
             'Factura': venta.factura_vnt
         };
     });
-    downloadAsExcel(reporte);
+    downloadAsCSV(reporte, 'Ventas_Productos');
 });
 /*******************************importa en excel**************************************************/
 const excelProdReponer = document.getElementById('excelProdReponer');
 excelProdReponer.addEventListener('click', () => {
-    downloadAsExcel(productsSold);
+    downloadFrequencyCSV(productsSold, 'Productos_Vendidos');
 });
-/***********************************Reporte en Excel*********************************************/
-const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
-const EXCEL_EXTENSION = '.xlsx';
-function downloadAsExcel(data) {
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = {
-        Sheets: {
-            'data': worksheet
-        },
-        SheetNames: ['data']
-    };
-    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    saveAsExcel(excelBuffer, 'Ventas');
+/***********************************Reporte en CSV*********************************************/
+function downloadAsCSV(data, filename) {
+    if (!data.length) return;
+    const headers = Object.keys(data[0]);
+    const csvContent = [
+        headers.join(','),
+        ...data.map(row => headers.map(h => {
+            let val = row[h]?.toString() || '';
+            if (val.includes(',') || val.includes('"') || val.includes('\n')) {
+                val = '"' + val.replace(/"/g, '""') + '"';
+            }
+            return val;
+        }).join(','))
+    ].join('\r\n');
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename + '.csv';
+    link.click();
+    URL.revokeObjectURL(link.href);
 }
-function saveAsExcel(buffer, filename) {
-    const data = new Blob([buffer], { type: EXCEL_TYPE });
-    saveAs(data, filename + EXCEL_EXTENSION);
+/***********************************Reporte frecuencia CSV*********************************************/
+function downloadFrequencyCSV(data, filename) {
+    if (!data.length) return;
+    let headers = ['Codigo', 'Descripcion', ...productFrequencyMonths, 'Stock', 'Costo Uni.', 'Frecuencia', 'Reponer'];
+    let csvContent = headers.join(',') + '\r\n';
+    data.forEach(row => {
+        let vals = [
+            row.codigo_vtpd,
+            row.nombre_prod,
+            ...productFrequencyMonths.map(m => row.monthValues[m]),
+            row.stock_total,
+            row.costo,
+            row.frecuencia,
+            row.reponer
+        ];
+        csvContent += vals.map(v => {
+            let val = v?.toString() || '';
+            if (val.includes(',') || val.includes('"') || val.includes('\n')) {
+                val = '"' + val.replace(/"/g, '""') + '"';
+            }
+            return val;
+        }).join(',') + '\r\n';
+    });
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename + '.csv';
+    link.click();
+    URL.revokeObjectURL(link.href);
 }
 //-------------------------TABLE MODAL MOST VENDIDOS----------------------------------------->
-//--------------------------------------------fechas
-const formDates = document.getElementById('formDates');
-const startingDateInput = document.getElementById('startingDate');
-const endDateInput = document.getElementById('endDate');
-let filteredProducts = [];
-formDates.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const startingDate = startingDateInput.value;
-    const endDate = endDateInput.value;
-    if (!startingDate || !endDate) {
-        alert('Por favor, ingrese ambas fechas');
-        return;
-    }
-    const startingDateObj = new Date(startingDate);
-    const endDateObj = new Date(endDate);
-    if (isNaN(startingDateObj.getTime()) || isNaN(endDateObj.getTime())) {
-        alert('Por favor, ingrese fechas válidas');
-        return;
-    }
-    if (startingDateObj > endDateObj) {
-        alert('La fecha inicial no puede ser posterior a la fecha final');
-        return;
-    }
-    filteredProducts = Object.values(vnt_prods).filter((product) => {
-        const fecha_vnt = new Date(product.fecha_vnt);
-        const startingDateObj = new Date(startingDate);
-        const endDateObj = new Date(endDate);
-
-        return fecha_vnt >= startingDateObj && fecha_vnt <= endDateObj;
-    });
-    filterMostVnt();
-});
+//--------------------------------------------frecuencia de productos
 const tableMostProd = document.getElementById('tableMostProd');
 const closeTableMostProd = document.getElementById('closeTableMostProd');
 function openTableMostProd() {
     tableMostProd.classList.add('modal__show');
+    if (productsSold.length === 0) {
+        loadProductFrequency();
+    }
 }
 closeTableMostProd.addEventListener('click', () => {
     tableMostProd.classList.remove('modal__show');
 })
 let productsSold = [];
-function filterMostVnt() {
-    let numberMoths = document.getElementById('numberMoths').value;
-    let daysLate = document.getElementById('daysLate').value;
-    let mothsReplacement = document.getElementById('mothsReplacement').value;
-
-
-    const productosVendidos = Object.values(filteredProducts).reduce((acc, producto) => {
-        const nombreProducto = producto.codigo_vtpd;
-        if (acc[nombreProducto]) {
-            acc[nombreProducto].cantidad_vtpd += producto.cantidad_vtpd;
-            acc[nombreProducto].costoTotal += producto.cantidad_vtpd * producto.cost_uni_vtpd;
-        } else {
-            acc[nombreProducto] = {
-                codigo_vtpd: nombreProducto,
-                cantidad_vtpd: producto.cantidad_vtpd,
-                costoTotal: producto.cantidad_vtpd * producto.cost_uni_vtpd
-            };
-        }
-        return acc;
-    }, []);
-    productsSold = Object.values(productosVendidos).sort((a, b) => b.cantidad_vtpd - a.cantidad_vtpd);
-    productsSold.forEach(product => {
-        const encontrado = inventories.find(inventario => inventario.codigo_prod === product.codigo_vtpd);
-        product.cantidad_inv = encontrado.cantidad_inv;
-        const consumoMensual = product.cantidad_vtpd / numberMoths;
-        const reponer = Math.ceil(consumoMensual * mothsReplacement + (consumoMensual / 30) * daysLate - encontrado.cantidad_inv);
-        product.reponer = reponer;
-    });
+document.getElementById('formDates').addEventListener('submit', e => e.preventDefault());
+let productFrequencyMonths = [];
+document.getElementById('selectFrequency').addEventListener('change', function () {
+    loadProductFrequency();
+});
+document.querySelector('#formDates .fecha__button').addEventListener('click', function () {
+    loadProductFrequency();
+});
+document.getElementById('monthsToOrder').addEventListener('change', function () {
+    calcReponer();
     paginacionMostProd(productsSold.length, 1);
+});
+function loadProductFrequency() {
+    let months = document.getElementById('selectFrequency').value;
+    let formData = new FormData();
+    formData.append('readProductFrequency', '');
+    formData.append('months', months);
+    fetch('../controladores/ventas.php', {
+        method: "POST",
+        body: formData
+    }).then(response => response.json()).then(result => {
+        productFrequencyMonths = result.months;
+        productsSold = result.data.map(item => {
+            let total = 0;
+            let mv = {};
+            productFrequencyMonths.forEach(m => {
+                let val = item[m] || 0;
+                mv[m] = val;
+                total += val;
+            });
+            return {
+                codigo_vtpd: item.codigo_prod,
+                nombre_prod: item.nombre_prod,
+                monthValues: mv,
+                total_cantidad: total,
+                stock_total: item.stock_total,
+                costo: item.costo,
+                frecuencia: item.frecuencia,
+                reponer: 0
+            };
+        });
+        calcReponer();
+        renderFrequencyTable();
+        paginacionMostProd(productsSold.length, 1);
+    }).catch(err => console.log(err));
 }
+function renderFrequencyTable() {
+    let thead = document.querySelector('#tableMostProd table thead');
+    let html = '<tr><th>N°</th>';
+    html += '<th><div class="tbody__head--MP">Codigo<img src="../imagenes/sortA_Z.svg" name="codigo_vtpd" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="codigo_vtpd" class="icon__CRUD"></div></th>';
+    html += '<th>Descripcion</th>';
+    productFrequencyMonths.forEach(m => {
+        html += '<th><div class="tbody__head--MP">' + m + '<img src="../imagenes/sortA_Z.svg" name="' + m + '" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="' + m + '" class="icon__CRUD"></div></th>';
+    });
+    html += '<th><div class="tbody__head--MP">Stock<img src="../imagenes/sortA_Z.svg" name="stock_total" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="stock_total" class="icon__CRUD"></div></th>';
+    html += '<th><div class="tbody__head--MP">Costo Uni.<img src="../imagenes/sortA_Z.svg" name="costo" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="costo" class="icon__CRUD"></div></th>';
+    html += '<th><div class="tbody__head--MP">Frecuencia<img src="../imagenes/sortA_Z.svg" name="frecuencia" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="frecuencia" class="icon__CRUD"></div></th>';
+    html += '<th><div class="tbody__head--MP">Reponer<img src="../imagenes/sortA_Z.svg" name="reponer" class="icon__CRUD"><img src="../imagenes/sortZ_A.svg" name="reponer" class="icon__CRUD"></div></th>';
+    html += '</tr>';
+    thead.innerHTML = html;
+}
+function calcReponer() {
+    let numMonths = Number(document.getElementById('selectFrequency').value) || 1;
+    let monthsToOrder = Number(document.getElementById('monthsToOrder').value) || 1;
+    productsSold.forEach(product => {
+        let consumoMensual = product.total_cantidad / numMonths;
+        let reponer = Math.ceil(consumoMensual * monthsToOrder - product.stock_total);
+        product.reponer = reponer > 0 ? reponer : 0;
+    });
+}
+//------Sort por evento delegado
+document.querySelector('#tableMostProd table').addEventListener('click', function (e) {
+    let target = e.target.closest('img');
+    if (!target || !target.classList.contains('icon__CRUD')) return;
+    let div = target.closest('.tbody__head--MP');
+    if (!div) return;
+    let valor = target.name;
+    let isAsc = target.src.includes('sortA_Z');
+    if (valor == 'codigo_vtpd') {
+        productsSold.sort((a, b) => isAsc ? a[valor].localeCompare(b[valor]) : b[valor].localeCompare(a[valor]));
+    } else if (productFrequencyMonths.includes(valor)) {
+        productsSold.sort((a, b) => isAsc ? (a.monthValues[valor] - b.monthValues[valor]) : (b.monthValues[valor] - a.monthValues[valor]));
+    } else {
+        productsSold.sort((a, b) => isAsc ? (a[valor] - b[valor]) : (b[valor] - a[valor]));
+    }
+    paginacionMostProd(productsSold.length, 1);
+});
 //------Proformas por pagina
 const selectNumberMostProd = document.getElementById('selectNumberMostProd');
 selectNumberMostProd.selectedIndex = 4;
 selectNumberMostProd.addEventListener('change', function () {
     paginacionMostProd(productsSold.length, 1);
-});
-//------Ordenar tabla descendente ascendente
-const orderMostProd = document.querySelectorAll('.tbody__head--MP');
-orderMostProd.forEach(div => {
-    div.children[0].addEventListener('click', function () {
-        let valor = div.children[0].name;
-        if (valor == 'codigo_vtpd') {
-            productsSold.sort((a, b) => a[valor].localeCompare(b[valor]));
-        } else if (valor == 'cantidad_vtpd' || valor == 'costoTotal' || valor == 'reponer') {
-            productsSold.sort((a, b) => a[valor] - b[valor]);
-        }
-        paginacionMostProd(productsSold.length, 1);
-    });
-    div.children[1].addEventListener('click', function () {
-        let valor = div.children[0].name;
-        if (valor == 'codigo_vtpd') {
-            productsSold.sort((a, b) => b[valor].localeCompare(a[valor]));
-        } else if (valor == 'cantidad_vtpd' || valor == 'costoTotal' || valor == 'reponer') {
-            productsSold.sort((a, b) => b[valor] - a[valor]);
-        }
-        paginacionMostProd(productsSold.length, 1);
-    });
 });
 //------PaginacionProdVnt
 function paginacionMostProd(allProducts, page) {
@@ -2030,7 +2135,7 @@ function paginacionMostProd(allProducts, page) {
     h2.innerHTML = `Pagina ${page}/${allPages}, ${allProducts} Productos`;
     tableMostVnt(page);
 }
-//--------Tabla de vnt_prods
+//--------Tabla de frecuencia de productos
 function tableMostVnt(page) {
     let tbody = document.getElementById('tbodyMostProd');
     inicio = (page - 1) * Number(selectNumberMostProd.value);
@@ -2039,27 +2144,36 @@ function tableMostVnt(page) {
     tbody.innerHTML = '';
     for (let proforma in productsSold) {
         if (i > inicio && i <= final) {
+            let p = productsSold[proforma];
             let tr = document.createElement('tr');
-            for (let valor in productsSold[proforma]) {
-                if (valor == 'codigo_vtpd') {
-                    let td = document.createElement('td');
-                    td.innerText = i;
-                    tr.appendChild(td);
-                    i++;
-                    let td2 = document.createElement('td');
-                    td2.innerText = productsSold[proforma][valor];
-                    tr.appendChild(td2);
-                } else if (valor == 'costoTotal') {
-                    let td = document.createElement('td');
-                    td.innerText = productsSold[proforma][valor].toFixed(2) + ' Bs';
-                    tr.appendChild(td);
-                } else {
-                    let td = document.createElement('td');
-                    td.innerText = productsSold[proforma][valor];
-                    tr.appendChild(td);
-                }
-            }
+            let tdN = document.createElement('td');
+            tdN.innerText = i;
+            tr.appendChild(tdN);
+            let tdCod = document.createElement('td');
+            tdCod.innerText = p.codigo_vtpd;
+            tr.appendChild(tdCod);
+            let tdDesc = document.createElement('td');
+            tdDesc.innerText = p.nombre_prod;
+            tr.appendChild(tdDesc);
+            productFrequencyMonths.forEach(m => {
+                let tdM = document.createElement('td');
+                tdM.innerText = p.monthValues[m];
+                tr.appendChild(tdM);
+            });
+            let tdStock = document.createElement('td');
+            tdStock.innerText = p.stock_total;
+            tr.appendChild(tdStock);
+            let tdCosto = document.createElement('td');
+            tdCosto.innerText = Number(p.costo).toFixed(2) + ' Bs';
+            tr.appendChild(tdCosto);
+            let tdFreq = document.createElement('td');
+            tdFreq.innerText = p.frecuencia;
+            tr.appendChild(tdFreq);
+            let tdReponer = document.createElement('td');
+            tdReponer.innerText = p.reponer;
+            tr.appendChild(tdReponer);
             tbody.appendChild(tr);
+            i++;
         } else {
             i++;
         }

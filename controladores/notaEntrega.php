@@ -11,10 +11,10 @@ if (isset($_POST['readNotasEntrega'])) {
 	$readNotasEntrega = new consultas;
 	$readNotasEntrega->readNotasEntrega();
 }
-//-------delete nota de entrega
-if (isset($_POST['deleteNotaEntrega'])) {
-	$deleteNotaEntrega = new consultas;
-	$deleteNotaEntrega->deleteNotaEntrega();
+//-------devolver nota de entrega
+if (isset($_POST['devolverNotaEntrega'])){
+	$devolverNotaEntrega = new consultas;
+	$devolverNotaEntrega->devolverNotaEntrega($_POST['id_usua']);
 }
 //------read todas las notas de entrega
 if (isset($_POST['readAllNotaEntrega'])) {
@@ -41,5 +41,10 @@ if (isset($_POST['readOcProd'])) {
 if (isset($_POST['finalizarOC'])) {
 	$finalizarOC = new consultas;
 	$finalizarOC->finalizarOC($_POST['finalizarOC']);
+}
+//-------Eliminar OC
+if (isset($_POST['deleteOrderBuy'])) {
+	$deleteOrderBuy = new consultas;
+	$deleteOrderBuy->deleteOrderBuy($_POST['deleteOrderBuy']);
 }
 ?>

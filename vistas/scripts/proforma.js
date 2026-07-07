@@ -91,7 +91,7 @@ const inputSerchProduct = document.getElementById("inputSerchProduct");
 inputSerchProduct.addEventListener("keyup", searchProducts);
 //------Clientes por pagina
 const selectNumberProduct = document.getElementById('selectNumberProduct');
-selectNumberProduct.selectedIndex = 2;
+selectNumberProduct.selectedIndex = 3;
 selectNumberProduct.addEventListener('change', function () {
     paginacionProduct(filterProducts.length, 1);
 });
@@ -171,16 +171,25 @@ function cardProduct(page) {
         const box = document.createElement('div');
         box.classList.add('box');
 
-        const imgBox = document.createElement('div');
-        imgBox.classList.add('img-box');
-        imgBox.style.maxHeight = '70%';
-        imgBox.style.maxWidth = '100%';
+		const imgBox = document.createElement('div');
+		imgBox.classList.add('img-box');
 
         const img = document.createElement('img');
         img.classList.add('images');
         img.src = `../modelos/imagenes/${product.imagen_prod}`;
         img.onclick = () => showDetails(product.id_prod);
         imgBox.appendChild(img);
+        if (product.catalogo_prod) {
+            const pdfLink = document.createElement('a');
+            pdfLink.classList.add('img-box__pdf');
+            pdfLink.href = product.catalogo_prod;
+            pdfLink.target = '_blank';
+            pdfLink.title = 'Catálogo';
+            const pdfIcon = document.createElement('img');
+            pdfIcon.src = '../imagenes/pdf.svg';
+            pdfLink.appendChild(pdfIcon);
+            imgBox.appendChild(pdfLink);
+        }
         box.appendChild(imgBox);
 
         const bottom = document.createElement('div');
@@ -190,12 +199,20 @@ function cardProduct(page) {
         p.classList.add('box__code');
         p.textContent = product.codigo_prod;
 
-        const button = document.createElement('button');
-        button.textContent = 'Añadir';
-        button.onclick = () => addCard(product.id_prod);
-
-        bottom.appendChild(p);
-        bottom.appendChild(button);
+        if (product.activo_prod == 0) {
+            const span = document.createElement('span');
+            span.style.color = 'red';
+            span.style.fontWeight = 'bold';
+            span.textContent = 'Producto descontinuado';
+            bottom.appendChild(p);
+            bottom.appendChild(span);
+        } else {
+            const button = document.createElement('button');
+            button.textContent = 'Añadir';
+            button.onclick = () => addCard(product.id_prod);
+            bottom.appendChild(p);
+            bottom.appendChild(button);
+        }
         box.appendChild(bottom);
 
         fragment.appendChild(box);
@@ -404,6 +421,10 @@ function totalPrice() {
     }
     totalProfR.innerHTML = moneda + ' ' + total.toFixed(2);
     document.getElementById('count').innerHTML = divs.length;
+    const cartTotalMobile = document.getElementById('cartTotalMobile');
+    const cartCountMobile = document.getElementById('cartCountMobile');
+    if (cartTotalMobile) cartTotalMobile.innerHTML = moneda + ' ' + total.toFixed(2);
+    if (cartCountMobile) cartCountMobile.innerHTML = divs.length;
 }
 //-------Tipo de moneda
 const selectMoneyCart = document.getElementById('selectMoneyCart');
@@ -458,12 +479,13 @@ async function readProformas() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
         formData.append('readProformas', '');
+        formData.append('rol_usua', localStorage.getItem('rol_usua'));
+        formData.append('id_usua', localStorage.getItem('id_usua'));
         fetch('../controladores/proforma.php', {
             method: "POST",
             body: formData
         }).then(response => response.json()).then(data => {
-            const isAdmin = ['Gerente general', 'Administrador'].includes(localStorage.getItem('rol_usua'));
-            proformas = isAdmin ? data : data.filter(proforma => proforma.fk_id_usua_prof === localStorage.getItem('id_usua'));
+            proformas = data;
             filterProformas = proformas;
             resolve();
         }).catch(err => console.log(err));
@@ -680,12 +702,20 @@ function tableProformas(page) {
                     { src: '../imagenes/edit.svg', onclick: `readProforma(${proforma.id_prof})`, title: 'Editar Proforma' },
                     { src: '../imagenes/trash.svg', onclick: `deleteProforma(${proforma.id_prof})`, title: 'Eliminar Proforma' }
                 ];
-            } else if (['Ingeniero', 'Gerente De Inventario'].includes(localStorage.getItem('rol_usua'))) {
+            } else if (['Ingeniero'].includes(localStorage.getItem('rol_usua'))) {
                 imgs = [
                     { src: '../imagenes/notaEntrega.svg', onclick: `openOrdenBuy(${proforma.id_prof})`, title: 'Proforma confirmada' },
                     { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_prof}, "prof")`, title: 'Mostrar PDF' },
                     { src: '../imagenes/edit.svg', onclick: `readProforma(${proforma.id_prof})`, title: 'Editar Proforma' }
                 ];
+            } else if (localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
+                imgs = [
+                    { src: '../imagenes/notaEntrega.svg', onclick: `openOrdenBuy(${proforma.id_prof})`, title: 'Proforma confirmada' },
+                    { src: '../imagenes/pdf.svg', onclick: `selectPDFInformation(${proforma.id_prof}, "prof")`, title: 'Mostrar PDF' }
+                ];
+                if (proforma.fk_id_usua_prof == localStorage.getItem('id_usua')) {
+                    imgs.push({ src: '../imagenes/edit.svg', onclick: `readProforma(${proforma.id_prof})`, title: 'Editar Proforma' });
+                }
             }
         }
         const hasMdfProforma = mdfPproforma.filter(mdfProforma => mdfProforma.id_prof_mprof == proforma.id_prof).length > 0;
@@ -1024,6 +1054,7 @@ async function updateProforma() {
             formData.set("total_profM", total);
             formData.append('updateProforma', JSON.stringify(productos));
             formData.append('id_usua', localStorage.getItem('id_usua'));
+            formData.append('rol_usua', localStorage.getItem('rol_usua'));
             preloader.classList.add('modal__show');
             fetch('../controladores/proforma.php', {
                 method: "POST",
@@ -1052,6 +1083,8 @@ async function deleteProforma(id_prof) {
             requestProf = true;
             let formData = new FormData();
             formData.append('deleteProforma', id_prof);
+            formData.append('rol_usua', localStorage.getItem('rol_usua'));
+            formData.append('id_usua', localStorage.getItem('id_usua'));
             preloader.classList.add('modal__show');
             fetch('../controladores/proforma.php', {
                 method: "POST",
@@ -1257,8 +1290,27 @@ closeProformaRMW.addEventListener('click', (e) => {
     proformaRMW.classList.remove('modal__show');
 });
 closeProformaMMW.addEventListener('click', (e) => {
-    proformaMMW.classList.remove('modal__show');
+	proformaMMW.classList.remove('modal__show');
 });
+//------------------------------TOGGLE CARRITO MÓVIL (BOTTOM BAR)--------------------------------
+const cartBottomBar = document.getElementById('cartBottomBar');
+const cartBackdrop = document.getElementById('cartBackdrop');
+const sidebarEl = document.querySelector('.sidebar');
+
+function toggleCart() {
+	sidebarEl.classList.toggle('sidebar--show');
+	cartBackdrop.classList.toggle('cart-backdrop--show');
+	const arrow = cartBottomBar.querySelector('.cart-bottom-bar__arrow');
+	if (arrow) arrow.classList.toggle('cart-bottom-bar__arrow--open');
+}
+function closeCart() {
+	sidebarEl.classList.remove('sidebar--show');
+	cartBackdrop.classList.remove('cart-backdrop--show');
+	const arrow = cartBottomBar.querySelector('.cart-bottom-bar__arrow');
+	if (arrow) arrow.classList.remove('cart-bottom-bar__arrow--open');
+}
+if (cartBottomBar) cartBottomBar.addEventListener('click', toggleCart);
+if (cartBackdrop) cartBackdrop.addEventListener('click', closeCart);
 //--------------------------------------------ALERTA DE CANTIDAD Y COSTO UNITARIO---------------------------------
 //------Mostrar una alerta si la cantidad es menor a 0
 function findOutCartItem() {
@@ -1436,7 +1488,7 @@ function selectPDFInformation(id, pdf) {
                         'imagen_prod': product['imagen_prod'],
                         'tmp_entrega_pfpd': pf_pd['tmp_entrega_pfpd']
                     };
-                });
+                }).filter(obj => obj !== null);
             showPDF(proforma, objects, pdf);
         }
     } else if (pdf == 'mprof') {
@@ -1453,7 +1505,7 @@ function selectPDFInformation(id, pdf) {
                         'imagen_prod': product['imagen_prod'],
                         'tmp_entrega_pfpd': pf_pd['tmp_entrega_mpfpd']
                     };
-                });
+                }).filter(obj => obj !== null);
             showPDF(proforma, objects, pdf);
         }
     }
@@ -1600,6 +1652,8 @@ async function readProf_prods() {
     return new Promise((resolve, reject) => {
         let formData = new FormData();
         formData.append('readProf_prods', '');
+        formData.append('rol_usua', localStorage.getItem('rol_usua'));
+        formData.append('id_usua', localStorage.getItem('id_usua'));
         fetch('../controladores/proforma.php', {
             method: "POST",
             body: formData
@@ -1688,6 +1742,7 @@ function paginacionPfPd(allProducts, page) {
     let total = 0;
     filterProf_prods.forEach(prof_prod => {
         const proforma = proformas.find(proforma => proforma.id_prof === prof_prod.fk_id_prof_pfpd);
+        if (!proforma) return;
         total += prof_prod.cantidad_pfpd * prof_prod.cost_uni_pfpd * (100 - proforma.descuento_prof) / 100;
     })
     totalPfPd.innerHTML = `Total: ${total.toFixed(2)} Bs`;
@@ -2508,8 +2563,8 @@ orderInventoriesMW.forEach(div => {
         filterInventoriesMW.sort((a, b) => {
             const productoA = products.find(p => p.id_prod === a.fk_id_prod_inv);
             const productoB = products.find(p => p.id_prod === b.fk_id_prod_inv);
-            const valorA = String(productoA[valor]);
-            const valorB = String(productoB[valor]);
+            const valorA = productoA ? String(productoA[valor]) : '';
+            const valorB = productoB ? String(productoB[valor]) : '';
             return valorA.localeCompare(valorB);
         });
         paginacionInventoryMW(filterInventoriesMW.length, 1);
@@ -2519,8 +2574,8 @@ orderInventoriesMW.forEach(div => {
         filterInventoriesMW.sort((a, b) => {
             const productoA = products.find(p => p.id_prod === a.fk_id_prod_inv);
             const productoB = products.find(p => p.id_prod === b.fk_id_prod_inv);
-            const valorA = String(productoA[valor]);
-            const valorB = String(productoB[valor]);
+            const valorA = productoA ? String(productoA[valor]) : '';
+            const valorB = productoB ? String(productoB[valor]) : '';
             return valorB.localeCompare(valorA);
         });
         paginacionInventoryMW(filterInventoriesMW.length, 1);
@@ -2795,23 +2850,29 @@ function tableProductsMW(page) {
         tr.appendChild(tdStock);
 
         const tdAcciones = document.createElement('td');
-        const fragment = document.createDocumentFragment();
-        let imgs = [];
+        if (product.activo_prod == 0) {
+            tdAcciones.textContent = 'Producto descontinuado';
+            tdAcciones.style.color = 'red';
+            tdAcciones.style.fontWeight = 'bold';
+        } else {
+            const fragment = document.createDocumentFragment();
+            let imgs = [];
 
-        imgs.push({
-            src: '../imagenes/edit.svg', onclick: `readProduct(${product.id_prod})`, title: 'Editar'
-        },
-            { src: '../imagenes/send.svg', onclick: `sendProduct(${product.id_prod})`, title: 'Seleccionar' });
+            imgs.push({
+                src: '../imagenes/edit.svg', onclick: `readProduct(${product.id_prod})`, title: 'Editar'
+            },
+                { src: '../imagenes/send.svg', onclick: `sendProduct(${product.id_prod})`, title: 'Seleccionar' });
 
-        imgs.forEach((img) => {
-            const imgElement = document.createElement('img');
-            imgElement.src = img.src;
-            imgElement.onclick = new Function(img.onclick);
-            imgElement.title = img.title;
-            fragment.appendChild(imgElement);
-        });
+            imgs.forEach((img) => {
+                const imgElement = document.createElement('img');
+                imgElement.src = img.src;
+                imgElement.onclick = new Function(img.onclick);
+                imgElement.title = img.title;
+                fragment.appendChild(imgElement);
+            });
 
-        tdAcciones.appendChild(fragment);
+            tdAcciones.appendChild(fragment);
+        }
         tr.appendChild(tdAcciones);
 
         tbody.appendChild(tr);
@@ -2911,6 +2972,7 @@ function readProduct(id_prod) {
                 divCodigoSMCM.removeAttribute('hidden');
                 document.getElementsByName(valor + 'M')[0].value = (filterProducts.find(product => product.id_prod == id_prod))[valor];
             }
+        } else if (valor == 'activo_prod') {
         } else if (valor == 'fk_id_mrc_prod') {
             document.getElementsByName(valor + 'M')[0].value = (filterProducts.find(product => product.id_prod == id_prod))[valor];
         } else if (valor == 'fk_id_ctgr_prod') {
@@ -3690,4 +3752,51 @@ function tableCltesMW(page) {
 
         tbody.appendChild(tr);
     });
+}
+//-------------------------------REPORTE CSV CLIENTES----------------------------------------------
+const excelClientesProf = document.getElementById('excelClientesProf');
+excelClientesProf.addEventListener('click', () => {
+    const empresas = enterprises
+        .slice().sort((a, b) => a.nombre_emp.localeCompare(b.nombre_emp))
+        .map(e => {
+            const clte = customers.find(c => c.fk_id_emp_clte == e.id_emp);
+            return {
+                'Cliente': e.nombre_emp,
+                'Nit': e.nit_emp == '0' ? '' : e.nit_emp,
+                'Email': clte ? clte.email_clte || '' : '',
+                'Direccion': clte ? clte.direccion_clte || '' : '',
+                'Tel/Cel': e.telefono_emp == '0' ? '' : e.telefono_emp
+            };
+        });
+    const particulares = customers
+        .filter(c => c.fk_id_emp_clte == 77)
+        .slice().sort((a, b) => (a.nombre_clte + a.apellido_clte).localeCompare(b.nombre_clte + b.apellido_clte))
+        .map(c => ({
+            'Cliente': (c.apellido_clte || '') + ' ' + (c.nombre_clte || ''),
+            'Nit': c.nit_clte || '',
+            'Email': c.email_clte || '',
+            'Direccion': c.direccion_clte || '',
+            'Tel/Cel': c.celular_clte || ''
+        }));
+    downloadAsCSV([...empresas, ...particulares], 'Clientes');
+});
+function downloadAsCSV(data, filename) {
+    if (!data.length) return;
+    const headers = Object.keys(data[0]);
+    const csvContent = [
+        headers.join(','),
+        ...data.map(row => headers.map(h => {
+            let val = row[h]?.toString() || '';
+            if (val.includes(',') || val.includes('"') || val.includes('\n')) {
+                val = '"' + val.replace(/"/g, '""') + '"';
+            }
+            return val;
+        }).join(','))
+    ].join('\r\n');
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename + '.csv';
+    link.click();
+    URL.revokeObjectURL(link.href);
 }

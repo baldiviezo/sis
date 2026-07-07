@@ -16,8 +16,53 @@
 		</nav>
 	</header>
 	<main class="start">
-			<h1 class="start__title">Bienvenido</h1>
-			<p class="start__paragraph"></p>
+		<h1 class="start__title">Bienvenido</h1>
+		<p class="start__paragraph"></p>
+		<section class="dashboard">
+			<div class="dashboard__filters">
+				<select id="selectYearDashboard" class="select__number"></select>
+				<select id="selectMonthDashboard" class="select__number">
+					<option value="">Todos los meses</option>
+					<option value="1">Enero</option>
+					<option value="2">Febrero</option>
+					<option value="3">Marzo</option>
+					<option value="4">Abril</option>
+					<option value="5">Mayo</option>
+					<option value="6">Junio</option>
+					<option value="7">Julio</option>
+					<option value="8">Agosto</option>
+					<option value="9">Septiembre</option>
+					<option value="10">Octubre</option>
+					<option value="11">Noviembre</option>
+					<option value="12">Diciembre</option>
+				</select>
+			</div>
+			<div class="dashboard__cards">
+				<div class="dashboard__card dashboard__card--primary">
+					<h3 class="dashboard__card-title">Total Facturado</h3>
+					<p class="dashboard__card-value" id="totalAmount">0.00 Bs</p>
+				</div>
+				<div class="dashboard__card dashboard__card--secondary">
+					<h3 class="dashboard__card-title">Facturas Emitidas</h3>
+					<p class="dashboard__card-value" id="totalCount">0</p>
+				</div>
+			</div>
+			<div class="dashboard__top">
+				<h2 class="dashboard__top-title">Top Clientes</h2>
+				<div class="table__container">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>Cliente</th>
+								<th>Total facturado</th>
+							</tr>
+						</thead>
+						<tbody id="topClientsBody"></tbody>
+					</table>
+				</div>
+			</div>
+		</section>
 	</main>
 	<script src="scripts/header.js"></script>
 	<script src="scripts/inicio.js"></script>

@@ -721,24 +721,26 @@ function mostrarAlerta(message) {
 botonAceptar.addEventListener('click', (e) => {
     modalAlerta.classList.remove('modal__show');
 });
-/*********************************************Reporte en Excel****************************************************/
-const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
-const EXCEL_EXTENSION = '.xlsx';
-function downloadAsExcel(data) {
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = {
-        Sheets: {
-            'data': worksheet
-        },
-        SheetNames: ['data']
-    };
-    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-
-    saveAsExcel(excelBuffer, 'Ventas');
-}
-function saveAsExcel(buffer, filename) {
-    const data = new Blob([buffer], { type: EXCEL_TYPE });
-    saveAs(data, filename + EXCEL_EXTENSION);
+/*********************************************Reporte en CSV****************************************************/
+function downloadAsCSV(data, filename) {
+    if (!data.length) return;
+    const headers = Object.keys(data[0]);
+    const csvContent = [
+        headers.join(','),
+        ...data.map(row => headers.map(h => {
+            let val = row[h]?.toString() || '';
+            if (val.includes(',') || val.includes('"') || val.includes('\n')) {
+                val = '"' + val.replace(/"/g, '""') + '"';
+            }
+            return val;
+        }).join(','))
+    ].join('\r\n');
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename + '.csv';
+    link.click();
+    URL.revokeObjectURL(link.href);
 }
 const excelReport = document.getElementById('excelReport');
 excelReport.addEventListener('click', () => {
@@ -753,5 +755,5 @@ excelReport.addEventListener('click', () => {
         };
     });
 
-    downloadAsExcel(reporte);
+    downloadAsCSV(reporte, 'Ingresos');
 });

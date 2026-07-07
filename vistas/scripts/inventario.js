@@ -22,10 +22,10 @@ if (localStorage.getItem('rol_usua') == 'Gerente general' || localStorage.getIte
 
 } else if (localStorage.getItem('rol_usua') == 'Gerente De Inventario') {
     //Marca y Categoria
-    document.querySelector('.select__search').children[0].children[2].removeAttribute('hidden');
-    document.querySelector('.select__search').children[1].children[2].removeAttribute('hidden');
+    //document.querySelector('.select__search').children[0].children[2].removeAttribute('hidden');
+    //document.querySelector('.select__search').children[1].children[2].removeAttribute('hidden');
     //inventoryMMW
-    document.getElementsByName('cantidad_invM')[0].setAttribute('readonly', 'readonly');
+    //document.getElementsByName('cantidad_invM')[0].setAttribute('readonly', 'readonly');
 }
 //--------------------------------------------BLOCK REQUEST WITH A FLAG--------------------------------------------
 let requestInventory = false;
@@ -42,6 +42,9 @@ async function init() {
                 readProductsMW(),
                 readInventories()
             ]);
+            filterInventories = inventories.filter(inventory =>
+                products.some(product => product.id_prod === inventory.fk_id_prod_inv)
+            );
             paginacionInventory(filterInventories.length, 1);
             paginacionProductMW(products.length, 1);
             requestInventory = false;
@@ -481,6 +484,7 @@ function readProduct(id_prod) {
                     divCodigoSMCM.removeAttribute('hidden');
                     document.getElementsByName(valor + 'M')[0].value = product[valor];
                 }
+            } else if (valor == 'activo_prod') {
             } else if (valor == 'fk_id_mrc_prod') {
                 document.getElementsByName(valor + 'M')[0].value = product[valor];
             } else if (valor == 'fk_id_ctgr_prod') {
@@ -839,6 +843,7 @@ function tableProductsMW(page) {
                 const marca = marcas.find((marca) => marca.id_mrc === product[valor]);
                 td.innerText = marca ? marca.nombre_mrc : '';
                 tr.appendChild(td);
+            } else if (valor == 'activo_prod') {
             } else if (valor == 'fk_id_ctgr_prod') {
                 const categoria = categorias.find((categoria) => categoria.id_ctgr === product[valor]);
                 td.innerText = categoria ? categoria.nombre_ctgr : '';
@@ -856,9 +861,14 @@ function tableProductsMW(page) {
         }
 
         let td = document.createElement('td');
-        td.innerHTML = `
+        if (product.activo_prod == 0) {
+            td.innerHTML = `<span style="color:red;font-weight:bold">Producto descontinuado</span>`;
+        } else {
+            td.innerHTML = `
             <img src='../imagenes/edit.svg' onclick='readProduct(${product.id_prod})' title='Editar'>
+            <img src='../imagenes/trash.svg' onclick='deactivateProduct(${product.id_prod})' title='Producto descontinuado'>
             <img src='../imagenes/send.svg' onclick='sendProduct(${product.id_prod})' title='Seleccionar'>`;
+        }
         tr.appendChild(td);
         fragment.appendChild(tr);
     }
@@ -871,6 +881,22 @@ function sendProduct(id_prod) {
     const codigo_prod_invR = document.getElementsByName('codigo_prod_inv' + formProduct)[0];
     codigo_prod_invR.value = products.find(product => product.id_prod === id_prod).codigo_prod;
     productSMW.classList.remove('modal__show');
+}
+function deactivateProduct(id_prod) {
+    if (confirm('¿Desactivar producto?')) {
+        const formData = new FormData();
+        preloader.classList.add('modal__show');
+        formData.append('deactivateProduct', id_prod);
+        fetch('../controladores/productos.php', { method: 'POST', body: formData })
+            .then(response => response.text())
+            .then(data => {
+                readProductsMW().then(() => {
+                    paginacionProductMW(products.length, 1);
+                    mostrarAlerta(data);
+                    preloader.classList.remove('modal__show');
+            })
+            });
+    }
 }
 //---------------------------VENTANA MODAL PARA BUSCAR PRODUCTOS
 const productSMW = document.getElementById('productSMW');
@@ -1294,3 +1320,44 @@ marca_prodM.addEventListener('change', () => {
         divCodigoSMCM.setAttribute('hidden', '');
     }
 });
+//-------------------------------REPORTE EXCEL INVENTARIO----------------------------------------------
+const excelInventory = document.getElementById('excelInventory');
+excelInventory.addEventListener('click', () => {
+    const reporte = filterInventories
+        .slice().sort((a, b) => a.descripcion_inv.localeCompare(b.descripcion_inv))
+        .map(inventory => {
+        const product = products.find(product => product.id_prod === inventory.fk_id_prod_inv);
+        const marca = product ? marcas.find(m => m.id_mrc === product.fk_id_mrc_prod) : null;
+        const categoria = product ? categorias.find(c => c.id_ctgr === product.fk_id_ctgr_prod) : null;
+        return {
+            'descripcion_inv': inventory.descripcion_inv,
+            'codigo_prod': product ? product.codigo_prod : '',
+            'nombre_mrc': marca ? marca.nombre_mrc : '',
+            'categoria_ctgr': categoria ? categoria.nombre_ctgr : '',
+            'nombre_prod': product ? product.nombre_prod : '',
+            'cantidad_inv': inventory.cantidad_inv,
+            'cost_uni_inv': Number(inventory.cost_uni_inv).toFixed(2)
+        };
+    });
+    downloadAsCSV(reporte, 'Inventario');
+});
+function downloadAsCSV(data, filename) {
+    if (!data.length) return;
+    const headers = Object.keys(data[0]);
+    const csvContent = [
+        headers.join(','),
+        ...data.map(row => headers.map(h => {
+            let val = row[h]?.toString() || '';
+            if (val.includes(',') || val.includes('"') || val.includes('\n')) {
+                val = '"' + val.replace(/"/g, '""') + '"';
+            }
+            return val;
+        }).join(','))
+    ].join('\r\n');
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename + '.csv';
+    link.click();
+    URL.revokeObjectURL(link.href);
+}

@@ -8,6 +8,7 @@
 	bottom: 0;
 	left: 0;
 	right: 0;
+	z-index: 2000;
 	/*color oscuro transparente para ocultar lo del fondo*/
 	background-color: #111111bd;
 	/*Esto para su hijo*/
@@ -154,6 +155,7 @@
 	display: flex;
 	flex-direction: row;
 	align-items: center;
+	gap: 0.5rem;
 }
 .select__search select{
 	border-color: #225c74;
@@ -198,8 +200,6 @@
 	font-size: 1rem;
 	/*Colos mas blanco*/
 	background-color: #fff4;
-
-	/*border-radius: .6rem;*/
 	/*Añade un scrrol si es necesario (si hay desvordamiento)*/
 	overflow: auto;
 	/*Para que el scroll sea invisible*/
@@ -301,6 +301,13 @@ tbody tr:hover{
 	height: 5rem;
 	margin-right: .5rem;
 }
+#tbodyProforma td img.tbody__img{
+	width: 3rem;
+	height: 3rem;
+	margin-right: .5rem;
+	vertical-align: middle;
+	cursor: auto;
+}
 .table__price{
 	display: flex;
 	justify-content: space-between;
@@ -314,13 +321,7 @@ tbody tr:hover{
 	font-weight: bold;
 }
 /*-------------------------espacios de tabla cliente---------------------------------------*/
-/*#tbodyCustomer td:nth-of-type(6){
-	min-width: 30rem;
-}*/
 /*-------------------------espacios de tabla product---------------------------------------*/
-/*#tbodyProduct td:nth-of-type(2){
-	min-width: 1rem;
-}*/
 #tbodyProduct td:nth-of-type(3){
 	min-width: 8rem;
 	max-width: 12rem;
@@ -420,17 +421,6 @@ tbody tr:hover{
 #ttbodymProforma td:nth-of-type(12){
 	min-width: 10rem;
 }
-/*----------------------------Para que header sea responsive------------------------------*/
-@media (max-width:800px){
-	.table__header{
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-		gap: 1rem 1rem;
-	}
-	.table__header div{
-		display: flex;
-	}
-}
 /*---------------------------Clase usada para javaScrip al momento de buscar---------------------*/
 .hide{
 	display: none;
@@ -438,4 +428,111 @@ tbody tr:hover{
 .modal__show{
 	--opacity: 1;
 	--pointer: unset;
+}
+
+/* ==============================================
+   RESPONSIVE
+   ============================================== */
+
+@media (max-width: 1024px) {
+	.select__search select {
+		width: 10rem;
+	}
+	.select__search label {
+		width: 5rem;
+	}
+}
+
+@media (max-width: 768px) {
+	.table__header {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 0.75rem;
+	}
+	.table__header div:first-child {
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+	.table__header .combo__search {
+		flex-wrap: wrap;
+		justify-content: stretch;
+		gap: 0.5rem;
+	}
+	.table__header .combo__search .filter__search {
+		width: 100%;
+	}
+	.table__header .table__search {
+		width: 100%;
+	}
+	.table__header section.select__search {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.5rem;
+		width: 100%;
+	}
+	.table__header section.select__search div {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+	.table__header section.select__search select {
+		width: 100%;
+	}
+	.select__search label {
+		width: auto;
+		white-space: nowrap;
+		font-size: 0.9rem;
+	}
+	.select__search select {
+		width: 100%;
+		max-width: 12rem;
+	}
+	.modalTable__container {
+		width: 98%;
+		height: 95%;
+		border-radius: .3rem;
+	}
+	.container--previewProducts {
+		width: 98%;
+		height: 95%;
+	}
+	.table {
+		padding: 0 .3rem;
+	}
+	.table__title h1 {
+		font-size: 1.2rem;
+	}
+}
+
+@media (max-width: 600px) {
+	.table__header section.select__search {
+		grid-template-columns: 1fr;
+	}
+	.table__title h1 {
+		font-size: 1.1rem;
+	}
+}
+
+@media (max-width: 480px) {
+	.modalTable__container {
+		width: 100%;
+		height: 100%;
+		border-radius: 0;
+	}
+	.container--previewProducts {
+		width: 100%;
+		height: 100%;
+		border-radius: 0;
+	}
+	.table {
+		padding: 0 .2rem;
+	}
+	.table__title {
+		padding: 0.5rem 0;
+	}
+	.table__title h1 {
+		font-size: 1rem;
+	}
+	.select__search select.select__fecha {
+		width: 100%;
+	}
 }

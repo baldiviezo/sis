@@ -28,13 +28,37 @@ class consultas {
 	//-------Leer productos
 	public function readProducts() {
 		require_once 'conexion.php';
-		$consulta = "SELECT * FROM producto ORDER BY id_prod DESC"; 
+		$consulta = "SELECT * FROM producto ORDER BY id_prod DESC";
 		$resultado = $conexion->query($consulta);
 		$productos = array();
 		while ($fila = $resultado->fetch_assoc()) {
+			$fila['id_prod'] = (int) $fila['id_prod'];
+			$fila['fk_id_mrc_prod'] = (int) $fila['fk_id_mrc_prod'];
+			$fila['fk_id_ctgr_prod'] = (int) $fila['fk_id_ctgr_prod'];
+			$fila['activo_prod'] = (int) $fila['activo_prod'];
 			$productos[] = $fila;
 		}
-		echo json_encode($productos, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
+		echo json_encode($productos, JSON_UNESCAPED_UNICODE);
+	}
+
+	public function desactivar($id){
+		include 'conexion.php';
+		$consulta_inv = "SELECT SUM(cantidad_inv) AS stock FROM (
+			SELECT cantidad_inv FROM inventario WHERE fk_id_prod_inv='$id'
+			UNION ALL
+			SELECT cantidad_inv FROM inventario_arce WHERE fk_id_prod_inv='$id'
+		) AS total_stock";
+		$resultado = $conexion->query($consulta_inv);
+		$fila = $resultado->fetch_assoc();
+		if ($fila['stock'] > 0) {
+			echo "No se puede desactivar, el producto aún tiene stock en inventario";
+		} else {
+			$consulta = "UPDATE producto SET activo_prod = 0 WHERE id_prod='$id'";
+			$resultado = $conexion->query($consulta);
+			if ($resultado) {
+				echo "Producto desactivado exitosamente";
+			}
+		}
 	}
 	//-------Registra un producto
 	public function registrar(){

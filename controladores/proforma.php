@@ -23,7 +23,7 @@ if (isset($_POST['updateProforma'])&&isset($_POST['id_usua'])) {
 //-------Delete a proforma
 if (isset($_POST['deleteProforma'])) {
 	$deleteProforma = new consultas;
-	$deleteProforma->deleteProforma($_POST['deleteProforma']);
+	$deleteProforma->deleteProforma($_POST['deleteProforma'], $_POST['rol_usua'] ?? '', $_POST['id_usua'] ?? '');
 }
 //---------------------------------------------CRUD PROF_PROD
 //-------Read Prof_prods

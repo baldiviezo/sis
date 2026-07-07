@@ -12,8 +12,14 @@ function comprobarUsuario(){
 		$numeroFilas = $resultado->num_rows;
 		if($numeroFilas > 0){
 			$usuario = $resultado->fetch_assoc();
-			$hash = $usuario['contraseña_usua'];
+			if ($usuario['activo_usua'] == 0){
+				echo json_encode('Usuario desactivado, contacte al administrador');
+				return;
+			}
+			$hash = $usuario['pass_usua'];
 			if(password_verify($contraseña, $hash )){
+				//Actualizar ultimo_acceso
+				$conexion->query("UPDATE usuario SET ultimo_acceso = NOW() WHERE id_usua = '".$usuario['id_usua']."'");
 				//craendo variables superglobales del usuario encontrado, se lo utiliza en el archivo accesoDeUsuario.php
 				session_start();
 				//info_celular e info_email usado para las proformas echas en fpdf

@@ -52,7 +52,14 @@ class consultas{
 	//-------Read proformas
 	public function readProformas() {
 		require_once 'conexion.php';
-		$consulta = "SELECT proforma.*, cliente.apellido_clte, empresa.id_emp, empresa.sigla_emp, empresa.nombre_emp FROM proforma INNER JOIN cliente ON proforma.fk_id_clte_prof = cliente.id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = empresa.id_emp ORDER BY id_prof DESC";
+		$rol = $_POST['rol_usua'] ?? '';
+		$id_usua = $_POST['id_usua'] ?? '';
+		$where = '';
+		if (!in_array($rol, ['Gerente general', 'Administrador', 'Gerente De Inventario']) && $id_usua !== '') {
+			$id_usua = $conexion->real_escape_string($id_usua);
+			$where = "WHERE proforma.fk_id_usua_prof = '$id_usua'";
+		}
+		$consulta = "SELECT proforma.*, cliente.apellido_clte, empresa.id_emp, empresa.sigla_emp, empresa.nombre_emp FROM proforma INNER JOIN cliente ON proforma.fk_id_clte_prof = cliente.id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = empresa.id_emp $where ORDER BY id_prof DESC";
 		$resultado = $conexion->query($consulta);
 		$proformas = array();
 		while ($fila = $resultado->fetch_array(MYSQLI_ASSOC)) {
@@ -91,6 +98,14 @@ class consultas{
 	//-------Update a proforma
 	public function updateProforma($productos){
         include 'conexion.php';
+        $rol = $_POST['rol_usua'] ?? '';
+        $current_user = $_POST['id_usua'] ?? '';
+        // Ownership check
+        $owner = $conexion->query("SELECT fk_id_usua_prof FROM proforma WHERE id_prof='$this->id_prof'")->fetch_assoc()['fk_id_usua_prof'];
+        if (in_array($rol, ['Gerente De Inventario']) && $owner != $current_user) {
+            echo "No tienes permiso para modificar esta proforma";
+            return;
+        }
         $consulta = "SELECT * FROM proforma WHERE id_prof='$this->id_prof'";
 		$resultado = $conexion->query($consulta);
 		$fila = $resultado->fetch_assoc();
@@ -147,9 +162,17 @@ class consultas{
 		echo 'Proforma modificada exitosamente!';
     }
     //-------Delete a proforma 
-	public function deleteProforma($id_prof){
-		//------Eliminar productos de la tabla prof_prof
+	public function deleteProforma($id_prof, $rol = '', $id_usua = ''){
 		include 'conexion.php';
+		// Ownership check for restricted roles
+		if (in_array($rol, ['Gerente De Inventario'])) {
+			$owner = $conexion->query("SELECT fk_id_usua_prof FROM proforma WHERE id_prof='$id_prof'")->fetch_assoc()['fk_id_usua_prof'];
+			if ($owner != $id_usua) {
+				echo "No tienes permiso para eliminar esta proforma";
+				return;
+			}
+		}
+		//------Eliminar productos de la tabla prof_prof
 		$consulta = "SELECT * FROM mdf_proforma WHERE id_prof_mprof = '$id_prof'";
 		$resultado = $conexion->query($consulta);
 		$numeroProductos = $resultado->num_rows;
@@ -209,7 +232,14 @@ class consultas{
 	//-------Read Prof_prods
 	public function readProf_prods(){
 		include 'conexion.php';
-		$consulta = "SELECT prof_prod.*, producto.codigo_prod, proforma.numero_prof, proforma.fecha_prof, proforma.moneda_prof, proforma.descuento_prof, cliente.apellido_clte, empresa.id_emp, empresa.sigla_emp, empresa.nombre_emp FROM prof_prod INNER JOIN producto ON prof_prod.fk_id_prod_pfpd = producto.id_prod INNER JOIN proforma ON prof_prod.fk_id_prof_pfpd = proforma.id_prof INNER JOIN cliente ON proforma.fk_id_clte_prof = cliente.id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = empresa.id_emp ORDER BY prof_prod.id_pfpd ASC";
+		$rol = $_POST['rol_usua'] ?? '';
+		$id_usua = $_POST['id_usua'] ?? '';
+		$where = '';
+		if (!in_array($rol, ['Gerente general', 'Administrador', 'Gerente De Inventario']) && $id_usua !== '') {
+			$id_usua = $conexion->real_escape_string($id_usua);
+			$where = "WHERE proforma.fk_id_usua_prof = '$id_usua'";
+		}
+		$consulta = "SELECT prof_prod.*, producto.codigo_prod, proforma.numero_prof, proforma.fecha_prof, proforma.moneda_prof, proforma.descuento_prof, cliente.apellido_clte, empresa.id_emp, empresa.sigla_emp, empresa.nombre_emp FROM prof_prod INNER JOIN producto ON prof_prod.fk_id_prod_pfpd = producto.id_prod INNER JOIN proforma ON prof_prod.fk_id_prof_pfpd = proforma.id_prof INNER JOIN cliente ON proforma.fk_id_clte_prof = cliente.id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = empresa.id_emp $where ORDER BY prof_prod.id_pfpd ASC";
 		$resultado = $conexion->query($consulta);
 		$profProds =  array();
 		while ($fila = $resultado->fetch_assoc()){

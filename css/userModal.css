@@ -7,6 +7,7 @@
 	bottom: 0;
 	left: 0;
 	right: 0;
+	z-index: 2000;
 	/*color oscuro transparente para ocultar lo del fondo*/
 	background-color: #111111bd;
 	/*Esto para su hijo*/
@@ -57,6 +58,7 @@
 	bottom: 0;
 	left: 0;
 	right: 0;
+	z-index: 2000;
 	/*color oscuro transparente para ocultar lo del fondo*/
 	background-color: #111111bd;
 	/*Esto para su hijo*/
@@ -245,4 +247,40 @@
 .modal__show{
 	--opacity: 1;
 	--pointer: unset;
+	transition: opacity 0.3s ease;
+}
+/*--- Radio buttons group ---*/
+.form__radio{
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 1rem;
+	justify-content: center;
+	padding: 0.5rem 0;
+}
+.form__radio label{
+	font-size: 0.85rem;
+	color: #225c74;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+}
+.form__radio input[type="radio"]{
+	accent-color: #225c74;
+}
+/*--- Password hint ---*/
+.form__hint{
+	font-size: 0.75rem;
+	color: #888;
+	text-align: left;
+	margin-top: -0.5rem;
+}
+/*--- Submit button ---*/
+.form__submit:hover{
+	background: #1a4a5e;
+	transform: translateY(-1px);
+	box-shadow: 0 2px 8px rgba(34, 92, 116, 0.3);
+}
+.form__submit:active{
+	transform: translateY(0);
 }

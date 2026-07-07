@@ -12,10 +12,25 @@ if (isset($_POST['createSale'])) {
 	$createSale->asignarValores();
 	$createSale->createSale();
 }
+//-----------------------------------------------UPDATE SALE------------------------------------------------
+if (isset($_POST['updateSale'])) {
+	$updateSale = new Consultas;
+	$updateSale->updateSale();
+}
 //------------------------------------------------VNT-PROD------------------------------------------------
 //-------Read vnt-prod
 if (isset($_POST['readVnt_prods'])) {
 	$readVnt_prods = new Consultas;
 	$readVnt_prods->readVnt_prods();
+}
+//-----------------------------------------------PRODUCT FREQUENCY------------------------------------------------
+if (isset($_POST['readProductFrequency'])) {
+	$readFreq = new Consultas;
+	$readFreq->readProductFrequency();
+}
+//-----------------------------------------------DASHBOARD------------------------------------------------
+if (isset($_POST['readDashboardSales'])) {
+	$readDash = new Consultas;
+	$readDash->readDashboardSales();
 }
 ?>

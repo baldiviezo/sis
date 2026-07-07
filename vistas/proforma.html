@@ -148,6 +148,18 @@
 				</div>
 			</div>
 		</div>
+		<div class="cart-backdrop" id="cartBackdrop"></div>
+		<div class="cart-bottom-bar" id="cartBottomBar">
+			<div class="cart-bottom-bar__left">
+				<img src="../imagenes/carrito.svg" alt="">
+				<span id="cartCountMobile">0</span>
+				<span>Carrito</span>
+			</div>
+			<div class="cart-bottom-bar__right">
+				<span id="cartTotalMobile">Bs 0.00</span>
+				<span class="cart-bottom-bar__arrow">&#9650;</span>
+			</div>
+		</div>
 	</main>
 	<!--Muestra el modal de las card-->
 	<section id="modalCard" class="modalCard">
@@ -285,6 +297,7 @@
 				</div>
 				<section class="table__header">
 					<div>
+						<img src="../imagenes/excel.svg" id="excelClientesProf" title="Descargar CSV clientes">
 					</div>
 					<div class="combo__search">
 						<div class="filter__search">
@@ -704,7 +717,7 @@
 						</div>
 					</div>
 				</form>
-				<button class="form__submit" onclick="openProf_prodMW()">Productos</button>
+				<button class="form__submit" onclick="openPreviwProducts()">Productos</button>
 			</div>
 		</div>
 	</section>

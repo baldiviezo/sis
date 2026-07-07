@@ -7,6 +7,7 @@
 	bottom: 0;
 	left: 0;
 	right: 0;
+	z-index: 2000;
 	display: flex;
 	background-color: #111111bd;
 	/*Esto para su hijo*/

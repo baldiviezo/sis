@@ -97,6 +97,9 @@ function filterTableUsers(data) {
     let i = 1;
     for (let usuario in data) {
         let tr = document.createElement('tr');
+        if (data[usuario]['activo_usua'] == 0) {
+            tr.classList.add('inactive-row');
+        }
         for (let columna in data[usuario]) {
             if (columna == 'id_usua') {
                 let td = document.createElement('td');
@@ -107,7 +110,7 @@ function filterTableUsers(data) {
                 td.innerText = i;
                 tr.appendChild(td);
                 i++;
-            } else if (columna == 'contraseña_usua'){
+            } else if (columna == 'pass_usua' || columna == 'activo_usua' || columna == 'ultimo_acceso'){
 
             } else {
                 let td = document.createElement('td');
@@ -116,7 +119,9 @@ function filterTableUsers(data) {
             }
         }
         let td = document.createElement('td');
-        if (localStorage.getItem('rol_usua') == 'Gerente general') {
+        if (data[usuario]['activo_usua'] == 0) {
+            td.innerHTML = `<img src='../imagenes/checkCircle.svg' onclick='reactivateUser(this.parentNode.parentNode)' title='Reactivar usuario'>`;
+        } else if (localStorage.getItem('rol_usua') == 'Gerente general') {
             if (data[usuario]['rol_usua'] != 'Gerente general') {
                 td.innerHTML = `
                 <img src='../imagenes/edit.svg' onclick='readUser(this.parentNode.parentNode)' title='Editar usuario'>
@@ -159,8 +164,8 @@ function searchUsers() {
 document.getElementById("formUsersR").addEventListener("submit", createUser);
 async function createUser() {
     event.preventDefault();
-    let pass1 = document.getElementsByName("contraseña_usua_R")[0];
-    let pass2 = document.getElementsByName("contraseña2_usua_R")[0];
+    let pass1 = document.getElementsByName("pass_usua_R")[0];
+    let pass2 = document.getElementsByName("pass2_usua_R")[0];
     if (pass1.value == pass2.value) {
         if (rqstUsua == false) {
             rqstUsua = true;
@@ -214,8 +219,8 @@ function readUser(usuario) {
                         //document.querySelectorAll('.form__radio')[1].classList.add('hide');
                         document.getElementById('gerG').checked = true;
                     }
-                } else if (columna == 'contraseña_usuaM') {
-                    document.getElementsByName(columna)[0].value = '';
+                } else if (columna == 'pass_usua' || columna == 'activo_usua' || columna == 'ultimo_acceso') {
+                    // Skip system fields
                 } else {
                     document.getElementsByName(columna + 'M')[0].value = usuarios[usuario][columna];
                 }
@@ -223,47 +228,49 @@ function readUser(usuario) {
             break;
         }
     }
-    document.getElementsByName('contraseña_usuaM')[0].value = '';
-    document.getElementsByName('contraseña2_usuaM')[0].value = '';
+    document.getElementsByName('pass_usuaM')[0].value = '';
+    document.getElementsByName('pass2_usuaM')[0].value = '';
     usersMMW.classList.add('modal__show');
 }
 //------Actualizar usuario
 document.getElementById("formUsersM").addEventListener("submit", updateUser);
 async function updateUser() {
     event.preventDefault();
-    let pass1 = document.getElementsByName("contraseña_usuaM")[0];
-    let pass2 = document.getElementsByName("contraseña2_usuaM")[0];
-    if (pass1.value == pass2.value) {
-        if (rqstUsua == false) {
-            rqstUsua = true;
-            usersMMW.classList.remove('modal__show');
-            let form = document.getElementById("formUsersM");
-            let formData = new FormData(form);
-            formData.append('updateUser', 'guardar');
-            preloader.classList.add('modal__show');
-            fetch('../controladores/usuarios.php', {
-                method: "POST",
-                body: formData
-            }).then(response => response.text()).then(data => {
-                readUsers().then(() => {
-                    rqstUsua = false;
-                    preloader.classList.remove('modal__show');
-                    cleanUpFormModify();
-                    mostrarAlerta(data);
-                });
-            }).catch(err => {
-                rqstUsua = false;
-                mostrarAlerta('Ocurrio un error al actualizar el usuario, cargue nuevamente la pagina');
-            });
+    let pass1 = document.getElementsByName("pass_usuaM")[0];
+    let pass2 = document.getElementsByName("pass2_usuaM")[0];
+    if (pass1.value || pass2.value) {
+        if (pass1.value != pass2.value) {
+            mostrarAlerta("Las contraseñas no son iguales");
+            return;
         }
-    } else {
-        mostrarAlerta("Las contraseñas no son iguales");
+    }
+    if (rqstUsua == false) {
+        rqstUsua = true;
+        usersMMW.classList.remove('modal__show');
+        let form = document.getElementById("formUsersM");
+        let formData = new FormData(form);
+        formData.append('updateUser', 'guardar');
+        preloader.classList.add('modal__show');
+        fetch('../controladores/usuarios.php', {
+            method: "POST",
+            body: formData
+        }).then(response => response.text()).then(data => {
+            readUsers().then(() => {
+                rqstUsua = false;
+                preloader.classList.remove('modal__show');
+                cleanUpFormModify();
+                mostrarAlerta(data);
+            });
+        }).catch(err => {
+            rqstUsua = false;
+            mostrarAlerta('Ocurrio un error al actualizar el usuario, cargue nuevamente la pagina');
+        });
     }
 }
 //------Borrar usuario
 function deleteUser(usuario) {
     let id_usua = usuario.children[0].innerText;
-    if (confirm(`¿Esta usted seguro? Se borrara el usuario "${usuario.children[2].innerText} ${usuario.children[3].innerText}"`)) {
+    if (confirm(`¿Está seguro? Se desactivará el usuario "${usuario.children[2].innerText} ${usuario.children[3].innerText}"`)) {
         if (rqstUsua == false) {
             rqstUsua = true;
             const formData = new FormData()
@@ -280,7 +287,32 @@ function deleteUser(usuario) {
                 });
             }).catch(err => {
                 rqstUsua = false;
-                mostrarAlerta('Ocurrio un error al borrar el usuario, cargue nuevamente la pagina');
+                mostrarAlerta('Ocurrio un error al desactivar el usuario, cargue nuevamente la pagina');
+            });
+        }
+    }
+}
+//------Reactivar usuario
+function reactivateUser(usuario) {
+    let id_usua = usuario.children[0].innerText;
+    if (confirm(`¿Está seguro? Se reactivará el usuario "${usuario.children[2].innerText} ${usuario.children[3].innerText}"`)) {
+        if (rqstUsua == false) {
+            rqstUsua = true;
+            const formData = new FormData()
+            formData.append('reactivarUser', id_usua);
+            preloader.classList.add('modal__show');
+            fetch('../controladores/usuarios.php', {
+                method: "POST",
+                body: formData
+            }).then(response => response.text()).then(data => {
+                readUsers().then(() => {
+                    preloader.classList.remove('modal__show');
+                    rqstUsua = false;
+                    mostrarAlerta(data);
+                });
+            }).catch(err => {
+                rqstUsua = false;
+                mostrarAlerta('Ocurrio un error al reactivar el usuario, cargue nuevamente la pagina');
             });
         }
     }
@@ -322,12 +354,7 @@ function cleanUpFormModify() {
     document.getElementsByName("id_usuaM")[0].value = "";
     modifyInputs.forEach(input => input.value = "");
     //limpiar radio button
-    if (document.getElementById('ing').checked) {
-        document.getElementById('ing').checked = false;
-    }
-    if (document.getElementById('admi').checked) {
-        document.getElementById('admi').checked = false;
-    }
+    document.querySelectorAll('#formUsersM input[type="radio"]').forEach(r => r.checked = false);
 }
 //------Alert
 const modalAlerta = document.getElementById('alerta');
