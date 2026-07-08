@@ -478,6 +478,7 @@
 								<th>Almacen</th>
 								<th>Numero de pedido</th>
 								<th>Fecha</th>
+								<th>Usuario</th>
 								<th>Empresa</th>
 								<th>Cliente</th>
 								<th>
@@ -638,6 +639,12 @@
 				<section class="table__header">
 					<form class="fechas" id="formDates">
 						<div>
+							<label>Almacen:</label>
+							<select id="selectWarehouseFreq" class="fecha__input" style="width:auto">
+								<option value="todas">Todos los almacenes</option>
+								<option value="arce">Almacen Arce</option>
+								<option value="el_alto">Almacen El Alto</option>
+							</select>
 							<label>Frecuencia:</label>
 							<select id="selectFrequency">
 								<option value="8">8 meses</option>

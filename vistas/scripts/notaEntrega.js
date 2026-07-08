@@ -441,11 +441,13 @@ function deleteOrderBuy(id_oc) {
             method: "POST",
             body: formData
         }).then(response => response.text()).then(data => {
-            readOrderBuys().then(() => {
+            Promise.all([readOrderBuys(), readOcProd()]).then(() => {
                 preloader.classList.remove('modal__show');
+                paginacionOrdenCompra(orderBuys.length, 1);
+                paginacionOCPd(filterOCProds.length, 1);
                 rqstNotaEntrega = false;
                 mostrarAlerta(data);
-            });
+            })
         }).catch(err => {
             rqstNotaEntrega = false;
             mostrarAlerta('Ocurrio un error al eliminar el pedido');

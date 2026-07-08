@@ -1,106 +1,209 @@
-body{
-	/*font-family: 'Roboto', sans-serif;*/
-	/*background-color: #e5e5f7;*/
-	/*para crear patrones para ponerlo como fondo
-	https://www.magicpattern.design/tools/css-backgrounds*/
-	/*background-image:  radial-gradient(#b96bad 0.5px, transparent 0.5px), radial-gradient(#b96bad 0.5px, #e5e5f7 0.5px);*/
-	/*background-size: 20px 20px;*/
-	/*background-position: 0 0,10px 10px;*/
-	/*Para centrar el formulariol*/
-	background-color: #fff;
+﻿body{
+	background: linear-gradient(135deg, #0a1628 0%, #112840 30%, #225c74 60%, #0a1628 100%);
+	background-size: 400% 400%;
+	animation: gradientShift 20s ease infinite;
 	display: flex;
 	min-height: 100vh;
 	flex-direction: column;
+	position: relative;
+	overflow: hidden;
+}
+@keyframes gradientShift {
+	0% { background-position: 0% 50%; }
+	50% { background-position: 100% 50%; }
+	100% { background-position: 0% 50%; }
+}
+body::before,
+body::after {
+	content: '';
+	position: absolute;
+	border-radius: 50%;
+	opacity: 0.1;
+	animation: radarPulse 8s infinite ease-in-out;
+	pointer-events: none;
+}
+body::before {
+	width: 600px;
+	height: 600px;
+	background: radial-gradient(circle, #2dd4bf, transparent 70%);
+	top: -200px;
+	right: -200px;
+	animation-delay: 0s;
+}
+body::after {
+	width: 450px;
+	height: 450px;
+	background: radial-gradient(circle, #f59e0b, transparent 70%);
+	bottom: -150px;
+	left: -150px;
+	animation-delay: -4s;
+}
+@keyframes radarPulse {
+	0%, 100% { transform: scale(1); opacity: 0.08; }
+	50% { transform: scale(1.15); opacity: 0.15; }
 }
 .form{
-	background-color: var(--color-white);
-	/*el margen de ariba y abajo depende de min-height de body (100vh)*/
+	background: rgba(255, 255, 255, 0.04);
+	backdrop-filter: blur(24px);
+	-webkit-backdrop-filter: blur(24px);
+	border: 1px solid rgba(45, 212, 191, 0.12);
 	margin: auto;
-	/*que tenga un maximo de 400px*/
 	width: 90%;
-	max-width: 25rem;
-	padding: 1rem 3rem 4.5rem;
-	border-radius: 10px;
-	/*cero en x , 5 en Y ,blur de 10 px, spred de -10px y la tranparencia de 30%*/
-	box-shadow: 0 5px 10px -5px rgb(0 0 0 / 80%);
+	max-width: 26rem;
+	padding: 2.5rem 3rem 3rem;
+	border-radius: 16px;
+	box-shadow: 0 0 40px rgba(45, 212, 191, 0.06), 0 20px 60px rgba(0, 0, 0, 0.5);
 	text-align: center;
+	position: relative;
+	z-index: 1;
+	animation: fadeInUp 0.8s ease-out;
+}
+@keyframes fadeInUp {
+	from { opacity: 0; transform: translateY(40px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+.form::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 4px;
+	border-radius: 16px 16px 0 0;
+	background: linear-gradient(90deg, #225c74, #2dd4bf, #f59e0b, #2dd4bf, #225c74);
+	background-size: 300% 100%;
+	animation: topBarGlow 6s ease infinite;
+}
+@keyframes topBarGlow {
+	0% { background-position: 0% 50%; }
+	50% { background-position: 100% 50%; }
+	100% { background-position: 0% 50%; }
+}
+.scan-line {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 2px;
+	background: linear-gradient(90deg, transparent, rgba(45, 212, 191, 0.3), transparent);
+	animation: sweepScan 4s ease-in-out infinite;
+	pointer-events: none;
+	z-index: 2;
+}
+@keyframes sweepScan {
+	0% { top: 0; opacity: 0; }
+	10% { opacity: 1; }
+	90% { opacity: 1; }
+	100% { top: 100%; opacity: 0; }
 }
 .form__logo{
 	width: 100%;
 	height: 7rem;
 	background-image: url(../imagenes/LogoSMS.jpg);
 	background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
+	background-position: center;
+	background-size: contain;
+	filter: drop-shadow(0 0 8px rgba(45, 212, 191, 0.15));
 }
 .form__title{
-	padding-top: 2rem;
-	color: var(--color-egeo-blue);
-	font-size: 2rem;
+	padding-top: 1.5rem;
+	color: #e2e8f0;
+	font-size: 1.6rem;
+	font-weight: 300;
+	letter-spacing: 2px;
+	text-transform: uppercase;
 	margin-bottom: .5em;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+}
+.led {
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: #2dd4bf;
+	box-shadow: 0 0 6px #2dd4bf, 0 0 12px rgba(45, 212, 191, 0.3);
+	animation: ledBlink 2s ease-in-out infinite;
+}
+@keyframes ledBlink {
+	0%, 100% { opacity: 1; box-shadow: 0 0 6px #2dd4bf, 0 0 12px rgba(45, 212, 191, 0.3); }
+	50% { opacity: 0.4; box-shadow: 0 0 2px #2dd4bf, 0 0 6px rgba(45, 212, 191, 0.1); }
 }
 .form__container{
 	margin-top: 1rem;
 	display: grid;
-	gap: 2.5em;
+	gap: 2em;
 }
 .form__group{
 	position: relative;
 }
 .form__input{
 	width: 100%;
-	background: none;
-	color: var(--color-merenge-grey);
+	background: rgba(255, 255, 255, 0.04);
+	color: #e2e8f0;
 	font-size: 1rem;
-	padding: .6em .3em;
-	border: none;
+	padding: .8em .8em;
+	border: 1px solid rgba(45, 212, 191, 0.15);
+	border-radius: 8px;
 	outline: none;
-	border-bottom: 1px solid var(--color-opaque-grey);
-	/*Los inputs no heredan la fuente de la letra*/
 	font-family: 'Roboto', sans-serif;
+	transition: border-color 0.3s, box-shadow 0.3s;
+	caret-color: #2dd4bf;
+	box-sizing: border-box;
 }
-.form__input:focus + .form__label, .form__input:not(:placeholder-shown) + .form__label{
-	color: #4d4646;
+.form__input:focus{
+	border-color: #2dd4bf;
+	box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.08);
 }
-.form__input:focus + .form__label, .form__input:not(:placeholder-shown) + .form__label{
+.form__input:focus + .form__label,
+.form__input:not(:placeholder-shown) + .form__label{
 	transform: translateY(-12px) scale(.7);
 	transform-origin: left top;
-	color: var(--color-egeo-blue);
-}
-.form__radio{
-	display: flex;
+	color: #2dd4bf;
 }
 .form__label{
-	color: var(--color-opaque-grey);
-	/*Como label estara encima del input, cuando el cursor este encima solo pueda seleccionar el input y no el label*/
-	/*Funciona  muy bien, en este caso utilizaremos este pora q el cursor siempre apresca en I*/
+	color: #94a3b8;
 	pointer-events: none;
 	position: absolute;
 	top: 0;
-	left: 5px;
-	transform: translateY(10px);
-	transition: transform .5s, color .3s;
+	left: 12px;
+	transform: translateY(14px);
+	transition: transform .4s, color .3s;
 }
 .form__submit{
-	background: var(--color-egeo-blue);
+	background: linear-gradient(135deg, #225c74, #2dd4bf);
 	color: #fff;
 	font-family: 'Roboto', sans-serif;
-	font-weight: 300;
+	font-weight: 600;
 	font-size: 1rem;
-	padding: .8em 0;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	padding: 1em 0;
 	border: none;
-	border-radius: .5em;
+	border-radius: 8px;
 	cursor: pointer;
+	transition: transform 0.25s, box-shadow 0.3s;
+	box-shadow: 0 4px 15px rgba(34, 92, 116, 0.3);
 }
-.form__input:focus ~ .form__line, .form__input:not(:placeholder-shown) ~ .form__line{
-	transform: scale(1);
+.form__submit:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 0 20px rgba(45, 212, 191, 0.25), 0 0 40px rgba(45, 212, 191, 0.1), 0 4px 15px rgba(34, 92, 116, 0.3);
+}
+.form__submit:active {
+	transform: scale(0.98);
 }
 .modal__show{
 	--opacity: 1;
 	--pointer: unset;
 }
 @media(max-width:425px){
+	.form{
+		padding: 1.5rem 1.5rem 2rem;
+	}
 	.form__title{
-		font-size: 1.8rem;
-	}	
+		font-size: 1.3rem;
+		letter-spacing: 1px;
+	}
 }

@@ -197,7 +197,22 @@ class consultas{
 		$notaEntrega = $resultado->fetch_assoc();
 		$inventario = $notaEntrega['almacen_ne'] == 0 ? 'inventario' : 'inventario_arce';
 
-		// 2. Obtener productos de nte_prod
+		// 2. Verificar que ningun producto esté facturado
+		$consulta = "SELECT np.id_nepd, p.nombre_prod, p.codigo_prod
+					 FROM nte_prod np
+					 INNER JOIN producto p ON np.fk_id_prod_nepd = p.id_prod
+					 WHERE np.fk_id_ne_nepd = '$id_ne' AND np.estado_nepd = 1";
+		$resultado = $conexion->query($consulta);
+		if ($resultado->num_rows > 0) {
+			$facturados = [];
+			while ($fila = $resultado->fetch_assoc()) {
+				$facturados[] = $fila['codigo_prod'] . ' - ' . $fila['nombre_prod'];
+			}
+			echo "No se puede devolver, el/los siguiente(s) producto(s) ya estan facturado(s): " . implode(', ', $facturados);
+			return;
+		}
+
+		// 3. Obtener productos de nte_prod
 		$consulta = "SELECT * FROM nte_prod WHERE fk_id_ne_nepd = '$id_ne'";
 		$resultado = $conexion->query($consulta);
 		$productos = [];
@@ -207,14 +222,14 @@ class consultas{
 			$total_dvl += $fila['cantidad_nepd'] * $fila['cost_uni_nepd'];
 		}
 
-		// 3. INSERT devolucion
+		// 4. INSERT devolucion
 		$fecha = date('Y-m-d');
 		$consulta = "INSERT INTO devolucion (fk_id_ne_dvl, fk_id_usua_dvl, fecha_dvl, motivo_dvl, total_dvl)
 					 VALUES ('$id_ne', '$id_usua', '$fecha', '$motivo_dvl', '$total_dvl')";
 		$conexion->query($consulta);
 		$id_dvl = $conexion->insert_id;
 
-		// 4. Por cada producto: INSERT dvl_prod + restaurar stock + revertir oc_prod
+		// 5. Por cada producto: INSERT dvl_prod + restaurar stock + revertir oc_prod
 		foreach ($productos as $producto) {
 			$fk_id_prod = (int) $producto['fk_id_prod_nepd'];
 			$cantidad = $producto['cantidad_nepd'];
@@ -235,10 +250,10 @@ class consultas{
 			$conexion->query("UPDATE oc_prod SET estado_ocpd = 0 WHERE id_ocpd = '{$producto['fk_id_ocpd_nepd']}'");
 		}
 
-		// 5. Revertir estado de la orden de compra a pendiente
+		// 6. Revertir estado de la orden de compra a pendiente
 		$conexion->query("UPDATE orden_compra SET estado_oc = 0 WHERE id_oc = '{$notaEntrega['fk_id_oc_ne']}'");
 
-		// 6. Marcar NE como devuelta
+		// 7. Marcar NE como devuelta
 		$conexion->query("UPDATE nota_entrega SET activo_ne = 0 WHERE id_ne = '$id_ne'");
 
 		echo "Nota de entrega devuelta correctamente";
@@ -254,7 +269,7 @@ class consultas{
 			$id_usua = $conexion->real_escape_string($id_usua);
 			$where = "AND proforma.fk_id_usua_prof = '$id_usua'";
 		}
-    	$consulta = "SELECT orden_compra.numero_oc, orden_compra.fecha_oc, orden_compra.descuento_oc, orden_compra.moneda_oc, nte_prod.*, producto.codigo_prod, producto.nombre_prod, producto.fk_id_mrc_prod, producto.fk_id_ctgr_prod, producto.imagen_prod, empresa.id_emp, empresa.nombre_emp, empresa.sigla_emp, cliente.nombre_clte, cliente.apellido_clte FROM nte_prod INNER JOIN nota_entrega ON nte_prod.fk_id_ne_nepd = nota_entrega.id_ne INNER JOIN orden_compra ON nota_entrega.fk_id_oc_ne = orden_compra.id_oc INNER JOIN proforma ON orden_compra.fk_id_prof_oc = proforma.id_prof INNER JOIN cliente ON nota_entrega.fk_id_clte_ne = cliente.id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = empresa.id_emp INNER JOIN producto ON nte_prod.fk_id_prod_nepd = producto.id_prod WHERE nota_entrega.activo_ne = 1 $where ORDER BY id_nepd DESC";
+    	$consulta = "SELECT orden_compra.almacen_oc, orden_compra.numero_oc, orden_compra.fecha_oc, orden_compra.descuento_oc, orden_compra.moneda_oc, nte_prod.*, producto.codigo_prod, producto.nombre_prod, producto.fk_id_mrc_prod, producto.fk_id_ctgr_prod, producto.imagen_prod, empresa.id_emp, empresa.nombre_emp, empresa.sigla_emp, cliente.nombre_clte, cliente.apellido_clte, usuario.nombre_usua, usuario.apellido_usua FROM nte_prod INNER JOIN nota_entrega ON nte_prod.fk_id_ne_nepd = nota_entrega.id_ne INNER JOIN orden_compra ON nota_entrega.fk_id_oc_ne = orden_compra.id_oc INNER JOIN proforma ON orden_compra.fk_id_prof_oc = proforma.id_prof INNER JOIN usuario ON proforma.fk_id_usua_prof = usuario.id_usua INNER JOIN cliente ON nota_entrega.fk_id_clte_ne = cliente.id_clte INNER JOIN empresa ON cliente.fk_id_emp_clte = empresa.id_emp INNER JOIN producto ON nte_prod.fk_id_prod_nepd = producto.id_prod WHERE nota_entrega.activo_ne = 1 $where ORDER BY id_nepd DESC";
     	$resultado = $conexion->query($consulta);
     	$nteProds =  array();
     	while ($fila = $resultado->fetch_assoc()){

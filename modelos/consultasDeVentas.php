@@ -165,6 +165,7 @@ class Consultas{
 		include 'conexion.php';
 		$numMonths = isset($_POST['months']) ? intval($_POST['months']) : 8;
 		$numMonths = max(8, min(12, $numMonths));
+		$almacen = $_POST['almacen'] ?? 'todas';
 
 		$endDate = date('Y-m-d');
 		$startDate = date('Y-m-01', strtotime("-" . ($numMonths - 1) . " months"));
@@ -190,11 +191,25 @@ class Consultas{
 		$caseSQL = implode(",\n\t\t\t", $caseStatements);
 		$freqSQL = implode(" +\n\t\t\t", $frequencyParts);
 
+		$almacenFilter = '';
+		if ($almacen === 'el_alto') {
+			$stockSelect = "COALESCE(i_el.cantidad_inv, 0) AS stock_total";
+			$costSelect = "COALESCE(i_el.cost_uni_inv, 0) AS costo";
+			$almacenFilter = "AND n.almacen_ne = 0";
+		} elseif ($almacen === 'arce') {
+			$stockSelect = "COALESCE(i_ar.cantidad_inv, 0) AS stock_total";
+			$costSelect = "COALESCE(i_ar.cost_uni_inv, 0) AS costo";
+			$almacenFilter = "AND n.almacen_ne = 1";
+		} else {
+			$stockSelect = "COALESCE(i_el.cantidad_inv, 0) + COALESCE(i_ar.cantidad_inv, 0) AS stock_total";
+			$costSelect = "COALESCE(i_el.cost_uni_inv, i_ar.cost_uni_inv, 0) AS costo";
+		}
+
 		$consulta = "SELECT p.codigo_prod, p.nombre_prod,
 							$caseSQL,
 							($freqSQL) AS frecuencia,
-							COALESCE(i_el.cantidad_inv, 0) + COALESCE(i_ar.cantidad_inv, 0) AS stock_total,
-							COALESCE(i_el.cost_uni_inv, i_ar.cost_uni_inv, 0) AS costo
+							$stockSelect,
+							$costSelect
 					 FROM nte_prod np
 					 INNER JOIN producto p ON np.fk_id_prod_nepd = p.id_prod
 					 INNER JOIN nota_entrega n ON n.id_ne = np.fk_id_ne_nepd
@@ -202,6 +217,7 @@ class Consultas{
 					 LEFT JOIN inventario_arce i_ar ON p.id_prod = i_ar.fk_id_prod_inv
 					 WHERE n.activo_ne = 1
 					   AND n.fecha_ne BETWEEN '$startDate' AND '$endDate'
+					   $almacenFilter
 					 GROUP BY p.codigo_prod
 					 ORDER BY frecuencia DESC, p.codigo_prod ASC";
 

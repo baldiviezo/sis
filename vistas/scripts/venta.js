@@ -511,10 +511,10 @@ function searchProductsMW() {
             return (
                 product.numero_oc.toString().toLowerCase().includes(busqueda) ||
                 product.nombre_emp.toString().toLowerCase().includes(busqueda) ||
-                (product.apellido_clte + ' ' + product.nombre_clte).toString().toLowerCase().includes(busqueda) ||
+                ( product.nombre_clte + ' ' + product.apellido_clte).toString().toLowerCase().includes(busqueda) ||
                 product.codigo_prod.toString().toLowerCase().includes(busqueda) ||
                 product.nombre_emp.toLowerCase().includes(busqueda) ||
-                (product.apellido_clte + ' ' + product.nombre_clte).toLowerCase().includes(busqueda)
+                (product.nombre_usua + ' ' + product.apellido_usua).toLowerCase().includes(busqueda)
             );
         } else {
             return product[valor].toString().toLowerCase().includes(busqueda);
@@ -602,7 +602,7 @@ function tableProductsMW(page) {
         const inventarioArce = inventories.find(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 1);
         const inventarioAlto = inventories.find(inventory => inventory.fk_id_prod_inv === product.id_prod && inventory.ubi_almacen === 0);
         const stock = (inventarioArce ? inventarioArce.cantidad_inv : 0) + (inventarioAlto ? inventarioAlto.cantidad_inv : 0);
-
+        const usuario = users.find(user => user.id_usua === product.fk_id_usua_nepd);
         const tr = document.createElement('tr');
         tr.setAttribute('id_prod', product.id_nepd);
 
@@ -611,7 +611,7 @@ function tableProductsMW(page) {
         tr.appendChild(tdIndex);
 
         const tdAlmacen = document.createElement('td');
-        tdAlmacen.innerText = product.almacen_ne === 0 ? 'Alto' : 'Arce';
+        tdAlmacen.innerText = product.almacen_oc === 0 ? 'Alto' : 'Arce';
         tr.appendChild(tdAlmacen);
 
         const tdNumero = document.createElement('td');
@@ -621,6 +621,10 @@ function tableProductsMW(page) {
         const tdFecha = document.createElement('td');
         tdFecha.innerText = product.fecha_oc;
         tr.appendChild(tdFecha);
+
+        const tdUsuario = document.createElement('td');
+        tdUsuario.innerText = product.nombre_usua + ' ' + product.apellido_usua;
+        tr.appendChild(tdUsuario);
 
         const tdEmpresa = document.createElement('td');
         tdEmpresa.innerText = product.nombre_emp;
@@ -1935,7 +1939,9 @@ excelProdVnt.addEventListener('click', () => {
 /*******************************importa en excel**************************************************/
 const excelProdReponer = document.getElementById('excelProdReponer');
 excelProdReponer.addEventListener('click', () => {
-    downloadFrequencyCSV(productsSold, 'Productos_Vendidos');
+    let almacenLabel = document.getElementById('selectWarehouseFreq').value;
+    let suffix = almacenLabel === 'el_alto' ? 'El_Alto' : almacenLabel === 'arce' ? 'Arce' : 'Todos';
+    downloadFrequencyCSV(productsSold, 'Frecuencia_' + suffix);
 });
 /***********************************Reporte en CSV*********************************************/
 function downloadAsCSV(data, filename) {
@@ -2007,6 +2013,9 @@ let productFrequencyMonths = [];
 document.getElementById('selectFrequency').addEventListener('change', function () {
     loadProductFrequency();
 });
+document.getElementById('selectWarehouseFreq').addEventListener('change', function () {
+    loadProductFrequency();
+});
 document.querySelector('#formDates .fecha__button').addEventListener('click', function () {
     loadProductFrequency();
 });
@@ -2016,9 +2025,11 @@ document.getElementById('monthsToOrder').addEventListener('change', function () 
 });
 function loadProductFrequency() {
     let months = document.getElementById('selectFrequency').value;
+    let almacen = document.getElementById('selectWarehouseFreq').value;
     let formData = new FormData();
     formData.append('readProductFrequency', '');
     formData.append('months', months);
+    formData.append('almacen', almacen);
     fetch('../controladores/ventas.php', {
         method: "POST",
         body: formData
