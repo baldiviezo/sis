@@ -954,6 +954,7 @@ function createTable(tbody, productos, moneda) {
         tr.appendChild(tdCantidad);
 
         const tdPrecio = document.createElement('td');
+        tdPrecio.setAttribute('costUnit', producto.querySelector('.cart-item__costUnit').value);
         tdPrecio.innerHTML = `${producto.querySelector('.cart-item__costUnit').value} ${monedaSymbol}`;
         tr.appendChild(tdPrecio);
 
@@ -1388,10 +1389,9 @@ function createNotaEntrega() {
             fk_id_prod_nepd: row.getAttribute('id_prod'),
             codigo_nepd: row.children[1].innerText,
             cantidad_nepd: row.children[4].innerText,
-            cost_uni_nepd: Number(row.children[5].innerText).toFixed(2),
+            cost_uni_nepd: row.children[5].getAttribute('costUnit')
         });
     }
-
     if (rqstNotaEntrega === false) {
         rqstNotaEntrega = true;
         preloader.classList.add('modal__show');

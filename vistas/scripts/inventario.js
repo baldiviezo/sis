@@ -1323,7 +1323,7 @@ marca_prodM.addEventListener('change', () => {
 //-------------------------------REPORTE EXCEL INVENTARIO----------------------------------------------
 const excelInventory = document.getElementById('excelInventory');
 excelInventory.addEventListener('click', () => {
-    const reporte = filterInventories
+    const reporte = filterInventories.filter(inventory => inventory.cantidad_inv > 0)
         .slice().sort((a, b) => a.descripcion_inv.localeCompare(b.descripcion_inv))
         .map(inventory => {
         const product = products.find(product => product.id_prod === inventory.fk_id_prod_inv);
