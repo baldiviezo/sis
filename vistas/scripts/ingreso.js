@@ -165,7 +165,7 @@ function tableArmed(page) {
         tr.appendChild(tdIndex);
 
         const tdAlmacen = document.createElement('td');
-        tdAlmacen.innerText = armed.ubi_almacen_ing == 0 ? 'Av. Arce' : 'El Alto';
+        tdAlmacen.innerText = armed.almacen_ing == 0 ? 'El Alto' : 'Av. Arce';
         tr.appendChild(tdAlmacen);
 
         const tdNumero = document.createElement('td');
