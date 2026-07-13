@@ -415,6 +415,7 @@ finalizarOC.addEventListener('click', () => {
 
     if (i == 0) {
         prof_prodMW.classList.remove('modal__show');
+        preloader.classList.add('modal__show');
         let formData = new FormData();
         formData.append('finalizarOC', golbalIdOc);
         fetch('../controladores/notaEntrega.php', {
@@ -422,6 +423,7 @@ finalizarOC.addEventListener('click', () => {
             body: formData
         }).then(response => response.text()).then(data => {
             readOrderBuys().then(() => {
+                preloader.classList.remove('modal__show');
                 paginacionOrdenCompra(filterOCProds.length, 1);
                 mostrarAlerta(data);
             })
