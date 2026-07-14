@@ -26,7 +26,7 @@ async function init() {
     if (!rqstNotaEntrega) {
         rqstNotaEntrega = true;
         preloader.classList.add('modal__show');
-        try {   
+        try {
             await Promise.all([
                 readAllMarcas(),
                 readAllCategorias(),
@@ -524,7 +524,7 @@ const selectMonthOCProd = document.getElementById('selectMonthOCProd');
 selectMonthOCProd.addEventListener('change', searchOCProd);
 function selectStateProductOC() {
     filterOCProds = filterOCProds.filter(OCProd => {
-        
+
         const ordenCompra = orderBuys.find(ordenCompra => ordenCompra.id_oc === OCProd.fk_id_oc_ocpd);
         const almacen = selectAlmOCProd.value === 'todas' ? true : ordenCompra.almacen_oc == selectAlmOCProd.value;
         const estado = selectStateOCProd.value === 'todas' ? true : ordenCompra.estado_oc == selectStateOCProd.value;
@@ -2016,23 +2016,26 @@ if (exportPendientesProf) {
         const pendientes = nte_prods
             .filter(np => np.estado_nepd == 0)
             .sort((a, b) => {
-                const nameA = a.id_emp == 77 ? (a.apellido_clte || '') + ' ' + (a.nombre_clte || '') : a.nombre_emp || '';
-                const nameB = b.id_emp == 77 ? (b.apellido_clte || '') + ' ' + (b.nombre_clte || '') : b.nombre_emp || '';
-                return nameA.localeCompare(nameB);
+                const neA = notasEntrega.find(ne => ne.id_ne == a.fk_id_ne_nepd);
+                const neB = notasEntrega.find(ne => ne.id_ne == b.fk_id_ne_nepd);
+                const fechaA = neA ? new Date(neA.fecha_oc) : new Date(0);
+                const fechaB = neB ? new Date(neB.fecha_oc) : new Date(0);
+                return fechaA - fechaB;
             })
             .map(np => {
                 const ne = notasEntrega.find(ne => ne.id_ne == np.fk_id_ne_nepd);
                 return {
-                'N° NE': ne ? ne.numero_ne : '',
-                'Cliente': np.id_emp == 77
-                    ? (np.apellido_clte || '') + ' ' + (np.nombre_clte || '')
-                    : np.nombre_emp || '',
-                'codigo_prod': np.codigo_prod || '',
-                'cantidad_nepd': np.cantidad_nepd,
-                'cost_uni_nepd': np.cost_uni_nepd,
-                'observacion_ne': ne ? ne.observacion_ne : ''
-            };
-        });
+                    'N° NE': ne ? ne.numero_ne : '',
+                    'FECHA': ne ? ne.fecha_oc : '',
+                    'Cliente': np.id_emp == 77
+                        ? (np.apellido_clte || '') + ' ' + (np.nombre_clte || '')
+                        : np.nombre_emp || '',
+                    'codigo_prod': np.codigo_prod || '',
+                    'cantidad_nepd': np.cantidad_nepd,
+                    'cost_uni_nepd': np.cost_uni_nepd,
+                    'observacion_ne': ne ? ne.observacion_ne : ''
+                };
+            });
         downloadAsCSV(pendientes, 'Productos_Pendientes_Facturacion');
     });
 }
